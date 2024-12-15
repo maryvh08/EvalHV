@@ -6,7 +6,7 @@ import os
 st.set_page_config(page_title="Evaluador de Hoja de Vida ANEIAP", layout="wide")
 
 # Imagen para la interfaz
-imagen_aneiap = 'https://github.com/maryvh08/EvalHV/blob/main/Evaluador%20Hoja%20de%20Vida%20ANEIAP%20UNINORTE.jpg'
+imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
 
 with st.container():
     st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí :lion:")
