@@ -12,7 +12,7 @@ with st.container():
     st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí :lion:")
     st.title("Evaluador de Hoja de Vida ANEIAP UNINORTE")
     st.write("Con solo tu hoja de vida ANEIAP (en formato .docx) podrás averiguar qué tan preparado te encuentras para asumir un cargo dentro de la JDC-IC-CCP.")
-    st.image(imagen_aneiap, use_column_width=True)
+    st.image(imagen_aneiap, use_container_width=True)
 
 # Subir archivo
 cv_file = st.file_uploader("Sube tu hoja de vida ANEIAP (formato .docx)", type="docx")
