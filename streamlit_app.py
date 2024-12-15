@@ -5,6 +5,9 @@ from PIL import Image
 import os
 import requests
 
+git add requirements.txt
+git commit -m "Añadir archivo requirements.txt"
+git push origin main
 
 # Configura Streamlit
 st.set_page_config(page_title="Evaluador de Hoja de Vida ANEIAP", layout="wide")
