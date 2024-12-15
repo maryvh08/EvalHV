@@ -1,0 +1,170 @@
+import os
+import streamlit as st
+from docx import Document
+from google.colab import drive
+import requests
+from PIL import Image
+from docx.shared import Pt
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+
+# Montar Google Drive
+drive.mount('/content/drive')
+
+# Llama3 API Key (asegúrate de usar tu propia API Key aquí)
+API_KEY = "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"
+
+# Llama a la API de Llama3 para obtener la similitud entre textos (implementación base)
+def llama3_similarity(text1, text2, api_key):
+    """Obtiene la similitud entre dos textos utilizando la API Llama3."""
+    url = "https://api.groq.cloud/llama3/similarity"
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    data = {
+        "text1": text1,
+        "text2": text2
+    }
+    response = requests.post(url, json=data, headers=headers)
+    if response.status_code == 200:
+        return response.json()['similarity']
+    else:
+        print("Error al obtener la similitud de Llama3.")
+        return 0.0
+
+# Función para cargar los documentos de funciones y perfil según el cargo
+def load_job_documents(cargo):
+    rutas = {
+        "PC": {
+            "funciones": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/PC/FPC.docx",
+            "perfil": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/PC/PPC.docx",
+        },
+        "DCA": {
+            "funciones": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/DCA/FDCA.docx",
+            "perfil": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/DCA/PDCA.docx",
+        },
+        "DCC": {
+            "funciones": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/DCC/FDCC.docx",
+            "perfil": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/DCC/PDCC.docx",
+        },
+        "DCD": {
+            "funciones": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/DCD/FDCD.docx",
+            "perfil": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/DCD/PDCD.docx",
+        },
+        "DCF": {
+            "funciones": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/DCD/FDCF.docx",
+            "perfil": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/DCD/PDCF.docx",
+        },
+        "DCM": {
+            "funciones": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/DCM/FDCM.docx",
+            "perfil": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/DCM/PDCM.docx",
+        },
+        "CCP": {
+            "funciones": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/CCP/FCCP.docx",
+            "perfil": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/CCP/PCCP.docx",
+        },
+        "IC": {
+            "funciones": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/IC/FIC.docx",
+            "perfil": "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/JATDT/CARGOS/IC/PIC.docx",
+        },
+    }
+    return rutas.get(cargo, {})
+
+# Extracción del contenido de interés (Experiencia ANEIAP)
+def extract_experience_aneiap(doc):
+    """Extrae el texto de la sección 'EXPERIENCIA EN ANEIAP'."""
+    text = ""
+    paragraphs = [para.text for para in doc.paragraphs if para.text.strip()]
+    extract = False
+    for para in paragraphs:
+        if "EXPERIENCIA EN ANEIAP" in para.upper():
+            extract = True
+        elif extract and any(keyword in para.upper() for keyword in ["EVENTOS ORGANIZADOS", "ASISTENCIA A EVENTOS ANEIAP"]):
+            break
+        elif extract:
+            text += para + "\n"
+    return text.strip()
+
+# Comparación de textos usando Llama3
+def analyze_similarity(texts, reference_text, api_key):
+    """Analiza la similitud de una lista de textos con un texto de referencia utilizando Llama3."""
+    similarities = []
+    for text in texts:
+        similarity = llama3_similarity(text, reference_text, api_key)
+        similarities.append(similarity)
+    return similarities
+
+# Generación del reporte
+def generate_report(experience_text, func_text, profile_text, cargo, candidate_name, api_key):
+    """Genera un reporte de análisis y lo exporta como archivo .docx."""
+    # Separar los ítems de experiencia en ANEIAP
+    experience_items = [item.strip() for item in experience_text.split('\n') if item.strip()]
+
+    # Crear documento
+    doc = Document()
+
+    # Título del reporte
+    title = doc.add_paragraph("REPORTE ANÁLISIS HOJA DE VIDA")
+    title.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    run_title = title.runs[0]
+    run_title.font.bold = True
+    run_title.font.size = Pt(16)
+    run_title.font.name = "Century Gothic"
+
+    # Evaluar cada ítem de la sección "EXPERIENCIA EN ANEIAP"
+    item_similarities_func = []
+    item_similarities_prof = []
+
+    for item in experience_items:
+        # Usar Llama3 para comparar cada ítem con las funciones y perfil
+        similarity_func = analyze_similarity([item], func_text, api_key)[0]
+        similarity_prof = analyze_similarity([item], profile_text, api_key)[0]
+        item_similarities_func.append(max(similarity_func, 0.0))
+        item_similarities_prof.append(max(similarity_prof, 0.0))
+
+    # Promediar las similitudes para las funciones y el perfil
+    avg_similarity_func = sum(item_similarities_func) / len(item_similarities_func) if item_similarities_func else 0
+    avg_similarity_prof = sum(item_similarities_prof) / len(item_similarities_prof) if item_similarities_prof else 0
+
+    # Incluir los resultados en el reporte
+    doc.add_paragraph(f"Similitud promedio con las funciones: {avg_similarity_func * 100:.2f}%")
+    doc.add_paragraph(f"Similitud promedio con el perfil: {avg_similarity_prof * 100:.2f}%")
+
+    # Conclusión
+    if avg_similarity_func < 0.5 or avg_similarity_prof < 0.5:
+        doc.add_paragraph(f"- Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo "
+            f"de {cargo}. Se recomienda enfocar esfuerzos en mejorar su perfil.")
+    elif avg_similarity_func < 0.75 or avg_similarity_prof < 0.75:
+        doc.add_paragraph(f"- Buena Concordancia (≥ 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones "
+            f"y el perfil. Aún hay margen para mejorar.")
+    else:
+        doc.add_paragraph(f"- Alta Concordancia (≥ 0.75): El análisis muestra una excelente concordancia entre la experiencia de {candidate_name} "
+            f"y el perfil buscado para el cargo de {cargo}. Se recomienda considerar a {candidate_name} para el cargo.")
+
+    # Agradecimiento
+    doc.add_paragraph(f"Muchas gracias {candidate_name} por tu interés en convertirte en {cargo}. ¡Éxitos en tu proceso!").runs[0].font.name = "Century Gothic"
+
+    # Guardar el archivo
+    doc.save(f"Reporte_{candidate_name}_{cargo}.docx")
+    return f"Reporte_{candidate_name}_{cargo}.docx"
+
+# Aplicación Streamlit
+with st.container():
+    st.header("Carga tu información")
+    candidate_name = st.text_input("Nombre del candidato:")
+    cargo = st.selectbox("Selecciona el cargo al que aspiras:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "IC", "CCP"])
+    cv_file = st.file_uploader("Carga tu hoja de vida ANEIAP (.docx):", type="docx")
+
+    if st.button("Generar Reporte"):
+        if candidate_name and cargo and cv_file:
+            # Cargar documentos de funciones y perfil
+            job_documents = load_job_documents(cargo)
+            func_text = extract_experience_aneiap(Document(job_documents['funciones']))
+            profile_text = extract_experience_aneiap(Document(job_documents['perfil']))
+
+            # Cargar la hoja de vida ANEIAP
+            cv_document = Document(cv_file)
+            experience_text = extract_experience_aneiap(cv_document)
+
+            # Generar reporte
+            report_file = generate_report(experience_text, func_text, profile_text, cargo, candidate_name, API_KEY)
+            st.download_button(label="Descargar Reporte", data=open(report_file, "rb"), file_name=report_file)
+        else:
+            st.warning("Por favor, completa todos los campos.")
