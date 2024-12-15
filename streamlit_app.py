@@ -33,13 +33,6 @@ def load_job_documents(cargo):
         "CCP": {"funciones": base_path + "CARGOS JUNTA/FCCP.docx", "perfil": base_path + "CARGOS JUNTA/PCCP.docx"},
         "IC": {"funciones": base_path + "CARGOS JUNTA/FIC.docx", "perfil": base_path + "CARGOS JUNTA/PIC.docx"}
     }
-# Inputs del usuario
-with st.container():
-    st.header("Carga tu información")
-    candidate_name = st.text_input("Nombre del candidato:")
-    cargo = st.selectbox("Selecciona el cargo al que aspiras:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "IC", "CCP"])
-    cv_file = st.file_uploader("Carga tu hoja de vida ANEIAP (.docx):", type=["docx"])
-    job_document = documentos.get(cargo, None)
     
     # Verificar existencia de los archivos
     if job_document:
