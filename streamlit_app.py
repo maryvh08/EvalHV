@@ -130,11 +130,6 @@ with st.container():
     cargo = st.selectbox("Selecciona el cargo al que aspiras:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "IC", "CCP"])
     cv_file = st.file_uploader("Carga tu hoja de vida ANEIAP (.docx):", type=["docx"])
 
-# Cargar los documentos de funciones y perfil del cargo
-documents = load_job_documents(cargo)
-func_text = Document(documents['funciones']).paragraphs
-profile_text = Document(documents['perfil']).paragraphs
-
 # Extracción del contenido de interés (Experiencia ANEIAP)
 def extract_experience_aneiap(doc):
     """Extrae el texto de la sección 'EXPERIENCIA EN ANEIAP'."""
