@@ -2,6 +2,8 @@ import streamlit as st
 from PIL import Image
 import os
 import requests
+from docx import Document
+
 
 # Configura Streamlit
 st.set_page_config(page_title="Evaluador de Hoja de Vida ANEIAP", layout="wide")
