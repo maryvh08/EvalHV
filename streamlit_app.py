@@ -163,7 +163,9 @@ def generate_report(experience_text, func_text, profile_text, cargo, candidate_n
         for docx_file in docx_files:
             doc = Document(docx_file)
             experience_text += extract_experience_aneiap(doc) + "\n"
-        
+
+        api_key = st.text_input("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")
+
         # Generar el reporte
         report_filename = generate_report(experience_text, func_text, profile_text, cargo, "Candidato", api_key)
         st.success(f"Reporte generado: {report_filename}")
@@ -175,7 +177,6 @@ uploaded_zip = st.file_uploader("Suba un archivo .zip con hojas de vida ANEIAP",
 # Función para manejar la carga y análisis
 candidate_name = st.text_input("Nombre del candidato:")
 cargo = st.selectbox("Seleccione el cargo que desea evaluar:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC"])
-api_key = st.text_input("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")
 
 if st.button("Evaluar"):
     if not candidate_name or not cargo or not cv_file:
