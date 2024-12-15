@@ -4,7 +4,6 @@ import os
 
 # Configura Streamlit
 st.set_page_config(page_title="Evaluador de Hoja de Vida ANEIAP", layout="wide")
-st.image("path/to/your/image.jpg", use_container_width=True)
 
 # Imagen para la interfaz
 imagen_aneiap = 'https://github.com/maryvh08/EvalHV/blob/main/Evaluador%20Hoja%20de%20Vida%20ANEIAP%20UNINORTE.jpg'
