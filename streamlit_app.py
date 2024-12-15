@@ -1,8 +1,9 @@
+python-docx
+streamlit
 import streamlit as st
 from PIL import Image
 import os
 import requests
-from docx import Document
 
 
 # Configura Streamlit
