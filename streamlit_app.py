@@ -15,9 +15,9 @@ with st.container():
     st.image(imagen_aneiap, use_container_width=True)
 
 # Función para cargar documentos de funciones y perfil
-def load_job_documents(cargo):
+def load_job_docs(cargo):
     base_path = "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/EVALUADOR HOJA DE VIDA ANEIAP/"
-    documentos = {
+    job_docs = {
         "PC": {"funciones": base_path + "CARGOS JUNTA/FPC.docx", "perfil": base_path + "CARGOS JUNTA/PPC.docx"},
         "DCA": {"funciones": base_path + "CARGOS JUNTA/FDCA.docx", "perfil": base_path + "CARGOS JUNTA/PDCA.docx"},
         "DCC": {"funciones": base_path + "CARGOS JUNTA/FDCC.docx", "perfil": base_path + "CARGOS JUNTA/PDCC.docx"},
@@ -152,7 +152,7 @@ if st.button("Evaluar"):
     else:
         st.info("Procesando tu información, por favor espera...")
         job_docs = load_job_documents(cargo)
-        if not documentos:
+        if not job_docs:
             st.error(f"No se encontraron documentos para el cargo {cargo}.")
         else:
             nlp = spacy.load("es_core_news_md")  # Cargar modelo de SpaCy
