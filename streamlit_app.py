@@ -151,7 +151,7 @@ if st.button("Evaluar"):
         st.error("Por favor, llena todos los campos y carga tu hoja de vida.")
     else:
         st.info("Procesando tu información, por favor espera...")
-        job_docs = load_job_documents(cargo)
+        job_docs = load_job_docs(cargo)
         if not job_docs:
             st.error(f"No se encontraron documentos para el cargo {cargo}.")
         else:
