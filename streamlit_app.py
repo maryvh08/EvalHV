@@ -33,22 +33,6 @@ def load_job_documents(cargo):
         "CCP": {"funciones": base_path + "CARGOS JUNTA/FCCP.docx", "perfil": base_path + "CARGOS JUNTA/PCCP.docx"},
         "IC": {"funciones": base_path + "CARGOS JUNTA/FIC.docx", "perfil": base_path + "CARGOS JUNTA/PIC.docx"}
     }
-    
-    # Verificar existencia de los archivos
-    if job_document:
-        funciones_path = job_document["funciones"]
-        perfil_path = job_document["perfil"]
-        
-        # Verificar si los archivos existen
-        if os.path.exists(funciones_path) and os.path.exists(perfil_path):
-            print(f"Documentos encontrados para {cargo}")
-            return job_document
-        else:
-            print(f"Error: Archivos no encontrados para el cargo {cargo}")
-            return None
-    else:
-        print(f"No se encontró información para el cargo {cargo}")
-        return None
 
 # Función para analizar el CV (simulada)
 def analyze_cv(cv_file, funciones, perfil, nlp=None):
