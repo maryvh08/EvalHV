@@ -152,22 +152,21 @@ if st.button("Evaluar"):
     else:
         st.info("Procesando tu información, por favor espera...")
         job_docs = load_job_docs(cargo)
-        
-        else:
-            nlp = spacy.load("es_core_news_md")  # Cargar modelo de SpaCy
-            similarity_score = analyze_cv(cv_file, job_docs["funciones"], job_docs["perfil"], nlp)
-            st.success(f"Porcentaje de afinidad: {similarity_score * 100:.2f}%")
-            report = generate_report(candidate_name, cargo, similarity_score)
-            report_name = f"Reporte_Analisis_Hoja_de_Vida_{cargo}_{candidate_name}.docx"
-            report.save(report_name)
+       
+        nlp = spacy.load("es_core_news_md")  # Cargar modelo de SpaCy
+        similarity_score = analyze_cv(cv_file, job_docs["funciones"], job_docs["perfil"], nlp)
+        st.success(f"Porcentaje de afinidad: {similarity_score * 100:.2f}%")
+        report = generate_report(candidate_name, cargo, similarity_score)
+        report_name = f"Reporte_Analisis_Hoja_de_Vida_{cargo}_{candidate_name}.docx"
+        report.save(report_name)
 
-            # Botón para descargar el reporte
-            with open(report_name, "rb") as file:
-                btn = st.download_button(
-                    label="Descargar Reporte",
-                    data=file,
-                    file_name=report_name,
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                )
+        # Botón para descargar el reporte
+        with open(report_name, "rb") as file:
+            btn = st.download_button(
+                label="Descargar Reporte",
+                data=file,
+                file_name=report_name,
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            )
 
 
