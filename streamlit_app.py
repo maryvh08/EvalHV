@@ -1,6 +1,10 @@
 import streamlit as st
 from PIL import Image
 import os
+import requests
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
 # Configura Streamlit
 st.set_page_config(page_title="Evaluador de Hoja de Vida ANEIAP", layout="wide")
@@ -27,6 +31,27 @@ def load_job_docs(cargo):
         "CCP": {"funciones": base_path + "CARGOS JUNTA/FCCP.docx", "perfil": base_path + "CARGOS JUNTA/PCCP.docx"},
         "IC": {"funciones": base_path + "CARGOS JUNTA/FIC.docx", "perfil": base_path + "CARGOS JUNTA/PIC.docx"}
     }
+    return job_docs[cargo]
+
+# Función para comparar similitudes usando Llama3
+def llama3_similarity(text, reference_text, api_key):
+    """Usa la API de Llama3 para calcular la similitud entre dos textos."""
+    url = "https://api.llama3.com/v1/similarity"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "text1": text,
+        "text2": reference_text
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 200:
+        similarity_score = response.json()["similarity"]
+        return similarity_score
+    else:
+        st.error("Error en la API de Llama3")
+        return 0
 
 # Extracción del contenido de interés (Experiencia ANEIAP)
 def extract_experience_aneiap(doc):
@@ -42,15 +67,6 @@ def extract_experience_aneiap(doc):
         elif extract:
             text += para + "\n"
     return text.strip()
-
-# Comparación de textos usando Llama3
-def analyze_similarity(texts, reference_text, api_key):
-    """Analiza la similitud de una lista de textos con un texto de referencia utilizando Llama3."""
-    similarities = []
-    for text in texts:
-        similarity = llama3_similarity(text, reference_text, api_key)
-        similarities.append(similarity)
-    return similarities
 
 # Generación del reporte
 def generate_report(experience_text, func_text, profile_text, cargo, candidate_name, api_key):
@@ -75,8 +91,8 @@ def generate_report(experience_text, func_text, profile_text, cargo, candidate_n
 
     for item in experience_items:
         # Usar Llama3 para comparar cada ítem con las funciones y perfil
-        similarity_func = analyze_similarity([item], func_text, api_key)[0]
-        similarity_prof = analyze_similarity([item], profile_text, api_key)[0]
+        similarity_func = llama3_similarity(item, func_text, api_key)
+        similarity_prof = llama3_similarity(item, profile_text, api_key)
         item_similarities_func.append(max(similarity_func, 0.0))
         item_similarities_prof.append(max(similarity_prof, 0.0))
 
@@ -112,61 +128,38 @@ def generate_report(experience_text, func_text, profile_text, cargo, candidate_n
         f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que los candidatos estén bien preparados "
         f"para el rol de {cargo}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una "
         f"posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia "
-        f"deberían continuar desarrollando su experiencia, mientras que los aspirantes con baja concordancia deberían recibir orientación para "
-        f"mejorar su perfil profesional y acumular más experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una "
-        f"evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el impacto del Capítulo.")
+        f"deberían continuar desarrollando su experiencia, mientras que los con baja concordancia deben enfocarse en adquirir más preparación.")
 
     # Mensaje de agradecimiento
-    doc.add_paragraph(f"\nMuchas gracias {candidate_name} por tu interés en convertirte en {cargo}. ¡Éxitos en tu proceso!").runs[0].font.name = "Century Gothic"
-    format_paragraph(doc.paragraphs[-1])
+    doc.add_paragraph(f"Muchas gracias {candidate_name} por tu interés en convertirte en {cargo}, ¡éxitos en tu proceso!")
 
-    # Guardar el archivo
-    doc.save(f"Reporte_{candidate_name}_{cargo}.docx")
+    # Guardar el reporte
+    output_filename = f"{candidate_name}_Reporte_ANEIAP_{cargo}.docx"
+    doc.save(output_filename)
 
-# Inputs del usuario
-with st.container():
-    st.header("Carga tu información")
-    candidate_name = st.text_input("Nombre del candidato:")
-    cargo = st.selectbox("Selecciona el cargo al que aspiras:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "IC", "CCP"])
-    cv_file = st.file_uploader("Carga tu hoja de vida ANEIAP (.docx):", type=["docx"])
+    # Descargar el reporte
+    st.download_button(
+        label="Descargar Reporte",
+        data=open(output_filename, "rb").read(),
+        file_name=output_filename,
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
 
-# Extracción del contenido de interés (Experiencia ANEIAP)
-def extract_experience_aneiap(doc):
-    """Extrae el texto de la sección 'EXPERIENCIA EN ANEIAP'."""
-    text = ""
-    paragraphs = [para.text for para in doc.paragraphs if para.text.strip()]
-    extract = False
-    for para in paragraphs:
-        if "EXPERIENCIA EN ANEIAP" in para.upper():
-            extract = True
-        elif extract and any(keyword in para.upper() for keyword in ["EVENTOS ORGANIZADOS", "ASISTENCIA A EVENTOS ANEIAP"]):
-            break
-        elif extract:
-            text += para + "\n"
-    return text.strip()
+# Flujo de la aplicación
+cargo = st.selectbox("Selecciona el cargo:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC"])
+candidate_name = st.text_input("Nombre del candidato:")
+uploaded_file = st.file_uploader("Cargar hoja de vida ANEIAP (formato .docx)", type="docx")
 
-# Procesar y mostrar resultados
-if st.button("Evaluar"):
-    if not candidate_name or not cargo or not cv_file:
-        st.error("Por favor, llena todos los campos y carga tu hoja de vida.")
-    else:
-        st.info("Procesando tu información, por favor espera...")
-        job_docs = load_job_docs(cargo)
-       
-        nlp = spacy.load("es_core_news_md")  # Cargar modelo de SpaCy
-        similarity_score = analyze_cv(cv_file, job_docs["funciones"], job_docs["perfil"], nlp)
-        st.success(f"Porcentaje de afinidad: {similarity_score * 100:.2f}%")
-        report = generate_report(candidate_name, cargo, similarity_score)
-        report_name = f"Reporte_Analisis_Hoja_de_Vida_{cargo}_{candidate_name}.docx"
-        report.save(report_name)
+api_key = "tu_api_key_llama3"
 
-        # Botón para descargar el reporte
-        with open(report_name, "rb") as file:
-            btn = st.download_button(
-                label="Descargar Reporte",
-                data=file,
-                file_name=report_name,
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            )
+if uploaded_file and cargo and candidate_name:
+    doc = Document(uploaded_file)
+    experience_text = extract_experience_aneiap(doc)
+    job_docs = load_job_docs(cargo)
+    func_doc = Document(job_docs["funciones"])
+    profile_doc = Document(job_docs["perfil"])
 
+    func_text = "\n".join([para.text for para in func_doc.paragraphs if para.text.strip()])
+    profile_text = "\n".join([para.text for para in profile_doc.paragraphs if para.text.strip()])
 
+    generate_report(experience_text, func_text, profile_text, cargo, candidate_name, api_key)
