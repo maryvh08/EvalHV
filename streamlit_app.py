@@ -95,7 +95,3 @@ if cv_file and cargo:
             st.error(f"Error al leer los archivos: {e}")
     else:
         st.error("No se encontraron documentos para el cargo seleccionado.")
-
-# Configura ngrok para hacer accesible la aplicación
-public_url = ngrok.connect(8501, "http")
-print(f"Tu aplicación está disponible en: {public_url}")
