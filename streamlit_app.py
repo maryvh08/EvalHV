@@ -1,4 +1,4 @@
-pip install python-docx
+!pip install python-docx
 
 import streamlit as st
 from PIL import Image
