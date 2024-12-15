@@ -179,7 +179,7 @@ candidate_name = st.text_input("Nombre del candidato:")
 cargo = st.selectbox("Seleccione el cargo que desea evaluar:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC"])
 
 if st.button("Evaluar"):
-    if not candidate_name or not cargo or not cv_file:
+    if not candidate_name or not cargo or not uploaded_zip:
         st.error("Por favor, llena todos los campos y carga tu hoja de vida.")
 
 if uploaded_zip:
