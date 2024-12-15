@@ -148,7 +148,16 @@ def generate_report(experience_text, func_text, profile_text, cargo, candidate_n
     doc.save(report_filename)
 
     return report_filename
+    
+# Flujo de la aplicación
+cargo = st.selectbox("Selecciona el cargo:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC"])
+candidate_name = st.text_input("Nombre del candidato:")
+uploaded_file = st.file_uploader("Cargar hoja de vida ANEIAP (formato .docx)", type="docx")
 
+if st.button("Evaluar"):
+    if not candidate_name or not cargo or not cv_file:
+        st.error("Por favor, llena todos los campos y carga tu hoja de vida.")
+        
 # Función para manejar la carga y análisis
 def handle_uploaded_files(uploaded_zip):
     cargo = st.selectbox("Seleccione el cargo que desea evaluar:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC"])
