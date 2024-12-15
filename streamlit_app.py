@@ -158,8 +158,8 @@ if uploaded_file and cargo and candidate_name:
     doc = Document(uploaded_file)
     experience_text = extract_experience_aneiap(doc)
     job_docs = load_job_docs(cargo)
-    func_doc = Document(job_docs["funciones"])
-    profile_doc = Document(job_docs["perfil"])
+    func_doc = job_docs["funciones"]
+    profile_doc = job_docs["perfil"]
 
     func_text = "\n".join([para.text for para in func_doc.paragraphs if para.text.strip()])
     profile_text = "\n".join([para.text for para in profile_doc.paragraphs if para.text.strip()])
