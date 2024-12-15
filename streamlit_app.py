@@ -165,11 +165,4 @@ if uploaded_file and cargo and candidate_name:
 
     generate_report(experience_text, func_text, profile_text, cargo, candidate_name, api_key)
 
-# Botón para descargar el reporte
-with open(report_name, "rb") as file:
-    btn = st.download_button(
-        label="Descargar Reporte",
-        data=file,
-        file_name=report_name,
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    )
+
