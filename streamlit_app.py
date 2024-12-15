@@ -24,14 +24,14 @@ cargo = st.selectbox("Selecciona el cargo al que aspiras:", ["PC", "DCA", "DCC",
 def load_job_documents(cargo):
     base_path = "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/EVALUADOR HOJA DE VIDA ANEIAP/"
     documentos = {
-        "PC": {"funciones": base_path + "funciones_pc.txt", "perfil": base_path + "perfil_pc.txt"},
-        "DCA": {"funciones": base_path + "funciones_dca.txt", "perfil": base_path + "perfil_dca.txt"},
-        "DCC": {"funciones": base_path + "funciones_dcc.txt", "perfil": base_path + "perfil_dcc.txt"},
-        "DCD": {"funciones": base_path + "funciones_dcd.txt", "perfil": base_path + "perfil_dcd.txt"},
-        "DCF": {"funciones": base_path + "funciones_dcf.txt", "perfil": base_path + "perfil_dcf.txt"},
-        "DCM": {"funciones": base_path + "funciones_dcm.txt", "perfil": base_path + "perfil_dcm.txt"},
-        "CCP": {"funciones": base_path + "funciones_ccp.txt", "perfil": base_path + "perfil_ccp.txt"},
-        "IC": {"funciones": base_path + "funciones_ic.txt", "perfil": base_path + "perfil_ic.txt"},
+        "PC": {"funciones": base_path + "CARGOS JUNTA/FPC.docx", "perfil": base_path + "CARGOS JUNTA/PPC.docx"},
+        "DCA": {"funciones": base_path + "CARGOS JUNTA/FDCA.docx", "perfil": base_path + "CARGOS JUNTA/PDCA.docx"},
+        "DCC": "funciones": base_path + "CARGOS JUNTA/FDCC.docx", "perfil": base_path + "CARGOS JUNTA/PDCC.docx"},
+        "DCD": "funciones": base_path + "CARGOS JUNTA/FDCD.docx", "perfil": base_path + "CARGOS JUNTA/PDCD.docx"},
+        "DCF": "funciones": base_path + "CARGOS JUNTA/FDCF.docx", "perfil": base_path + "CARGOS JUNTA/PDCF.docx"},
+        "DCM": "funciones": base_path + "CARGOS JUNTA/FDCM.docx", "perfil": base_path + "CARGOS JUNTA/PDCM.docx"},
+        "CCP": {"funciones": base_path + "CARGOS JUNTA/FCCP.docx", "perfil": base_path + "CARGOS JUNTA/PCCP.docx"},
+        "IC": "funciones": base_path + "CARGOS JUNTA/FIC.docx", "perfil": base_path + "CARGOS JUNTA/PIC.docx"},
     }
 
     job_document = documentos.get(cargo, None)
