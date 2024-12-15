@@ -14,12 +14,6 @@ with st.container():
     st.write("Con solo tu hoja de vida ANEIAP (en formato .docx) podrás averiguar qué tan preparado te encuentras para asumir un cargo dentro de la JDC-IC-CCP.")
     st.image(imagen_aneiap, use_container_width=True)
 
-# Subir archivo
-cv_file = st.file_uploader("Sube tu hoja de vida ANEIAP (formato .docx)", type="docx")
-
-# Seleccionar cargo
-cargo = st.selectbox("Selecciona el cargo al que aspiras:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC"])
-
 # Función para cargar documentos de funciones y perfil
 def load_job_documents(cargo):
     base_path = "/content/drive/MyDrive/HERRAMIENTAS EN COLLAB/EVALUADOR HOJA DE VIDA ANEIAP/"
