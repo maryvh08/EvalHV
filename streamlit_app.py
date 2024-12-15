@@ -152,8 +152,7 @@ if st.button("Evaluar"):
     else:
         st.info("Procesando tu información, por favor espera...")
         job_docs = load_job_docs(cargo)
-        if not job_docs:
-            st.error(f"No se encontraron documentos para el cargo {cargo}.")
+        
         else:
             nlp = spacy.load("es_core_news_md")  # Cargar modelo de SpaCy
             similarity_score = analyze_cv(cv_file, job_docs["funciones"], job_docs["perfil"], nlp)
