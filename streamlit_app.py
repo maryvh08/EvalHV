@@ -172,7 +172,7 @@ def generate_report(experience_text, func_text, profile_text, cargo, candidate_n
         st.download_button("Descargar reporte", report_filename)
         
 # Interfaz para subir el archivo .zip
-uploaded_zip = st.file_uploader("Suba un archivo .zip con hojas de vida ANEIAP", type="zip")
+uploaded_zip = st.file_uploader("Suba un archivo .zip con hojas de vida ANEIAP", type="docx")
 
 # Función para manejar la carga y análisis
 candidate_name = st.text_input("Nombre del candidato:")
