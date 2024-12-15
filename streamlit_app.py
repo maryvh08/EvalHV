@@ -147,7 +147,11 @@ cargo = st.selectbox("Selecciona el cargo:", ["PC", "DCA", "DCC", "DCD", "DCF", 
 candidate_name = st.text_input("Nombre del candidato:")
 uploaded_file = st.file_uploader("Cargar hoja de vida ANEIAP (formato .docx)", type="docx")
 
-api_key = "tu_api_key_llama3"
+if st.button("Evaluar"):
+    if not candidate_name or not cargo or not cv_file:
+        st.error("Por favor, llena todos los campos y carga tu hoja de vida.")
+        
+api_key = "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"
 
 if uploaded_file and cargo and candidate_name:
     doc = Document(uploaded_file)
@@ -160,3 +164,12 @@ if uploaded_file and cargo and candidate_name:
     profile_text = "\n".join([para.text for para in profile_doc.paragraphs if para.text.strip()])
 
     generate_report(experience_text, func_text, profile_text, cargo, candidate_name, api_key)
+
+# Botón para descargar el reporte
+with open(report_name, "rb") as file:
+    btn = st.download_button(
+        label="Descargar Reporte",
+        data=file,
+        file_name=report_name,
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    )
