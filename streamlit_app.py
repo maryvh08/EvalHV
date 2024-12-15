@@ -1,10 +1,7 @@
 import streamlit as st
 from PIL import Image
 import os
-import zipfile
-import io
 import requests
-from docx import Document
 
 # Configura Streamlit
 st.set_page_config(page_title="Evaluador de Hoja de Vida ANEIAP", layout="wide")
@@ -68,17 +65,6 @@ def extract_experience_aneiap(doc):
             text += para + "\n"
     return text.strip()
 
-# Función para extraer documentos .docx de un archivo zip
-def extract_docx_from_zip(uploaded_zip):
-    """Extrae los archivos .docx de un archivo zip cargado."""
-    docx_files = []
-    with zipfile.ZipFile(uploaded_zip, "r") as zip_ref:
-        for file in zip_ref.namelist():
-            if file.endswith(".docx"):
-                with zip_ref.open(file) as doc_file:
-                    docx_files.append(io.BytesIO(doc_file.read()))
-    return docx_files
-
 # Generación del reporte
 def generate_report(experience_text, func_text, profile_text, cargo, candidate_name, api_key):
     """Genera un reporte de análisis y lo exporta como archivo .docx."""
@@ -138,49 +124,43 @@ def generate_report(experience_text, func_text, profile_text, cargo, candidate_n
     doc.add_paragraph(
         f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que los candidatos estén bien preparados "
         f"para el rol de {cargo}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una "
-        f"posición ideal para contribuir efectivamente al liderazgo de la Junta Directiva Capitular.")
+        f"posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia "
+        f"deberían continuar desarrollando su experiencia, mientras que los con baja concordancia deben enfocarse en adquirir más preparación.")
 
-    # Agregar agradecimiento
+    # Mensaje de agradecimiento
     doc.add_paragraph(f"Muchas gracias {candidate_name} por tu interés en convertirte en {cargo}, ¡éxitos en tu proceso!")
 
-    # Guardar archivo de reporte
-    report_filename = f"reporte_{candidate_name}_{cargo}.docx"
-    doc.save(report_filename)
+    # Guardar el reporte
+    output_filename = f"{candidate_name}_Reporte_ANEIAP_{cargo}.docx"
+    doc.save(output_filename)
 
-    return report_filename
+    # Descargar el reporte
+    st.download_button(
+        label="Descargar Reporte",
+        data=open(output_filename, "rb").read(),
+        file_name=output_filename,
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
 
-    if uploaded_zip and cargo and api_key:
-        # Cargar archivos de funciones y perfil
-        docs = load_job_docs(cargo)
-        func_text = Document(docs["funciones"]).text
-        profile_text = Document(docs["perfil"]).text
-
-        # Extraer archivos .docx del ZIP
-        docx_files = extract_docx_from_zip(uploaded_zip)
-
-        # Procesar documentos y analizar
-        experience_text = ""
-        for docx_file in docx_files:
-            doc = Document(docx_file)
-            experience_text += extract_experience_aneiap(doc) + "\n"
-
-        api_key = st.text_input("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")
-
-        # Generar el reporte
-        report_filename = generate_report(experience_text, func_text, profile_text, cargo, "Candidato", api_key)
-        st.success(f"Reporte generado: {report_filename}")
-        st.download_button("Descargar reporte", report_filename)
-        
-# Interfaz para subir el archivo .zip
-uploaded_zip = st.file_uploader("Suba un archivo .zip con hojas de vida ANEIAP", type="docx")
-
-# Función para manejar la carga y análisis
+# Flujo de la aplicación
+cargo = st.selectbox("Selecciona el cargo:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC"])
 candidate_name = st.text_input("Nombre del candidato:")
-cargo = st.selectbox("Seleccione el cargo que desea evaluar:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC"])
+uploaded_file = st.file_uploader("Cargar hoja de vida ANEIAP (formato .docx)", type="docx")
 
 if st.button("Evaluar"):
-    if not candidate_name or not cargo or not uploaded_zip:
+    if not candidate_name or not cargo or not cv_file:
         st.error("Por favor, llena todos los campos y carga tu hoja de vida.")
+        
+api_key = "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"
 
-if uploaded_zip:
-    handle_uploaded_files(uploaded_zip)
+if uploaded_file and cargo and candidate_name:
+    doc = Document(uploaded_file)
+    experience_text = extract_experience_aneiap(doc)
+    job_docs = load_job_docs(cargo)
+    func_doc = Document(job_docs["funciones"])
+    profile_doc = Document(job_docs["perfil"])
+
+    func_text = "\n".join([para.text for para in func_doc.paragraphs if para.text.strip()])
+    profile_text = "\n".join([para.text for para in profile_doc.paragraphs if para.text.strip()])
+
+    generate_report(experience_text, func_text, profile_text, cargo, candidate_name, api_key)
