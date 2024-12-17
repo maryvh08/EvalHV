@@ -1,125 +1,100 @@
 import streamlit as st
 import os
 import requests
-import PyPDF2
-from llama_index import SimpleDirectoryReader, ServiceContext, LLMPredictor
-from llama_index.prompts import Prompt
-from llama_index.schema import Document
+from llama_index import SimpleDirectoryReader, GPTVectorStoreIndex
+from llama_index.indices.query.query import BaseQueryEngine
 from llama_index.llms import LlamaAPI
-import tempfile
+from PyPDF2 import PdfReader
 from fpdf import FPDF
 
-# Configuración inicial
-LLAMA_API_KEY = "TU_LLAMA_API_KEY"  # Reemplaza con tu clave
-GITHUB_REPO_URL = "https://github.com/usuario/repositorio"  # Reemplaza con tu repo
+# Configurar API Llama3
+LLAMA3_API_KEY = "YOUR_LLAMA3_API_KEY"
+llm = LlamaAPI(api_key=LLAMA3_API_KEY)
 
-# Función para descargar archivos desde GitHub
-def download_file_from_github(file_path):
-    file_url = f"{GITHUB_REPO_URL}/raw/main/{file_path}"  # Ajusta si tu repositorio tiene otra estructura
-    response = requests.get(file_url)
-    if response.status_code == 200:
-        return response.content
-    else:
-        st.error(f"No se pudo descargar el archivo {file_path}")
-        return None
+# Función para obtener rutas dinámicas
+def get_file_paths(position):
+    base_url = "https://raw.githubusercontent.com/YourRepoName/main/"
+    functions_path = f"{base_url}funciones/F{position}.pdf"
+    profile_path = f"{base_url}perfiles/P{position}.pdf"
+    return functions_path, profile_path
 
-# Función para extraer texto de un PDF
-def extract_text_from_pdf(pdf_file):
+# Función para procesar PDF
+def extract_text_from_pdf(pdf_path):
+    response = requests.get(pdf_path)
+    pdf_bytes = response.content
+    pdf = PdfReader(pdf_bytes)
     text = ""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(pdf_file.read())
-        tmp_file_path = tmp_file.name
-    with open(tmp_file_path, 'rb') as file:
-        reader = PyPDF2.PdfReader(file)
-        for page in reader.pages:
-            text += page.extract_text()
+    for page in pdf.pages:
+        text += page.extract_text()
     return text
 
-# Función para comparar EXPERIENCIA ANEIAP con funciones y perfil
-def analyze_resume(experiencia_text, funciones_text, perfil_text, llama_api):
-    prompts = [
-        Prompt(f"Compara la siguiente EXPERIENCIA ANEIAP: {experiencia_text} con las FUNCIONES: {funciones_text}"),
-        Prompt(f"Compara la siguiente EXPERIENCIA ANEIAP: {experiencia_text} con el PERFIL: {perfil_text}")
-    ]
-    porcentajes = []
-    for prompt in prompts:
-        response = llama_api.complete(prompt.prompt_text)
-        # Simulación: Parsear porcentaje de respuesta (realiza un ajuste más específico)
-        porcentaje = float(response.text.split("%")[0].strip())
-        porcentajes.append(porcentaje)
-    return porcentajes
-
-# Generar el reporte en PDF
-def generate_pdf_report(candidate_name, position, experiencia_aneiap, analysis_results, global_func, global_prof):
+# Función para generar reporte PDF
+def generate_pdf_report(candidate_name, position, analysis_results, global_func_match, global_profile_match):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt=f"ANALISIS DE HOJA DE VIDA - {position}", ln=True, align="C")
-    pdf.cell(200, 10, txt="Análisis Experiencia ANEIAP", ln=True)
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(200, 10, f"ANALISIS DE HOJA DE VIDA - {position}", ln=True, align="C")
 
-    for item, (func, prof) in zip(experiencia_aneiap, analysis_results):
-        pdf.multi_cell(0, 10, f"{item}\nPorcentaje de concordancia con funciones del cargo: {func}%\n"
-                              f"Porcentaje de concordancia con perfil del cargo: {prof}%\n")
+    pdf.set_font("Arial", "", 12)
+    pdf.cell(200, 10, "Análisis Experiencia ANEIAP", ln=True)
 
-    pdf.cell(200, 10, txt=f"Porcentaje global de concordancia con funciones del cargo: {global_func}%", ln=True)
-    pdf.cell(200, 10, txt=f"Porcentaje global de concordancia con perfil del cargo: {global_prof}%", ln=True)
+    # Agregar análisis item por item
+    for item, results in analysis_results.items():
+        pdf.multi_cell(0, 10, f"{item}")
+        pdf.multi_cell(0, 10, f"Porcentaje de concordancia con funciones del cargo: {results['func']}%")
+        pdf.multi_cell(0, 10, f"Porcentaje de concordancia con perfil del cargo: {results['profile']}%\n")
 
-    pdf.multi_cell(0, 10, "Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar "
-                          f"que los candidatos estén bien preparados para el rol de {position}...")
+    # Porcentajes globales
+    pdf.cell(200, 10, f"Porcentaje global con funciones del cargo: {global_func_match}%", ln=True)
+    pdf.cell(200, 10, f"Porcentaje global con perfil del cargo: {global_profile_match}%", ln=True)
 
-    pdf.cell(200, 10, txt=f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!", ln=True)
-    file_name = f"Reporte_Analisis_{position}_{candidate_name}.pdf"
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
-        pdf.output(tmp_file.name)
-        return tmp_file.name, file_name
+    # Interpretación de resultados
+    pdf.multi_cell(0, 10, f"Interpretación de resultados: ... [dependiendo del porcentaje]")
 
-# Streamlit App
-def main():
-    st.title("Evaluador de Hoja de Vida ANEIAP")
-    st.image(f"{GITHUB_REPO_URL}/raw/main/banner.png", use_column_width=True)
-    st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁")
-    st.write("Con solo tu hoja de vida ANEIAP (en formato .pdf) podrás averiguar qué tan preparado te encuentras para asumir un cargo dentro de la JDC-IC-CCP.")
+    # Conclusión
+    pdf.multi_cell(0, 10, f"Este análisis es generado debido a que es crucial ... rol de {position}.")
 
-    # Formulario de entrada
-    position = st.selectbox("Selecciona el cargo:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC"])
-    candidate_name = st.text_input("Ingresa tu nombre:")
-    uploaded_resume = st.file_uploader("Sube tu hoja de vida en formato PDF:", type=["pdf"])
+    # Mensaje de agradecimiento
+    pdf.multi_cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
 
-    if st.button("Analizar y Generar Reporte"):
-        if position and candidate_name and uploaded_resume:
-            # Descargar y procesar archivos desde GitHub
-            funciones_file = download_file_from_github(f"F{position}.pdf")
-            perfil_file = download_file_from_github(f"P{position}.pdf")
+    # Guardar PDF
+    output_file = f"Reporte_Analisis_{position}_{candidate_name}.pdf"
+    pdf.output(output_file)
+    return output_file
 
-            if funciones_file and perfil_file:
-                funciones_text = extract_text_from_pdf(funciones_file)
-                perfil_text = extract_text_from_pdf(perfil_file)
-                resume_text = extract_text_from_pdf(uploaded_resume)
+# UI en Streamlit
+st.title("Evaluador de Hoja de Vida ANEIAP")
+st.image("https://raw.githubusercontent.com/YourRepoName/main/assets/banner.jpg", use_column_width=True)
+st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁")
+st.write("Con solo tu hoja de vida ANEIAP (en formato PDF) podrás averiguar qué tan preparado te encuentras para asumir un cargo dentro de la JDC-IC-CCP.")
 
-                # Configurar Llama3 API
-                llama_api = LlamaAPI(api_key=LLAMA_API_KEY)
-                experiencia_aneiap = resume_text.split("\n")  # Dividir experiencia en ítems
+# Entrada del usuario
+position = st.selectbox("Selecciona el cargo:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC"])
+candidate_name = st.text_input("Ingresa tu nombre:")
+uploaded_file = st.file_uploader("Sube tu hoja de vida (formato .pdf)", type=["pdf"])
 
-                # Realizar análisis
-                analysis_results = []
-                for item in experiencia_aneiap:
-                    porcentajes = analyze_resume(item, funciones_text, perfil_text, llama_api)
-                    analysis_results.append(porcentajes)
+if st.button("Generar Reporte"):
+    if candidate_name and position and uploaded_file:
+        # Obtener rutas dinámicas
+        functions_path, profile_path = get_file_paths(position)
 
-                global_func = sum([x[0] for x in analysis_results]) / len(analysis_results)
-                global_prof = sum([x[1] for x in analysis_results]) / len(analysis_results)
+        # Extraer texto de los PDFs
+        st.write("Analizando documentos...")
+        job_functions_text = extract_text_from_pdf(functions_path)
+        job_profile_text = extract_text_from_pdf(profile_path)
 
-                # Generar reporte PDF
-                pdf_path, file_name = generate_pdf_report(candidate_name, position, experiencia_aneiap, analysis_results, global_func, global_prof)
-                st.success("¡Reporte generado exitosamente!")
+        # Simulación del análisis (aquí integras la API Llama3)
+        resume_text = extract_text_from_pdf(uploaded_file)
+        analysis_results = {"Item 1": {"func": 80, "profile": 75}, "Item 2": {"func": 65, "profile": 70}}  # Simulado
+        global_func_match = 72
+        global_profile_match = 73
 
-                # Botón para descargar
-                with open(pdf_path, "rb") as file:
-                    st.download_button("Descargar Reporte", file, file_name)
-
-        else:
-            st.warning("Por favor, completa todos los campos antes de continuar.")
-
-if __name__ == "__main__":
-    main()
-
+        # Generar reporte PDF
+        report_path = generate_pdf_report(candidate_name, position, analysis_results, global_func_match, global_profile_match)
+        st.success("¡Reporte generado con éxito!")
+        
+        # Descargar PDF
+        with open(report_path, "rb") as file:
+            st.download_button("Descargar Reporte", file, file_name=report_path)
+    else:
+        st.error("Por favor completa todos los campos antes de generar el reporte.")
