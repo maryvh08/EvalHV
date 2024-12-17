@@ -14,8 +14,8 @@ llm = LlamaAPI(api_key=LLAMA3_API_KEY)
 # Función para obtener rutas dinámicas
 def get_file_paths(position):
     base_url = "https://raw.githubusercontent.com/EvalHV/main/"
-    functions_path = f"{base_url}funciones/F{position}.pdf"
-    profile_path = f"{base_url}perfiles/P{position}.pdf"
+    functions_path = f"{base_url}Funciones/F{position}.pdf"
+    profile_path = f"{base_url}Perfiles/P{position}.pdf"
     return functions_path, profile_path
 
 # Función para procesar PDF
