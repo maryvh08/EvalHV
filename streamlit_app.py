@@ -1,4 +1,3 @@
-streamlit run streamlit_app.py
 import llama_index
 import streamlit as st
 import os
