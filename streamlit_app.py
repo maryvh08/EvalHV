@@ -1,7 +1,12 @@
 import streamlit as st
 import os
 import requests
-from llama_index.llms import OpenAI
+
+try:
+    from llama_index.llms import OpenAI
+    print("LlamaIndex está instalado correctamente.")
+except ImportError as e:
+    print(f"Error de importación: {e}")
 
 # Configurar API Llama3
 LLAMA3_API_KEY = "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"
