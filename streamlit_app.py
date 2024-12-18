@@ -1,9 +1,20 @@
+!pip install PyPDF2
 import streamlit as st
 import os
 import requests
 import openai
 from PyPDF2 import PdfReader
 from fpdf import FPDF
+
+import os
+import subprocess
+
+# Intentar instalar PyPDF2 si no está instalado
+try:
+    from PyPDF2 import PdfReader
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "PyPDF2"])
+    from PyPDF2 import PdfReader
 
 # Configurar la clave API de OpenAI
 OPENAI_API_KEY = "tu_clave_api_de_openai_aqui"
