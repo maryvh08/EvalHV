@@ -2,11 +2,20 @@ import streamlit as st
 import os
 import requests
 import openai
-from PyPDF2 import PdfReader
 from fpdf import FPDF
-
 import os
 import subprocess
+
+import pdfplumber
+
+def extract_text_from_pdf(pdf_path):
+    response = requests.get(pdf_path)
+    pdf_bytes = response.content
+    with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+        text = ""
+        for page in pdf.pages:
+            text += page.extract_text()
+    return text
 
 # Intentar instalar PyPDF2 si no está instalado
 try:
