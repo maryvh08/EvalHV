@@ -1,7 +1,6 @@
 import streamlit as st
 import os
 import requests
-from fpdf import FPDF
 
 # Configurar API Llama3
 LLAMA3_API_KEY = "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"
