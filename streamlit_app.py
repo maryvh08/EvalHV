@@ -1,7 +1,6 @@
 import streamlit as st
 import os
 import requests
-from PyPDF2 import PdfReader
 from fpdf import FPDF
 
 # Configurar API Llama3
