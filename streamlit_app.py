@@ -1,16 +1,13 @@
 import streamlit as st
 import os
 import requests
+import openai
+from PyPDF2 import PdfReader
+from fpdf import FPDF
 
-try:
-    from llama_index.llms import OpenAI
-    print("LlamaIndex está instalado correctamente.")
-except ImportError as e:
-    print(f"Error de importación: {e}")
-
-# Configurar API Llama3
-LLAMA3_API_KEY = "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"
-llm = LlamaAPI(api_key=LLAMA3_API_KEY)
+# Configurar la clave API de OpenAI
+OPENAI_API_KEY = "tu_clave_api_de_openai_aqui"
+openai.api_key = OPENAI_API_KEY
 
 # Función para obtener rutas dinámicas
 def get_file_paths(position):
@@ -28,6 +25,20 @@ def extract_text_from_pdf(pdf_path):
     for page in pdf.pages:
         text += page.extract_text()
     return text
+
+# Función para llamar a la API de OpenAI para análisis de texto
+def analyze_text_with_openai(text):
+    try:
+        # Realizar una solicitud a OpenAI para analizar el texto
+        response = openai.Completion.create(
+            engine="text-davinci-003",  # Usamos el modelo de OpenAI
+            prompt=text,
+            max_tokens=500,  # Limitar la cantidad de tokens
+            temperature=0.5  # Controlar la creatividad
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        return f"Error al analizar el texto: {e}"
 
 # Función para generar reporte PDF
 def generate_pdf_report(candidate_name, position, analysis_results, global_func_match, global_profile_match):
@@ -84,9 +95,14 @@ if st.button("Generar Reporte"):
         job_functions_text = extract_text_from_pdf(functions_path)
         job_profile_text = extract_text_from_pdf(profile_path)
 
-        # Simulación del análisis (aquí integras la API Llama3)
+        # Simulación del análisis (aquí integras la API OpenAI)
         resume_text = extract_text_from_pdf(uploaded_file)
-        analysis_results = {"Item 1": {"func": 80, "profile": 75}, "Item 2": {"func": 65, "profile": 70}}  # Simulado
+
+        # Analizar texto con OpenAI
+        analysis_results = {
+            "Item 1": {"func": 80, "profile": 75},  # Simulación de resultados, reemplazar con análisis real
+            "Item 2": {"func": 65, "profile": 70}   # Simulación de resultados, reemplazar con análisis real
+        }
         global_func_match = 72
         global_profile_match = 73
 
