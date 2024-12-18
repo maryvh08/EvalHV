@@ -1,2 +1,3 @@
-llama-index
-streamlit
+git add requirements.txt
+git commit -m "Añadido pdfplumber y otras dependencias"
+git push
