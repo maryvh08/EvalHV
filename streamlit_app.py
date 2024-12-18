@@ -14,15 +14,8 @@ def extract_text_from_pdf(pdf_path):
             text += page.extract_text()
     return text
 
-# Intentar instalar PyPDF2 si no está instalado
-try:
-    from PyPDF2 import PdfReader
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "PyPDF2"])
-    from PyPDF2 import PdfReader
-
 # Configurar la clave API de OpenAI
-OPENAI_API_KEY = "tu_clave_api_de_openai_aqui"
+OPENAI_API_KEY = "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"
 openai.api_key = OPENAI_API_KEY
 
 # Función para obtener rutas dinámicas
