@@ -1,3 +1,4 @@
+pip install llama-index
 import streamlit as st
 import os
 import requests
