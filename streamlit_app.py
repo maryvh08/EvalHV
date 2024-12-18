@@ -85,7 +85,7 @@ def generate_pdf_report(candidate_name, position, analysis_results, global_func_
 
 # UI en Streamlit
 st.title("Evaluador de Hoja de Vida ANEIAP")
-st.image("https://raw.githubusercontent.com/YourRepoName/main/assets/banner.jpg", use_container_width=True)
+st.image("https://github.com/maryvh08/EvalHV/blob/main/Evaluador%20Hoja%20de%20Vida%20ANEIAP%20UNINORTE.jpg", use_container_width=True)
 st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁")
 st.write("Con solo tu hoja de vida ANEIAP (en formato PDF) podrás averiguar qué tan preparado te encuentras para asumir un cargo dentro de la JDC-IC-CCP.")
 
