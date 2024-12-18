@@ -5,8 +5,6 @@ import openai
 import os
 import subprocess
 
-import pdfplumber
-
 def extract_text_from_pdf(pdf_path):
     response = requests.get(pdf_path)
     pdf_bytes = response.content
