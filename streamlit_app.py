@@ -2,7 +2,6 @@ import streamlit as st
 import os
 import requests
 import openai
-from fpdf import FPDF
 import os
 import subprocess
 
