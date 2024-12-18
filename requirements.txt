@@ -1,3 +1,4 @@
-git add requirements.txt
-git commit -m "Añadido pdfplumber y otras dependencias"
-git push
+pdfplumber==0.6.0
+openai
+requests
+streamlit
