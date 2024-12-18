@@ -1,5 +1,3 @@
-pip install llama-index
-pip install -r requirements.txt
 streamlit run streamlit_app.py
 import llama_index
 import streamlit as st
