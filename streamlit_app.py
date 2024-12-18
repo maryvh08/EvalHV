@@ -8,7 +8,7 @@ from PyPDF2 import PdfReader
 from fpdf import FPDF
 
 # Configurar API Llama3
-LLAMA3_API_KEY = "YOUR_LLAMA3_API_KEY"
+LLAMA3_API_KEY = "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"
 llm = LlamaAPI(api_key=LLAMA3_API_KEY)
 
 # Función para obtener rutas dinámicas
