@@ -1,8 +1,6 @@
 import streamlit as st
 import os
 import requests
-from llama_index import SimpleDirectoryReader
-from llama_index import GPTVectorStoreIndex
 from llama_index.indices.query.query import BaseQueryEngine
 from llama_index.llms import LlamaAPI
 from PyPDF2 import PdfReader
