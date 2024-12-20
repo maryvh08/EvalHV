@@ -116,6 +116,9 @@ def generate_report(pdf_path, position, candidate_name):
         global_func_match = 0
         global_profile_match = 0
 
+    func_score= (global_func_match*5)/100%
+    profile_score= (global_profile_match*5)/100%
+
     # Crear reporte en PDF
     pdf = FPDF()
     pdf.add_page()
@@ -138,11 +141,19 @@ def generate_report(pdf_path, position, candidate_name):
         pdf.multi_cell(0, 10, clean_text( f"- Concordancia con perfil: {profile_match:.2f}%"))
 
     pdf.ln(5)
+    
     pdf.set_font("Arial", style="B", size=12)
     pdf.multi_cell(0, 10, "\nConcordancia Global:")
     pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, f"- Funciones: {global_func_match:.2f}%")
-    pdf.multi_cell(0, 10, f"- Perfil: {global_profile_match:.2f}%")
+    pdf.multi_cell(0, 10, f"- La concordancia global respecto a las funciones es: {global_func_match:.2f}%")
+    pdf.multi_cell(0, 10, f"- La concordancia global respecto al Perfil es: {global_profile_match:.2f}%")
+
+    #Puntaje global
+    pdf.ln(5)
+    pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score})
+    pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score})
+
+    pdf.ln(5)
 
     # Interpretación de resultados
     pdf.set_font("Arial", style="B", size=12)
