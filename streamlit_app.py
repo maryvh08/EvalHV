@@ -1,126 +1,124 @@
+import fitz  # PyMuPDF para trabajar con PDFs
+import tensorflow_hub as hub
+import numpy as np
 import streamlit as st
-import os
-import requests
-import openai
-import os
-import subprocess
+from fpdf import FPDF
 
-def extract_text_from_pdf(pdf_path):
-    response = requests.get(pdf_path)
-    pdf_bytes = response.content
-    with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
-        text = ""
-        for page in pdf.pages:
-            text += page.extract_text()
-    return text
+# Cargar Universal Sentence Encoder
+model = hub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
 
-# Configurar la clave API de OpenAI
-OPENAI_API_KEY = "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"
-openai.api_key = OPENAI_API_KEY
+# Función para calcular similitud con USE
+def calculate_similarity_use(text1, text2):
+    """Calcula la similitud entre dos textos usando Universal Sentence Encoder."""
+    embeddings = model([text1, text2])
+    similarity = np.inner(embeddings[0], embeddings[1])  # Producto interno
+    return similarity * 100  # Escala a porcentaje
 
-# Función para obtener rutas dinámicas
-def get_file_paths(position):
-    base_url = "https://raw.githubusercontent.com/EvalHV/main/"
-    functions_path = f"{base_url}Funciones/F{position}.pdf"
-    profile_path = f"{base_url}Perfiles/P{position}.pdf"
-    return functions_path, profile_path
-
-# Función para procesar PDF
-def extract_text_from_pdf(pdf_path):
-    response = requests.get(pdf_path)
-    pdf_bytes = response.content
-    pdf = PdfReader(pdf_bytes)
+# Función para extraer la sección "EXPERIENCIA EN ANEIAP"
+def extract_experience_section(pdf_path):
     text = ""
-    for page in pdf.pages:
-        text += page.extract_text()
-    return text
+    with fitz.open(pdf_path) as doc:
+        for page in doc:
+            text += page.get_text()
+    start_keyword = "EXPERIENCIA EN ANEIAP"
+    end_keywords = [
+        "CONDICIONES ECONÓMICAS PARA VIAJAR",
+        "EVENTOS ORGANIZADOS",
+        "Asistencia a eventos ANEIAP",
+        "Firma"
+    ]
+    start_idx = text.find(start_keyword)
+    if start_idx == -1:
+        return None
 
-# Función para llamar a la API de OpenAI para análisis de texto
-def analyze_text_with_openai(text):
+    end_idx = len(text)
+    for keyword in end_keywords:
+        idx = text.find(keyword, start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
+
+    return text[start_idx:end_idx].strip()
+
+# Generar reporte en PDF
+def generate_report(pdf_path, position, candidate_name):
+    experience_text = extract_experience_section(pdf_path)
+    if not experience_text:
+        st.error("No se pudo extraer la sección 'EXPERIENCIA EN ANEIAP' del PDF.")
+        return
+
+    # Cargar archivos de funciones y perfil
+    functions_path = f"Funciones//F{position}.pdf"
+    profile_path = f"Perfiles/P{position}.pdf"
+
     try:
-        # Realizar una solicitud a OpenAI para analizar el texto
-        response = openai.Completion.create(
-            engine="text-davinci-003",  # Usamos el modelo de OpenAI
-            prompt=text,
-            max_tokens=500,  # Limitar la cantidad de tokens
-            temperature=0.5  # Controlar la creatividad
-        )
-        return response.choices[0].text.strip()
-    except Exception as e:
-        return f"Error al analizar el texto: {e}"
+        with fitz.open(functions_path) as func_doc:
+            functions_text = func_doc[0].get_text()
 
-# Función para generar reporte PDF
-def generate_pdf_report(candidate_name, position, analysis_results, global_func_match, global_profile_match):
+        with fitz.open(profile_path) as profile_doc:
+            profile_text = profile_doc[0].get_text()
+    except Exception as e:
+        st.error(f"No se pudieron cargar los archivos de funciones o perfil: {e}")
+        return
+
+    # Evaluación renglón por renglón
+    lines = experience_text.split("\n")
+    line_results = []
+    for line in lines:
+        func_match = calculate_similarity_use(line, functions_text)
+        profile_match = calculate_similarity_use(line, profile_text)
+        line_results.append((line, func_match, profile_match))
+
+    # Cálculo de concordancia global
+    global_func_match = sum([res[1] for res in line_results]) / len(line_results)
+    global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
+
+    # Crear reporte en PDF
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", "B", 16)
-    pdf.cell(200, 10, f"ANALISIS DE HOJA DE VIDA - {position}", ln=True, align="C")
+    pdf.set_font("Times", size=12)
 
-    pdf.set_font("Arial", "", 12)
-    pdf.cell(200, 10, "Análisis Experiencia ANEIAP", ln=True)
+    pdf.set_font("Helvetica", style="B", size=14)
+    pdf.cell(200, 10, txt=f"Reporte de Concordancia de {candidate_name} para el cargo de {position}", ln=True, align='C')
+    pdf.ln(5)
 
-    # Agregar análisis item por item
-    for item, results in analysis_results.items():
-        pdf.multi_cell(0, 10, f"{item}")
-        pdf.multi_cell(0, 10, f"Porcentaje de concordancia con funciones del cargo: {results['func']}%")
-        pdf.multi_cell(0, 10, f"Porcentaje de concordancia con perfil del cargo: {results['profile']}%\n")
+    for line, func_match, profile_match in line_results:
+        pdf.set_font("Arial", style="", size=12)
+        pdf.multi_cell(0, 10, f"Item: {line}")
+        pdf.multi_cell(0, 10, f"- Concordancia con funciones: {func_match:.2f}%")
+        pdf.multi_cell(0, 10, f"- Concordancia con perfil: {profile_match:.2f}%")
 
-    # Porcentajes globales
-    pdf.cell(200, 10, f"Porcentaje global con funciones del cargo: {global_func_match}%", ln=True)
-    pdf.cell(200, 10, f"Porcentaje global con perfil del cargo: {global_profile_match}%", ln=True)
+    pdf.set_font("Arial", style="B", size=12)
+    pdf.multi_cell(0, 10, "\nConcordancia Global:")
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, f"- Funciones: {global_func_match:.2f}%")
+    pdf.multi_cell(0, 10, f"- Perfil: {global_profile_match:.2f}%")
 
-    # Interpretación de resultados
-    pdf.multi_cell(0, 10, f"Interpretación de resultados: ... [dependiendo del porcentaje]")
+    report_path = f"reporte_analisis_{position}_{candidate_name}.pdf"
+    pdf.output(report_path, 'F')
 
-    # Conclusión
-    pdf.multi_cell(0, 10, f"Este análisis es generado debido a que es crucial ... rol de {position}.")
+    st.success("Reporte generado exitosamente.")
+    st.download_button(
+        label="Descargar Reporte", data=open(report_path, "rb"), file_name=report_path, mime="application/pdf"
+    )
 
-    # Mensaje de agradecimiento
-    pdf.multi_cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
-
-    # Guardar PDF
-    output_file = f"Reporte_Analisis_{position}_{candidate_name}.pdf"
-    pdf.output(output_file)
-    return output_file
-
-# UI en Streamlit
+# Interfaz en Streamlit
+imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
 st.title("Evaluador de Hoja de Vida ANEIAP")
-st.image("https://github.com/maryvh08/EvalHV/blob/main/Evaluador%20Hoja%20de%20Vida%20ANEIAP%20UNINORTE.jpg", use_container_width=True)
+st.image(imagen_aneiap, use_container_width=True)
 st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁")
-st.write("Con solo tu hoja de vida ANEIAP (en formato PDF) podrás averiguar qué tan preparado te encuentras para asumir un cargo dentro de la JDC-IC-CCP.")
+st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
 
-# Entrada del usuario
-position = st.selectbox("Selecciona el cargo:", ["PC", "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC"])
-candidate_name = st.text_input("Ingresa tu nombre:")
-uploaded_file = st.file_uploader("Sube tu hoja de vida (formato .pdf)", type=["pdf"])
+# Interfaz de usuario
+candidate_name = st.text_input("Nombre del candidato:")
+uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
+position = st.selectbox("Selecciona el cargo al que aspiras:", [
+    "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
+])
 
 if st.button("Generar Reporte"):
-    if candidate_name and position and uploaded_file:
-        # Obtener rutas dinámicas
-        functions_path, profile_path = get_file_paths(position)
-
-        # Extraer texto de los PDFs
-        st.write("Analizando documentos...")
-        job_functions_text = extract_text_from_pdf(functions_path)
-        job_profile_text = extract_text_from_pdf(profile_path)
-
-        # Simulación del análisis (aquí integras la API OpenAI)
-        resume_text = extract_text_from_pdf(uploaded_file)
-
-        # Analizar texto con OpenAI
-        analysis_results = {
-            "Item 1": {"func": 80, "profile": 75},  # Simulación de resultados, reemplazar con análisis real
-            "Item 2": {"func": 65, "profile": 70}   # Simulación de resultados, reemplazar con análisis real
-        }
-        global_func_match = 72
-        global_profile_match = 73
-
-        # Generar reporte PDF
-        report_path = generate_pdf_report(candidate_name, position, analysis_results, global_func_match, global_profile_match)
-        st.success("¡Reporte generado con éxito!")
-        
-        # Descargar PDF
-        with open(report_path, "rb") as file:
-            st.download_button("Descargar Reporte", file, file_name=report_path)
+    if uploaded_file is not None:
+        with open("uploaded_cv.pdf", "wb") as f:
+            f.write(uploaded_file.read())
+        generate_report("uploaded_cv.pdf", position, candidate_name)
     else:
-        st.error("Por favor completa todos los campos antes de generar el reporte.")
+        st.error("Por favor, sube un archivo PDF para continuar.")
