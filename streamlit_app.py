@@ -116,8 +116,8 @@ def generate_report(pdf_path, position, candidate_name):
         global_func_match = 0
         global_profile_match = 0
 
-    func_score= (global_func_match*5)/100
-    profile_score= (global_profile_match*5)/100
+    func_score= round((global_func_match*5)/100,2)
+    profile_score= round((global_profile_match*5)/100,2)
 
     # Crear reporte en PDF
     pdf = FPDF()
