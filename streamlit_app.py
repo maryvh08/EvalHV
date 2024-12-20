@@ -150,8 +150,8 @@ def generate_report(pdf_path, position, candidate_name):
 
     #Puntaje global
     pdf.ln(5)
-    pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score})
-    pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score})
+    pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
+    pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
 
     pdf.ln(5)
 
