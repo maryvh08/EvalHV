@@ -1,4 +1,4 @@
-import fitz  # PyMuPDF para trabajar con PDFs
+import fitz  
 import tensorflow_hub as hub
 import numpy as np
 import streamlit as st
