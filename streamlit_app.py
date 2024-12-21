@@ -14,7 +14,7 @@ pos_keywords = {
     "CCP": ["Proyecto", "Project", "Innovación", "Asesor", "Sponsor", "CNI", "GNP", "Directiva", "Innova", "ECP", "PEN", "COEC", "Capítulo", "Equipo", "Manager", "Fraternidad", "Cambio", "Reforma", "Gestión", "Vida", "ANEIAP DAY", "Subcoordinador", "Subcoordinadora","Viabilidad","Planificación","Implementación", "Organización","Asesoramiento","Indicadores","Colaboración","ALMA","Estructura","Modelo","Gobierno"],
     "IC": ["Interventoría", "Transparencia", "Normativa", "ECI", "Directiva", "Auditor", "IC", "ENI", "Capítulo", "Interventor", "Datos", "Data", "Análisis", "Veeduría","Rúbrica","Ética","Indicadores de desempeño","Seguimiento", "Revisión","Revisión","Análisis financiero"],
     "PC": ["Presidencia", "Estrategia", "Directiva", "Capítulo", "Presidente", "Directivo", "Junta", "ANEIAP DAY", "ECAP", "Gestión", "Liderazgo", "Rendimiento","Decisiones","Supervisión","Transformación","Legal","Representante","Gestor"]
-}
+    }
 
 # Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
 def extract_experience_section(pdf_path):
