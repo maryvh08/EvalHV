@@ -51,7 +51,29 @@ def extract_experience_section(pdf_path):
     end_idx = text.find(end_keyword, start_idx)
     return text[start_idx:end_idx].strip() if start_idx != -1 and end_idx != -1 else None
 
-def generate_advice(pdf_path, position):
+ddef generate_advice(pdf_path, position):
+    """Genera consejos basados en la evaluación de indicadores."""
+    experience_text = extract_experience_section(pdf_path)
+    if not experience_text:
+        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
+        return
+
+    # Obtener indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
+    results = {}
+
+    for indicator, keywords in position_indicators.items():
+        results[indicator] = calculate_presence(experience_text, keywords)
+
+    # Identificar el indicador con menor presencia
+    lowest_indicator = min(results, key=results.get)
+    st.write(f"Indicador con menor presencia: {lowest_indicator} ({results[lowest_indicator]:.2f}%)")
+
+    # Mostrar los consejos asociados al indicador
+    st.write("Consejos para mejorar:")
+    for tip in advice[position][lowest_indicator]:
+        st.write(f"- {tip}")
+
 def generate_report(pdf_path, position, candidate_name):
     """
     Genera un reporte en PDF basado en la evaluación de indicadores, concordancia y consejos personalizados.
