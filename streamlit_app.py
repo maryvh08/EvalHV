@@ -3,80 +3,77 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 from fpdf import FPDF
+from collections import Counter
 
-# Palabras clave por posición
-pos_keywords = {
-    "DCA": ["Académico", "Conocimiento", "Formación", "Integral", "I+D+I", "Consultoria", "Entorno", "Liderazgo", "Directiva", "Capítulo", "Innovación", "Escuela", "Olimpiadas", "Taller", "FIC", "Habilidades", "Ingeolimpiadas", "Capacitación", "ANEIAP DAY", "SÉ", "Institucional", "Subdirector", "Subdirectora","Blandas","Duras","Mentoría","Seminario","skills","Académica","Desarrollo","Ciclo","Entrenamiento","Cursos","Profesional","Aplicado"],
-    "DCC": ["Comunicaciones", "Redes", "Data", "Publicidad", "MIC", "Documental", "Youtube", "Biblioteca", "Podcast", "Directiva", "Capítulo", "Escuela", "Induspod", "Web,", "Journal", "Boletín", "Diseño", "Contenido", "IGTV", "Subdirector", "Subdirectora", "Piezas", "Tiktok", "Audiovisual","Digital","Medios","Información","Campañas","Interacción","Promoción","Contenido","Diseño gráfico","Difusión","Corporativo","Producción","Documentación","Branding"],
-    "DCD": ["Desarrollo", "Relaciones", "Gala", "Integraciones", "Directiva", "Capítulo", "ANEIAP DAY", "Expansión", "Cultura", "Reclutamiento", "SÉ", "SRA", "Responsabilidad", "Insignia", "RSA", "Gestión", "Subdirector", "Subdirectora","Equipos","Social","Premios","Cohesión","Ambiental","Personal","Interpersonal","Comunitario","Contacto","Retención","Expansión"],
-    "DCF": ["Finanzas", "Financiero", "Riqueza", "Sostenibilidad", "Directiva", "Capítulo", "Subdirector", "Subdirectora", "Obtención", "Recursos", "Recaudación", "Fondos", "Fuente","Gestión","Egreso","Ingreso","Sostenimiento","Donaciones","Recaudación","Económica","Rentabilidad","Ahorro","Dashboard","Sustentable"],
-    "DCM": ["Mercadeo", "Tienda", "Buzón", "Negocio", "Directiva", "Capítulo", "ANEIAP DAY", "Subdirector", "Subdirectora","Relaciones","Públicas","Promoción","Posicionamiento","Cliente","Externo","Interno","Visibilidad","Modelo", "Servicio","Branding","Venta","Plan","Identidad","Comercial","Campaña","Visualización"],
-    "CCP": ["Proyecto", "Project", "Innovación", "Asesor", "Sponsor", "CNI", "GNP", "Directiva", "Innova", "ECP", "PEN", "COEC", "Capítulo", "Equipo", "Manager", "Fraternidad", "Cambio", "Reforma", "Gestión", "Vida", "ANEIAP DAY", "Subcoordinador", "Subcoordinadora","Viabilidad","Planificación","Implementación", "Organización","Asesoramiento","Indicadores","Colaboración","ALMA","Estructura","Modelo","Gobierno"],
-    "IC": ["Interventoría", "Transparencia", "Normativa", "ECI", "Directiva", "Auditor", "IC", "ENI", "Capítulo", "Interventor", "Datos", "Data", "Análisis", "Veeduría","Rúbrica","Ética","Indicadores de desempeño","Seguimiento", "Revisión","Revisión","Análisis financiero"],
-    "PC": ["Presidencia", "Estrategia", "Directiva", "Capítulo", "Presidente", "Directivo", "Junta", "ANEIAP DAY", "ECAP", "Gestión", "Liderazgo", "Rendimiento","Decisiones","Supervisión","Transformación","Legal","Representante","Gestor"]
-    }
+# Datos extraídos del documento de planificación
+indicators = {
+    "DCC": {
+        "Estrategia de comunicación": ["Comunicaciones", "Publicidad", "MIC", "Digital", "Campañas", "Promoción", "Difusión"],
+        "Producción audiovisual": ["Redes", "Podcast", "Youtube", "Diseño", "Tiktok", "Audiovisual", "Contenido"],
+        "Gestión de documental": ["Data", "Documental", "Biblioteca", "Documentación"]
+    },
+    # Agregar otros cargos con sus indicadores y palabras clave aquí...
+}
 
-# Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
+advice = {
+    "DCC": {
+        "Estrategia de comunicación": [
+            "Trabaja en tus habilidades de redacción y storytelling.",
+            "Gestiona relaciones públicas para ampliar la visibilidad del capítulo."
+        ],
+        "Producción audiovisual": [
+            "Domina herramientas de diseño gráfico y edición audiovisual.",
+            "Fomenta la creación de contenido multimedia atractivo."
+        ],
+        "Gestión de documental": [
+            "Participa en iniciativas relacionadas con la gestión documental.",
+            "Infórmate acerca del manejo de datos y documentación."
+        ]
+    },
+    # Agregar consejos para otros cargos aquí...
+}
+
+def calculate_presence(text, keywords):
+    """Calcula el porcentaje de presencia de palabras clave en un texto."""
+    words = text.split()
+    count = sum(1 for word in words if word in keywords)
+    return (count / len(keywords)) * 100 if keywords else 0
+
 def extract_experience_section(pdf_path):
-    """
-    Extrae la sección 'EXPERIENCIA ANEIAP' de un archivo PDF.
-    Identifica el inicio por el subtítulo 'EXPERIENCIA ANEIAP' y el final por 'EVENTOS ORGANIZADOS'.
-    Excluye renglones vacíos, subtítulos y elimina viñetas de los renglones.
-    """
+    """Extrae la sección EXPERIENCIA EN ANEIAP de un PDF."""
     text = ""
     with fitz.open(pdf_path) as doc:
         for page in doc:
             text += page.get_text()
-    
-    # Palabras clave para identificar el inicio y final de la sección
     start_keyword = "EXPERIENCIA EN ANEIAP"
     end_keyword = "EVENTOS ORGANIZADOS"
-    
-    # Encuentra los índices de inicio y fin
     start_idx = text.find(start_keyword)
-    if start_idx == -1:
-        return None  # No se encontró la sección de experiencia
-
     end_idx = text.find(end_keyword, start_idx)
-    if end_idx == -1:
-        end_idx = len(text)  # Si no encuentra el final, usa el resto del texto
+    return text[start_idx:end_idx].strip() if start_idx != -1 and end_idx != -1 else None
 
-    # Extrae la sección entre el inicio y el fin
-    experience_text = text[start_idx:end_idx].strip()
-    
-    # Limpia el texto: elimina subtítulos, renglones vacíos y viñetas
-    experience_lines = experience_text.split("\n")
-    cleaned_lines = []
-    for line in experience_lines:
-        line = line.strip()  # Elimina espacios en blanco al inicio y final
-        if line and line not in [start_keyword, end_keyword]:  # Omite subtítulos y renglones vacíos
-            # Elimina posibles viñetas
-            line = line.lstrip("•-–—*")  # Elimina viñetas comunes al inicio del renglón
-            cleaned_lines.append(line)
-    
-    return "\n".join(cleaned_lines)
-
-# Función para calcular la similitud usando TF-IDF y similitud de coseno
-def calculate_similarity(text1, text2):
-    """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
-    vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform([text1, text2])
-    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-    return similarity * 100
-
-# Generar reporte en PDF
+def generate_advice(pdf_path, position):
 def generate_report(pdf_path, position, candidate_name):
     """
-    Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones y perfil del cargo.
-    Excluye ítems con 0% de concordancia en funciones y perfil al mismo tiempo.
+    Genera un reporte en PDF basado en la evaluación de indicadores, concordancia y consejos personalizados.
     """
     experience_text = extract_experience_section(pdf_path)
     if not experience_text:
-        st.error("No se pudo extraer la sección 'EXPERIENCIA ANEIAP' del PDF.")
+        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
+    # Obtener indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
+    indicator_results = {}
+
+    # Calcular la presencia de palabras clave por indicador
+    for indicator, keywords in position_indicators.items():
+        indicator_results[indicator] = calculate_presence(experience_text, keywords)
+
+    # Identificar el indicador con menor presencia
+    lowest_indicator = min(indicator_results, key=indicator_results.get)
+    lowest_indicator_percentage = indicator_results[lowest_indicator]
+
     # Verificar palabras clave específicas del cargo
-    keywords = pos_keywords.get(position, [])
     lines = experience_text.split("\n")
     line_results = []
 
@@ -134,11 +131,23 @@ def generate_report(pdf_path, position, candidate_name):
     
     pdf.ln(5)
 
-    pdf.set_font("Arial", style="", size=12)
-    for line, func_match, profile_match in line_results:
-        pdf.multi_cell(0, 10, clean_text(f"Item: {line}"))
-        pdf.multi_cell(0, 10, clean_text(f"- Concordancia con funciones: {func_match:.2f}%"))
-        pdf.multi_cell(0, 10, clean_text( f"- Concordancia con perfil: {profile_match:.2f}%"))
+        # Resultados de indicadores
+    pdf.set_font("Arial", size=12)
+    pdf.cell(0, 10, "Resultados por Indicador:", ln=True)
+    for indicator, percentage in indicator_results.items():
+        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+    pdf.ln(5)
+
+    # Indicador con menor presencia
+    pdf.set_font("Arial", style="B", size=12)
+    pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({lowest_indicator_percentage:.2f}%)", ln=True)
+    pdf.ln(5)
+
+    # Consejos personalizados
+    pdf.set_font("Arial", size=12)
+    pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
+    for tip in advice[position][lowest_indicator]:
+        pdf.cell(0, 10, f"- {tip}", ln=True)
 
     pdf.ln(5)
     
@@ -202,10 +211,10 @@ position = st.selectbox("Selecciona el cargo al que aspiras:", [
 ])
 
 # Botón para generar reporte
-if st.button("Generar Reporte"):
+if st.button("Generar Consejos"):
     if uploaded_file is not None:
         with open("uploaded_cv.pdf", "wb") as f:
             f.write(uploaded_file.read())
-        generate_report("uploaded_cv.pdf", position, candidate_name)
+        generate_advice("uploaded_cv.pdf", position)
     else:
         st.error("Por favor, sube un archivo PDF para continuar.")
