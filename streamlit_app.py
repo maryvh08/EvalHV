@@ -388,8 +388,6 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
     pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
 
-    pdf.ln(5)
-
     # Interpretación de resultados
     pdf.set_font("Arial", style="B", size=12)
     pdf.multi_cell(0, 10, "\nInterpretación de resultados:")
