@@ -331,7 +331,8 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.ln(5)
 
         # Resultados de indicadores
-    pdf.cell(0, 10, "Resultados por Indicador:", ln=True)
+    pdf.set_font("Arial", style="", size=12)
+    pdf.cell(200, 10, txt=f"Resultados por Indicador:", ln=True)
     for indicator, percentage in indicator_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
     pdf.ln(5)
@@ -339,13 +340,6 @@ def generate_report(pdf_path, position, candidate_name):
     # Indicador con menor presencia
     pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
     pdf.ln(5)
-    pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
-    for tip in advice[position][lowest_indicator]:
-        pdf.cell(0, 10, f"- {tip}", ln=True)
-    pdf.ln(5)
-
-    # Consejos personalizados
-    pdf.set_font("Arial", size=12)
     pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
     for tip in advice[position][lowest_indicator]:
         pdf.cell(0, 10, f"- {tip}", ln=True)
