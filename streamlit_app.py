@@ -300,6 +300,17 @@ def generate_report(pdf_path, position, candidate_name):
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
+    # Ruta de la imagen de fondo
+    fondo_path = "Fondo ANEIAP.jpg"
+
+    # Verificar si la imagen de fondo existe
+    try:
+        with open(fondo_path, "rb") as f:
+            pass  # La imagen existe
+    except FileNotFoundError:
+        st.error(f"No se encontró la imagen de fondo en la ruta especificada: {fondo_path}")
+        return
+
     # Cálculo y generación del contenido (similar al código existente)
     pdf = PDFWithBackground(bg_image_path)  # Usa la clase personalizada
     pdf.add_page()
