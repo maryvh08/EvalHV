@@ -381,7 +381,6 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(0, 10, f"La oncordancia Global de Perfil es: {global_profile_match:.2f}%", ln=True)
 
     #Puntaje global
-    pdf.ln(5)
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Puntaje Global:", ln=True)
     pdf.set_font("Arial", style="", size=12)
@@ -389,6 +388,7 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
 
     # Interpretación de resultados
+    pdf.ln(5)
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Interpretación de resultados:", ln=True)
     pdf.set_font("Arial", style="", size=12)
