@@ -295,7 +295,7 @@ def calculate_presence(text, keywords):
 
 def generate_report(pdf_path, position, candidate_name):
     """Genera un reporte en PDF con fondo personalizado."""
-    experience_text = extract_experience_section(bg_image_path)
+    experience_text = extract_experience_section(pdf_path)
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
