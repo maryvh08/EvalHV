@@ -248,6 +248,17 @@ def calculate_similarity(text1, text2):
     similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
     return similarity * 100
 
+def calculate_presence(text, keywords):
+    """
+    Calcula el porcentaje de presencia de palabras clave en un texto.
+    :param text: Texto donde se buscan las palabras clave.
+    :param keywords: Lista de palabras clave a buscar.
+    :return: Porcentaje de presencia de palabras clave.
+    """
+    words = text.split()
+    count = sum(1 for word in words if word.lower() in [kw.lower() for kw in keywords])
+    return (count / len(keywords)) * 100 if keywords else 0
+
 def generate_report(pdf_path, position, candidate_name):
     """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones y perfil del cargo."""
     experience_text = extract_experience_section(pdf_path)
