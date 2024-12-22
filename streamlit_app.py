@@ -438,6 +438,8 @@ if st.button("Generar Reporte"):
     else:
         st.error("Por favor, sube un archivo PDF para continuar.")
 
+st.write(f"---")
+
 # Configuración del enlace MANUALES
 link_url_Manuales = "https://drive.google.com/drive/folders/18OIh99ZxE1LThqzy1A406f1kbot6b4bf"
 link_label_Manuales = "Manuales de cargo"
