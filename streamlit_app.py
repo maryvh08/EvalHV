@@ -196,21 +196,6 @@ advice = {
     }
 }
 
-class PDFWithBackground(FPDF):
-    def __init__(self, bg_image_path, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.bg_image_path = bg_image_path
-
-    def header(self):
-        """Añade la imagen de fondo a cada página."""
-        if self.bg_image_path:
-            self.image(self.bg_image_path, x=0, y=0, w=self.w, h=self.h)
-
-    def add_page(self, orientation='', format=''):
-        """Sobrescribe add_page para incluir el fondo."""
-        super().add_page(orientation, format)  # Asegúrate de usar solo los argumentos válidos
-        self.header()  # Aplica el fondo en la nueva página
-
 # Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
 def extract_experience_section(pdf_path):
     """
@@ -294,31 +279,26 @@ def calculate_presence(text, keywords):
     return (count / len(keywords)) * 100 if keywords else 0
 
 def generate_report(pdf_path, position, candidate_name):
-    """Genera un reporte en PDF con fondo personalizado."""
+    """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
     experience_text = extract_experience_section(pdf_path)
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
-    # Ruta de la imagen de fondo
-    bg_image_path = "Fondo ANEIAP.jpg"
-
-    # Verificar si la imagen de fondo existe
-    try:
-        with open(bg_image_path, "rb") as f:
-            pass  # La imagen existe
-    except FileNotFoundError:
-        st.error(f"No se encontró la imagen de fondo en la ruta especificada: {bg_image_path}")
-        return
-
-    # Cálculo y generación del contenido (similar al código existente)
-    pdf = PDFWithBackground(bg_image_path="Fondo ANEIAP.jpg")
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-
+    # Obtener indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
     indicator_results = {}
     lines = experience_text.split("\n")
+
+    # Cargar funciones y perfil
+    try:
+        with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
+            functions_text = func_doc[0].get_text()
+        with fitz.open(f"Perfiles/P{position}.pdf") as profile_doc:
+            profile_text = profile_doc[0].get_text()
+    except Exception as e:
+        st.error(f"Error al cargar funciones o perfil: {e}")
+        return
 
     line_results = []
 
@@ -344,6 +324,10 @@ def generate_report(pdf_path, position, candidate_name):
 
         line_results.append((line, func_match, profile_match))
 
+    # Normalizar resultados de indicadores
+    for indicator in indicator_results:
+        indicator_results[indicator] /= len(lines)
+        
     # Cálculo de resultados globales
     global_func_match = sum([res[1] for res in line_results]) / len(line_results)
     global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
@@ -363,11 +347,6 @@ def generate_report(pdf_path, position, candidate_name):
     def clean_text(text):
         """Reemplaza caracteres no compatibles con latin-1."""
         return text.encode('latin-1', 'replace').decode('latin-1')
-
-    # Usa la clase personalizada con fondo
-    pdf = PDFWithBackground(bg_image_path="Fondo ANEIAP.jpg")
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
     
     # Título del reporte
     pdf.set_font("Helvetica", style="B", size=14)  
@@ -390,7 +369,16 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.set_font("Arial", style="", size=12)
     for indicator, percentage in indicator_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-    pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
+    low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
+    if low_performance_indicators:
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
+        pdf.set_font("Arial", size=12)
+        for indicator, percentage in low_performance_indicators.items():
+            pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
+            for tip in advice[position].get(indicator, []):
+                pdf.cell(0, 10, f"  * {tip}", ln=True)
+    pdf.ln(5)
     
     #Plantemiento de consejos
     pdf.set_font("Arial", style="B", size=12)
@@ -433,7 +421,7 @@ def generate_report(pdf_path, position, candidate_name):
     # Mensaje de agradecimiento
     pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
 
-    # Guardar el PDF
+    # Guardar PDF
     report_path = f"reporte_analisis_{position}_{candidate_name}.pdf"
     pdf.output(report_path, 'F')
 
@@ -444,6 +432,7 @@ def generate_report(pdf_path, position, candidate_name):
         file_name=report_path,
         mime="application/pdf"
     )
+
 # Interfaz en Streamlit
 imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
 st.title("Evaluador de Hoja de Vida ANEIAP")
