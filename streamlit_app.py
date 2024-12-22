@@ -312,7 +312,7 @@ def generate_report(pdf_path, position, candidate_name):
         return
 
     # Cálculo y generación del contenido (similar al código existente)
-    pdf = PDFWithBackground(bg_image_path)  # Usa la clase personalizada
+    pdf = PDFWithBackground(bg_image_path="Fondo ANEIAP.jpg")
     pdf.add_page()
     pdf.set_font("Arial", size=12)
 
