@@ -332,7 +332,7 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.ln(5)
     pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
     for tip in advice[position][lowest_indicator]:
-        pdf.cell(0, 10, f"- {tip}", ln=True))
+        pdf.cell(0, 10, f"- {tip}", ln=True)
     pdf.ln(5)
 
     # Consejos personalizados
