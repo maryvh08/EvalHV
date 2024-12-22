@@ -323,10 +323,6 @@ def generate_report(pdf_path, position, candidate_name):
 
         line_results.append((line, func_match, profile_match))
 
-    # Normalizar resultados de indicadores
-    for indicator in indicator_results:
-        indicator_results[indicator] /= len(lines)
-
     # Cálculo de resultados globales
     global_func_match = sum([res[1] for res in line_results]) / len(line_results)
     global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
