@@ -9,8 +9,8 @@ from collections import Counter
 indicators = {
     "DCA": {
         "Diseño académico": ["Académico", "Conocimiento", "Integral", "Directiva", "Capítulo", "Habilidades", "ANEIAP DAY", "SÉ", "Institucional", "Subdirector", "Subdirectora", "Blandas", "Duras", "Skills", "Académica", "Desarrollo"],
-        "Innovación e investigación": ["I+D+I", "Consultoría", "Entorno", "Innovación", "Mentoría", "Ciclo","COEXPRO"],
-        "Formación y capacitación": ["Formación", "Escuela", "Liderazgo", "Olimpiadas", "Taller", "FIC", "Ingeolimpiadas", "Capacitación", "Seminario", "Entrenamiento", "Cursos", "Profesional", "Aplicado"]
+        "Innovación e investigación": ["I+D+I", "Consultoría", "Entorno", "Innovación", "Mentoría", "Ciclo","COEXPRO","Herramienta"],
+        "Formación y capacitación": ["Formación", "Escuela", "Liderazgo", "Olimpiadas", "Taller", "FIC", "Ingeolimpiadas", "Capacitación", "Seminario", "Entrenamiento", "Cursos","CEA", "Profesional", "Aplicado"]
     },
     "DCC": {
         "Estrategia de comunicación": ["Comunicaciones", "Publicidad", "MIC", "Digital", "Campañas", "Promoción", "Difusión"],
@@ -387,7 +387,7 @@ def generate_report(pdf_path, position, candidate_name):
 
     #Puntaje global
     pdf.ln(5)
-    pdf.set_font("Arial", style="", size=12)
+    pdf.set_font("Arial", style="B", size=12)
     pdf.multi_cell(0, 10, "\nPuntaje Global:")
     pdf.set_font("Arial", style="", size=12)
     pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
