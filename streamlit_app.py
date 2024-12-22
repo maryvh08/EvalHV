@@ -333,6 +333,10 @@ def generate_report(pdf_path, position, candidate_name):
     global_func_match = sum([res[1] for res in line_results]) / len(line_results)
     global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
 
+    # Identificar indicador menos presente
+    lowest_indicator = min(indicator_results, key=indicator_results.get)
+    lowest_percentage = indicator_results[lowest_indicator]
+
     # Identificar indicadores con menos de 50% de presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
 
