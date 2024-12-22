@@ -429,7 +429,26 @@ position = st.selectbox("Selecciona el cargo al que aspiras:", [
     "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
 ])
 
-# Botón para generar reporte
+#Configuración UI botón
+st.markdown("""
+    <div style="display: flex; justify-content: center; margin-top: 20px;">
+        <button style="
+            background-color: #016996;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;"
+            onclick="document.querySelector('[role=button]').click();"
+        >
+            Generar Reporte
+        </button>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Lógica del botón "Generar Reporte"
 if st.button("Generar Reporte"):
     if uploaded_file is not None:
         with open("uploaded_cv.pdf", "wb") as f:
@@ -453,7 +472,7 @@ st.markdown(f"""
     <div style="display: flex; justify-content: center; gap: 20px;">
         <a href="{link_url_Manuales}" target="_blank" style="text-decoration:none;">
             <button style="
-                background-color: #F1500B;
+                background-color: #F1501B;
                 border: none;
                 color: white;
                 padding: 12px 24px;
@@ -467,7 +486,7 @@ st.markdown(f"""
         </a>
         <a href="{link_url_indicadores}" target="_blank" style="text-decoration:none;">
             <button style="
-                background-color: #F1500B;
+                background-color: #F1501B;
                 border: none;
                 color: white;
                 padding: 12px 24px;
