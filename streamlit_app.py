@@ -330,6 +330,14 @@ def generate_report(pdf_path, position, candidate_name):
     
     pdf.ln(5)
 
+        pdf.set_font("Arial", style="", size=12)
+    for line, func_match, profile_match in line_results:
+        pdf.multi_cell(0, 10, clean_text(f"Item: {line}"))
+        pdf.multi_cell(0, 10, clean_text(f"- Concordancia con funciones: {func_match:.2f}%"))
+        pdf.multi_cell(0, 10, clean_text( f"- Concordancia con perfil: {profile_match:.2f}%"))
+
+    pdf.ln(5)
+
         # Resultados de indicadores
     pdf.set_font("Arial", style="", size=12)
     pdf.cell(200, 10, txt=f"Resultados por Indicador:", ln=True)
