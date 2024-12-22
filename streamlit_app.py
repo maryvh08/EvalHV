@@ -200,18 +200,17 @@ advice = {
 class PDFWithBackground(FPDF):
     def __init__(self, bg_image_path, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.bg_image_path = Fondo ANEIAP.jpg
+        self.bg_image_path = bg_image_path
 
     def header(self):
-        """Add the background image to each page."""
+        """Añade la imagen de fondo a cada página."""
         if self.bg_image_path:
             self.image(self.bg_image_path, x=0, y=0, w=self.w, h=self.h)
 
     def add_page(self, orientation='', format='', same=False):
-        """Override add_page to include the background."""
+        """Sobrescribe add_page para incluir el fondo."""
         super().add_page(orientation, format, same)
-        self.header()  # Apply the background
-
+        self.header()  # Aplica el fondo en la nueva página
 
 # Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
 def extract_experience_section(pdf_path):
@@ -295,7 +294,7 @@ def calculate_presence(text, keywords):
     count = sum(1 for word in words if word.lower() in [kw.lower() for kw in keywords])
     return (count / len(keywords)) * 100 if keywords else 0
 
-def generate_report_with_background(pdf_path, position, candidate_name, bg_image_path):
+def generate_report(pdf_path, position, candidate_name):
     """Genera un reporte en PDF con fondo personalizado."""
     experience_text = extract_experience_section(pdf_path)
     if not experience_text:
@@ -310,16 +309,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, bg_image
     position_indicators = indicators.get(position, {})
     indicator_results = {}
     lines = experience_text.split("\n")
-
-    # Cargar funciones y perfil
-    try:
-        with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
-            functions_text = func_doc[0].get_text()
-        with fitz.open(f"Perfiles/P{position}.pdf") as profile_doc:
-            profile_text = profile_doc[0].get_text()
-    except Exception as e:
-        st.error(f"Error al cargar funciones o perfil: {e}")
-        return
 
     line_results = []
 
@@ -364,6 +353,11 @@ def generate_report_with_background(pdf_path, position, candidate_name, bg_image
     def clean_text(text):
         """Reemplaza caracteres no compatibles con latin-1."""
         return text.encode('latin-1', 'replace').decode('latin-1')
+
+    # Usa la clase personalizada con fondo
+    pdf = PDFWithBackground(bg_image_path="Fondo ANEIAP.jpg")
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
     
     # Título del reporte
     pdf.set_font("Helvetica", style="B", size=14)  
@@ -429,8 +423,8 @@ def generate_report_with_background(pdf_path, position, candidate_name, bg_image
     # Mensaje de agradecimiento
     pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
 
-    # Guardar PDF
-    report_path = f"reporte_analisis_cargo_{position}_{candidate_name}.pdf"
+    # Guardar el PDF
+    report_path = f"reporte_analisis_{position}_{candidate_name}.pdf"
     pdf.output(report_path, 'F')
 
     st.success("Reporte generado exitosamente.")
@@ -440,7 +434,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, bg_image
         file_name=report_path,
         mime="application/pdf"
     )
-
 # Interfaz en Streamlit
 imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
 st.title("Evaluador de Hoja de Vida ANEIAP")
