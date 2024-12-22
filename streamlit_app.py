@@ -237,6 +237,14 @@ def generate_advice(pdf_path, position):
     for tip in advice[position][lowest_indicator]:
         st.write(f"- {tip}")
 
+# Función para calcular la similitud usando TF-IDF y similitud de coseno
+def calculate_similarity(text1, text2):
+    """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
+    vectorizer = TfidfVectorizer()
+    tfidf_matrix = vectorizer.fit_transform([text1, text2])
+    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+    return similarity * 100
+
 def generate_report(pdf_path, position, candidate_name):
     """
     Genera un reporte en PDF basado en la evaluación de indicadores, concordancia y consejos personalizados.
