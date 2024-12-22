@@ -429,42 +429,14 @@ position = st.selectbox("Selecciona el cargo al que aspiras:", [
     "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
 ])
 
-# Configuración del enlace y estilo del botón
-button_style = """
-    <style>
-    .button {
-        background-color: #F1500B;
-        border: none;
-        color: white;
-        padding: 12px 24px;
-        text-align: center;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 4px;
-        text-decoration: none;
-        display: inline-block;
-    }
-    .button:hover {
-        background-color: #D14009;
-    }
-    </style>
-"""
-
-st.markdown(button_style, unsafe_allow_html=True)
-
-# Botón funcional estilizado
-clicked = st.markdown("""
-    <a href="#" class="button" onclick="document.getElementById('trigger').click()">Generar Reporte</a>
-""", unsafe_allow_html=True)
-
-# Botón oculto para mantener funcionalidad de Streamlit
-if st.button("Generar Reporte", key="trigger"):
+# Configuración BOTÓN GENERARR REPORTE
+if st.button("Generar Reporte"):
     if uploaded_file is not None:
         with open("uploaded_cv.pdf", "wb") as f:
             f.write(uploaded_file.read())
         generate_report("uploaded_cv.pdf", position, candidate_name)
     else:
-        st.error("Por favor, sube un archivo PDF para continuar.")
+        st.error("Por favor, sube un archivo PDF para continuar.")")
 
 # Configuración del enlace MANUALES
 link_url_Manuales = "https://drive.google.com/drive/folders/18OIh99ZxE1LThqzy1A406f1kbot6b4bf"
