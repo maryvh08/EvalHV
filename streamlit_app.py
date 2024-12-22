@@ -198,9 +198,9 @@ advice = {
 
 #Definir fondo de imagen
 class PDFWithBackground(FPDF):
-    def __init__(self, Fondo ANEIAP.jpg, *args, **kwargs):
+    def __init__(self, bg_image_path, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.bg_image_path = bg_image_path
+        self.bg_image_path = Fondo ANEIAP.jpg
 
     def header(self):
         """Add the background image to each page."""
