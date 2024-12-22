@@ -446,7 +446,7 @@ if  st.button("""
             Generar Reporte
         </button>
     </div>
-    """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True):
     if uploaded_file is not None:
         with open("uploaded_cv.pdf", "wb") as f:
             f.write(uploaded_file.read())
