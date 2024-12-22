@@ -430,7 +430,7 @@ position = st.selectbox("Selecciona el cargo al que aspiras:", [
 ])
 
 #Configuración UI botón
-st.markdown("""
+if  st.button("""
     <div style="display: flex; justify-content: center; margin-top: 20px;">
         <button style="
             background-color: #016996;
@@ -447,9 +447,6 @@ st.markdown("""
         </button>
     </div>
     """, unsafe_allow_html=True)
-
-# Lógica del botón "Generar Reporte"
-if st.button("Generar Reporte"):
     if uploaded_file is not None:
         with open("uploaded_cv.pdf", "wb") as f:
             f.write(uploaded_file.read())
