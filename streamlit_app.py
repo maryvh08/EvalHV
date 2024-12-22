@@ -396,6 +396,14 @@ position = st.selectbox("Selecciona el cargo al que aspiras:", [
 ])
 
 # Botón para generar reporte
+if st.button("Generar Reporte"):
+    if uploaded_file is not None:
+        with open("uploaded_cv.pdf", "wb") as f:
+            f.write(uploaded_file.read())
+        generate_report("uploaded_cv.pdf", position, candidate_name)
+    else:
+        st.error("Por favor, sube un archivo PDF para continuar.")
+
 if st.button("Generar Consejos"):
     if uploaded_file is not None:
         with open("uploaded_cv.pdf", "wb") as f:
