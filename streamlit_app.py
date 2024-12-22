@@ -347,16 +347,18 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.set_font("Helvetica", style="B", size=14)  
     pdf.cell(200, 10, txt=f"Reporte de Concordancia de {candidate_name} para el cargo de {position}", ln=True, align='C')
     
-    pdf.ln(5)
+    pdf.ln(3)
     
     #Concordancia de items
+    pdf.set_font("Arial", style="B", size=12)
+    pdf.cell(0, 10, "Análisis de items:", ln=True)
     pdf.set_font("Arial", style="", size=12)
     for line, func_match, profile_match in line_results:
         pdf.multi_cell(0, 10, clean_text(f"Item: {line}"))
         pdf.multi_cell(0, 10, clean_text(f"- Concordancia con funciones: {func_match:.2f}%"))
         pdf.multi_cell(0, 10, clean_text( f"- Concordancia con perfil: {profile_match:.2f}%"))
 
-    pdf.ln(5)
+    pdf.ln(3)
 
     # Resultados de indicadores
     pdf.set_font("Arial", style="B", size=12)
@@ -366,7 +368,7 @@ def generate_report(pdf_path, position, candidate_name):
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
     pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
 
-    pdf.ln(5)
+    pdf.ln(3)
     
     #Plantemiento de consejos
     pdf.set_font("Arial", style="B", size=12)
@@ -375,7 +377,7 @@ def generate_report(pdf_path, position, candidate_name):
     for tip in advice[position][lowest_indicator]:
         pdf.cell(0, 10, f"- {tip}", ln=True)
 
-    pdf.ln(5)
+    pdf.ln(3)
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
@@ -393,7 +395,7 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
     pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
 
-    pdf.ln(5)
+    pdf.ln(3)
 
     # Interpretación de resultados
     pdf.set_font("Arial", style="B", size=12)
