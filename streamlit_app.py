@@ -196,26 +196,45 @@ advice = {
     }
 }
 
+# Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
 def extract_experience_section(pdf_path):
-    """Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF."""
+    """
+    Extrae la sección 'EXPERIENCIA ANEIAP' de un archivo PDF.
+    Identifica el inicio por el subtítulo 'EXPERIENCIA ANEIAP' y el final por 'EVENTOS ORGANIZADOS'.
+    Excluye renglones vacíos, subtítulos y elimina viñetas de los renglones.
+    """
     text = ""
     with fitz.open(pdf_path) as doc:
         for page in doc:
             text += page.get_text()
+    
+    # Palabras clave para identificar el inicio y final de la sección
     start_keyword = "EXPERIENCIA EN ANEIAP"
-    end_keywords = ["CONDICIONES ECONÓMICAS PARA VIAJAR", "EVENTOS ORGANIZADOS"]
+    end_keyword = "EVENTOS ORGANIZADOS"
+    
+    # Encuentra los índices de inicio y fin
     start_idx = text.find(start_keyword)
     if start_idx == -1:
-        return None
+        return None  # No se encontró la sección de experiencia
 
-    end_idx = len(text)
-    for keyword in end_keywords:
-        idx = text.find(keyword, start_idx)
-        if idx != -1:
-            end_idx = min(end_idx, idx)
+    end_idx = text.find(end_keyword, start_idx)
+    if end_idx == -1:
+        end_idx = len(text)  # Si no encuentra el final, usa el resto del texto
 
-    return text[start_idx:end_idx].strip()
-
+    # Extrae la sección entre el inicio y el fin
+    experience_text = text[start_idx:end_idx].strip()
+    
+    # Limpia el texto: elimina subtítulos, renglones vacíos y viñetas
+    experience_lines = experience_text.split("\n")
+    cleaned_lines = []
+    for line in experience_lines:
+        line = line.strip()  # Elimina espacios en blanco al inicio y final
+        if line and line not in [start_keyword, end_keyword]:  # Omite subtítulos y renglones vacíos
+            # Elimina posibles viñetas
+            line = line.lstrip("•-–—*")  # Elimina viñetas comunes al inicio del renglón
+            cleaned_lines.append(line)
+    
+    return "\n".join(cleaned_lines)
 
 def generate_advice(pdf_path, position):
     """Genera consejos basados en la evaluación de indicadores."""
