@@ -7,12 +7,46 @@ from collections import Counter
 
 # Datos extraídos del documento de planificación
 indicators = {
+    "DCA": {
+        "Diseño académico": ["Académico", "Conocimiento", "Integral", "Directiva", "Capítulo", "Habilidades", "ANEIAP DAY", "SÉ", "Institucional", "Subdirector", "Subdirectora", "Blandas", "Duras", "Skills", "Académica", "Desarrollo"],
+        "Innovación e investigación": ["I+D+I", "Consultoría", "Entorno", "Innovación", "Mentoría", "Ciclo"],
+        "Formación y capacitación": ["Formación", "Escuela", "Liderazgo", "Olimpiadas", "Taller", "FIC", "Ingeolimpiadas", "Capacitación", "Seminario", "Entrenamiento", "Cursos", "Profesional", "Aplicado"]
+    },
     "DCC": {
         "Estrategia de comunicación": ["Comunicaciones", "Publicidad", "MIC", "Digital", "Campañas", "Promoción", "Difusión"],
         "Producción audiovisual": ["Redes", "Podcast", "Youtube", "Diseño", "Tiktok", "Audiovisual", "Contenido"],
         "Gestión de documental": ["Data", "Documental", "Biblioteca", "Documentación"]
     },
-    # Agregar otros cargos con sus indicadores y palabras clave aquí...
+    "DCD": {
+        "Gestión de asociados": ["Desarrollo", "Directiva", "Capítulo", "ANEIAP DAY", "Expansión", "Cultura", "Reclutamiento", "SÉ", "SRA", "Insignia", "Gestión", "Subdirector", "Subdirectora", "Equipos", "Contacto", "Retención"],
+        "Integración y bienestar": ["Relaciones", "Gala", "Integraciones", "Premios", "Cohesión", "Personal", "Interpersonal"],
+        "Sostenimiento y sociedad": ["Responsabilidad", "RSA", "Social", "Ambiental", "Comunitario"]
+    },
+    "DCF": {
+        "Gestión financieras": ["Finanzas", "Financiero", "Recursos", "Fondos", "Fuente", "Gestión", "Egreso", "Ingreso", "Ahorro", "Dashboard", "Sustentable"],
+        "Sostenibilidad económica": ["Riqueza", "Sostenibilidad", "Obtención", "Recaudación", "Sostenimiento", "Económica", "Rentabilidad"],
+        "Análisis  y transparencia": ["Directiva", "Capítulo", "Subdirector", "Subdirectora", "Donaciones"]
+    },
+    "DCM": {
+        "Estrategias de brandings": ["Mercadeo", "Branding", "Negocio", "Posicionamiento", "Promoción", "Plan", "Campaña"],
+        "Promoción y visibilidad": ["Buzón", "Directiva", "Capítulo", "ANEIAP DAY", "Subdirector", "Subdirectora", "Relaciones", "Visibilidad", "Identidad", "Visualización"],
+        "Gestión comercial": ["Tienda", "Públicas", "Cliente", "Externo", "Interno", "Modelo", "Servicio", "Venta", "Comercial"]
+    },
+    "PC": {
+        "Liderazgo y estrategia": ["Estrategia", "Directivo", "Liderazgo", "Rendimiento", "Decisiones", "Supervisión", "Transformación"],
+        "Gestión organizacional": ["Presidencia", "Presidente", "Directiva", "Capítulo", "Junta", "ECAP", "Gestión", "Gestor"],
+        "Relaciones y representación": ["Representante", "ANEIAP DAY", "Legal"]
+    },
+    "CCP": {
+        "Gestión de proyectos": ["Proyecto", "Project", "Asesor", "Sponsor", "Equipo", "Manager", "Gestión", "Vida", "Subcoordinador", "Subcoordinadora", "Viabilidad", "Planificación", "Implementación"],
+        "Innovación y creatividad": ["Innovación", "Innova", "Cambio", "Reforma", "ALMA", "Estructura", "Modelo", "Gobierno"],
+        "Colaboración estratégica": ["CNI", "GNP", "Directiva", "ECP", "PEN", "COEC", "Capítulo", "Fraternidad", "ANEIAP DAY", "Organización", "Asesoramiento", "Indicadores", "Colaboración"]
+    },
+    "IC": {
+        "Auditoría y control": ["Interventoría", "Normativa", "Auditor", "Interventor", "Datos", "Data", "Análisis", "Ética", "Revisión"],
+        "Normativa y transparencia": ["Transparencia", "Interventor", "Análisis financiero", "Veeduría"],
+        "Seguimiento y evaluación": ["ECI", "Directiva", "IC", "ENI", "Capítulo", "Interventor", "Rúbrica", "Indicadores de desempeño", "Seguimiento"]
+    },
 }
 
 advice = {
