@@ -438,54 +438,48 @@ if st.button("Generar Reporte"):
     else:
         st.error("Por favor, sube un archivo PDF para continuar.")
 
+import streamlit as st
+
 # Configuración del enlace MANUALES
 link_url_Manuales = "https://drive.google.com/drive/folders/18OIh99ZxE1LThqzy1A406f1kbot6b4bf"
 link_label_Manuales = "Manuales de cargo"
 
-# Botón de enlace MANUALES
-st.markdown(f"""
-    <a href="{link_url_Manuales}" target="_blank" style="text-decoration:none;">
-        <button style="
-            background-color: #F1500B;
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 4px;
-        ">
-            {link_label_Manuales}
-        </button>
-    </a>
-    """, unsafe_allow_html=True)
-    
 # Configuración del enlace INDICADORES
 link_url_indicadores = "https://docs.google.com/document/d/1BM07wuVaXEWcdurTRr8xBzjsB1fiWt6wGqOzLiyQBs8/edit?usp=drive_link"
 link_label_indicadores = "Info indicadores"
 
-# Botón de enlace INFO INDICADORES
+# Contenedor para centrar los botones
 st.markdown(f"""
-    <a href="{link_url_indicadores}" target="_blank" style="text-decoration:none;">
-        <button style="
-            background-color: #F1500B;
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 4px;
-        ">
-            {link_label_indicadores}
-        </button>
-    </a>
+    <div style="display: flex; justify-content: center; gap: 20px;">
+        <a href="{link_url_Manuales}" target="_blank" style="text-decoration:none;">
+            <button style="
+                background-color: #F1500B;
+                border: none;
+                color: white;
+                padding: 12px 24px;
+                text-align: center;
+                font-size: 16px;
+                cursor: pointer;
+                border-radius: 4px;
+            ">
+                {link_label_Manuales}
+            </button>
+        </a>
+        <a href="{link_url_indicadores}" target="_blank" style="text-decoration:none;">
+            <button style="
+                background-color: #F1500B;
+                border: none;
+                color: white;
+                padding: 12px 24px;
+                text-align: center;
+                font-size: 16px;
+                cursor: pointer;
+                border-radius: 4px;
+            ">
+                {link_label_indicadores}
+            </button>
+        </a>
+    </div>
     """, unsafe_allow_html=True)
 
 
