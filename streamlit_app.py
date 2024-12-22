@@ -29,7 +29,7 @@ indicators = {
     },
     "DCM": {
         "Estrategias de brandings": ["Mercadeo", "Branding", "Negocio", "Posicionamiento", "Promoción", "Plan", "Campaña"],
-        "Promoción y visibilidad": ["Buzón", "Directiva", "Capítulo", "ANEIAP DAY", "Subdirector", "Subdirectora", "Relaciones", "Visibilidad", "Identidad", "Visualización"],
+        "Promoción y visibilidad": ["Buzón", "Directiva", "Capítulo", "ANEIAP DAY", "Subdirector", "Subdirectora", "Relaciones", "Visibilidad", "Identidad", "Visualización","Saloneo"],
         "Gestión comercial": ["Tienda", "Públicas", "Cliente", "Externo", "Interno", "Modelo", "Servicio", "Venta", "Comercial"]
     },
     "PC": {
