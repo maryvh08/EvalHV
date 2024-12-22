@@ -198,7 +198,7 @@ advice = {
 
 def extract_experience_section(pdf_path):
     """Extrae la sección EXPERIENCIA EN ANEIAP de un PDF."""
-    text = ""def extract_experience_section(pdf_path):
+    text = "def extract_experience_section(pdf_path):
     """Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF."""
     text = ""
     with fitz.open(pdf_path) as doc:
