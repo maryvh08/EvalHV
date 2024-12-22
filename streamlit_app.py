@@ -308,12 +308,11 @@ def generate_report(pdf_path, position, candidate_name):
         if not line:  # Ignorar líneas vacías
             continue
 
-        # Obtener indicadores y palabras clave para el cargo seleccionado
-        position_indicators = indicators.get(position, {})
-        results = {}
-    
+        # Evaluación por palabras clave de indicadores
         for indicator, keywords in position_indicators.items():
-            results[indicator] = calculate_presence(experience_text, keywords)
+            if indicator not in indicator_results:
+                indicator_results[indicator] = 0
+            indicator_results[indicator] += calculate_presence(line, keywords)
 
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
@@ -328,7 +327,7 @@ def generate_report(pdf_path, position, candidate_name):
     # Normalizar resultados de indicadores
     for indicator in indicator_results:
         indicator_results[indicator] /= len(lines)
-        
+
     # Cálculo de resultados globales
     global_func_match = sum([res[1] for res in line_results]) / len(line_results)
     global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
@@ -336,19 +335,6 @@ def generate_report(pdf_path, position, candidate_name):
     # Identificar indicador menos presente
     lowest_indicator = min(indicator_results, key=indicator_results.get)
     lowest_percentage = indicator_results[lowest_indicator]
-
-    # Identificar indicadores con menos de 50% de presencia
-    low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
-
-    if low_performance_indicators:
-        pdf.set_font("Arial", style="B", size=12)
-        pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
-        pdf.set_font("Arial", size=12)
-        for indicator, percentage in low_performance_indicators.items():
-            pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
-            for tip in advice[position].get(indicator, []):
-                pdf.cell(0, 10, f"  * {tip}", ln=True)
-        pdf.ln(5)
 
     func_score= round((global_func_match*5)/100,2)
     profile_score= round((global_profile_match*5)/100,2)
