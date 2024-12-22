@@ -437,3 +437,30 @@ if st.button("Generar Reporte"):
         generate_report("uploaded_cv.pdf", position, candidate_name)
     else:
         st.error("Por favor, sube un archivo PDF para continuar.")
+
+# Configuración del enlace
+link_url = "https://drive.google.com/drive/folders/18OIh99ZxE1LThqzy1A406f1kbot6b4bf"
+link_label = "Mira los manuales de cargo"
+
+# Botón de enlace
+st.markdown(f"""
+    <a href="{link_url}" target="_blank" style="text-decoration:none;">
+        <button style="
+            background-color: #008CBA;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        ">
+            {link_label}
+        </button>
+    </a>
+    """, unsafe_allow_html=True)
+
+
