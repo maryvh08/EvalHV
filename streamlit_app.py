@@ -196,21 +196,20 @@ advice = {
     }
 }
 
-#Definir fondo de imagen
 class PDFWithBackground(FPDF):
     def __init__(self, bg_image_path, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bg_image_path = bg_image_path
 
     def header(self):
-        """Añade la imagen de fondo a cada página."""
+        """Add the background image to each page."""
         if self.bg_image_path:
             self.image(self.bg_image_path, x=0, y=0, w=self.w, h=self.h)
 
     def add_page(self, orientation='', format='', same=False):
-        """Sobrescribe add_page para incluir el fondo."""
+        """Override add_page to include the background."""
         super().add_page(orientation, format, same)
-        self.header()  # Aplica el fondo en la nueva página
+        self.header()  # Apply the background
 
 # Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
 def extract_experience_section(pdf_path):
