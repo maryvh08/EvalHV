@@ -285,10 +285,9 @@ def generate_report(pdf_path, position, candidate_name):
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
-    # Obtener indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
     indicator_results = {}
-    lines = experience_text.split("\n")
+    lines = experience_text.split("\n"))
 
     # Cargar funciones y perfil
     try:
