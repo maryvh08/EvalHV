@@ -389,7 +389,7 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
 
     # Interpretación de resultados
-    pdf.ln(5)
+    pdf.ln(10)
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Interpretación de resultados:", ln=True)
     pdf.set_font("Arial", style="", size=12)
