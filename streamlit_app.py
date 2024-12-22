@@ -196,6 +196,23 @@ advice = {
     }
 }
 
+#Definir fondo de imagen
+class PDFWithBackground(FPDF):
+    def __init__(self, bg_image_path, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bg_image_path = bg_image_path
+
+    def header(self):
+        """Add the background image to each page."""
+        if self.bg_image_path:
+            self.image(self.bg_image_path, x=0, y=0, w=self.w, h=self.h)
+
+    def add_page(self, orientation='', format='', same=False):
+        """Override add_page to include the background."""
+        super().add_page(orientation, format, same)
+        self.header()  # Apply the background
+
+
 # Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
 def extract_experience_section(pdf_path):
     """
@@ -278,12 +295,17 @@ def calculate_presence(text, keywords):
     count = sum(1 for word in words if word.lower() in [kw.lower() for kw in keywords])
     return (count / len(keywords)) * 100 if keywords else 0
 
-def generate_report(pdf_path, position, candidate_name):
-    """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones y perfil del cargo."""
+def generate_report_with_background(pdf_path, position, candidate_name, bg_image_path):
+    """Genera un reporte en PDF con fondo personalizado."""
     experience_text = extract_experience_section(pdf_path)
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
+
+    # Cálculo y generación del contenido (similar al código existente)
+    pdf = PDFWithBackground(bg_image_path)  # Usa la clase personalizada
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
 
     position_indicators = indicators.get(position, {})
     indicator_results = {}
