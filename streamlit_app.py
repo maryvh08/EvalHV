@@ -308,11 +308,12 @@ def generate_report(pdf_path, position, candidate_name):
         if not line:  # Ignorar líneas vacías
             continue
 
-        # Evaluación por palabras clave de indicadores
+        # Obtener indicadores y palabras clave para el cargo seleccionado
+        position_indicators = indicators.get(position, {})
+        results = {}
+    
         for indicator, keywords in position_indicators.items():
-            if indicator not in indicator_results:
-                indicator_results[indicator] = 0
-            indicator_results[indicator] += calculate_presence(line, keywords)
+            results[indicator] = calculate_presence(experience_text, keywords)
 
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
