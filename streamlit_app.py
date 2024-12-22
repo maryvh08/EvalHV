@@ -419,7 +419,7 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.multi_cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
 
     # Guardar PDF
-    report_path = f"reporte_analisis_{position}_{candidate_name}.pdf"
+    report_path = f"reporte_analisis_cargo_{position}_{candidate_name}.pdf"
     pdf.output(report_path, 'F')
 
     st.success("Reporte generado exitosamente.")
