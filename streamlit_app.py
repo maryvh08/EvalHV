@@ -389,9 +389,6 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
 
     # Interpretación de resultados
-    pdf.ln(10)
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.multi_cell(0, 10, "Interpretación de resultados:", ln=True)
     pdf.set_font("Arial", style="", size=12)
     if global_profile_match >75 and global_func_match > 75:
         pdf.multi_cell(0, 10, f"- Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.")
