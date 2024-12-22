@@ -9,7 +9,7 @@ from collections import Counter
 indicators = {
     "DCA": {
         "Diseño académico": ["Académico", "Conocimiento", "Integral", "Directiva", "Capítulo", "Habilidades", "ANEIAP DAY", "SÉ", "Institucional", "Subdirector", "Subdirectora", "Blandas", "Duras", "Skills", "Académica", "Desarrollo"],
-        "Innovación e investigación": ["I+D+I", "Consultoría", "Entorno", "Innovación", "Mentoría", "Ciclo"],
+        "Innovación e investigación": ["I+D+I", "Consultoría", "Entorno", "Innovación", "Mentoría", "Ciclo","COEXPRO"],
         "Formación y capacitación": ["Formación", "Escuela", "Liderazgo", "Olimpiadas", "Taller", "FIC", "Ingeolimpiadas", "Capacitación", "Seminario", "Entrenamiento", "Cursos", "Profesional", "Aplicado"]
     },
     "DCC": {
@@ -348,7 +348,8 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(200, 10, txt=f"Reporte de Concordancia de {candidate_name} para el cargo de {position}", ln=True, align='C')
     
     pdf.ln(5)
-
+    
+    #Concordancia de items
     pdf.set_font("Arial", style="", size=12)
     for line, func_match, profile_match in line_results:
         pdf.multi_cell(0, 10, clean_text(f"Item: {line}"))
@@ -357,16 +358,20 @@ def generate_report(pdf_path, position, candidate_name):
 
     pdf.ln(5)
 
-        # Resultados de indicadores
+    # Resultados de indicadores
+    pdf.set_font("Arial", style="B", size=12)
+    pdf.cell(200, 10, txt=f"Análisis por Indicadores:", ln=True)
     pdf.set_font("Arial", style="", size=12)
-    pdf.cell(200, 10, txt=f"Resultados por Indicador:", ln=True)
     for indicator, percentage in indicator_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-        
-    # Indicador con menor presencia
     pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
+
     pdf.ln(5)
+    
+    #Plantemiento de consejos
+    pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
+    pdf.set_font("Arial", style="", size=12)
     for tip in advice[position][lowest_indicator]:
         pdf.cell(0, 10, f"- {tip}", ln=True)
 
@@ -376,12 +381,14 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.set_font("Arial", style="B", size=12)
     pdf.multi_cell(0, 10, "\nConcordancia Global:")
     pdf.set_font("Arial", size=12)
-    pdf.cell(0, 10, f"Concordancia Global de Funciones: {global_func_match:.2f}%", ln=True)
-    pdf.cell(0, 10, f"Concordancia Global de Perfil: {global_profile_match:.2f}%", ln=True)
+    pdf.cell(0, 10, f"La concordancia Global de Funciones es: {global_func_match:.2f}%", ln=True)
+    pdf.cell(0, 10, f"La oncordancia Global de Perfil es: {global_profile_match:.2f}%", ln=True)
 
 
     #Puntaje global
-    pdf.ln(5)
+    pdf.ln(5)pdf.set_font("Arial", style="", size=12)
+    pdf.multi_cell(0, 10, "\nPuntaje Global:")
+    pdf.set_font("Arial", style="", size=12)
     pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
     pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
 
