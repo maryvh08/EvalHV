@@ -196,23 +196,28 @@ advice = {
     }
 }
 
-def calculate_presence(text, keywords):
-    """Calcula el porcentaje de presencia de palabras clave en un texto."""
-    words = text.split()
-    count = sum(1 for word in words if word in keywords)
-    return (count / len(keywords)) * 100 if keywords else 0
-
 def extract_experience_section(pdf_path):
     """Extrae la sección EXPERIENCIA EN ANEIAP de un PDF."""
+    text = ""def extract_experience_section(pdf_path):
+    """Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF."""
     text = ""
     with fitz.open(pdf_path) as doc:
         for page in doc:
             text += page.get_text()
     start_keyword = "EXPERIENCIA EN ANEIAP"
-    end_keyword = "EVENTOS ORGANIZADOS"
+    end_keywords = ["CONDICIONES ECONÓMICAS PARA VIAJAR", "EVENTOS ORGANIZADOS"]
     start_idx = text.find(start_keyword)
-    end_idx = text.find(end_keyword, start_idx)
-    return text[start_idx:end_idx].strip() if start_idx != -1 and end_idx != -1 else None
+    if start_idx == -1:
+        return None
+
+    end_idx = len(text)
+    for keyword in end_keywords:
+        idx = text.find(keyword, start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
+
+    return text[start_idx:end_idx].strip()
+
 
 def generate_advice(pdf_path, position):
     """Genera consejos basados en la evaluación de indicadores."""
@@ -246,65 +251,57 @@ def calculate_similarity(text1, text2):
     return similarity * 100
 
 def generate_report(pdf_path, position, candidate_name):
-    """
-    Genera un reporte en PDF basado en la evaluación de indicadores, concordancia y consejos personalizados.
-    """
+    """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones y perfil del cargo."""
     experience_text = extract_experience_section(pdf_path)
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
-    # Obtener indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
     indicator_results = {}
-
-    # Calcular la presencia de palabras clave por indicador
-    for indicator, keywords in position_indicators.items():
-        indicator_results[indicator] = calculate_presence(experience_text, keywords)
-
-    # Identificar el indicador con menor presencia
-    lowest_indicator = min(indicator_results, key=indicator_results.get)
-    lowest_indicator_percentage = indicator_results[lowest_indicator]
-
-    # Verificar palabras clave específicas del cargo
     lines = experience_text.split("\n")
-    line_results = []
 
-    # Cargar archivos de funciones y perfil
-    functions_path = f"Funciones//F{position}.pdf"
-    profile_path = f"Perfiles/P{position}.pdf"
-
+    # Cargar funciones y perfil
     try:
-        with fitz.open(functions_path) as func_doc:
+        with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
             functions_text = func_doc[0].get_text()
-
-        with fitz.open(profile_path) as profile_doc:
+        with fitz.open(f"Perfiles/P{position}.pdf") as profile_doc:
             profile_text = profile_doc[0].get_text()
     except Exception as e:
-        st.error(f"No se pudieron cargar los archivos de funciones o perfil: {e}")
+        st.error(f"Error al cargar funciones o perfil: {e}")
         return
 
+    line_results = []
+
+    # Evaluación de renglones
     for line in lines:
-        if any(keyword.lower() in line.lower() for keyword in keywords):
-            # Si contiene una palabra clave, la concordancia es 100%
+        line = line.strip()
+        if not line:  # Ignorar líneas vacías
+            continue
+
+        # Evaluación por palabras clave de indicadores
+        for indicator, keywords in position_indicators.items():
+            if indicator not in indicator_results:
+                indicator_results[indicator] = 0
+            indicator_results[indicator] += calculate_presence(line, keywords)
+
+        # Evaluación general de concordancia
+        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
             func_match = 100.0
             profile_match = 100.0
         else:
-            # Calcular similitud normalmente
             func_match = calculate_similarity(line, functions_text)
             profile_match = calculate_similarity(line, profile_text)
-        
-        # Solo agregar al reporte si no tiene 0% en ambas métricas
-        if func_match > 0 or profile_match > 0:
-            line_results.append((line, func_match, profile_match))
 
-    # Cálculo de concordancia global
-    if line_results:  # Evitar división por cero si no hay ítems válidos
-        global_func_match = sum([res[1] for res in line_results]) / len(line_results)
-        global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
-    else:
-        global_func_match = 0
-        global_profile_match = 0
+        line_results.append((line, func_match, profile_match))
+
+    # Cálculo de resultados globales
+    global_func_match = sum([res[1] for res in line_results]) / len(line_results)
+    global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
+
+    # Identificar indicador menos presente
+    lowest_indicator = min(indicator_results, key=indicator_results.get)
+    lowest_percentage = indicator_results[lowest_indicator]
 
     func_score= round((global_func_match*5)/100,2)
     profile_score= round((global_profile_match*5)/100,2)
@@ -325,15 +322,17 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.ln(5)
 
         # Resultados de indicadores
-    pdf.set_font("Arial", size=12)
     pdf.cell(0, 10, "Resultados por Indicador:", ln=True)
     for indicator, percentage in indicator_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
     pdf.ln(5)
 
     # Indicador con menor presencia
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({lowest_indicator_percentage:.2f}%)", ln=True)
+    pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
+    pdf.ln(5)
+    pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
+    for tip in advice[position][lowest_indicator]:
+        pdf.cell(0, 10, f"- {tip}", ln=True))
     pdf.ln(5)
 
     # Consejos personalizados
@@ -343,12 +342,14 @@ def generate_report(pdf_path, position, candidate_name):
         pdf.cell(0, 10, f"- {tip}", ln=True)
 
     pdf.ln(5)
-    
+
+    #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
     pdf.multi_cell(0, 10, "\nConcordancia Global:")
     pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, f"- La concordancia global respecto a las funciones es: {global_func_match:.2f}%")
-    pdf.multi_cell(0, 10, f"- La concordancia global respecto al Perfil es: {global_profile_match:.2f}%")
+    pdf.cell(0, 10, f"Concordancia Global de Funciones: {global_func_match:.2f}%", ln=True)
+    pdf.cell(0, 10, f"Concordancia Global de Perfil: {global_profile_match:.2f}%", ln=True)
+
 
     #Puntaje global
     pdf.ln(5)
@@ -381,12 +382,15 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.multi_cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
 
     # Guardar PDF
-    report_path = f"Reporte_analisis_cargo_{position}_{candidate_name}.pdf"
+    report_path = f"reporte_analisis_{position}_{candidate_name}.pdf"
     pdf.output(report_path, 'F')
 
     st.success("Reporte generado exitosamente.")
     st.download_button(
-        label="Descargar Reporte", data=open(report_path, "rb"), file_name=report_path, mime="application/pdf"
+        label="Descargar Reporte",
+        data=open(report_path, "rb"),
+        file_name=report_path,
+        mime="application/pdf"
     )
 
 # Interfaz en Streamlit
@@ -405,17 +409,9 @@ position = st.selectbox("Selecciona el cargo al que aspiras:", [
 
 # Botón para generar reporte
 if st.button("Generar Reporte"):
-    if uploaded_file is not None:
+    if uploaded_file:
         with open("uploaded_cv.pdf", "wb") as f:
             f.write(uploaded_file.read())
-        generate_report("uploaded_cv.pdf", position, candidate_name)
-    else:
-        st.error("Por favor, sube un archivo PDF para continuar.")
-
-if st.button("Generar Consejos"):
-    if uploaded_file is not None:
-        with open("uploaded_cv.pdf", "wb") as f:
-            f.write(uploaded_file.read())
-        generate_advice("uploaded_cv.pdf", position)
+        generate_report("uploaded_cv.pdf", position, st.session_state.candidate_name)
     else:
         st.error("Por favor, sube un archivo PDF para continuar.")
