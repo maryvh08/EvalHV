@@ -386,7 +386,8 @@ def generate_report(pdf_path, position, candidate_name):
 
 
     #Puntaje global
-    pdf.ln(5)pdf.set_font("Arial", style="", size=12)
+    pdf.ln(5)
+    pdf.set_font("Arial", style="", size=12)
     pdf.multi_cell(0, 10, "\nPuntaje Global:")
     pdf.set_font("Arial", style="", size=12)
     pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
