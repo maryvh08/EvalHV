@@ -335,8 +335,7 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(200, 10, txt=f"Resultados por Indicador:", ln=True)
     for indicator, percentage in indicator_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-    pdf.ln(5)
-
+        
     # Indicador con menor presencia
     pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
     pdf.ln(5)
