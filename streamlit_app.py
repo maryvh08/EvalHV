@@ -287,7 +287,7 @@ def generate_report(pdf_path, position, candidate_name):
 
     position_indicators = indicators.get(position, {})
     indicator_results = {}
-    lines = experience_text.split("\n"))
+    lines = experience_text.split("\n")
 
     # Cargar funciones y perfil
     try:
