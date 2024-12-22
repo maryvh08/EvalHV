@@ -254,11 +254,6 @@ def generate_advice(pdf_path, position):
     lowest_indicator = min(results, key=results.get)
     st.write(f"Indicador con menor presencia: {lowest_indicator} ({results[lowest_indicator]:.2f}%)")
 
-    # Mostrar los consejos asociados al indicador
-    st.write("Consejos para mejorar:")
-    for tip in advice[position][lowest_indicator]:
-        st.write(f"- {tip}")
-
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def calculate_similarity(text1, text2):
     """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
