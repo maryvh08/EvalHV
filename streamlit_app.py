@@ -436,7 +436,7 @@ if st.button("Generar Reporte"):
             f.write(uploaded_file.read())
         generate_report("uploaded_cv.pdf", position, candidate_name)
     else:
-        st.error("Por favor, sube un archivo PDF para continuar.")")
+        st.error("Por favor, sube un archivo PDF para continuar.")
 
 # Configuración del enlace MANUALES
 link_url_Manuales = "https://drive.google.com/drive/folders/18OIh99ZxE1LThqzy1A406f1kbot6b4bf"
