@@ -368,14 +368,6 @@ def generate_report(pdf_path, position, candidate_name):
             pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
             for tip in advice[position].get(indicator, []):
                 pdf.cell(0, 10, f"  * {tip}", ln=True)
-    pdf.ln(5)
-    
-    #Plantemiento de consejos
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
-    pdf.set_font("Arial", style="", size=12)
-    for tip in advice[position][lowest_indicator]:
-        pdf.cell(0, 10, f"- {tip}", ln=True)
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
