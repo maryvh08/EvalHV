@@ -358,8 +358,6 @@ def generate_report(pdf_path, position, candidate_name):
         pdf.multi_cell(0, 10, clean_text(f"- Concordancia con funciones: {func_match:.2f}%"))
         pdf.multi_cell(0, 10, clean_text( f"- Concordancia con perfil: {profile_match:.2f}%"))
 
-    pdf.ln(3)
-
     # Resultados de indicadores
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(200, 10, txt=f"Análisis por Indicadores:", ln=True)
@@ -367,8 +365,6 @@ def generate_report(pdf_path, position, candidate_name):
     for indicator, percentage in indicator_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
     pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
-
-    pdf.ln(3)
     
     #Plantemiento de consejos
     pdf.set_font("Arial", style="B", size=12)
@@ -377,15 +373,12 @@ def generate_report(pdf_path, position, candidate_name):
     for tip in advice[position][lowest_indicator]:
         pdf.cell(0, 10, f"- {tip}", ln=True)
 
-    pdf.ln(3)
-
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
     pdf.multi_cell(0, 10, "\nConcordancia Global:")
     pdf.set_font("Arial", size=12)
     pdf.cell(0, 10, f"La concordancia Global de Funciones es: {global_func_match:.2f}%", ln=True)
     pdf.cell(0, 10, f"La oncordancia Global de Perfil es: {global_profile_match:.2f}%", ln=True)
-
 
     #Puntaje global
     pdf.ln(5)
@@ -394,8 +387,6 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.set_font("Arial", style="", size=12)
     pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
     pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
-
-    pdf.ln(3)
 
     # Interpretación de resultados
     pdf.set_font("Arial", style="B", size=12)
@@ -410,12 +401,8 @@ def generate_report(pdf_path, position, candidate_name):
     else:
         pdf.multi_cell(0, 10, f"- Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.")
 
-    pdf.ln(5)
-
     # Conclusión
     pdf.multi_cell(0, 10, f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.")
-
-    pdf.ln(5)
     
     # Mensaje de agradecimiento
     pdf.multi_cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
