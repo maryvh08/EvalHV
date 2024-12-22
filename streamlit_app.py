@@ -375,7 +375,7 @@ def generate_report(pdf_path, position, candidate_name):
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
-    pdf.multi_cell(0, 10, "\nConcordancia Global:")
+    pdf.cell(0, 10, "Concordancia Global:", ln=True)
     pdf.set_font("Arial", size=12)
     pdf.cell(0, 10, f"La concordancia Global de Funciones es: {global_func_match:.2f}%", ln=True)
     pdf.cell(0, 10, f"La oncordancia Global de Perfil es: {global_profile_match:.2f}%", ln=True)
@@ -383,14 +383,14 @@ def generate_report(pdf_path, position, candidate_name):
     #Puntaje global
     pdf.ln(5)
     pdf.set_font("Arial", style="B", size=12)
-    pdf.multi_cell(0, 10, "\nPuntaje Global:")
+    pdf.cell(0, 10, "Puntaje Global:", ln=True)
     pdf.set_font("Arial", style="", size=12)
-    pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
-    pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
+    pdf.cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
+    pdf.cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
 
     # Interpretación de resultados
     pdf.set_font("Arial", style="B", size=12)
-    pdf.multi_cell(0, 10, "\nInterpretación de resultados:")
+    pdf.cell(0, 10, "Interpretación de resultados:", ln=True)
     pdf.set_font("Arial", style="", size=12)
     if global_profile_match >75 and global_func_match > 75:
         pdf.multi_cell(0, 10, f"- Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.")
@@ -405,7 +405,7 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.multi_cell(0, 10, f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.")
     
     # Mensaje de agradecimiento
-    pdf.multi_cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
+    pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
 
     # Guardar PDF
     report_path = f"reporte_analisis_cargo_{position}_{candidate_name}.pdf"
