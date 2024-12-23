@@ -258,6 +258,7 @@ def extract_experience_section(pdf_path):
             and normalized_line != start_keyword.lower()  # No es subtítulo de inicio
             and normalized_line != end_keyword.lower()  # No es subtítulo de fin
         ):
+            cleaned_lines.append(line)
     
     # Debugging: Imprime líneas procesadas
     print("Líneas procesadas:")
