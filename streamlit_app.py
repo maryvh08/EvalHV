@@ -199,7 +199,7 @@ advice = {
 # Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
 def extract_experience_section(pdf_path):
     """
-    Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
+    Extrae la sección 'EXPERIENCIA ANEIAP' de un archivo PDF.
     Identifica el inicio por el subtítulo 'EXPERIENCIA ANEIAP' y el final por 'EVENTOS ORGANIZADOS'.
     Excluye renglones vacíos, subtítulos y elimina viñetas de los renglones.
     """
