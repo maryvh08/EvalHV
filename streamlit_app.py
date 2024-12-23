@@ -223,7 +223,7 @@ def extract_experience_section(pdf_path):
     if start_idx == -1:
         return None  # No se encontró la sección de experiencia
 
-    end_idx = text.find(end_keyword, start_idx)
+    end_idx = text.find(end_keywords, start_idx)
     if end_idx == -1:
         end_idx = len(text)  # Si no encuentra el final, usa el resto del texto
 
@@ -254,7 +254,7 @@ def extract_experience_section(pdf_path):
             normalized_line  # Línea no vacía
             and normalized_line not in exclude_lines  # No está en la lista de exclusión
             and normalized_line != start_keyword.lower()  # No es subtítulo de inicio
-            and normalized_line != end_keyword.lower()  # No es subtítulo de fin
+            and normalized_line != end_keywords.lower()  # No es subtítulo de fin
         ):
             cleaned_lines.append(line)  # Añade la línea limpia si es válida
 
