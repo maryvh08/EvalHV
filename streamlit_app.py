@@ -312,17 +312,22 @@ def generate_report(pdf_path, position, candidate_name):
             func_match = 100.0
             profile_match = 100.0
         else:
+            # Calcular similitud normalmente
             func_match = calculate_similarity(line, functions_text)
             profile_match = calculate_similarity(line, profile_text)
+        
+        # Solo agregar al reporte si no tiene 0% en ambas métricas
+        if func_match > 0 or profile_match > 0:
+            line_results.append((line, func_match, profile_match))
 
-            # Solo agregar al reporte si no tiene 0% en ambas métricas
-            if func_match > 0 or profile_match > 0:
-                line_results.append((line, func_match, profile_match))
-
-    # Cálculo de resultados globales
-    global_func_match = sum([res[1] for res in line_results]) / len(line_results)
-    global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
-
+    # Cálculo de concordancia global
+    if line_results:  # Evitar división por cero si no hay ítems válidos
+        global_func_match = sum([res[1] for res in line_results]) / len(line_results)
+        global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
+    else:
+        global_func_match = 0
+        global_profile_match = 0
+        
     # Identificar indicador menos presente
     lowest_indicator = min(indicator_results, key=indicator_results.get)
     lowest_percentage = indicator_results[lowest_indicator]
