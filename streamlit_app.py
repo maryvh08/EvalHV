@@ -319,8 +319,6 @@ def generate_report(pdf_path, position, candidate_name):
             if func_match > 0 or profile_match > 0:
                 line_results.append((line, func_match, profile_match))
 
-        line_results.append((line, func_match, profile_match))
-
     # Cálculo de resultados globales
     global_func_match = sum([res[1] for res in line_results]) / len(line_results)
     global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
