@@ -199,8 +199,8 @@ advice = {
 # Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
 def extract_experience_section(pdf_path):
     """
-    Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
-    Identifica el inicio por el subtítulo 'EXPERIENCIA EN ANEIAP' y el final por 'EVENTOS ORGANIZADOS'.
+    Extrae la sección 'EXPERIENCIA ANEIAP' de un archivo PDF.
+    Identifica el inicio por el subtítulo 'EXPERIENCIA ANEIAP' y el final por 'EVENTOS ORGANIZADOS'.
     Excluye renglones vacíos, subtítulos, renglones irrelevantes y elimina viñetas de los renglones.
     """
     text = ""
@@ -239,9 +239,9 @@ def extract_experience_section(pdf_path):
     for line in experience_lines:
         line = line.strip()  # Elimina espacios en blanco al inicio y final
         if (
-            line 
-            and line not in [start_keyword, end_keyword]  # Omite subtítulos
-            and line not in exclude_lines  # Omite renglones irrelevantes
+            line  # Línea no vacía
+            and line not in [start_keyword, end_keyword]  # No es un subtítulo
+            and line not in exclude_lines  # No está en la lista de renglones irrelevantes
         ):
             # Elimina posibles viñetas
             line = line.lstrip("•-–—*")  # Elimina viñetas comunes al inicio del renglón
