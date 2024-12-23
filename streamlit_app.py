@@ -315,6 +315,10 @@ def generate_report(pdf_path, position, candidate_name):
             func_match = calculate_similarity(line, functions_text)
             profile_match = calculate_similarity(line, profile_text)
 
+            # Solo agregar al reporte si no tiene 0% en ambas métricas
+            if func_match > 0 or profile_match > 0:
+                line_results.append((line, func_match, profile_match))
+
         line_results.append((line, func_match, profile_match))
 
     # Cálculo de resultados globales
