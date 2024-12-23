@@ -232,6 +232,7 @@ def extract_experience_section(pdf_path):
         "a nivel seccional",
         "reconocimientos individuales",
         "reconocimientos grupales"
+        "nacional 2024"
     ]
     
     # Limpia el texto: elimina subtítulos, renglones vacíos, renglones irrelevantes y viñetas
