@@ -201,8 +201,8 @@ advice = {
 def extract_experience_section(pdf_path):
     """
     Extrae la sección 'EXPERIENCIA ANEIAP' de un archivo PDF.
-    Identifica el inicio por el subtítulo 'EXPERIENCIA ANEIAP' y el final por 'EVENTOS ORGANIZADOS'.
-    Excluye renglones vacíos, subtítulos, renglones irrelevantes y elimina viñetas de los renglones.
+    Detiene el análisis si encuentra el subtítulo 'EVENTOS ORGANIZADOS' o renglones irrelevantes como 
+    'Reconocimientos individuales', 'Reconocimientos', y 'Reconocimientos grupales'.
     """
     text = ""
     with fitz.open(pdf_path) as doc:
@@ -216,52 +216,33 @@ def extract_experience_section(pdf_path):
         "Reconocimientos individuales", 
         "Reconocimientos", 
         "Reconocimientos grupales"
+        "nacional 2024"
     ]
     
-    # Encuentra los índices de inicio y fin
+    # Encuentra el índice de inicio
     start_idx = text.find(start_keyword)
     if start_idx == -1:
         return None  # No se encontró la sección de experiencia
 
-    end_idx = text.find(end_keywords, start_idx)
-    if end_idx == -1:
-        end_idx = len(text)  # Si no encuentra el final, usa el resto del texto
+    # Encuentra el índice más cercano de fin basado en los términos en end_keywords
+    end_idx = len(text)  # Por defecto, toma hasta el final
+    for keyword in end_keywords:
+        idx = text.find(keyword, start_idx)
+        if idx != -1:  # Si se encuentra el término, actualiza end_idx con el menor índice encontrado
+            end_idx = min(end_idx, idx)
 
     # Extrae la sección entre el inicio y el fin
     experience_text = text[start_idx:end_idx].strip()
     
-    # Lista de renglones a excluir (normalizados a minúsculas y sin espacios)
-    exclude_lines = [
-        "a nivel capitular",
-        "a nivel nacional",
-        "a nivel seccional",
-        "reconocimientos individuales",
-        "reconocimientos grupales"
-        "nacional 2024"
-    ]
-    
-    # Limpia el texto: elimina subtítulos, renglones vacíos, renglones irrelevantes y viñetas
+    # Limpia el texto: elimina renglones vacíos, subtítulos y viñetas
     experience_lines = experience_text.split("\n")
     cleaned_lines = []
     for line in experience_lines:
-        # Elimina espacios en blanco y caracteres no deseados
-        line = line.strip()
-        line = re.sub(r"[^\w\s]", "", line)  # Elimina caracteres no alfanuméricos excepto espacios
-        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normaliza espacios y convierte a minúsculas
-        
-        # Verificar si la línea es relevante
-        if (
-            normalized_line  # Línea no vacía
-            and normalized_line not in exclude_lines  # No está en la lista de exclusión
-            and normalized_line != start_keyword.lower()  # No es subtítulo de inicio
-            and normalized_line != end_keywords.lower()  # No es subtítulo de fin
-        ):
-            cleaned_lines.append(line)  # Añade la línea limpia si es válida
-
-    # Debugging: Imprime líneas procesadas
-    print("Líneas procesadas:")
-    for line in cleaned_lines:
-        print(f"- {line}")
+        line = line.strip()  # Elimina espacios en blanco al inicio y final
+        if line:  # Ignorar líneas vacías
+            # Elimina posibles viñetas
+            line = line.lstrip("•-–—*")  # Elimina viñetas comunes al inicio del renglón
+            cleaned_lines.append(line)
     
     return "\n".join(cleaned_lines)
     
