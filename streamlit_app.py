@@ -216,7 +216,6 @@ def extract_experience_section(pdf_path):
         "Reconocimientos individuales", 
         "Reconocimientos", 
         "Reconocimientos grupales"
-        "nacional 2024"
     ]
     
     # Encuentra el índice de inicio
@@ -233,16 +232,36 @@ def extract_experience_section(pdf_path):
 
     # Extrae la sección entre el inicio y el fin
     experience_text = text[start_idx:end_idx].strip()
+
+    # Lista de renglones a excluir (normalizados a minúsculas y sin espacios)
+    exclude_lines = [
+        "a nivel capitular",
+        "a nivel nacional",
+        "a nivel seccional",
+        "reconocimientos individuales",
+        "reconocimientos grupales"
+        "nacional 2024"
+    ]
     
     # Limpia el texto: elimina renglones vacíos, subtítulos y viñetas
     experience_lines = experience_text.split("\n")
     cleaned_lines = []
     for line in experience_lines:
-        line = line.strip()  # Elimina espacios en blanco al inicio y final
-        if line:  # Ignorar líneas vacías
-            # Elimina posibles viñetas
-            line = line.lstrip("•-–—*")  # Elimina viñetas comunes al inicio del renglón
-            cleaned_lines.append(line)
+        line = line.strip()
+        line = re.sub(r"[^\w\s]", "", line)  # Elimina caracteres no alfanuméricos excepto espacios
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normaliza espacios y convierte a minúsculas
+        
+        # Verificar si la línea es relevante
+        if (
+            normalized_line  # Línea no vacía
+            and normalized_line not in exclude_lines  # No está en la lista de exclusión
+            and normalized_line != start_keyword.lower()  # No es subtítulo de inicio
+            and normalized_line != end_keyword.lower()  # No es subtítulo de fin
+    
+    # Debugging: Imprime líneas procesadas
+    print("Líneas procesadas:")
+    for line in cleaned_lines:
+        print(f"- {line}")
     
     return "\n".join(cleaned_lines)
     
