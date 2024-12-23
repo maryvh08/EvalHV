@@ -304,8 +304,8 @@ def generate_report(pdf_path, position, candidate_name):
         return
 
     position_indicators = indicators.get(position, {})
-    raw_indicator_results = {}
-    normalized_indicator_results = {}
+    raw_normalized_results = {}
+    normalized_normalized_results = {}
     lines = experience_text.split("\n")
 
     # Cargar funciones y perfil
@@ -328,9 +328,9 @@ def generate_report(pdf_path, position, candidate_name):
 
         # Evaluación por palabras clave de indicadores
         for indicator, keywords in position_indicators.items():
-            if indicator not in raw_indicator_results:
-                raw_indicator_results[indicator] = 0
-            raw_indicator_results[indicator] += calculate_normalized_presence(line, keywords)
+            if indicator not in raw_normalized_results:
+                raw_normalized_results[indicator] = 0
+            raw_normalized_results[indicator] += calculate_normalized_presence(line, keywords)
 
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
@@ -354,7 +354,7 @@ def generate_report(pdf_path, position, candidate_name):
         global_profile_match = 0
         
     # Identificar indicador menos presente
-    lowest_indicator = min(normalized_results, key=indicator_results.get)
+    lowest_indicator = min(normalized_results, key=normalized_results.get)
     lowest_percentage = normalized_results[lowest_indicator]
 
     func_score= round((global_func_match*5)/100,2)
@@ -388,9 +388,9 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(200, 10, txt=f"Análisis por Indicadores:", ln=True)
     pdf.set_font("Arial", style="", size=12)
-    for indicator, percentage in indicator_results.items():
+    for indicator, percentage in normalized_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-    low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
+    low_performance_indicators = {k: v for k, v in normalized_results.items() if v < 50.0}
     if low_performance_indicators:
         pdf.set_font("Arial", style="B", size=12)
         pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
