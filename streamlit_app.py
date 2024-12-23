@@ -224,13 +224,13 @@ def extract_experience_section(pdf_path):
     # Extrae la sección entre el inicio y el fin
     experience_text = text[start_idx:end_idx].strip()
     
-    # Lista de renglones a excluir
+    # Lista de renglones a excluir (normalizados a minúsculas)
     exclude_lines = [
-        "A nivel capitular",
-        "A nivel nacional",
-        "A nivel seccional",
-        "Reconocimientos individuales",
-        "Reconocimientos grupales"
+        "a nivel capitular",
+        "a nivel nacional",
+        "a nivel seccional",
+        "reconocimientos individuales",
+        "reconocimientos grupales"
     ]
     
     # Limpia el texto: elimina subtítulos, renglones vacíos, renglones irrelevantes y viñetas
@@ -238,10 +238,11 @@ def extract_experience_section(pdf_path):
     cleaned_lines = []
     for line in experience_lines:
         line = line.strip()  # Elimina espacios en blanco al inicio y final
+        normalized_line = line.lower()  # Normaliza a minúsculas
         if (
             line  # Línea no vacía
-            and line not in [start_keyword, end_keyword]  # No es un subtítulo
-            and line not in exclude_lines  # No está en la lista de renglones irrelevantes
+            and normalized_line not in exclude_lines  # No está en la lista de renglones irrelevantes
+            and normalized_line not in [start_keyword.lower(), end_keyword.lower()]  # No es subtítulo
         ):
             # Elimina posibles viñetas
             line = line.lstrip("•-–—*")  # Elimina viñetas comunes al inicio del renglón
