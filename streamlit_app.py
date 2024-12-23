@@ -9,44 +9,44 @@ import re
 # Datos extraídos del documento de planificación
 indicators = {
     "DCA": {
-        "Diseño académico": ["Académico", "Conocimiento", "Integral", "Directiva", "Capítulo", "Habilidades", "ANEIAP DAY", "SÉ", "Institucional", "Subdirector", "Subdirectora", "Blandas", "Duras", "Skills", "Académica", "Desarrollo"],
-        "Innovación e investigación": ["I+D+I", "Consultoría", "Entorno", "Innovación", "Mentoría", "Ciclo","COEXPRO","Herramienta"],
-        "Formación y capacitación": ["Formación", "Escuela", "Liderazgo", "Olimpiadas", "Taller", "FIC", "Ingeolimpiadas", "Capacitación", "Seminario", "Entrenamiento", "Cursos","CEA", "Profesional", "Aplicado"]
+        "Diseño académico": ["Académico", "Conocimiento", "Integral", "Directiva", "Capítulo", "Habilidades", "ANEIAP DAY", "SÉ", "Institucional", "Subdirector", "Subdirectora", "Blandas", "Duras", "Skills", "Académica", "Desarrollo","Estructura curricular", "Evaluaciones", "Planificación académica", "Proyectos interdisciplinarios", "Certificación", "Tutorías", "Recursos didácticos", "Aprendizaje activo", "Plan de estudios", "Gestión académica"],
+        "Innovación e investigación": ["I+D+I", "Consultoría", "Entorno", "Innovación", "Mentoría", "Ciclo","COEXPRO","Herramienta","Innovación tecnológica", "Investigación aplicada", "Startups", "Colaboración académica", "Transferencia de conocimiento", "Desarrollo sostenible", "Herramientas digitales", "Tendencias globales", "Prototipos", "Publicaciones"],
+        "Formación y capacitación": ["Formación", "Escuela", "Liderazgo", "Olimpiadas", "Taller", "FIC", "Ingeolimpiadas", "Capacitación", "Seminario", "Entrenamiento", "Cursos","CEA", "Profesional", "Aplicado", "Simposios", "Diplomados", "Formación continua", "Mentorías", "Charlas técnicas", "Entrenamiento especializado", "Conferencias", "Actividades extracurriculares", "Cursos en línea", "Acreditaciones"]
     },
     "DCC": {
-        "Estrategia de comunicación": ["Comunicaciones", "Publicidad", "MIC", "Digital", "Campañas", "Promoción", "Difusión"],
-        "Producción audiovisual": ["Redes", "Podcast", "Youtube", "Diseño", "Tiktok", "Audiovisual", "Contenido"],
-        "Gestión de documental": ["Data", "Documental", "Biblioteca", "Documentación"]
+        "Estrategia de comunicación": ["Comunicaciones", "Publicidad", "MIC", "Digital", "Campañas", "Promoción", "Difusión", "Plan de medios", "Estrategia digital", "Gestión de marca", "Posicionamiento", "Interacciones", "Feedback", "Optimización de contenidos", "Segmentación", "Impacto visual", "Mensajería"],
+        "Producción audiovisual": ["Redes", "Podcast", "Youtube", "Diseño", "Tiktok", "Audiovisual", "Contenido", "Animaciones", "Infografías", "Live streaming", "Spots publicitarios", "Branding visual", "Microvideos", "Edición avanzada", "Guiones", "Cortometrajes", "Diseño interactivo"],
+        "Gestión de documental": ["Data", "Documental", "Biblioteca", "Documentación", "Archivos digitales", "Preservación de datos", "Control de versiones", "Análisis documental", "Metadatos", "Clasificación", "Digitalización", "Sistemas de recuperación", "Almacenamiento seguro", "Políticas de uso"]
     },
     "DCD": {
-        "Gestión de asociados": ["Desarrollo", "Directiva", "Capítulo", "ANEIAP DAY", "Expansión", "Cultura", "Reclutamiento", "SÉ", "SRA", "Insignia", "Gestión", "Subdirector", "Subdirectora", "Equipos", "Contacto", "Retención"],
-        "Integración y bienestar": ["Relaciones", "Gala", "Integraciones", "Premios", "Cohesión", "Personal", "Interpersonal","Talento","Humano","Plan","Incentivo","Clima","RRHH"],
-        "Sostenimiento y sociedad": ["Responsabilidad", "RSA", "Social", "Ambiental", "Comunitario"]
+        "Gestión de asociados": ["Desarrollo", "Directiva", "Capítulo", "ANEIAP DAY", "Expansión", "Cultura", "Reclutamiento", "SÉ", "SRA", "Insignia", "Gestión", "Subdirector", "Subdirectora", "Equipos", "Contacto", "Retención", "Inclusión", "Networking", "Retención de miembros", "Encuestas de satisfacción", "Incentivos", "Programas de membresía", "Coaching", "Fidelización", "Análisis de perfiles", "Adaptación cultural"],
+        "Integración y bienestar": ["Relaciones", "Gala", "Integraciones", "Premios", "Cohesión", "Personal", "Interpersonal","Talento","Humano","Plan","Incentivo","Clima","RRHH", "Diversidad", "Inclusión social", "Clima organizacional", "Team building", "Salud mental", "Evaluaciones de bienestar", "Workshops", "Liderazgo positivo", "Voluntariado", "Convivencia],
+        "Sostenimiento y sociedad": ["Responsabilidad", "RSA", "Social", "Ambiental", "Comunitario", "Impacto social", "Proyectos comunitarios", "Responsabilidad ambiental", "Conciencia social", "Sostenibilidad organizacional", "Gobernanza", "Gestión ética", "Inclusión económica", "Iniciativas verdes", "Cooperación social"]
     },
     "DCF": {
-        "Gestión financieras": ["Finanzas", "Financiero", "Recursos", "Fondos", "Fuente", "Gestión", "Egreso", "Ingreso", "Ahorro", "Dashboard", "Sustentable"],
-        "Sostenibilidad económica": ["Riqueza", "Sostenibilidad", "Obtención", "Recaudación", "Sostenimiento", "Económica", "Rentabilidad"],
-        "Análisis  y transparencia": ["Directiva", "Capítulo", "Subdirector", "Subdirectora", "Donaciones"]
+        "Gestión financieras": ["Finanzas", "Financiero", "Recursos", "Fondos", "Fuente", "Gestión", "Egreso", "Ingreso", "Ahorro", "Dashboard", "Sustentable", "Balance general", "Flujos de efectivo", "Auditorías internas", "Gestión presupuestaria", "Planeación fiscal", "Finanzas sostenibles", "Riesgo financiero", "Revisión de cuentas", "Finanzas públicas", "Rendición de cuentas"],
+        "Sostenibilidad económica": ["Riqueza", "Sostenibilidad", "Obtención", "Recaudación", "Sostenimiento", "Económica", "Rentabilidad", "Proyectos rentables", "Estrategia económica", "Optimización de costos", "Alternativas financieras", "Planeación a largo plazo", "Viabilidad económica", "Fuentes de ingresos", "Retorno de inversión", "Capital de trabajo", "Costos indirectos"],
+        "Análisis  y transparencia": ["Directiva", "Capítulo", "Subdirector", "Subdirectora", "Donaciones", "Ética financiera", "Cumplimiento normativo", "Indicadores clave", "Informes de impacto", "Controles internos", "Transparencia organizacional", "Buenas prácticas", "Reportes trimestrales", "Trazabilidad", "Auditorías externas"]
     },
     "DCM": {
-        "Estrategias de brandings": ["Mercadeo", "Branding", "Negocio", "Posicionamiento", "Promoción", "Plan", "Campaña","Stakeholders","SGA","CRM","NPS","Indicador"],
-        "Promoción y visibilidad": ["Buzón", "Directiva", "Capítulo", "ANEIAP DAY", "Subdirector", "Subdirectora", "Relaciones", "Visibilidad", "Identidad", "Visualización","Saloneo","Red","Expansión"],
-        "Gestión comercial": ["Tienda", "Públicas", "Cliente", "Externo", "Interno", "Modelo", "Servicio", "Venta", "Comercial","EMPRENDE-IAP","Modelo", "Producto", "Servicio","Posicionamiento", "Entorno", "Crecimiento"]
+        "Estrategias de brandings": ["Mercadeo", "Branding", "Negocio", "Posicionamiento", "Promoción", "Plan", "Campaña","Stakeholders","SGA","CRM","NPS","Indicador", "Identidad corporativa", "Rebranding", "Estrategia de marca", "Valor de marca", "Posicionamiento estratégico", "Cultura de marca", "Arquitectura de marca", "Narrativa visual", "Diferenciación", "Promesa de marca"],
+        "Promoción y visibilidad": ["Buzón", "Directiva", "Capítulo", "ANEIAP DAY", "Subdirector", "Subdirectora", "Relaciones", "Visibilidad", "Identidad", "Visualización","Saloneo","Red","Expansión", "Estrategias promocionales", "Publicidad segmentada", "Marketing digital", "Engagement", "Campañas omnicanal", "Plan promocional", "Mercadeo de contenidos", "Promociones cruzadas", "Dinámicas interactivas", "Influencer"],
+        "Gestión comercial": ["Tienda", "Públicas", "Cliente", "Externo", "Interno", "Modelo", "Servicio", "Venta", "Comercial","EMPRENDE-IAP","Modelo", "Producto", "Servicio","Posicionamiento", "Entorno", "Crecimiento", "Propuestas de valor", "E-commerce", "Negociación comercial", "Canales de distribución", "Estratégias de ventas", "Alianzas comerciales", "Fidelización de clientes", "Embudos de conversión", "Análisis de mercado", "Plan de ventas"]
     },
     "PC": {
-        "Liderazgo y estrategia": ["Estrategia", "Directivo", "Liderazgo", "Rendimiento", "Decisiones", "Supervisión", "Transformación"],
-        "Gestión organizacional": ["Presidencia", "Presidente", "Directiva", "Capítulo", "Junta", "ECAP", "Gestión", "Gestor"],
-        "Relaciones y representación": ["Representante", "ANEIAP DAY", "Legal"]
+        "Liderazgo y estrategia": ["Estrategia", "Directivo", "Liderazgo", "Rendimiento", "Decisiones", "Supervisión", "Transformación","Gestión del cambio", "Toma de decisiones", "Motivación intrínseca", "Comunicación efectiva", "Delegación estratégica", "Desarrollo de equipos", "Pensamiento crítico", "Liderazgo adaptativo", "Visión global", "Estratégias de éxito"],
+        "Gestión organizacional": ["Presidencia", "Presidente", "Directiva", "Capítulo", "Junta", "ECAP", "Gestión", "Gestor", "Coordinación", "Procesos operativos", "Diagramas de flujo", "Gestión de riesgos", "Metodologías ágiles", "Revisión estratégica", "Control de calidad", "Benchmarking", "Normativa interna", "Protocolos"],
+        "Relaciones y representación": ["Representante", "ANEIAP DAY", "Legal", "Negociaciones", "Relaciones públicas", "Diplomacia", "Visitas institucionales", "Acuerdos estratégicos", "Representatividad", "Relaciones externas", "Resolución de conflictos", "Gestión de imagen", "Agenda oficial"]
     },
     "CCP": {
-        "Gestión de proyectos": ["Proyecto", "Project", "Asesor", "Sponsor", "Equipo", "Manager", "Gestión", "Vida", "Subcoordinador", "Subcoordinadora", "Viabilidad", "Planificación", "Implementación"],
-        "Innovación y creatividad": ["Innovación", "Innova", "Cambio", "Reforma", "ALMA", "Estructura", "Modelo", "Gobierno"],
-        "Colaboración estratégica": ["CNI", "GNP", "Directiva", "ECP", "PEN", "COEC", "Capítulo", "Fraternidad", "ANEIAP DAY", "Organización", "Asesoramiento", "Indicadores", "Colaboración"]
+        "Gestión de proyectos": ["Proyecto", "Project", "Asesor", "Sponsor", "Equipo", "Manager", "Gestión", "Vida", "Subcoordinador", "Subcoordinadora", "Viabilidad", "Planificación", "Implementación", "Metodologías PMI", "Diagramas Gantt", "Cronogramas", "Ágil-Scrum", "Recursos humanos", "Stakeholders", "Gestión de alcance", "Cierre de proyectos", "Estimaciones", "Matriz RACI"],
+        "Innovación y creatividad": ["Innovación", "Innova", "Cambio", "Reforma", "ALMA", "Estructura", "Modelo", "Gobierno", "Pensamiento lateral", "Proyectos disruptivos", "Design thinking", "Innovación abierta", "Modelos de negocio", "Colaboración creativa", "Crowdsourcing", "Ideación", "Experimentación", "Validación"],
+        "Colaboración estratégica": ["CNI", "GNP", "Directiva", "ECP", "PEN", "COEC", "Capítulo", "Fraternidad", "ANEIAP DAY", "Organización", "Asesoramiento", "Indicadores", "Colaboración", "Sinergias", "Alianzas público-privadas", "Networking estratégico", "Creación de redes", "Gestión de talento", "Análisis de contexto", "Interdisciplinariedad", "Colaboración remota", "Estrategias colaborativas", "Responsabilidad compartida"]
     },
     "IC": {
-        "Auditoría y control": ["Interventoría", "Normativa", "Auditor", "Interventor", "Datos", "Data", "Análisis", "Ética", "Revisión","Asesoría"],
-        "Normativa y transparencia": ["Transparencia", "Reglamento", "Interventor", "Análisis financiero", "Veeduría","Conducto","Conducta", "Regular"],
-        "Seguimiento y evaluación": ["ECI", "360", "Estratégica", "Directiva", "IC", "ENI", "Capítulo", "Interventor", "Rúbrica", "Indicadores de desempeño", "Seguimiento"]
+        "Auditoría y control": ["Interventoría", "Normativa", "Auditor", "Interventor", "Datos", "Data", "Análisis", "Ética", "Revisión","Asesoría","Evaluación de riesgos", "Planificación de auditoría", "Verificación", "Procedimientos internos", "Informes de control", "Matriz de evaluación", "Diagnóstico interno", "Checklist", "Indicadores de desempeño", "Seguimiento continuo"],
+        "Normativa y transparencia": ["Transparencia", "Reglamento", "Interventor", "Análisis financiero", "Veeduría","Conducto","Conducta", "Regular", "Reglas de compliance", "Código de conducta", "Reportes públicos", "Declaraciones", "Ética normativa", "Controles regulatorios", "Monitoreo", "Estándares ISO", "Marcos legales", "Transparencia activa"],
+        "Seguimiento y evaluación": ["ECI", "360", "Estratégica", "Directiva", "IC", "ENI", "Capítulo", "Interventor", "Rúbrica", "Indicadores de desempeño", "Seguimiento", "KPIs", "Cuadros de mando", "Feedback", "Informe ejecutivo", "Panel de control", "Medición de resultados", "Encuestas", "Monitoreo periódico", "Ajustes estratégicos", "Revisiones iterativas"]
     }
 }
 
