@@ -199,7 +199,7 @@ advice = {
 # Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
 def extract_experience_section(pdf_path):
     """
-    Extrae la sección 'EXPERIENCIA ANEIAP' de un archivo PDF.
+    Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
     Identifica el inicio por el subtítulo 'EXPERIENCIA ANEIAP' y el final por 'EVENTOS ORGANIZADOS'.
     Excluye renglones vacíos, subtítulos y elimina viñetas de los renglones.
     """
@@ -404,7 +404,7 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
 
     # Guardar PDF
-    report_path = f"reporte_analisis_cargo_{position}_{candidate_name}.pdf"
+    report_path = f"Reporte_analisis_cargo_{position}_{candidate_name}.pdf"
     pdf.output(report_path, 'F')
 
     st.success("Reporte generado exitosamente.")
