@@ -354,8 +354,8 @@ def generate_report(pdf_path, position, candidate_name):
         global_profile_match = 0
         
     # Identificar indicador menos presente
-    lowest_indicator = min(indicator_results, key=indicator_results.get)
-    lowest_percentage = indicator_results[lowest_indicator]
+    lowest_indicator = min(normalized_results, key=indicator_results.get)
+    lowest_percentage = normalized_results[lowest_indicator]
 
     func_score= round((global_func_match*5)/100,2)
     profile_score= round((global_profile_match*5)/100,2)
