@@ -224,7 +224,7 @@ def extract_experience_section(pdf_path):
     # Extrae la sección entre el inicio y el fin
     experience_text = text[start_idx:end_idx].strip()
     
-    # Lista de renglones a excluir (normalizados a minúsculas)
+    # Lista de renglones a excluir (normalizados a minúsculas y sin espacios)
     exclude_lines = [
         "a nivel capitular",
         "a nivel nacional",
@@ -237,16 +237,24 @@ def extract_experience_section(pdf_path):
     experience_lines = experience_text.split("\n")
     cleaned_lines = []
     for line in experience_lines:
-        line = line.strip()  # Elimina espacios en blanco al inicio y final
-        normalized_line = line.lower()  # Normaliza a minúsculas
+        # Elimina espacios en blanco y caracteres no deseados
+        line = line.strip()
+        line = re.sub(r"[^\w\s]", "", line)  # Elimina caracteres no alfanuméricos excepto espacios
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normaliza espacios y convierte a minúsculas
+        
+        # Verificar si la línea es relevante
         if (
-            line  # Línea no vacía
-            and normalized_line not in exclude_lines  # No está en la lista de renglones irrelevantes
-            and normalized_line not in [start_keyword.lower(), end_keyword.lower()]  # No es subtítulo
+            normalized_line  # Línea no vacía
+            and normalized_line not in exclude_lines  # No está en la lista de exclusión
+            and normalized_line != start_keyword.lower()  # No es subtítulo de inicio
+            and normalized_line != end_keyword.lower()  # No es subtítulo de fin
         ):
-            # Elimina posibles viñetas
-            line = line.lstrip("•-–—*")  # Elimina viñetas comunes al inicio del renglón
-            cleaned_lines.append(line)
+            cleaned_lines.append(line)  # Añade la línea limpia si es válida
+
+    # Debugging: Imprime líneas procesadas
+    print("Líneas procesadas:")
+    for line in cleaned_lines:
+        print(f"- {line}")
     
     return "\n".join(cleaned_lines)
     
