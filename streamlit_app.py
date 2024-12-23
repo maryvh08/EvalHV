@@ -206,6 +206,7 @@ def extract_experience_section(pdf_path):
             text += page.get_text()
     start_keyword = "EXPERIENCIA EN ANEIAP"
     end_keywords = [
+        "Reconocimientos individuales"
         "CONDICIONES ECONÓMICAS PARA VIAJAR",
         "EVENTOS ORGANIZADOS",
         "Asistencia a eventos ANEIAP",
