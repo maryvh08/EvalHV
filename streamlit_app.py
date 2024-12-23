@@ -4,6 +4,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 from fpdf import FPDF
 from collections import Counter
+import re
 
 # Datos extraídos del documento de planificación
 indicators = {
