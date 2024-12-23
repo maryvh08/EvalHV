@@ -343,7 +343,7 @@ def generate_report(pdf_path, position, candidate_name):
         
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if func_match > 0 or profile_match > 0:
-            line_results.append((line, func_match, profile_match)
+            line_results.append((line, func_match, profile_match))
 
     # Cálculo de concordancia global
     if line_results:  # Evitar división por cero si no hay ítems válidos
