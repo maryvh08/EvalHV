@@ -199,9 +199,9 @@ advice = {
 # Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
 def extract_experience_section(pdf_path):
     """
-    Extrae la sección 'EXPERIENCIA ANEIAP' de un archivo PDF.
-    Identifica el inicio por el subtítulo 'EXPERIENCIA ANEIAP' y el final por 'EVENTOS ORGANIZADOS'.
-    Excluye renglones vacíos, subtítulos y elimina viñetas de los renglones.
+    Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
+    Identifica el inicio por el subtítulo 'EXPERIENCIA EN ANEIAP' y el final por 'EVENTOS ORGANIZADOS'.
+    Excluye renglones vacíos, subtítulos, renglones irrelevantes y elimina viñetas de los renglones.
     """
     text = ""
     with fitz.open(pdf_path) as doc:
@@ -211,6 +211,7 @@ def extract_experience_section(pdf_path):
     # Palabras clave para identificar el inicio y final de la sección
     start_keyword = "EXPERIENCIA EN ANEIAP"
     end_keyword = "EVENTOS ORGANIZADOS"
+    
     # Encuentra los índices de inicio y fin
     start_idx = text.find(start_keyword)
     if start_idx == -1:
@@ -223,12 +224,25 @@ def extract_experience_section(pdf_path):
     # Extrae la sección entre el inicio y el fin
     experience_text = text[start_idx:end_idx].strip()
     
-    # Limpia el texto: elimina subtítulos, renglones vacíos y viñetas
+    # Lista de renglones a excluir
+    exclude_lines = [
+        "A nivel capitular",
+        "A nivel nacional",
+        "A nivel seccional",
+        "Reconocimientos individuales",
+        "Reconocimientos grupales"
+    ]
+    
+    # Limpia el texto: elimina subtítulos, renglones vacíos, renglones irrelevantes y viñetas
     experience_lines = experience_text.split("\n")
     cleaned_lines = []
     for line in experience_lines:
         line = line.strip()  # Elimina espacios en blanco al inicio y final
-        if line and line not in [start_keyword, end_keyword]:  # Omite subtítulos y renglones vacíos
+        if (
+            line 
+            and line not in [start_keyword, end_keyword]  # Omite subtítulos
+            and line not in exclude_lines  # Omite renglones irrelevantes
+        ):
             # Elimina posibles viñetas
             line = line.lstrip("•-–—*")  # Elimina viñetas comunes al inicio del renglón
             cleaned_lines.append(line)
