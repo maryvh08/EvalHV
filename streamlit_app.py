@@ -216,6 +216,7 @@ def extract_experience_section(pdf_path):
         "Reconocimientos individuales", 
         "Reconocimientos", 
         "Reconocimientos grupales"
+        "Reconocimientos"
     ]
     
     # Encuentra el índice de inicio
