@@ -20,7 +20,7 @@ indicators = {
     },
     "DCD": {
         "Gestión de asociados": ["Desarrollo", "Directiva", "Capítulo", "ANEIAP DAY", "Expansión", "Cultura", "Reclutamiento", "SÉ", "SRA", "Insignia", "Gestión", "Subdirector", "Subdirectora", "Equipos", "Contacto", "Retención", "Inclusión", "Networking", "Retención de miembros", "Encuestas de satisfacción", "Incentivos", "Programas de membresía", "Coaching", "Fidelización", "Análisis de perfiles", "Adaptación cultural"],
-        "Integración y bienestar": ["Relaciones", "Gala", "Integraciones", "Premios", "Cohesión", "Personal", "Interpersonal","Talento","Humano","Plan","Incentivo","Clima","RRHH", "Diversidad", "Inclusión social", "Clima organizacional", "Team building", "Salud mental", "Evaluaciones de bienestar", "Workshops", "Liderazgo positivo", "Voluntariado", "Convivencia],
+        "Integración y bienestar": ["Relaciones", "Gala", "Integraciones", "Premios", "Cohesión", "Personal", "Interpersonal","Talento","Humano","Plan","Incentivo","Clima","RRHH", "Diversidad", "Inclusión social", "Clima organizacional", "Team building", "Salud mental", "Evaluaciones de bienestar", "Workshops", "Liderazgo positivo", "Voluntariado", "Convivencia"],
         "Sostenimiento y sociedad": ["Responsabilidad", "RSA", "Social", "Ambiental", "Comunitario", "Impacto social", "Proyectos comunitarios", "Responsabilidad ambiental", "Conciencia social", "Sostenibilidad organizacional", "Gobernanza", "Gestión ética", "Inclusión económica", "Iniciativas verdes", "Cooperación social"]
     },
     "DCF": {
