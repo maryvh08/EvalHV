@@ -209,7 +209,7 @@ def extract_experience_section(pdf_path):
             text += page.get_text()
     
     # Palabras clave para identificar el inicio y final de la sección
-    start_keyword = "EXPERIENCIA ANEIAP"
+    start_keyword = "EXPERIENCIA EN ANEIAP"
     end_keyword = "EVENTOS ORGANIZADOS"
     
     # Encuentra los índices de inicio y fin
