@@ -272,30 +272,6 @@ def calculate_presence(text, keywords):
     count = sum(1 for word in words if word.lower() in [kw.lower() for kw in keywords])
     return (count / len(keywords)) * 100 if keywords else 0
 
-def calculate_normalized_presence(text, keywords):
-    """
-    Calcula el porcentaje normalizado de presencia de palabras clave en un texto.
-    :param text: Texto donde se buscan las palabras clave.
-    :param keywords: Lista de palabras clave a buscar.
-    :return: Porcentaje normalizado de presencia de palabras clave.
-    """
-    words = text.split()
-    count = sum(1 for word in words if word.lower() in [kw.lower() for kw in keywords])
-    return count
-
-def normalize_indicators(indicator_results):
-    """
-    Normaliza los valores de los indicadores para que el total no supere el 100%.
-    :param indicator_results: Diccionario con los resultados de presencia por indicador.
-    :return: Diccionario con valores normalizados.
-    """
-    total = sum(indicator_results.values())
-    if total > 0:
-        normalized_results = {k: (v / total) * 100 for k, v in indicator_results.items()}
-    else:
-        normalized_results = {k: 0 for k in indicator_results.keys()}
-    return normalized_results
-
 def generate_report(pdf_path, position, candidate_name):
     """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
     experience_text = extract_experience_section(pdf_path)
@@ -304,8 +280,7 @@ def generate_report(pdf_path, position, candidate_name):
         return
 
     position_indicators = indicators.get(position, {})
-    raw_normalized_results = {}
-    normalized_normalized_results = {}
+    indicator_results = {}
     lines = experience_text.split("\n")
 
     # Cargar funciones y perfil
@@ -328,9 +303,9 @@ def generate_report(pdf_path, position, candidate_name):
 
         # Evaluación por palabras clave de indicadores
         for indicator, keywords in position_indicators.items():
-            if indicator not in raw_normalized_results:
-                raw_normalized_results[indicator] = 0
-            raw_normalized_results[indicator] += calculate_normalized_presence(line, keywords)
+            if indicator not in indicator_results:
+                indicator_results[indicator] = 0
+            indicator_results[indicator] += calculate_presence(line, keywords)
 
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
@@ -354,8 +329,8 @@ def generate_report(pdf_path, position, candidate_name):
         global_profile_match = 0
         
     # Identificar indicador menos presente
-    lowest_indicator = min(normalized_results, key=normalized_results.get)
-    lowest_percentage = normalized_results[lowest_indicator]
+    lowest_indicator = min(indicator_results, key=indicator_results.get)
+    lowest_percentage = indicator_results[lowest_indicator]
 
     func_score= round((global_func_match*5)/100,2)
     profile_score= round((global_profile_match*5)/100,2)
@@ -388,9 +363,9 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(200, 10, txt=f"Análisis por Indicadores:", ln=True)
     pdf.set_font("Arial", style="", size=12)
-    for indicator, percentage in normalized_results.items():
+    for indicator, percentage in indicator_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-    low_performance_indicators = {k: v for k, v in normalized_results.items() if v < 50.0}
+    low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
     if low_performance_indicators:
         pdf.set_font("Arial", style="B", size=12)
         pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
@@ -512,5 +487,3 @@ st.markdown(f"""
         </a>
     </div>
     """, unsafe_allow_html=True)
-
-
