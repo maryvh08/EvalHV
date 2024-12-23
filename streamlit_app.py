@@ -19,7 +19,7 @@ indicators = {
     },
     "DCD": {
         "Gestión de asociados": ["Desarrollo", "Directiva", "Capítulo", "ANEIAP DAY", "Expansión", "Cultura", "Reclutamiento", "SÉ", "SRA", "Insignia", "Gestión", "Subdirector", "Subdirectora", "Equipos", "Contacto", "Retención"],
-        "Integración y bienestar": ["Relaciones", "Gala", "Integraciones", "Premios", "Cohesión", "Personal", "Interpersonal"],
+        "Integración y bienestar": ["Relaciones", "Gala", "Integraciones", "Premios", "Cohesión", "Personal", "Interpersonal","Talento","Humano","Plan","Incentivo","Clima","RRHH"],
         "Sostenimiento y sociedad": ["Responsabilidad", "RSA", "Social", "Ambiental", "Comunitario"]
     },
     "DCF": {
