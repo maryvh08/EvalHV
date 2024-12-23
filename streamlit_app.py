@@ -239,7 +239,7 @@ def extract_experience_section(pdf_path):
         "a nivel nacional",
         "a nivel seccional",
         "reconocimientos individuales",
-        "reconocimientos grupales"
+        "reconocimientos grupales",
         "nacional 2024"
     ]
     
@@ -256,7 +256,7 @@ def extract_experience_section(pdf_path):
             normalized_line  # Línea no vacía
             and normalized_line not in exclude_lines  # No está en la lista de exclusión
             and normalized_line != start_keyword.lower()  # No es subtítulo de inicio
-            and normalized_line != end_keywords.lower()  # No es subtítulo de fin
+            and normalized_line not in [kw.lower() for kw in end_keywords]  # No es subtítulo de fin
         ):
             cleaned_lines.append(line)
     
