@@ -28,9 +28,9 @@ indicators = {
         "Análisis  y transparencia": ["Directiva", "Capítulo", "Subdirector", "Subdirectora", "Donaciones"]
     },
     "DCM": {
-        "Estrategias de brandings": ["Mercadeo", "Branding", "Negocio", "Posicionamiento", "Promoción", "Plan", "Campaña"],
-        "Promoción y visibilidad": ["Buzón", "Directiva", "Capítulo", "ANEIAP DAY", "Subdirector", "Subdirectora", "Relaciones", "Visibilidad", "Identidad", "Visualización","Saloneo"],
-        "Gestión comercial": ["Tienda", "Públicas", "Cliente", "Externo", "Interno", "Modelo", "Servicio", "Venta", "Comercial"]
+        "Estrategias de brandings": ["Mercadeo", "Branding", "Negocio", "Posicionamiento", "Promoción", "Plan", "Campaña"],"Stakeholders",
+        "Promoción y visibilidad": ["Buzón", "Directiva", "Capítulo", "ANEIAP DAY", "Subdirector", "Subdirectora", "Relaciones", "Visibilidad", "Identidad", "Visualización","Saloneo","Red"],
+        "Gestión comercial": ["Tienda", "Públicas", "Cliente", "Externo", "Interno", "Modelo", "Servicio", "Venta", "Comercial","EMPRENDE-IAP"]
     },
     "PC": {
         "Liderazgo y estrategia": ["Estrategia", "Directivo", "Liderazgo", "Rendimiento", "Decisiones", "Supervisión", "Transformación"],
@@ -43,9 +43,9 @@ indicators = {
         "Colaboración estratégica": ["CNI", "GNP", "Directiva", "ECP", "PEN", "COEC", "Capítulo", "Fraternidad", "ANEIAP DAY", "Organización", "Asesoramiento", "Indicadores", "Colaboración"]
     },
     "IC": {
-        "Auditoría y control": ["Interventoría", "Normativa", "Auditor", "Interventor", "Datos", "Data", "Análisis", "Ética", "Revisión"],
-        "Normativa y transparencia": ["Transparencia", "Interventor", "Análisis financiero", "Veeduría"],
-        "Seguimiento y evaluación": ["ECI", "Directiva", "IC", "ENI", "Capítulo", "Interventor", "Rúbrica", "Indicadores de desempeño", "Seguimiento"]
+        "Auditoría y control": ["Interventoría", "Normativa", "Auditor", "Interventor", "Datos", "Data", "Análisis", "Ética", "Revisión","Asesoría"],
+        "Normativa y transparencia": ["Transparencia", "Reglamento", "Interventor", "Análisis financiero", "Veeduría","Conducto","Conducta", "Regular"],
+        "Seguimiento y evaluación": ["ECI", "360", "Estratégica", "Directiva", "IC", "ENI", "Capítulo", "Interventor", "Rúbrica", "Indicadores de desempeño", "Seguimiento"]
     }
 }
 
@@ -210,7 +210,7 @@ def extract_experience_section(pdf_path):
     
     # Palabras clave para identificar el inicio y final de la sección
     start_keyword = "EXPERIENCIA EN ANEIAP"
-    end_keyword = "EVENTOS ORGANIZADOS"
+    end_keyword = "EVENTOS ORGANIZADOS", "Reconocimientos"
     
     # Encuentra los índices de inicio y fin
     start_idx = text.find(start_keyword)
