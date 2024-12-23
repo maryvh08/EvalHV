@@ -28,7 +28,7 @@ indicators = {
         "Análisis  y transparencia": ["Directiva", "Capítulo", "Subdirector", "Subdirectora", "Donaciones"]
     },
     "DCM": {
-        "Estrategias de brandings": ["Mercadeo", "Branding", "Negocio", "Posicionamiento", "Promoción", "Plan", "Campaña"],"Stakeholders",
+        "Estrategias de brandings": ["Mercadeo", "Branding", "Negocio", "Posicionamiento", "Promoción", "Plan", "Campaña","Stakeholders"],
         "Promoción y visibilidad": ["Buzón", "Directiva", "Capítulo", "ANEIAP DAY", "Subdirector", "Subdirectora", "Relaciones", "Visibilidad", "Identidad", "Visualización","Saloneo","Red"],
         "Gestión comercial": ["Tienda", "Públicas", "Cliente", "Externo", "Interno", "Modelo", "Servicio", "Venta", "Comercial","EMPRENDE-IAP"]
     },
