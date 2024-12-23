@@ -280,7 +280,7 @@ def generate_report(pdf_path, position, candidate_name):
         return
 
     position_indicators = indicators.get(position, {})
-    indicator_results = {}
+    indicator_results = Counter()
     lines = experience_text.split("\n")
 
     # Cargar funciones y perfil
@@ -303,8 +303,6 @@ def generate_report(pdf_path, position, candidate_name):
 
         # Evaluación por palabras clave de indicadores
         for indicator, keywords in position_indicators.items():
-            if indicator not in indicator_results:
-                indicator_results[indicator] = 0
             indicator_results[indicator] += calculate_presence(line, keywords)
 
         # Evaluación general de concordancia
@@ -320,6 +318,12 @@ def generate_report(pdf_path, position, candidate_name):
         if func_match > 0 or profile_match > 0:
             line_results.append((line, func_match, profile_match))
 
+    # Normalización de los resultados de indicadores
+    total_presence = sum(indicator_results.values())
+    if total_presence > 0:
+        for indicator in indicator_results:
+            indicator_results[indicator] = (indicator_results[indicator] / total_presence) * 100
+            
     # Cálculo de concordancia global
     if line_results:  # Evitar división por cero si no hay ítems válidos
         global_func_match = sum([res[1] for res in line_results]) / len(line_results)
@@ -332,8 +336,9 @@ def generate_report(pdf_path, position, candidate_name):
     lowest_indicator = min(indicator_results, key=indicator_results.get)
     lowest_percentage = indicator_results[lowest_indicator]
 
-    func_score= round((global_func_match*5)/100,2)
-    profile_score= round((global_profile_match*5)/100,2)
+    #Calculo puntajes
+    func_score = round((global_func_match * 5) / 100, 2)
+    profile_score = round((global_profile_match * 5) / 100, 2)
 
     # Crear reporte en PDF
     pdf = FPDF()
