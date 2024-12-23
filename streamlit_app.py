@@ -272,6 +272,30 @@ def calculate_presence(text, keywords):
     count = sum(1 for word in words if word.lower() in [kw.lower() for kw in keywords])
     return (count / len(keywords)) * 100 if keywords else 0
 
+def calculate_normalized_presence(text, keywords):
+    """
+    Calcula el porcentaje normalizado de presencia de palabras clave en un texto.
+    :param text: Texto donde se buscan las palabras clave.
+    :param keywords: Lista de palabras clave a buscar.
+    :return: Porcentaje normalizado de presencia de palabras clave.
+    """
+    words = text.split()
+    count = sum(1 for word in words if word.lower() in [kw.lower() for kw in keywords])
+    return count
+
+def normalize_indicators(indicator_results):
+    """
+    Normaliza los valores de los indicadores para que el total no supere el 100%.
+    :param indicator_results: Diccionario con los resultados de presencia por indicador.
+    :return: Diccionario con valores normalizados.
+    """
+    total = sum(indicator_results.values())
+    if total > 0:
+        normalized_results = {k: (v / total) * 100 for k, v in indicator_results.items()}
+    else:
+        normalized_results = {k: 0 for k in indicator_results.keys()}
+    return normalized_results
+
 def generate_report(pdf_path, position, candidate_name):
     """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
     experience_text = extract_experience_section(pdf_path)
@@ -280,7 +304,8 @@ def generate_report(pdf_path, position, candidate_name):
         return
 
     position_indicators = indicators.get(position, {})
-    indicator_results = {}
+    raw_indicator_results = {}
+    normalized_indicator_results = {}
     lines = experience_text.split("\n")
 
     # Cargar funciones y perfil
@@ -303,9 +328,9 @@ def generate_report(pdf_path, position, candidate_name):
 
         # Evaluación por palabras clave de indicadores
         for indicator, keywords in position_indicators.items():
-            if indicator not in indicator_results:
-                indicator_results[indicator] = 0
-            indicator_results[indicator] += calculate_presence(line, keywords)
+            if indicator not in raw_indicator_results:
+                raw_indicator_results[indicator] = 0
+            raw_indicator_results[indicator] += calculate_normalized_presence(line, keywords)
 
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
@@ -318,7 +343,7 @@ def generate_report(pdf_path, position, candidate_name):
         
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if func_match > 0 or profile_match > 0:
-            line_results.append((line, func_match, profile_match))
+            line_results.append((line, func_match, profile_match)
 
     # Cálculo de concordancia global
     if line_results:  # Evitar división por cero si no hay ítems válidos
