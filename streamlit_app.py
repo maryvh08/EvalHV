@@ -460,6 +460,10 @@ st.markdown("""
 
 st.write("") 
 
+st.write("Aquí puedes encontrar información si quieres saber un poco más ℹ️") 
+
+st.write("") 
+
 # Configuración del enlace MANUALES
 link_url_Manuales = "https://drive.google.com/drive/folders/18OIh99ZxE1LThqzy1A406f1kbot6b4bf"
 link_label_Manuales = "Manuales de cargo"
