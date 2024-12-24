@@ -460,7 +460,7 @@ st.markdown("""
 
 st.write("") 
 
-st.write("Aquí puedes encontrar información si quieres saber un poco más ℹ️") 
+st.write("ℹ️ Aquí puedes encontrar información si quieres saber un poco más") 
 
 st.write("") 
 
