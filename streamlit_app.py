@@ -372,8 +372,6 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.set_font("Arial", style="", size=12)
     for indicator, percentage in indicator_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-    lowest_indicator = min(indicator_results, key=indicator_results.get)
-    pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
     low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
     if low_performance_indicators:
         pdf.set_font("Arial", style="B", size=12)
