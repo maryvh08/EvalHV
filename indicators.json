@@ -613,7 +613,8 @@
       "Plan de acción",
       "Alcance del proyecto",
       "Línea base",
-      "Riesgos del proyecto"
+      "Riesgos del proyecto",
+      "PIN"
     ],
     "Innovación y creatividad": [
       "Innovación",
@@ -643,8 +644,10 @@
       "Innovación incremental",
       "Procesos disruptivos",
       "Emprendimiento",
-      "Experimentación"
-      "Bolsa"
+      "Experimentación",
+      "Bolsa",
+      "END",
+      "Departamento"
     ],
     "Colaboración estratégica": [
       "CNI",
