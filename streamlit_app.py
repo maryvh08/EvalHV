@@ -208,6 +208,8 @@ def extract_experience_section(pdf_path):
         "reconocimientos grupales",
         "nacional 2024"
         "cargos"
+        "trabajo capitular"
+        "trabajo nacional"
     ]
     
     # Limpia el texto: elimina renglones vacíos, subtítulos y viñetas
