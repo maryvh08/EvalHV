@@ -458,6 +458,8 @@ st.markdown("""
 - Evita utilizar tablas en tu sección de EXPERIENCIA EN ANEIAP para un mejor análisis de la información.
 """)
 
+st.write("") 
+
 # Configuración del enlace MANUALES
 link_url_Manuales = "https://drive.google.com/drive/folders/18OIh99ZxE1LThqzy1A406f1kbot6b4bf"
 link_label_Manuales = "Manuales de cargo"
