@@ -210,6 +210,7 @@ def extract_experience_section(pdf_path):
         "cargos"
         "trabajo capitular"
         "trabajo nacional"
+        "actualización profesional"
     ]
     
     # Limpia el texto: elimina renglones vacíos, subtítulos y viñetas
