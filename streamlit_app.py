@@ -439,7 +439,7 @@ position = st.selectbox("Selecciona el cargo al que aspiras:", [
     "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
 ])
 
-# Configuración BOTÓN GENERARR REPORTE
+# Configuración BOTÓN GENERAR REPORTE
 if st.button("Generar Reporte"):
     if uploaded_file is not None:
         with open("uploaded_cv.pdf", "wb") as f:
@@ -449,6 +449,14 @@ if st.button("Generar Reporte"):
         st.error("Por favor, sube un archivo PDF para continuar.")
 
 st.write(f"---")
+
+st.subheader("Recomendaciones a tener en cuenta ✅")
+st.markdown("""
+- Asegurate de que tu HV no haya sido cambiada de formato varias veces, esto puede complicar la lectura y extracción del texto.
+- Describir tu EXPERIENCIA EN ANEIAP en forma de viñetas facilitará el análisis de la misma.
+- Evita que en tu HV no tenga separado el subtítulo "EXPERIENCIA EN ANEIAP" del contenido de esta sección para evitar inconsistencias en el análisis.
+- Evita utilizar tablas en tu sección de EXPERIENCIA EN ANEIAP para un mejor análisis de la información.
+""")
 
 # Configuración del enlace MANUALES
 link_url_Manuales = "https://drive.google.com/drive/folders/18OIh99ZxE1LThqzy1A406f1kbot6b4bf"
@@ -491,3 +499,11 @@ st.markdown(f"""
         </a>
     </div>
     """, unsafe_allow_html=True)
+    st.markdown(
+    """
+    <div style="text-align: center; font-weight: bold; font-size: 20px;">
+        DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE INFORMATIVO
+    </div>
+    """,
+    unsafe_allow_html=True
+)
