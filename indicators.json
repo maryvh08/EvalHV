@@ -36,7 +36,17 @@
       "Evaluación continua",
       "Aprendizaje activo",
       "Experiencia educativa",
-      "Capacidades críticas"
+      "Capacidades críticas",
+      "Evaluación continua",
+      "Experiencia educativa",
+      "Proyectos interdisciplinarios",
+      "Recursos didácticos",
+      "Aprendizaje activo",
+      "Estructura curricular",
+      "Planificación académica",
+      "Certificación",
+      "Tutorías",
+      "Innovación educativa"
     ],
     "Innovación e investigación": [
       "I+D+I",
@@ -66,7 +76,17 @@
       "Innovación disruptiva",
       "Gestión del conocimiento",
       "Simulación",
-      "Desarrollo sostenible"
+      "Desarrollo sostenible",
+      "Diseño experimental",
+      "Modelos de negocio",
+      "Innovación abierta",
+      "Crowdsourcing",
+      "Validación",
+      "Experimentación",
+      "Pensamiento lateral",
+      "Simulación",
+      "Métodos analíticos",
+      "Startups"
     ],
     "Formación y capacitación": [
       "Formación",
@@ -102,7 +122,17 @@
       "Competencias técnicas",
       "Simposios",
       "Foros interactivos",
-      "Consultorías"
+      "Consultorías",
+      "Formación continua",
+      "Mentoría grupal",
+      "Cursos en línea",
+      "Talleres especializados",
+      "Charlas motivacionales",
+      "Desarrollo profesional",
+      "Diplomados prácticos",
+      "Acreditaciones internacionales",
+      "Conferencias virtuales",
+      "Estrategias pedagógicas"
     ]
   },
   "DCC": {
@@ -133,7 +163,17 @@
       "Alcance orgánico",
       "Fidelización",
       "Medios de comunicación",
-      "Comunicación interna"
+      "Comunicación interna",
+      "Comunicación inclusiva",
+      "Alcance orgánico",
+      "Estrategias multicanal",
+      "Optimización de mensajes",
+      "Gestión de crisis",
+      "Identidad comunicativa",
+      "Estrategias de fidelización",
+      "Segmentación de mercado",
+      "Impacto visual",
+      "Estrategias de rebranding"
     ],
     "Producción audiovisual": [
       "Redes",
@@ -162,7 +202,17 @@
       "Edición de video",
       "Cinematografía",
       "Guiones audiovisuales",
-      "Calidad de audio"
+      "Calidad de audio",
+      "Cinematografía",
+      "Conceptos visuales",
+      "Dirección creativa",
+      "Animación 2D",
+      "Micrositios interactivos",
+      "Edición colaborativa",
+      "Streaming en vivo",
+      "Grabación en locaciones",
+      "Guiones técnicos",
+      "Videos promocionales"
     ],
     "Gestión de documental": [
       "Data",
@@ -188,7 +238,17 @@
       "Gestión electrónica",
       "Conservación de información",
       "Indexación",
-      "Control documental"
+      "Control documental",
+      "Conservación digital",
+      "Sistemas de recuperación de información",
+      "Automatización de archivos",
+      "Integridad de datos",
+      "Gestión de riesgos documentales",
+      "Implementación de metadatos",
+      "Indexación avanzada",
+      "Estrategias de digitalización",
+      "Gestión de políticas",
+      "Normatividad documental"
     ]
   },
   "DCD": {
@@ -325,7 +385,17 @@
       "Solidez financiera",
       "Reportes contables",
       "Monitoreo financiero",
-      "Planeación fiscal"
+      "Planeación fiscal",
+      "Control de cuentas",
+      "Consolidación financiera",
+      "Proyección presupuestaria",
+      "Controles internos avanzados",
+      "Auditorías preventivas",
+      "Gestión de liquidez",
+      "Indicadores financieros",
+      "Planes de ahorro",
+      "Políticas de egresos",
+      "Gestión de ingresos"
     ],
     "Sostenibilidad económica": [
       "Riqueza",
@@ -354,7 +424,17 @@
       "Modelo financiero",
       "Recursos sostenibles",
       "Financiamiento",
-      "Desarrollo económico"
+      "Desarrollo económico",
+      "Rentabilidad social",
+      "Gestión de microfinanzas",
+      "Capital de trabajo",
+      "Proyectos autosostenibles",
+      "Modelos económicos circulares",
+      "Optimización de inversiones",
+      "Viabilidad financiera",
+      "Costos indirectos",
+      "Diversificación financiera",
+      "Financiación ética"
     ],
     "Análisis  y transparencia": [
       "Directiva",
@@ -381,7 +461,17 @@
       "Normativas legales",
       "Reportes anuales",
       "Transparencia organizativa",
-      "Gobierno corporativo"
+      "Gobierno corporativo",
+      "Indicadores de cumplimiento",
+      "Análisis comparativo",
+      "Reportes anuales",
+      "Auditorías de impacto",
+      "Validación normativa",
+      "Controles externos",
+      "Ética contable",
+      "Transparencia activa",
+      "Certificación financiera",
+      "Normas regulatorias"
     ]
   },
   "DCM": {
@@ -417,7 +507,17 @@
       "Estilo gráfico",
       "Identidad visual",
       "Voz de marca",
-      "Segmentación de clientes"
+      "Segmentación de clientes",
+      "Innovación de marca",
+      "Cohesión de identidad",
+      "Diferenciación estratégica",
+      "Consistencia visual",
+      "Arquitectura de mensajes",
+      "Posicionamiento emocional",
+      "Reconocimiento de marca",
+      "Personalidad visual",
+      "Estrategias narrativas",
+      "Branding experiencial"
     ],
     "Promoción y visibilidad": [
       "Buzón",
@@ -452,7 +552,17 @@
       "Marketing territorial",
       "Partnerships",
       "Comunidad digital",
-      "Testimoniales"
+      "Testimoniales",
+      "Estrategias omnicanal",
+      "Dinámicas promocionales",
+      "Alcance digital",
+      "Interacciones sociales",
+      "Engagement de marca",
+      "Publicidad cruzada",
+      "Relaciones comunitarias",
+      "Estrategias territoriales",
+      "Eventos locales",
+      "Publicidad inclusiva"
     ],
     "Gestión comercial": [
       "Tienda",
@@ -490,7 +600,17 @@
       "CRM",
       "Inteligencia comercial",
       "Marketing relacional",
-      "Canales de venta"
+      "Canales de venta",
+      "Canales emergentes",
+      "Estrategias de diversificación",
+      "Experiencia del cliente",
+      "Análisis competitivo",
+      "Gestión de catálogos",
+      "Modelos disruptivos",
+      "Estrategias de cross-selling",
+      "Automatización comercial",
+      "Fidelización digital",
+      "Networking empresarial"
     ]
   },
   "PC": {
