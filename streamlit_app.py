@@ -199,7 +199,7 @@ def extract_experience_section(pdf_path):
     # Extrae la sección entre el inicio y el fin
     experience_text = text[start_idx:end_idx].strip()
 
-    # Lista de renglones a excluir (normalizados a minúsculas y sin espacios)
+    # Lista de renglones a excluir 
     exclude_lines = [
         "a nivel capitular",
         "a nivel nacional",
@@ -311,7 +311,7 @@ def generate_report(pdf_path, position, candidate_name):
             func_match = 100.0
             profile_match = 100.0
         else:
-            # Calcular similitud normalmente
+            # Calcular similitud 
             func_match = calculate_similarity(line, functions_text)
             profile_match = calculate_similarity(line, profile_text)
         
