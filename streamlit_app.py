@@ -262,26 +262,26 @@ def calculate_similarity(text1, text2):
     similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
     return similarity * 100
 
-def calculate_presence(text, keywords):
+def calculate_presence(lines, keywords):
     """
-    Calcula el porcentaje de presencia de palabras clave en un texto.
-    :param text: Texto donde se buscan las palabras clave.
+    Calcula el porcentaje de renglones que contienen palabras clave específicas.
+    :param lines: Lista de renglones a evaluar.
     :param keywords: Lista de palabras clave a buscar.
-    :return: Porcentaje de presencia de palabras clave.
+    :return: Porcentaje de renglones que contienen al menos una palabra clave.
     """
-    words = text.split()
-    count = sum(1 for word in words if word.lower() in [kw.lower() for kw in keywords])
-    return (count / len(keywords)) * 100 if keywords else 0
+    matched_lines = sum(
+        any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
+    )
+    return (matched_lines / len(lines)) * 100 if lines else 0
 
 def generate_report(pdf_path, position, candidate_name):
-    """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
+    """Genera un reporte en PDF basado en la comparación de la hoja de vida con indicadores."""
     experience_text = extract_experience_section(pdf_path)
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
     position_indicators = indicators.get(position, {})
-    indicator_results = Counter()
     lines = experience_text.split("\n")
 
     # Cargar funciones y perfil
@@ -302,9 +302,15 @@ def generate_report(pdf_path, position, candidate_name):
         if not line:  # Ignorar líneas vacías
             continue
 
-        # Evaluación por palabras clave de indicadores
+         # Inicializar resultados de indicadores
+        indicator_results = {}
         for indicator, keywords in position_indicators.items():
-            indicator_results[indicator] += calculate_presence(line, keywords)
+            indicator_results[indicator] = calculate_presence(lines, keywords)
+
+        # Mostrar resultados por indicador
+        st.subheader(f"Resultados por Indicadores para {position}")
+        for indicator, percentage in indicator_results.items():
+            st.write(f"- {indicator}: {percentage:.2f}%")
 
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
@@ -333,9 +339,9 @@ def generate_report(pdf_path, position, candidate_name):
         global_func_match = 0
         global_profile_match = 0
         
-    # Identificar indicador menos presente
+    # Identificar el indicador con menor presencia
     lowest_indicator = min(indicator_results, key=indicator_results.get)
-    lowest_percentage = indicator_results[lowest_indicator]
+    st.write(f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
 
     #Calculo puntajes
     func_score = round((global_func_match * 5) / 100, 2)
