@@ -499,11 +499,11 @@ st.markdown(f"""
         </a>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown(
-    """
-    <div style="text-align: center; font-weight: bold; font-size: 20px;">
-        DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE INFORMATIVO
-    </div>
-    """,
-    unsafe_allow_html=True
+st.markdown(
+"""
+<div style="text-align: center; font-weight: bold; font-size: 20px;">
+    DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE INFORMATIVO
+</div>
+""",
+unsafe_allow_html=True
 )
