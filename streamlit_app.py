@@ -307,11 +307,6 @@ def generate_report(pdf_path, position, candidate_name):
         for indicator, keywords in position_indicators.items():
             indicator_results[indicator] = calculate_presence(lines, keywords)
 
-        # Mostrar resultados por indicador
-        st.subheader(f"Resultados por Indicadores para {position}")
-        for indicator, percentage in indicator_results.items():
-            st.write(f"- {indicator}: {percentage:.2f}%")
-
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
             func_match = 100.0
