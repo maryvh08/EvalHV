@@ -375,9 +375,9 @@ def generate_report(pdf_path, position, candidate_name):
         pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
         pdf.set_font("Arial", size=12)
         for indicator, percentage in low_performance_indicators.items():
-            pdf.multi_cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
+            pdf.multi_cell(0, 10, f"- {indicator}: ({percentage:.2f}%)")
             for tip in advice[position].get(indicator, []):
-                pdf.multi_cell(0, 10, f"  * {tip}", ln=True)
+                pdf.multi_cell(0, 10, f"  * {tip}")
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
