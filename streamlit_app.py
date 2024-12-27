@@ -251,10 +251,6 @@ def generate_advice(pdf_path, position):
     for indicator, keywords in position_indicators.items():
         results[indicator] = calculate_presence(experience_text, keywords)
 
-    # Identificar el indicador con menor presencia
-    lowest_indicator = min(results, key=results.get)
-    st.write(f"Indicador con menor presencia: {lowest_indicator} ({results[lowest_indicator]:.2f}%)")
-
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def calculate_similarity(text1, text2):
     """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
@@ -379,9 +375,9 @@ def generate_report(pdf_path, position, candidate_name):
         pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
         pdf.set_font("Arial", size=12)
         for indicator, percentage in low_performance_indicators.items():
-            pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
+            pdf.multi_cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
             for tip in advice[position].get(indicator, []):
-                pdf.cell(0, 10, f"  * {tip}", ln=True)
+                pdf.multi_cell(0, 10, f"  * {tip}", ln=True)
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
