@@ -251,6 +251,10 @@ def generate_advice(pdf_path, position):
     for indicator, keywords in position_indicators.items():
         results[indicator] = calculate_presence(experience_text, keywords)
 
+    # Identificar el indicador con menor presencia
+    lowest_indicator = min(results, key=results.get)
+    st.write(f"Indicador con menor presencia: {lowest_indicator} ({results[lowest_indicator]:.2f}%)")
+
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def calculate_similarity(text1, text2):
     """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
