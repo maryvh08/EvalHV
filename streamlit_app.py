@@ -1,5 +1,5 @@
 import fitz  # PyMuPDF para trabajar con PDFs
-from sklearn.feature_extraction.text import TfidfVectorizerF
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 from fpdf import FPDF
