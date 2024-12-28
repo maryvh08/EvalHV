@@ -166,16 +166,32 @@ advice = {
 }
 
 # Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
-def extract_experience_section(pdf_path):
+def extract_text_with_ocr(pdf_path):
     """
-    Extrae la sección 'EXPERIENCIA ANEIAP' de un archivo PDF.
-    Detiene el análisis si encuentra el subtítulo 'EVENTOS ORGANIZADOS' o renglones irrelevantes como 
-    'Reconocimientos individuales', 'Reconocimientos', y 'Reconocimientos grupales'.
+    Extrae texto de un PDF utilizando PyMuPDF y Tesseract OCR como respaldo.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto extraído del PDF.
     """
     text = ""
     with fitz.open(pdf_path) as doc:
         for page in doc:
-            text += page.get_text()
+            # Intentar extraer texto con PyMuPDF
+            page_text = page.get_text()
+            if not page_text.strip():  # Si no hay texto, usar OCR
+                pix = page.get_pixmap()  # Renderizar la página como imagen
+                img = Image.open(io.BytesIO(pix.tobytes(output="png")))
+                page_text = pytesseract.image_to_string(img)
+            text += page_text
+    return text
+
+def extract_experience_section_with_ocr(pdf_path):
+    """
+    Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF con soporte de OCR.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto de la sección 'EXPERIENCIA EN ANEIAP'.
+    """
+    # Extraer todo el texto del PDF
+    text = extract_text_with_ocr(pdf_path)
     
     # Palabras clave para identificar el inicio y final de la sección
     start_keyword = "EXPERIENCIA EN ANEIAP"
@@ -187,19 +203,19 @@ def extract_experience_section(pdf_path):
         "Reconocimientos"
     ]
     
-    # Encuentra el índice de inicio
-    start_idx = text.find(start_keyword)
+    # Encontrar índice de inicio
+    start_idx = text.lower().find(start_keyword.lower())
     if start_idx == -1:
         return None  # No se encontró la sección de experiencia
 
-    # Encuentra el índice más cercano de fin basado en los términos en end_keywords
-    end_idx = len(text)  # Por defecto, toma hasta el final
+   # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
     for keyword in end_keywords:
-        idx = text.find(keyword, start_idx)
-        if idx != -1:  # Si se encuentra el término, actualiza end_idx con el menor índice encontrado
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
             end_idx = min(end_idx, idx)
 
-    # Extrae la sección entre el inicio y el fin
+    # Extraer la sección entre inicio y fin
     experience_text = text[start_idx:end_idx].strip()
 
     # Lista de renglones a excluir 
@@ -221,17 +237,17 @@ def extract_experience_section(pdf_path):
     cleaned_lines = []
     for line in experience_lines:
         line = line.strip()
-        line = re.sub(r"[^\w\s]", "", line)  # Elimina caracteres no alfanuméricos excepto espacios
-        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normaliza espacios y convierte a minúsculas
-        
-        # Verificar si la línea es relevante
+        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
         if (
-            normalized_line  # Línea no vacía
-            and normalized_line not in exclude_lines  # No está en la lista de exclusión
-            and normalized_line != start_keyword.lower()  # No es subtítulo de inicio
-            and normalized_line not in [kw.lower() for kw in end_keywords]  # No es subtítulo de fin
+            normalized_line
+            and normalized_line not in exclude_lines
+            and normalized_line != start_keyword.lower()
+            and normalized_line not in [kw.lower() for kw in end_keywords]
         ):
             cleaned_lines.append(line)
+
+    return "\n".join(cleaned_lines)
     
     # Debugging: Imprime líneas procesadas
     print("Líneas procesadas:")
