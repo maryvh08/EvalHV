@@ -397,14 +397,12 @@ def generate_report(pdf_path, position, candidate_name):
             for tip in advice[position].get(indicator, []):
                 pdf.multi_cell(0, 10, f"  * {tip}")
 
-    # Resultados de indicadores en el PDF
+    # Resultados de indicadores
     pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Análisis por Indicadores:", ln=True)
-    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt=f"Análisis por Indicadores:", ln=True)
+    pdf.set_font("Arial", style="", size=12)
     for indicator, percentage in indicator_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-    
-    # Consejos para indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
     if low_performance_indicators:
         pdf.set_font("Arial", style="B", size=12)
