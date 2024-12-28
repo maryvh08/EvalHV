@@ -236,6 +236,18 @@ def extract_experience_section(pdf_path):
         print(f"- {line}")
     
     return "\n".join(cleaned_lines)
+
+def calculate_all_indicators(lines, position_indicators):
+    """
+    Calcula los porcentajes de todos los indicadores para un cargo.
+    :param lines: Lista de líneas de la sección "EXPERIENCIA EN ANEIAP".
+    :param position_indicators: Diccionario de indicadores y palabras clave del cargo.
+    :return: Diccionario con los porcentajes por indicador.
+    """
+    indicator_results = {}
+    for indicator, keywords in position_indicators.items():
+        indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
+    return indicator_results
     
 def calculate_indicator_percentage(lines, keywords):
     """
@@ -402,18 +414,6 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(0, 10, "Indicador con Menor Presencia:", ln=True)
     pdf.set_font("Arial", size=12)
     pdf.cell(0, 10, f"{lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)", ln=True)
-
-    # Consejos para indicadores con baja presencia
-    low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
-    if low_performance_indicators:
-        pdf.ln(5)
-        pdf.set_font("Arial", style="B", size=12)
-        pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
-        pdf.set_font("Arial", size=12)
-        for indicator, percentage in low_performance_indicators.items():
-            pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
-            for tip in advice[position].get(indicator, []):
-                pdf.multi_cell(0, 10, f"  * {tip}")
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
