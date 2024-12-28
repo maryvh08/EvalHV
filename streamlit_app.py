@@ -10,13 +10,17 @@ import io
 import re
 import json
 
-# Cargar las palabras clave desde el archivo JSON
+# Cargar las palabras clave y consejos desde los archivos JSON
 def load_indicators(filepath="indicators.json"):
     with open(filepath, "r", encoding="utf-8") as file:
         return json.load(file)
+def load_advice(filepath="advice.json"):
+    with open(filepath, "r", encoding="utf-8") as file:
+        return json.load(file)
 
-# Cargar indicadores al inicio del script
+# Cargar indicadores y consejos al inicio del script
 indicators = load_indicators()
+advice = load_advice()
 
 advice = {
     "DCA": {
