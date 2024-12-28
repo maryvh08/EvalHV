@@ -244,15 +244,16 @@ def calculate_indicator_percentage(lines, keywords):
     :param keywords: Lista de palabras clave asociadas al indicador.
     :return: Porcentaje de líneas relevantes.
     """
-    if not lines:
+    total_lines = len(lines)
+    if total_lines == 0:
         return 0  # Evitar división por cero si no hay líneas
 
-    # Contar líneas que contienen palabras clave
+    # Contar líneas relevantes que contienen al menos una palabra clave
     relevant_lines = sum(
         any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
     )
     # Calcular el porcentaje
-    return (relevant_lines / len(lines)) * 100
+    return (relevant_lines / total_lines) * 100
 
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def calculate_similarity(text1, text2):
@@ -281,14 +282,17 @@ def generate_report(pdf_path, position, candidate_name):
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
-    position_indicators = indicators.get(position, {})
-    indicator_results = Counter()
+    # Dividir la experiencia en líneas
     lines = experience_text.split("\n")
+    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
 
-    # Inicializar resultados de indicadores
+    # Obtener los indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
     indicator_results = {}
+
+    # Calcular el porcentaje por cada indicador
     for indicator, keywords in position_indicators.items():
-        indicator_results[indicator] = calculate_presence(lines, keywords)
+        indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
 
     # Cargar funciones y perfil
     try:
@@ -377,19 +381,21 @@ def generate_report(pdf_path, position, candidate_name):
 
     # Resultados de indicadores
     pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(200, 10, txt=f"Análisis por Indicadores:", ln=True)
-    pdf.set_font("Arial", style="", size=12)
+    pdf.cell(0, 10, "Análisis por Indicadores:", ln=True)
+    pdf.set_font("Arial", size=12)
     for indicator, percentage in indicator_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+
+    # Consejos para indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
     if low_performance_indicators:
         pdf.set_font("Arial", style="B", size=12)
         pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
         pdf.set_font("Arial", size=12)
-        for indicator, percentage in indicator_results.items():
+        for indicator, percentage in low_performance_indicators.items():
             pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
             for tip in advice[position].get(indicator, []):
-                pdf.multi_cell(0, 10, f" * {tip}")
+                pdf.cell(0, 10, f"  * {tip}", ln=True)
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
