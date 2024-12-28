@@ -317,15 +317,6 @@ def generate_report(pdf_path, position, candidate_name):
     for indicator, keywords in position_indicators.items():
         indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
 
-    # Mostrar resultados
-    st.subheader(f"Resultados por Indicadores para {position}")
-    for indicator, percentage in indicator_results.items():
-        st.write(f"- {indicator}: {percentage:.2f}%")
-
-    # Identificar el indicador con menor presencia
-    lowest_indicator = min(indicator_results, key=indicator_results.get)
-    st.write(f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
-
     # Evaluación general de concordancia
     if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
         func_match = 100.0
@@ -412,6 +403,16 @@ def generate_report(pdf_path, position, candidate_name):
             pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
             for tip in advice[position].get(indicator, []):
                 pdf.cell(0, 10, f"  * {tip}", ln=True)
+
+    # Mostrar resultados
+    pdf.set_font("Arial", style="B", size=12)
+    pdf.cell(200, 10, f"Resultados por Indicadores para {position}")
+    for indicator, percentage in indicator_results.items():
+        pdf.cell(0, 10, f"-  {indicator}: {percentage:.2f}%", ln=True)
+
+    # Identificar el indicador con menor presencia
+    lowest_indicator = min(indicator_results, key=indicator_results.get)
+    pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
