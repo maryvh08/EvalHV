@@ -1,5 +1,5 @@
 import fitz  # PyMuPDF para trabajar con PDFs
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizerF
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 from fpdf import FPDF
@@ -280,10 +280,10 @@ def generate_report(pdf_path, position, candidate_name):
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
-        
+
     position_indicators = indicators.get(position, {})
-    lines = experience_text.split("\n")
     indicator_results = Counter()
+    lines = experience_text.split("\n")
     lines = [line.strip() for line in lines if line.strip()]
 
 
