@@ -421,7 +421,6 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(0, 10, f"La concordancia Global de Perfil es: {global_profile_match:.2f}%", ln=True)
 
     #Puntaje global
-    pdf.ln(5)
     pdf.set_font("Arial", style="B", size=12)
     pdf.multi_cell(0, 10, "\nPuntaje Global:")
     pdf.set_font("Arial", style="", size=12)
