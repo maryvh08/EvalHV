@@ -275,16 +275,15 @@ def calculate_presence(lines, keywords):
     return (matched_lines / len(lines)) * 100 if lines else 0
 
 def generate_report(pdf_path, position, candidate_name):
-    """Genera un reporte en PDF basado en la comparación de la hoja de vida con indicadores."""
+    """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
     experience_text = extract_experience_section(pdf_path)
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
     position_indicators = indicators.get(position, {})
-    lines = experience_text.split("\n")
     indicator_results = Counter()
-    lines = [line.strip() for line in lines if line.strip()]
+    lines = experience_text.split("\n")
 
     # Inicializar resultados de indicadores
     indicator_results = {}
