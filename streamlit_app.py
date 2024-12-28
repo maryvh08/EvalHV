@@ -380,7 +380,7 @@ def generate_report(pdf_path, position, candidate_name):
     total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
     if total_presence > 0:
         for indicator in indicator_results:
-            indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
+            indicator_results[indicator]["percentage"] = (relevant_lines / total_lines) * 100
             
     # Cálculo de concordancia global
     if line_results:  # Evitar división por cero si no hay ítems válidos
