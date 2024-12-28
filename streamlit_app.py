@@ -338,10 +338,6 @@ def generate_report(pdf_path, position, candidate_name):
 
     indicator_results = calculate_all_indicators(lines, position_indicators)
 
-    # Identificar el indicador con menor presencia
-    lowest_indicator = min(indicator_results, key=indicator_results.get)
-    st.write(f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
-
     # Cargar funciones y perfil
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
