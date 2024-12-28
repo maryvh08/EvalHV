@@ -284,7 +284,7 @@ def generate_report(pdf_path, position, candidate_name):
     position_indicators = indicators.get(position, {})
     lines = experience_text.split("\n")
     indicator_results = Counter()
-    lines = [line.strip() for line in lines if line.strip()]+
+    lines = [line.strip() for line in lines if line.strip()]
 
     # Inicializar resultados de indicadores
     indicator_results = {}
