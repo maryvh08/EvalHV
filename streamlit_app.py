@@ -254,20 +254,6 @@ def calculate_indicator_percentage(lines, keywords):
     # Calcular el porcentaje
     return (relevant_lines / len(lines)) * 100
 
-def generate_advice(pdf_path, position):
-    """Genera consejos basados en la evaluación de indicadores."""
-    experience_text = extract_experience_section(pdf_path)
-    if not experience_text:
-        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
-        return
-
-    # Obtener indicadores y palabras clave para el cargo seleccionado
-    position_indicators = indicators.get(position, {})
-    results = {}
-
-    for indicator, keywords in position_indicators.items():
-        results[indicator] = calculate_presence(experience_text, keywords)
-
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def calculate_similarity(text1, text2):
     """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
@@ -297,7 +283,9 @@ def generate_report(pdf_path, position, candidate_name):
         
     position_indicators = indicators.get(position, {})
     lines = experience_text.split("\n")
+    indicator_results = Counter()
     lines = [line.strip() for line in lines if line.strip()]
+
 
     # Cargar funciones y perfil
     try:
@@ -337,6 +325,12 @@ def generate_report(pdf_path, position, candidate_name):
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if func_match > 0 or profile_match > 0:
             line_results.append((line, func_match, profile_match))
+
+    # Normalización de los resultados de indicadores
+    total_presence = sum(indicator_results.values())
+    if total_presence > 0:
+        for indicator in indicator_results:
+            indicator_results[indicator] = (indicator_results[indicator] / total_presence) * 100
             
     # Cálculo de concordancia global
     if line_results:  # Evitar división por cero si no hay ítems válidos
