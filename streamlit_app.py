@@ -237,23 +237,22 @@ def extract_experience_section(pdf_path):
     
     return "\n".join(cleaned_lines)
     
-def generate_advice(pdf_path, position):
-    """Genera consejos basados en la evaluación de indicadores."""
-    experience_text = extract_experience_section(pdf_path)
-    if not experience_text:
-        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
-        return
+def calculate_indicator_percentage(lines, keywords):
+    """
+    Calcula el porcentaje de líneas que contienen al menos una palabra clave para un indicador.
+    :param lines: Lista de líneas de la sección "EXPERIENCIA EN ANEIAP".
+    :param keywords: Lista de palabras clave asociadas al indicador.
+    :return: Porcentaje de líneas relevantes.
+    """
+    if not lines:
+        return 0  # Evitar división por cero si no hay líneas
 
-    # Obtener indicadores y palabras clave para el cargo seleccionado
-    position_indicators = indicators.get(position, {})
-    results = {}
-
-    for indicator, keywords in position_indicators.items():
-        results[indicator] = calculate_presence(experience_text, keywords)
-
-    # Identificar el indicador con menor presencia
-    lowest_indicator = min(results, key=results.get)
-    st.write(f"Indicador con menor presencia: {lowest_indicator} ({results[lowest_indicator]:.2f}%)")
+    # Contar líneas que contienen palabras clave
+    relevant_lines = sum(
+        any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
+    )
+    # Calcular el porcentaje
+    return (relevant_lines / len(lines)) * 100
 
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def calculate_similarity(text1, text2):
@@ -281,9 +280,10 @@ def generate_report(pdf_path, position, candidate_name):
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
-
+        
     position_indicators = indicators.get(position, {})
     lines = experience_text.split("\n")
+    lines = [line.strip() for line in lines if line.strip()]
 
     # Cargar funciones y perfil
     try:
@@ -303,10 +303,13 @@ def generate_report(pdf_path, position, candidate_name):
         if not line:  # Ignorar líneas vacías
             continue
 
-         # Inicializar resultados de indicadores
-        indicator_results = {}
-        for indicator, keywords in position_indicators.items():
-            indicator_results[indicator] = calculate_presence(lines, keywords)
+            # Obtener los indicadores y palabras clave para el cargo seleccionado
+            position_indicators = indicators.get(position, {})
+            indicator_results = {}
+        
+            # Calcular el porcentaje por cada indicador
+            for indicator, keywords in position_indicators.items():
+                indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
 
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
