@@ -303,7 +303,7 @@ def calculate_presence(lines, keywords):
     )
     return (matched_lines / len(lines)) * 100 if lines else 0
 
-display_results_in_streamlit(lines, position_indicators):
+def display_results_in_streamlit(lines, position_indicators):
     """
     Muestra los resultados de los indicadores en Streamlit.
     :param lines: Lista de líneas de experiencia.
