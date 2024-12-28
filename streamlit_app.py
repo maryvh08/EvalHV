@@ -329,7 +329,8 @@ def generate_report(pdf_path, position, candidate_name):
         return
 
     # Dividir la experiencia en líneas
-    lines = extract_cleaned_lines(experience_text.split("\n"))
+    lines = extract_cleaned_lines(experience_text)
+    lines= experience_text.split("\n")
     lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
