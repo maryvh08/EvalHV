@@ -335,11 +335,7 @@ def generate_report(pdf_path, position, candidate_name):
     #Calculo puntajes
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
-
-    # Identificar indicador menos presente
-    lowest_indicator = min(indicator_results, key=indicator_results.get)
-    lowest_percentage = indicator_results[lowest_indicator]
-
+    
     # Crear reporte en PDF
     pdf = FPDF()
     pdf.add_page()
