@@ -428,8 +428,8 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
     pdf.set_font("Arial", size=12)
     for indicator, result in indicator_results.items():
-        percentage = result["percentage"]
         relevant_lines = result["relevant_lines"]
+        percentage = (relevant_lines / total_lines) * 100
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({relevant_lines} líneas relevantes)", ln=True)
 
     # Indicador con menor presencia
