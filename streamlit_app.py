@@ -367,6 +367,7 @@ def generate_report(pdf_path, position, candidate_name):
         indicator_results = {}
 
         # Calcular el porcentaje por cada indicador
+        indicator_results = calculate_all_indicators(lines, position_indicators)
         for indicator, keywords in position_indicators.items():
             indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
 
