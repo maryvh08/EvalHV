@@ -335,7 +335,6 @@ def generate_report(pdf_path, position, candidate_name):
 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
-    indicator_results = calculate_all_indicators(lines, position_indicators)
 
     # Calcular el porcentaje por cada indicador
     for indicator, keywords in position_indicators.items():
