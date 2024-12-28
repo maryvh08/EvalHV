@@ -282,10 +282,14 @@ def generate_report(pdf_path, position, candidate_name):
         return
 
     position_indicators = indicators.get(position, {})
-    indicator_results = Counter()
     lines = experience_text.split("\n")
-    lines = [line.strip() for line in lines if line.strip()]
+    indicator_results = Counter()
+    lines = [line.strip() for line in lines if line.strip()]+
 
+    # Inicializar resultados de indicadores
+    indicator_results = {}
+    for indicator, keywords in position_indicators.items():
+        indicator_results[indicator] = calculate_presence(lines, keywords)
 
     # Cargar funciones y perfil
     try:
