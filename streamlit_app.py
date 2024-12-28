@@ -354,6 +354,10 @@ def generate_report(pdf_path, position, candidate_name):
         for indicator, keywords in position_indicators.items():
             indicator_results = calculate_indicators_for_report(lines, position_indicators)
 
+        # Calcular la presencia total (si es necesario)
+        total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
+
+
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
             func_match = 100.0
@@ -368,7 +372,7 @@ def generate_report(pdf_path, position, candidate_name):
             line_results.append((line, func_match, profile_match))
 
     # Normalización de los resultados de indicadores
-    total_presence = sum(indicator_results.values())
+    total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
     if total_presence > 0:
         for indicator in indicator_results:
             indicator_results[indicator] = (indicator_results[indicator] / total_presence) * 100
