@@ -294,6 +294,15 @@ def generate_report(pdf_path, position, candidate_name):
     for indicator, keywords in position_indicators.items():
         indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
 
+    # Mostrar resultados en Streamlit
+    st.subheader(f"Resultados por Indicadores para {position}")
+    for indicator, percentage in indicator_results.items():
+        st.write(f"- {indicator}: {percentage:.2f}%")
+
+    # Identificar el indicador con menor presencia
+    lowest_indicator = min(indicator_results, key=indicator_results.get)
+    st.write(f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
+
     # Cargar funciones y perfil
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
@@ -381,21 +390,30 @@ def generate_report(pdf_path, position, candidate_name):
 
     # Resultados de indicadores
     pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Análisis por Indicadores:", ln=True)
+    pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
     pdf.set_font("Arial", size=12)
     for indicator, percentage in indicator_results.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
 
+    # Indicador con menor presencia
+    lowest_indicator = min(indicator_results, key=indicator_results.get)
+    pdf.ln(5)
+    pdf.set_font("Arial", style="B", size=12)
+    pdf.cell(0, 10, "Indicador con Menor Presencia:", ln=True)
+    pdf.set_font("Arial", size=12)
+    pdf.cell(0, 10, f"{lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)", ln=True)
+
     # Consejos para indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
     if low_performance_indicators:
+        pdf.ln(5)
         pdf.set_font("Arial", style="B", size=12)
         pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
         pdf.set_font("Arial", size=12)
         for indicator, percentage in low_performance_indicators.items():
             pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
             for tip in advice[position].get(indicator, []):
-                pdf.cell(0, 10, f"  * {tip}", ln=True)
+                pdf.multi_cell(0, 10, f"  * {tip}")
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
