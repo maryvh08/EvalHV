@@ -97,7 +97,8 @@ def extract_experience_section_with_ocr(pdf_path):
         "trabajo nacional",
         "actualización profesional",
         "nacional 2021-2023",
-        "nacional 20212023"
+        "nacional 20212023",
+        "experiencia aneiap"
     ]
     
     experience_lines = experience_text.split("\n")
