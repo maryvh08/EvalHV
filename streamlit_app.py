@@ -388,12 +388,12 @@ def generate_report(pdf_path, position, candidate_name):
             for tip in advice[position].get(indicator, []):
                 pdf.multi_cell(0, 10, f"  * {tip}")
 
-    # Resultados de indicadores
+    # Mostrar resultados
     pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(200, 10, txt=f"Análisis por Indicadores:", ln=True)
+    pdf.cell(200, 10, f"Análisis por Indicadores")
     pdf.set_font("Arial", style="", size=12)
     for indicator, percentage in indicator_results.items():
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+        pdf.cell(0, 10, f"-  {indicator}: {percentage:.2f}%", ln=True)
     low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
     if low_performance_indicators:
         pdf.set_font("Arial", style="B", size=12)
@@ -403,16 +403,6 @@ def generate_report(pdf_path, position, candidate_name):
             pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
             for tip in advice[position].get(indicator, []):
                 pdf.cell(0, 10, f"  * {tip}", ln=True)
-
-    # Mostrar resultados
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(200, 10, f"Resultados por Indicadores para {position}")
-    for indicator, percentage in indicator_results.items():
-        pdf.cell(0, 10, f"-  {indicator}: {percentage:.2f}%", ln=True)
-
-    # Identificar el indicador con menor presencia
-    lowest_indicator = min(indicator_results, key=indicator_results.get)
-    pdf.cell(0, 10, f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
