@@ -254,6 +254,20 @@ def calculate_indicator_percentage(lines, keywords):
     # Calcular el porcentaje
     return (relevant_lines / len(lines)) * 100
 
+def generate_advice(pdf_path, position):
+    """Genera consejos basados en la evaluación de indicadores."""
+    experience_text = extract_experience_section(pdf_path)
+    if not experience_text:
+        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
+        return
+
+    # Obtener indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
+    results = {}
+
+    for indicator, keywords in position_indicators.items():
+        results[indicator] = calculate_presence(experience_text, keywords)
+
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def calculate_similarity(text1, text2):
     """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
