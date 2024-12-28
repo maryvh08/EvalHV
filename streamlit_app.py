@@ -430,7 +430,7 @@ def generate_report(pdf_path, position, candidate_name):
     for indicator, result in indicator_results.items():
         relevant_lines = result["relevant_lines"]
         percentage = (relevant_lines / total_lines) * 100
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({relevant_lines} líneas relevantes)", ln=True)
+        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({relevant_lines} items encontrados)", ln=True)
 
     # Indicador con menor presencia
     lowest_indicator = min(indicator_results, key=lambda k: indicator_results[k]["percentage"])
@@ -449,7 +449,7 @@ def generate_report(pdf_path, position, candidate_name):
         pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
         pdf.set_font("Arial", size=12)
         for indicator, result in low_performance_indicators.items():
-            percentage = result["percentage"]
+            percentage = (relevant_lines / total_lines) * 100
             pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
             for tip in advice[position].get(indicator, []):
                 pdf.multi_cell(0, 10, f"  * {tip}")
