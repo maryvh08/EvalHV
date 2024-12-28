@@ -352,7 +352,7 @@ def generate_report(pdf_path, position, candidate_name):
         # Calcular el porcentaje por cada indicador
         indicator_results = calculate_all_indicators(lines, position_indicators)
         for indicator, keywords in position_indicators.items():
-            indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
+            indicator_results = calculate_indicators_for_report(lines, position_indicators)
 
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
