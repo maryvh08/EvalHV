@@ -165,10 +165,19 @@ advice = {
     }
 }
 
-# Función para extraer la sección "EXPERIENCIA EN ANEIAP" de un archivo PDF
+def preprocess_image(img):
+    """
+    Aplica preprocesamiento a una imagen para mejorar la precisión de OCR.
+    """
+    img = img.convert("L")  # Convertir a escala de grises
+    img = img.filter(ImageFilter.MedianFilter())  # Reducir ruido
+    enhancer = ImageEnhance.Contrast(img)
+    img = enhancer.enhance(2)  # Mejorar contraste
+    return img
+
 def extract_text_with_ocr(pdf_path):
     """
-    Extrae texto de un PDF utilizando PyMuPDF y Tesseract OCR como respaldo.
+    Extrae texto de un PDF utilizando OCR con preprocesamiento.
     :param pdf_path: Ruta del archivo PDF.
     :return: Texto extraído del PDF.
     """
@@ -178,9 +187,10 @@ def extract_text_with_ocr(pdf_path):
             # Intentar extraer texto con PyMuPDF
             page_text = page.get_text()
             if not page_text.strip():  # Si no hay texto, usar OCR
-                pix = page.get_pixmap()  # Renderizar la página como imagen
+                pix = page.get_pixmap()
                 img = Image.open(io.BytesIO(pix.tobytes(output="png")))
-                page_text = pytesseract.image_to_string(img)
+                img = preprocess_image(img)  # Preprocesar imagen
+                page_text = pytesseract.image_to_string(img, config="--psm 6")  # Configuración personalizada
             text += page_text
     return text
 
@@ -190,7 +200,6 @@ def extract_experience_section_with_ocr(pdf_path):
     :param pdf_path: Ruta del archivo PDF.
     :return: Texto de la sección 'EXPERIENCIA EN ANEIAP'.
     """
-    # Extraer todo el texto del PDF
     text = extract_text_with_ocr(pdf_path)
     
     # Palabras clave para identificar el inicio y final de la sección
@@ -206,9 +215,9 @@ def extract_experience_section_with_ocr(pdf_path):
     # Encontrar índice de inicio
     start_idx = text.lower().find(start_keyword.lower())
     if start_idx == -1:
-        return None  # No se encontró la sección de experiencia
+        return None  # No se encontró la sección
 
-   # Encontrar índice más cercano de fin basado en palabras clave
+    # Encontrar índice más cercano de fin basado en palabras clave
     end_idx = len(text)  # Por defecto, tomar hasta el final
     for keyword in end_keywords:
         idx = text.lower().find(keyword.lower(), start_idx)
@@ -232,7 +241,6 @@ def extract_experience_section_with_ocr(pdf_path):
         "actualización profesional"
     ]
     
-    # Limpia el texto: elimina renglones vacíos, subtítulos y viñetas
     experience_lines = experience_text.split("\n")
     cleaned_lines = []
     for line in experience_lines:
@@ -246,6 +254,8 @@ def extract_experience_section_with_ocr(pdf_path):
             and normalized_line not in [kw.lower() for kw in end_keywords]
         ):
             cleaned_lines.append(line)
+
+    return "\n".join(cleaned_lines)
 
     return "\n".join(cleaned_lines)
     
