@@ -435,7 +435,7 @@ def generate_report(pdf_path, position, candidate_name):
         pdf.multi_cell(0, 10, clean_text(f"- Concordancia con funciones: {func_match:.2f}%"))
         pdf.multi_cell(0, 10, clean_text( f"- Concordancia con perfil: {profile_match:.2f}%"))
 
-    # Resultados de indicadores
+        # Resultados de indicadores
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
     pdf.set_font("Arial", size=12)
@@ -449,6 +449,18 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(0, 10, "Indicador con Menor Presencia:", ln=True)
     pdf.set_font("Arial", size=12)
     pdf.cell(0, 10, f"{lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)", ln=True)
+
+    # Consejos para indicadores con baja presencia
+    low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
+    if low_performance_indicators:
+        pdf.ln(5)
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
+        pdf.set_font("Arial", size=12)
+        for indicator, percentage in low_performance_indicators.items():
+            pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
+            for tip in advice[position].get(indicator, []):
+                pdf.multi_cell(0, 10, f"  * {tip}")
     
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
