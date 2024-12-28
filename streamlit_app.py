@@ -308,30 +308,30 @@ def generate_report(pdf_path, position, candidate_name):
         if not line:  # Ignorar líneas vacías
             continue
 
-    # Dividir la experiencia en líneas
-    lines = experience_text.split("\n")
-    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
-
-    # Obtener los indicadores y palabras clave para el cargo seleccionado
-    position_indicators = indicators.get(position, {})
-    indicator_results = {}
-
-    # Calcular el porcentaje por cada indicador
-    for indicator, keywords in position_indicators.items():
-        indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
-
-    # Evaluación general de concordancia
-    if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
-        func_match = 100.0
-        profile_match = 100.0
-    else:
-        # Calcular similitud 
-        func_match = calculate_similarity(line, functions_text)
-        profile_match = calculate_similarity(line, profile_text)
+        # Dividir la experiencia en líneas
+        lines = experience_text.split("\n")
+        lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
     
-    # Solo agregar al reporte si no tiene 0% en ambas métricas
-    if func_match > 0 or profile_match > 0:
-        line_results.append((line, func_match, profile_match))
+        # Obtener los indicadores y palabras clave para el cargo seleccionado
+        position_indicators = indicators.get(position, {})
+        indicator_results = {}
+
+        # Calcular el porcentaje por cada indicador
+        for indicator, keywords in position_indicators.items():
+            indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
+
+        # Evaluación general de concordancia
+        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+            func_match = 100.0
+            profile_match = 100.0
+        else:
+            # Calcular similitud 
+            func_match = calculate_similarity(line, functions_text)
+            profile_match = calculate_similarity(line, profile_text)
+        
+        # Solo agregar al reporte si no tiene 0% en ambas métricas
+        if func_match > 0 or profile_match > 0:
+            line_results.append((line, func_match, profile_match))
 
     # Normalización de los resultados de indicadores
     total_presence = sum(indicator_results.values())
