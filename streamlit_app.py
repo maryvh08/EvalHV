@@ -265,23 +265,26 @@ def calculate_all_indicators(lines, position_indicators):
         indicator_results[indicator] = (relevant_lines / total_lines) * 100  # Cálculo del porcentaje
     return indicator_results
 
-def calculate_indicator_percentage(lines, keywords):
+def calculate_indicators_for_report(lines, position_indicators):
     """
-    Calcula el porcentaje de líneas que contienen al menos una palabra clave para un indicador.
+    Calcula los porcentajes de relevancia de indicadores para el reporte.
     :param lines: Lista de líneas de la sección "EXPERIENCIA EN ANEIAP".
-    :param keywords: Lista de palabras clave asociadas al indicador.
-    :return: Porcentaje de líneas relevantes.
+    :param position_indicators: Diccionario de indicadores y palabras clave del cargo.
+    :return: Diccionario con los porcentajes por indicador y detalles de líneas relevantes.
     """
     total_lines = len(lines)
     if total_lines == 0:
-        return 0  # Evitar división por cero si no hay líneas
+        return {indicator: {"percentage": 0, "relevant_lines": 0} for indicator in position_indicators}
 
-    # Contar líneas relevantes que contienen al menos una palabra clave
-    relevant_lines = sum(
-        any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
-    )
-    # Calcular el porcentaje
-    return (relevant_lines / total_lines) * 100
+    indicator_results = {}
+    for indicator, keywords in position_indicators.items():
+        relevant_lines = sum(
+            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
+        )
+        percentage = (relevant_lines / total_lines) * 100
+        indicator_results[indicator] = {"percentage": percentage, "relevant_lines": relevant_lines}
+
+    return indicator_results
 
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def calculate_similarity(text1, text2):
@@ -406,29 +409,37 @@ def generate_report(pdf_path, position, candidate_name):
         pdf.multi_cell(0, 10, clean_text(f"- Concordancia con funciones: {func_match:.2f}%"))
         pdf.multi_cell(0, 10, clean_text( f"- Concordancia con perfil: {profile_match:.2f}%"))
 
-        # Resultados de indicadores
+     # Total de líneas analizadas
     pdf.set_font("Arial", style="B", size=12)
+    pdf.cell(0, 10, f"Total de líneas analizadas: {total_lines}", ln=True)
+    pdf.ln(5)
+
+    # Resultados de indicadores
     pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
     pdf.set_font("Arial", size=12)
-    for indicator, percentage in indicator_results.items():
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+    for indicator, result in indicator_results.items():
+        percentage = result["percentage"]
+        relevant_lines = result["relevant_lines"]
+        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({relevant_lines} líneas relevantes)", ln=True)
 
     # Indicador con menor presencia
-    lowest_indicator = min(indicator_results, key=indicator_results.get)
+    lowest_indicator = min(indicator_results, key=lambda k: indicator_results[k]["percentage"])
     pdf.ln(5)
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Indicador con Menor Presencia:", ln=True)
     pdf.set_font("Arial", size=12)
-    pdf.cell(0, 10, f"{lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)", ln=True)
+    lowest_percentage = indicator_results[lowest_indicator]["percentage"]
+    pdf.cell(0, 10, f"{lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
 
-    # Consejos para indicadores con baja presencia
-    low_performance_indicators = {k: v for k, v in indicator_results.items() if v < 50.0}
+    # Consejos para mejorar indicadores con baja presencia
+    low_performance_indicators = {k: v for k, v in indicator_results.items() if v["percentage"] < 50.0}
     if low_performance_indicators:
         pdf.ln(5)
         pdf.set_font("Arial", style="B", size=12)
         pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
         pdf.set_font("Arial", size=12)
-        for indicator, percentage in low_performance_indicators.items():
+        for indicator, result in low_performance_indicators.items():
+            percentage = result["percentage"]
             pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
             for tip in advice[position].get(indicator, []):
                 pdf.multi_cell(0, 10, f"  * {tip}")
