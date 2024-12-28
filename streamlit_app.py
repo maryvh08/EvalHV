@@ -327,7 +327,7 @@ def calculate_presence(lines, keywords):
 
 def generate_report(pdf_path, position, candidate_name):
     """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
-    experience_text = extract_experience_section(pdf_path)
+    experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
