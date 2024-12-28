@@ -138,6 +138,11 @@
   "DCC": {
     "Estrategia de comunicación": [
       "Comunicación",
+      "Sistema",
+      "Manual",
+      "Redes",
+      "Biblioteca",
+      "Imagen",
       "Publicidad",
       "Podcast",
       "Youtube",
@@ -221,6 +226,8 @@
     "Gestión de documental": [
       "Data",
       "Documental",
+      "Manual",
+      "SIGEDA",
       "Biblioteca",
       "Documentación",
       "Archivos digitales",
