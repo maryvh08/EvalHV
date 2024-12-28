@@ -420,6 +420,7 @@ def generate_report(pdf_path, position, candidate_name):
 
      # Total de líneas analizadas
     pdf.set_font("Arial", style="B", size=12)
+    total_lines = len(lines)
     pdf.cell(0, 10, f"Total de líneas analizadas: {total_lines}", ln=True)
     pdf.ln(5)
 
