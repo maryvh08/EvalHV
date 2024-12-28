@@ -336,6 +336,8 @@ def generate_report(pdf_path, position, candidate_name):
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
 
+    indicator_results = calculate_all_indicators(lines, position_indicators)
+
     # Identificar el indicador con menor presencia
     lowest_indicator = min(indicator_results, key=indicator_results.get)
     st.write(f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
