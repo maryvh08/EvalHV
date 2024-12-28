@@ -722,6 +722,21 @@
     "Gestión de proyectos": [
       "Proyecto",
       "Project",
+      "Capacitación",
+      "Capacitaciones",
+      "Auditor",
+      "SIEA",
+      "Desarrollo",
+      "Equipo",
+      "Estratégico",
+      "Modelo",
+      "Reforma",
+      "Formato",
+      "Investogación",
+      "Planificación",
+      "Ejecución",
+      "Control",
+      "Proceso",
       "Asesor",
       "Sponsor",
       "Equipo",
@@ -756,6 +771,7 @@
       "PIN"
     ],
     "Innovación y creatividad": [
+      "Proyecto",
       "Innovación",
       "Innova",
       "Cambio",
@@ -791,6 +807,7 @@
       "Departamento"
     ],
     "Colaboración estratégica": [
+      "Proyecto",
       "CNI",
       "GNP",
       "Directiva",
