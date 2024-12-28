@@ -303,24 +303,6 @@ def calculate_presence(lines, keywords):
     )
     return (matched_lines / len(lines)) * 100 if lines else 0
 
-def display_results_in_streamlit(lines, position_indicators):
-    """
-    Muestra los resultados de los indicadores en Streamlit.
-    :param lines: Lista de líneas de experiencia.
-    :param position_indicators: Diccionario de indicadores y palabras clave.
-    """
-    indicator_results = calculate_all_indicators(lines, position_indicators)
-
-    st.subheader(f"Resultados por Indicadores")
-    for indicator, percentage in indicator_results.items():
-        st.write(f"- {indicator}: {percentage:.2f}%")
-
-    # Identificar el indicador con menor presencia
-    lowest_indicator = min(indicator_results, key=indicator_results.get)
-    st.write(f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
-
-    return indicator_results
-
 def generate_report(pdf_path, position, candidate_name):
     """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
     experience_text = extract_experience_section(pdf_path)
