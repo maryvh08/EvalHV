@@ -334,10 +334,6 @@ def generate_report(pdf_path, position, candidate_name):
     else:
         global_func_match = 0
         global_profile_match = 0
-        
-    # Identificar el indicador con menor presencia
-    lowest_indicator = min(indicator_results, key=indicator_results.get)
-    pdf.multi_cell(0, 10, f-"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
 
     #Calculo puntajes
     func_score = round((global_func_match * 5) / 100, 2)
