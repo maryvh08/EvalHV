@@ -430,7 +430,7 @@ def generate_report(pdf_path, position, candidate_name):
     for indicator, result in indicator_results.items():
         relevant_lines = result["relevant_lines"]
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({relevant_lines} líneas relevantes)", ln=True)
+        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", ln=True)
 
     # Indicador con menor presencia
     lowest_indicator = min(indicator_results, key=lambda k: indicator_results[k]["relevant_lines"])
