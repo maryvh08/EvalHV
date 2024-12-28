@@ -336,15 +336,6 @@ def generate_report(pdf_path, position, candidate_name):
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
 
-    # Calcular el porcentaje por cada indicador
-    for indicator, keywords in position_indicators.items():
-        indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
-
-    # Mostrar resultados en Streamlit
-    st.subheader(f"Resultados por Indicadores para {position}")
-    for indicator, percentage in indicator_results.items():
-        st.write(f"- {indicator}: {percentage:.2f}%")
-
     # Identificar el indicador con menor presencia
     lowest_indicator = min(indicator_results, key=indicator_results.get)
     st.write(f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
