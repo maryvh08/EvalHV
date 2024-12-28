@@ -4,6 +4,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 from fpdf import FPDF
 from collections import Counter
+import pytesseract
+from PIL import Image
+import io
 import re
 import json
 
