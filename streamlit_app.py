@@ -237,6 +237,15 @@ def extract_experience_section(pdf_path):
     
     return "\n".join(cleaned_lines)
 
+def extract_cleaned_lines(text):
+    """
+    Limpia y filtra las líneas de un texto.
+    :param text: Texto a procesar.
+    :return: Lista de líneas limpias.
+    """
+    lines = text.split("\n")
+    return [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías y espacios.
+
 def calculate_all_indicators(lines, position_indicators):
     """
     Calcula los porcentajes de todos los indicadores para un cargo.
@@ -244,11 +253,18 @@ def calculate_all_indicators(lines, position_indicators):
     :param position_indicators: Diccionario de indicadores y palabras clave del cargo.
     :return: Diccionario con los porcentajes por indicador.
     """
+    total_lines = len(lines)
+    if total_lines == 0:
+        return {indicator: 0 for indicator in position_indicators}  # Evitar división por cero
+
     indicator_results = {}
     for indicator, keywords in position_indicators.items():
-        indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
+        relevant_lines = sum(
+            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
+        )
+        indicator_results[indicator] = (relevant_lines / total_lines) * 100  # Cálculo del porcentaje
     return indicator_results
-    
+
 def calculate_indicator_percentage(lines, keywords):
     """
     Calcula el porcentaje de líneas que contienen al menos una palabra clave para un indicador.
@@ -287,6 +303,24 @@ def calculate_presence(lines, keywords):
     )
     return (matched_lines / len(lines)) * 100 if lines else 0
 
+display_results_in_streamlit(lines, position_indicators):
+    """
+    Muestra los resultados de los indicadores en Streamlit.
+    :param lines: Lista de líneas de experiencia.
+    :param position_indicators: Diccionario de indicadores y palabras clave.
+    """
+    indicator_results = calculate_all_indicators(lines, position_indicators)
+
+    st.subheader(f"Resultados por Indicadores")
+    for indicator, percentage in indicator_results.items():
+        st.write(f"- {indicator}: {percentage:.2f}%")
+
+    # Identificar el indicador con menor presencia
+    lowest_indicator = min(indicator_results, key=indicator_results.get)
+    st.write(f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
+
+    return indicator_results
+
 def generate_report(pdf_path, position, candidate_name):
     """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
     experience_text = extract_experience_section(pdf_path)
@@ -295,12 +329,12 @@ def generate_report(pdf_path, position, candidate_name):
         return
 
     # Dividir la experiencia en líneas
-    lines = experience_text.split("\n")
+    lines = extract_cleaned_lines(experience_text.split("\n"))
     lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
-    indicator_results = {}
+    indicator_results = calculate_all_indicators(lines, position_indicators)
 
     # Calcular el porcentaje por cada indicador
     for indicator, keywords in position_indicators.items():
@@ -414,7 +448,7 @@ def generate_report(pdf_path, position, candidate_name):
     pdf.cell(0, 10, "Indicador con Menor Presencia:", ln=True)
     pdf.set_font("Arial", size=12)
     pdf.cell(0, 10, f"{lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)", ln=True)
-
+    
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Concordancia Global:", ln=True)
