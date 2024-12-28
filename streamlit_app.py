@@ -323,12 +323,6 @@ def generate_report(pdf_path, position, candidate_name):
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if func_match > 0 or profile_match > 0:
             line_results.append((line, func_match, profile_match))
-
-    # Normalización de los resultados de indicadores
-    total_presence = sum(indicator_results.values())
-    if total_presence > 0:
-        for indicator in indicator_results:
-            indicator_results[indicator] = (indicator_results[indicator] / total_presence) * 100
             
     # Cálculo de concordancia global
     if line_results:  # Evitar división por cero si no hay ítems válidos
