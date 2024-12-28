@@ -305,13 +305,26 @@ def generate_report(pdf_path, position, candidate_name):
         if not line:  # Ignorar líneas vacías
             continue
 
-            # Obtener los indicadores y palabras clave para el cargo seleccionado
-            position_indicators = indicators.get(position, {})
-            indicator_results = {}
-        
-            # Calcular el porcentaje por cada indicador
-            for indicator, keywords in position_indicators.items():
-                indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
+    # Dividir la experiencia en líneas
+    lines = experience_text.split("\n")
+    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+
+    # Obtener los indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
+    indicator_results = {}
+
+    # Calcular el porcentaje por cada indicador
+    for indicator, keywords in position_indicators.items():
+        indicator_results[indicator] = calculate_indicator_percentage(lines, keywords)
+
+    # Mostrar resultados
+    st.subheader(f"Resultados por Indicadores para {position}")
+    for indicator, percentage in indicator_results.items():
+        st.write(f"- {indicator}: {percentage:.2f}%")
+
+    # Identificar el indicador con menor presencia
+    lowest_indicator = min(indicator_results, key=indicator_results.get)
+    st.write(f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
 
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
