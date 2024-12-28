@@ -234,11 +234,11 @@ def extract_experience_section_with_ocr(pdf_path):
         "a nivel seccional",
         "reconocimientos individuales",
         "reconocimientos grupales",
-        "nacional 2024"
-        "cargos"
-        "trabajo capitular"
-        "trabajo nacional"
-        "actualización profesional"
+        "nacional 2024",
+        "cargos",
+        "trabajo capitular",
+        "trabajo nacional",
+        "actualización profesional",
         "nacional 2021-2023"
     ]
     
@@ -255,8 +255,6 @@ def extract_experience_section_with_ocr(pdf_path):
             and normalized_line not in [kw.lower() for kw in end_keywords]
         ):
             cleaned_lines.append(line)
-
-    return "\n".join(cleaned_lines)
 
     return "\n".join(cleaned_lines)
     
