@@ -387,6 +387,10 @@ def generate_report(pdf_path, position, candidate_name):
             for tip in advice[position].get(indicator, []):
                 pdf.multi_cell(0, 10, f"  * {tip}")
 
+    # Identificar el indicador con menor presencia
+    lowest_indicator = min(indicator_results, key=indicator_results.get)
+    st.write(f"Indicador con menor presencia: {lowest_indicator} ({indicator_results[lowest_indicator]:.2f}%)")
+
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Concordancia Global:", ln=True)
