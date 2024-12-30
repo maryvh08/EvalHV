@@ -415,7 +415,7 @@ st.write(f"---")
 st.subheader("Recomendaciones a tener en cuenta ✅")
 st.markdown("""
 - Asegurate de que tu HV no haya sido cambiada de formato varias veces, esto puede complicar la lectura y extracción del texto.
-- Describir tu EXPERIENCIA EN ANEIAP en forma de viñetas facilitará el análisis de la misma.
+- Enumerar tu EXPERIENCIA EN ANEIAP facilitará el análisis de la misma.
 - Evita que en tu HV no tenga separado el subtítulo "EXPERIENCIA EN ANEIAP" del contenido de esta sección para evitar inconsistencias en el análisis.
 - Evita utilizar tablas en tu sección de EXPERIENCIA EN ANEIAP para un mejor análisis de la información.
 """)
