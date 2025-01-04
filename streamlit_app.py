@@ -389,7 +389,7 @@ def generate_report(pdf_path, position, candidate_name):
 
 # Interfaz en Streamlit
 def home_page():
-    st.title("Bienvenido a EvalHV")
+    st.title("Bienvenido a EvalHVUN")
     
     st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁") 
     imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
@@ -404,9 +404,9 @@ def home_page():
     
     st.write("") 
     
-    # Configuración del enlace MANUALES
-    link_url_Manuales = "https://drive.google.com/drive/folders/18OIh99ZxE1LThqzy1A406f1kbot6b4bf"
-    link_label_Manuales = "Manuales de cargo"
+    # Configuración del enlace CARGOS
+    link_url_cargos = "https://drive.google.com/drive/folders/1hSUChvaYymUJ6g-IEfiY4hYqikePsQ9P?usp=drive_link"
+    link_label_cargos = "Información de cargos"
     
     # Configuración del enlace INDICADORES
     link_url_indicadores = "https://docs.google.com/document/d/1BM07wuVaXEWcdurTRr8xBzjsB1fiWt6wGqOzLiyQBs8/edit?usp=drive_link"
@@ -415,7 +415,7 @@ def home_page():
     # Contenedor para centrar los botones
     st.markdown(f"""
         <div style="display: flex; justify-content: center; gap: 20px;">
-            <a href="{link_url_Manuales}" target="_blank" style="text-decoration:none;">
+            <a href="{link_url_cargos}" target="_blank" style="text-decoration:none;">
                 <button style="
                     background-color: #F1501B;
                     border: none;
@@ -426,7 +426,7 @@ def home_page():
                     cursor: pointer;
                     border-radius: 4px;
                 ">
-                    {link_label_Manuales}
+                    {link_label_cargos}
                 </button>
             </a>
             <a href="{link_url_indicadores}" target="_blank" style="text-decoration:none;">
