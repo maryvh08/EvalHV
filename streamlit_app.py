@@ -545,6 +545,36 @@ def secondary():
     unsafe_allow_html=True
     )
 
+    st.write("---")
+
+    st.write("Plantilla Propuesta HV")
+
+    imagen_plantilla= 'PLANTILLA PROPUESTA HV ANEIAP.jpg'
+    st.image(imagen_plantilla, use_container_width=True)
+
+    st.write("Aquí puedes descargar la plantilla de la propuesta de HV")
+
+    link_url_plantilla= "https://drive.google.com/drive/folders/16i35reQpBq9eC2EuZfy6E6Uul5XVDN8D?usp=sharing"
+    link_label_plantilla= "Descargar plantilla"
+    
+
+    st.markdown(f"""
+        <div style="display: flex; justify-content: center; gap: 20px;">
+            <a href="{link_url_plantilla}" target="_blank" style="text-decoration:none;">
+                <button style="
+                    background-color: #F1501B;
+                    border: none;
+                    color: white;
+                    padding: 12px 24px;
+                    text-align: center;
+                    font-size: 16px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                ">
+                    {link_label_plantilla}
+                </button>
+                """, unsafe_allow_html=True)
+
 # Diccionario de páginas
 pages = {
     "Inicio": home_page,
