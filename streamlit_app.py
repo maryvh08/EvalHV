@@ -390,6 +390,11 @@ def generate_report(pdf_path, position, candidate_name):
 # Interfaz en Streamlit
 def home_page():
     st.title("Bienvenido a EvalHV")
+    
+    st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁") 
+
+    st.write("Esta herramienta analiza el contenido de la hoja de vida ANEIAP, comparandola con las funciones y perfil del cargo al que aspira, evaluando por medio de indicadores los aspectos puntuales en los cuales se hace necesario el aspirante enfatice para asegurar que este se encuentre preparado") 
+
     st.write("") 
     
     st.write("ℹ️ Aquí puedes encontrar información si quieres saber un poco más") 
@@ -454,7 +459,7 @@ def primary():
     imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
     st.title("Evaluador de Hoja de Vida ANEIAP")
     st.image(imagen_aneiap, use_container_width=True)
-    st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁")
+    st.subheader("Versión Actual Hoja de Vida ANEIAP")
     st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
     
     # Entrada de datos del usuario
@@ -503,8 +508,8 @@ def secondary():
 # Diccionario de páginas
 pages = {
     "Inicio": home_page,
-    "Analizador con versión actual": primary,
-    "Analizador con funciones": secondary,
+    "Versión actual": primary,
+    "Analizador descriptivo": secondary,
 }
 
 # Sidebar para seleccionar página
