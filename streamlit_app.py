@@ -547,12 +547,17 @@ def secondary():
 
     st.write("---")
 
-    st.write("Plantilla Propuesta HV")
+    st.markdown(
+    """
+    <div style="text-align: center; font-weight: bold; font-size: 20px;">
+    Plantilla Propuesta HV
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
 
     imagen_plantilla= 'PLANTILLA PROPUESTA HV ANEIAP.jpg'
     st.image(imagen_plantilla, use_container_width=True)
-
-    st.write("Aquí puedes descargar la plantilla de la propuesta de HV")
 
     link_url_plantilla= "https://drive.google.com/drive/folders/16i35reQpBq9eC2EuZfy6E6Uul5XVDN8D?usp=sharing"
     link_label_plantilla= "Descargar plantilla"
