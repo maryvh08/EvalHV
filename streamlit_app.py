@@ -392,11 +392,10 @@ def home_page():
     st.title("Bienvenido a EvalHV")
     
     st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁") 
-
+    imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
+    st.image(imagen_aneiap, use_container_width=True)
     st.write("Esta herramienta analiza el contenido de la hoja de vida ANEIAP, comparandola con las funciones y perfil del cargo al que aspira, evaluando por medio de indicadores los aspectos puntuales en los cuales se hace necesario el aspirante enfatice para asegurar que este se encuentre preparado.") 
-
     st.write("Esta fue diseñada para apoyar en el proceso de convocatoria a los evaluadores para calificar las hojas de vida de los aspirantes.")
-
     st.write("Como resultado de este análisis se generará un reporte PDF descargable")
     
     st.write("---") 
@@ -460,9 +459,9 @@ def home_page():
 
 
 def primary():
-    imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
+    imagen_primary= 'Analizador Versión Actual.jpg'
     st.title("Evaluador de Hoja de Vida ANEIAP")
-    st.image(imagen_aneiap, use_container_width=True)
+    st.image(imagen_primary, use_container_width=True)
     st.subheader("Versión Actual Hoja de Vida ANEIAP")
     st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
     
@@ -506,8 +505,19 @@ def primary():
     
     
 def secondary():
-    st.title("Acerca de")
+    st.title("Evaluador de Hoja de Vida ANEIAP")
     st.write("Esta es la página de Acerca de.")
+    imagen_secondary= 'Analizador Versión Descriptiva.jpg'
+    st.image(imagen_secondary, use_container_width=True)
+    st.subheader("Versión Descriptiva de Hoja de Vida ANEIAP")
+    st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
+    
+    # Entrada de datos del usuario
+    candidate_name = st.text_input("Nombre del candidato:")
+    uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
+    position = st.selectbox("Selecciona el cargo al que aspiras:", [
+        "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
+    ])
 
 # Diccionario de páginas
 pages = {
