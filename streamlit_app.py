@@ -451,7 +451,7 @@ def home_page():
     st.markdown(
     """
     <div style="text-align: center; font-weight: bold; font-size: 20px;">
-    La herramienta tiene disponible dos versiones dependiendo las necesidades del usuario.
+    La herramienta tiene disponible dos versiones, de modo se pueda evaluar la HV con el formato actual y una propuesta para incluir descripciones de los proyectos/cargos ocupados.
     </div>
     """,
     unsafe_allow_html=True
