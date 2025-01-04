@@ -443,7 +443,7 @@ def home_page():
     st.markdown(
     """
     <div style="text-align: center; font-weight: bold; font-size: 20px;">
-    DISCLAIRMER: LA HERRAMIENTA ES MERAMENTE ILUSTRATIVA.
+    La herramienta tiene disponible dos versiones dependiendo las necesidades del usuario.
     </div>
     """,
     unsafe_allow_html=True
