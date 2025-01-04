@@ -462,7 +462,7 @@ def primary():
     imagen_primary= 'Analizador Versión Actual.jpg'
     st.title("Evaluador de Hoja de Vida ANEIAP")
     st.image(imagen_primary, use_container_width=True)
-    st.subheader("Versión Actual Hoja de Vida ANEIAP")
+    st.subheader("Versión Actual Hoja de Vida ANEIAP▶️")
     st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
     
     # Entrada de datos del usuario
@@ -496,7 +496,7 @@ def primary():
     st.markdown(
     """
     <div style="text-align: center; font-weight: bold; font-size: 20px;">
-    DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
+    ⚠️ DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
     </div>
     """,
     unsafe_allow_html=True
@@ -506,7 +506,7 @@ def secondary():
     st.title("Evaluador de Hoja de Vida ANEIAP")
     imagen_secondary= 'Analizador Versión Descriptiva.jpg'
     st.image(imagen_secondary, use_container_width=True)
-    st.subheader("Versión Descriptiva de Hoja de Vida ANEIAP")
+    st.subheader("Versión Descriptiva de Hoja de Vida ANEIAP ⏭️")
     st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
     
     # Entrada de datos del usuario
@@ -578,7 +578,7 @@ def secondary():
     st.markdown(
     """
     <div style="text-align: center; font-weight: bold; font-size: 20px;">
-    DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
+    ⚠️ DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
     </div>
     """,
     unsafe_allow_html=True
@@ -586,9 +586,9 @@ def secondary():
     
 # Diccionario de páginas
 pages = {
-    "Inicio": home_page,
-    "Versión actual": primary,
-    "Analizador descriptivo": secondary,
+    "🏠 Inicio": home_page,
+    "✳️ Versión actual": primary,
+    "🚀 Analizador descriptivo": secondary,
 }
 
 # Sidebar para seleccionar página
