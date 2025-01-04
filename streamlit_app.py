@@ -399,7 +399,7 @@ def home_page():
 
     st.write("Como resultado de este análisis se generará un reporte PDF descargable")
     
-    st.write("") 
+    st.write("---") 
     
     st.write("ℹ️ Aquí puedes encontrar información si quieres saber un poco más") 
     
