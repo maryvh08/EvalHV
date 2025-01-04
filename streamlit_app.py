@@ -406,7 +406,7 @@ def home_page():
     
     # Configuración del enlace CARGOS
     link_url_cargos = "https://drive.google.com/drive/folders/1hSUChvaYymUJ6g-IEfiY4hYqikePsQ9P?usp=drive_link"
-    link_label_cargos = "Info de cargos"
+    link_label_cargos = "Info cargos"
     
     # Configuración del enlace INDICADORES
     link_url_indicadores = "https://docs.google.com/document/d/1BM07wuVaXEWcdurTRr8xBzjsB1fiWt6wGqOzLiyQBs8/edit?usp=drive_link"
