@@ -483,7 +483,7 @@ def primary():
     - Si la sección de EXPERIENCIA EN ANEIAP está dispuesta como tabla, la herramienta puede fallar.
     """)
     
-     st.write("---")
+    st.write("---")
     
     st.markdown(
     """
