@@ -502,8 +502,6 @@ def primary():
     unsafe_allow_html=True
     )
     
-    
-    
 def secondary():
     st.title("Evaluador de Hoja de Vida ANEIAP")
     st.write("Esta es la página de Acerca de.")
@@ -518,6 +516,35 @@ def secondary():
     position = st.selectbox("Selecciona el cargo al que aspiras:", [
         "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
     ])
+    # Configuración BOTÓN GENERAR REPORTE
+    if st.button("Generar Reporte"):
+        if uploaded_file is not None:
+            with open("uploaded_cv.pdf", "wb") as f:
+                f.write(uploaded_file.read())
+            generate_report("uploaded_cv.pdf", position, candidate_name)
+        else:
+            st.error("Por favor, sube un archivo PDF para continuar.")
+    
+    st.write(f"---")
+    
+    st.subheader("Recomendaciones a tener en cuenta ✅")
+    st.markdown("""
+    - Es preferible que la HV no haya sido cambiada de formato varias veces, ya que esto puede complicar la lectura y extracción del texto.
+    - La EXPERIENCIA EN ANEIAP debe estar enumerada para facilitar el análisis de la misma.
+    - El análisis puede presentar inconsistencias si la HV no está debidamente separada en subtítulos.
+    - Si la sección de EXPERIENCIA EN ANEIAP está dispuesta como tabla, la herramienta puede fallar.
+    """)
+    
+    st.write("---")
+    
+    st.markdown(
+    """
+    <div style="text-align: center; font-weight: bold; font-size: 20px;">
+    DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
 
 # Diccionario de páginas
 pages = {
