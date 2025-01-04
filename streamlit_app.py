@@ -193,53 +193,6 @@ def calculate_presence(lines, keywords):
     )
     return (matched_lines / len(lines)) * 100 if lines else 0
 
-def analyze_descriptive_cv(pdf_path, position, candidate_name):
-    """
-    Analiza una hoja de vida en formato descriptivo.
-    :param pdf_path: Ruta del PDF.
-    :param position: Cargo al que aspira.
-    :param candidate_name: Nombre del candidato.
-    """
-    experience_text = extract_experience_section_with_ocr(pdf_path)
-    if not experience_text:
-        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
-        return
-
-    # Separar ítems y viñetas
-    items = experience_text.split("\n- ")  # Asume que las viñetas comienzan con "- "
-    position_indicators = indicators.get(position, {})
-
-    # Analizar cada ítem y sus viñetas
-    item_results = {}
-    for item in items:
-        lines = item.split("\n")  # Dividir por líneas dentro del ítem
-        header = lines[0] if lines else "Sin título"
-        details = lines[1:] if len(lines) > 1 else []
-
-        # Evaluar concordancia para el encabezado y detalles
-        header_match = calculate_all_indicators([header], position_indicators)
-        detail_match = calculate_all_indicators(details, position_indicators)
-
-        # Consolidar resultados
-        item_results[header] = {
-            "header_match": header_match,
-            "detail_match": detail_match
-        }
-
-    # Mostrar resultados
-    st.subheader(f"Resultados para {candidate_name} ({position})")
-    for header, result in item_results.items():
-        st.write(f"### {header}")
-        st.write(f"- Concordancia del encabezado:")
-        for indicator, percentage in result["header_match"].items():
-            st.write(f"  - {indicator}: {percentage:.2f}%")
-        st.write(f"- Concordancia de los detalles:")
-        for indicator, percentage in result["detail_match"].items():
-            st.write(f"  - {indicator}: {percentage:.2f}%")
-
-    # (Opcional) Generar reporte PDF
-    # create_descriptive_pdf_report(candidate_name, position, item_results)
-
 def generate_report(pdf_path, position, candidate_name):
     """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
     experience_text = extract_experience_section_with_ocr(pdf_path)
@@ -352,7 +305,7 @@ def generate_report(pdf_path, position, candidate_name):
         pdf.multi_cell(0, 10, clean_text(f"- Concordancia con funciones: {func_match:.2f}%"))
         pdf.multi_cell(0, 10, clean_text( f"- Concordancia con perfil: {profile_match:.2f}%"))
 
-     # Total de líneas analizadas
+    # Total de líneas analizadas
     pdf.set_font("Arial", style="B", size=12)
     total_lines = len(lines)
     pdf.cell(0, 10, f"Total de líneas analizadas: {total_lines}", ln=True)
@@ -433,6 +386,171 @@ def generate_report(pdf_path, position, candidate_name):
         file_name=report_path,
         mime="application/pdf"
     )
+
+def analyze_descriptive_cv(pdf_path, position, candidate_name):
+    """
+    Analiza una hoja de vida en formato descriptivo.
+    :param pdf_path: Ruta del PDF.
+    :param position: Cargo al que aspira.
+    :param candidate_name: Nombre del candidato.
+    """
+    experience_text = extract_experience_section_with_ocr(pdf_path)
+    if not experience_text:
+        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
+        return
+
+    # Separar ítems y viñetas
+    items = experience_text.split("\n- ")  # Asume que las viñetas comienzan con "- "
+    position_indicators = indicators.get(position, {})
+
+    # Analizar cada ítem y sus viñetas
+    item_results = {}
+    for item in items:
+        lines = item.split("\n")  # Dividir por líneas dentro del ítem
+        header = lines[0] if lines else "Sin título"
+        details = lines[1:] if len(lines) > 1 else []
+
+        # Evaluar concordancia para el encabezado y detalles
+        header_match = calculate_all_indicators([header], position_indicators)
+        detail_match = calculate_all_indicators(details, position_indicators)
+
+        # Consolidar resultados
+        item_results[header] = {
+            "header_match": header_match,
+            "detail_match": detail_match
+        }
+
+    # Mostrar resultados
+    st.subheader(f"Resultados para {candidate_name} ({position})")
+    for header, result in item_results.items():
+        st.write(f"### {header}")
+        st.write(f"- Concordancia del encabezado:")
+        for indicator, percentage in result["header_match"].items():
+            st.write(f"  - {indicator}: {percentage:.2f}%")
+        st.write(f"- Concordancia de los detalles:")
+        for indicator, percentage in result["detail_match"].items():
+            st.write(f"  - {indicator}: {percentage:.2f}%")
+
+    # Generar reporte PDF Descriptivo
+    def create_descriptive_pdf_report(candidate_name, position, item_results):
+        """
+        Genera un reporte PDF para el análisis descriptivo de la hoja de vida.
+        :param candidate_name: Nombre del candidato.
+        :param position: Cargo al que aspira.
+        :param item_results: Resultados del análisis por ítem y viñetas.
+        """
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+    
+        # Título del reporte
+        pdf.set_font("Helvetica", style="B", size=14)
+        pdf.cell(200, 10, txt=f"Reporte de Análisis Descriptivo - {candidate_name}", ln=True, align='C')
+        pdf.cell(200, 10, txt=f"Cargo: {position}", ln=True, align='C')
+        pdf.ln(10)
+    
+        # Iterar sobre los resultados de los ítems
+        for item, result in item_results.items():
+            pdf.set_font("Arial", style="B", size=12)
+            pdf.cell(0, 10, f"Ítem: {item}", ln=True)
+    
+            # Concordancia del encabezado
+            pdf.set_font("Arial", style="I", size=11)
+            pdf.cell(0, 10, "Concordancia del Encabezado:", ln=True)
+            pdf.set_font("Arial", size=11)
+            for indicator, percentage in result["header_match"].items():
+                pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+    
+            # Concordancia de los detalles
+            pdf.set_font("Arial", style="I", size=11)
+            pdf.cell(0, 10, "Concordancia de los Detalles:", ln=True)
+            pdf.set_font("Arial", size=11)
+            for indicator, percentage in result["detail_match"].items():
+                pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+    
+            pdf.ln(5)  # Espacio entre ítems
+
+        # Total de líneas analizadas
+        pdf.set_font("Arial", style="B", size=12)
+        total_lines = len(lines)
+        pdf.cell(0, 10, f"Total de líneas analizadas: {total_lines}", ln=True)
+        pdf.ln(5)
+    
+        # Resultados de indicadores
+        pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
+        pdf.set_font("Arial", size=12)
+        for indicator, result in indicator_results.items():
+            relevant_lines = result["relevant_lines"]
+            percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+            pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", ln=True)
+    
+        # Indicador con menor presencia
+        lowest_indicator = min(indicator_results, key=lambda k: indicator_results[k]["relevant_lines"])
+        pdf.ln(5)
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.cell(0, 10, "Indicador con Menor Presencia:", ln=True)
+        pdf.set_font("Arial", size=12)
+        lowest_relevant_lines = indicator_results[lowest_indicator]["relevant_lines"]
+        lowest_percentage = (lowest_relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+        pdf.cell(0, 10, f"{lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
+    
+        # Consejos para mejorar indicadores con baja presencia
+        low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
+        if low_performance_indicators:
+            pdf.ln(5)
+            pdf.set_font("Arial", style="B", size=12)
+            pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
+            pdf.set_font("Arial", size=12)
+            for indicator, result in low_performance_indicators.items():
+                percentage = (result["relevant_lines"] / total_lines) * 100 if total_lines > 0 else 0
+                pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
+                for tip in advice[position].get(indicator, []):
+                    pdf.multi_cell(0, 10, f"  * {tip}")
+        
+        #Concordancia global
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.cell(0, 10, "Concordancia Global:", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.cell(0, 10, f"La concordancia Global de Funciones es: {global_func_match:.2f}%", ln=True)
+        pdf.cell(0, 10, f"La concordancia Global de Perfil es: {global_profile_match:.2f}%", ln=True)
+    
+        #Puntaje global
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.multi_cell(0, 10, "\nPuntaje Global:")
+        pdf.set_font("Arial", style="", size=12)
+        pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
+        pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
+    
+        # Interpretación de resultados
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.multi_cell(0, 10, "\nInterpretación de resultados:")
+        pdf.set_font("Arial", style="", size=12)
+        if global_profile_match >75 and global_func_match > 75:
+            pdf.multi_cell(0, 10, f"- Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.")
+        
+        elif 50 < global_profile_match < 75 and 50 < global_func_match < 75:
+            pdf.multi_cell(0, 10, f"- Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.")
+            
+        else:
+            pdf.multi_cell(0, 10, f"- Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.")
+    
+        # Conclusión
+        pdf.multi_cell(0, 10, f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.")
+        
+        # Mensaje de agradecimiento
+        pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
+
+    # Guardar el reporte
+        report_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
+        pdf.output(report_path, 'F')
+    
+        st.success("Reporte generado exitosamente.")
+        st.download_button(
+            label="Descargar Reporte",
+            data=open(report_path, "rb"),
+            file_name=report_path,
+            mime="application/pdf"
+        )
 
 # Interfaz en Streamlit
 def home_page():
