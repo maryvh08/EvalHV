@@ -388,93 +388,107 @@ def generate_report(pdf_path, position, candidate_name):
     )
 
 # Interfaz en Streamlit
-imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
-st.title("Evaluador de Hoja de Vida ANEIAP")
-st.image(imagen_aneiap, use_container_width=True)
-st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁")
-st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
-
-# Entrada de datos del usuario
-candidate_name = st.text_input("Nombre del candidato:")
-uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
-position = st.selectbox("Selecciona el cargo al que aspiras:", [
-    "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
-])
-
-# Configuración BOTÓN GENERAR REPORTE
-if st.button("Generar Reporte"):
-    if uploaded_file is not None:
-        with open("uploaded_cv.pdf", "wb") as f:
-            f.write(uploaded_file.read())
-        generate_report("uploaded_cv.pdf", position, candidate_name)
-    else:
-        st.error("Por favor, sube un archivo PDF para continuar.")
-
-st.write(f"---")
-
-st.subheader("Recomendaciones a tener en cuenta ✅")
-st.markdown("""
-- Asegurate de que tu HV no haya sido cambiada de formato varias veces, esto puede complicar la lectura y extracción del texto.
-- Enumerar tu EXPERIENCIA EN ANEIAP facilitará el análisis de la misma.
-- Evita que en tu HV no tenga separado el subtítulo "EXPERIENCIA EN ANEIAP" del contenido de esta sección para evitar inconsistencias en el análisis.
-- Evita utilizar tablas en tu sección de EXPERIENCIA EN ANEIAP para un mejor análisis de la información.
-""")
-
-st.write("") 
-
-st.write("ℹ️ Aquí puedes encontrar información si quieres saber un poco más") 
-
-st.write("") 
-
-# Configuración del enlace MANUALES
-link_url_Manuales = "https://drive.google.com/drive/folders/18OIh99ZxE1LThqzy1A406f1kbot6b4bf"
-link_label_Manuales = "Manuales de cargo"
-
-# Configuración del enlace INDICADORES
-link_url_indicadores = "https://docs.google.com/document/d/1BM07wuVaXEWcdurTRr8xBzjsB1fiWt6wGqOzLiyQBs8/edit?usp=drive_link"
-link_label_indicadores = "Info indicadores"
-
-# Contenedor para centrar los botones
-st.markdown(f"""
-    <div style="display: flex; justify-content: center; gap: 20px;">
-        <a href="{link_url_Manuales}" target="_blank" style="text-decoration:none;">
-            <button style="
-                background-color: #F1501B;
-                border: none;
-                color: white;
-                padding: 12px 24px;
-                text-align: center;
-                font-size: 16px;
-                cursor: pointer;
-                border-radius: 4px;
-            ">
-                {link_label_Manuales}
-            </button>
-        </a>
-        <a href="{link_url_indicadores}" target="_blank" style="text-decoration:none;">
-            <button style="
-                background-color: #F1501B;
-                border: none;
-                color: white;
-                padding: 12px 24px;
-                text-align: center;
-                font-size: 16px;
-                cursor: pointer;
-                border-radius: 4px;
-            ">
-                {link_label_indicadores}
-            </button>
-        </a>
+def home_page():
+    imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
+    st.title("Evaluador de Hoja de Vida ANEIAP")
+    st.image(imagen_aneiap, use_container_width=True)
+    st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁")
+    st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
+    
+    # Entrada de datos del usuario
+    candidate_name = st.text_input("Nombre del candidato:")
+    uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
+    position = st.selectbox("Selecciona el cargo al que aspiras:", [
+        "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
+    ])
+    
+    # Configuración BOTÓN GENERAR REPORTE
+    if st.button("Generar Reporte"):
+        if uploaded_file is not None:
+            with open("uploaded_cv.pdf", "wb") as f:
+                f.write(uploaded_file.read())
+            generate_report("uploaded_cv.pdf", position, candidate_name)
+        else:
+            st.error("Por favor, sube un archivo PDF para continuar.")
+    
+    st.write(f"---")
+    
+    st.subheader("Recomendaciones a tener en cuenta ✅")
+    st.markdown("""
+    - Asegurate de que tu HV no haya sido cambiada de formato varias veces, esto puede complicar la lectura y extracción del texto.
+    - Enumerar tu EXPERIENCIA EN ANEIAP facilitará el análisis de la misma.
+    - Evita que en tu HV no tenga separado el subtítulo "EXPERIENCIA EN ANEIAP" del contenido de esta sección para evitar inconsistencias en el análisis.
+    - Evita utilizar tablas en tu sección de EXPERIENCIA EN ANEIAP para un mejor análisis de la información.
+    """)
+    
+    st.write("") 
+    
+    st.write("ℹ️ Aquí puedes encontrar información si quieres saber un poco más") 
+    
+    st.write("") 
+    
+    # Configuración del enlace MANUALES
+    link_url_Manuales = "https://drive.google.com/drive/folders/18OIh99ZxE1LThqzy1A406f1kbot6b4bf"
+    link_label_Manuales = "Manuales de cargo"
+    
+    # Configuración del enlace INDICADORES
+    link_url_indicadores = "https://docs.google.com/document/d/1BM07wuVaXEWcdurTRr8xBzjsB1fiWt6wGqOzLiyQBs8/edit?usp=drive_link"
+    link_label_indicadores = "Info indicadores"
+    
+    # Contenedor para centrar los botones
+    st.markdown(f"""
+        <div style="display: flex; justify-content: center; gap: 20px;">
+            <a href="{link_url_Manuales}" target="_blank" style="text-decoration:none;">
+                <button style="
+                    background-color: #F1501B;
+                    border: none;
+                    color: white;
+                    padding: 12px 24px;
+                    text-align: center;
+                    font-size: 16px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                ">
+                    {link_label_Manuales}
+                </button>
+            </a>
+            <a href="{link_url_indicadores}" target="_blank" style="text-decoration:none;">
+                <button style="
+                    background-color: #F1501B;
+                    border: none;
+                    color: white;
+                    padding: 12px 24px;
+                    text-align: center;
+                    font-size: 16px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                ">
+                    {link_label_indicadores}
+                </button>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.write("---")
+    
+    st.markdown(
+    """
+    <div style="text-align: center; font-weight: bold; font-size: 20px;">
+    DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
     </div>
-    """, unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True
+    )
+def about_page():
+    st.title("Acerca de")
+    st.write("Esta es la página de Acerca de.")
 
-st.write("---")
+# Crea el gestor de páginas
+app = MultiPage()
 
-st.markdown(
-"""
-<div style="text-align: center; font-weight: bold; font-size: 20px;">
-DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
-</div>
-""",
-unsafe_allow_html=True
-)
+# Añade páginas
+app.add_page("Versión actual", home_page)
+app.add_page("Versión con descripciones", about_page)
+
+# Ejecuta la aplicación
+app.run()
