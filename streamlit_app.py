@@ -584,12 +584,12 @@ def secondary():
     unsafe_allow_html=True
     )
     
-    # Diccionario de páginas
-    pages = {
-        "Inicio": home_page,
-        "Versión actual": primary,
-        "Analizador descriptivo": secondary,
-    }
+# Diccionario de páginas
+pages = {
+    "Inicio": home_page,
+    "Versión actual": primary,
+    "Analizador descriptivo": secondary,
+}
 
 # Sidebar para seleccionar página
 st.sidebar.title("Menú")
