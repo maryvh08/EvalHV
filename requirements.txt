@@ -2,4 +2,5 @@ PyMuPDF
 scikit-learn
 fpdf
 pytesseract
+streamlit-multipage
 
