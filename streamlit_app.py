@@ -1,7 +1,6 @@
 import fitz  # PyMuPDF para trabajar con PDFs
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from streamlit_multipage import MultiPage
 import streamlit as st
 from fpdf import FPDF
 from collections import Counter
@@ -484,12 +483,15 @@ def about_page():
     st.title("Acerca de")
     st.write("Esta es la página de Acerca de.")
 
-# Crea el gestor de páginas
-app = MultiPage()
+# Diccionario de páginas
+pages = {
+    "Inicio": home_page,
+    "Acerca de": about_page,
+}
 
-# Añade páginas
-app.add_page("Versión actual", home_page)
-app.add_page("Versión con descripciones", about_page)
+# Sidebar para seleccionar página
+st.sidebar.title("Navegación")
+selected_page = st.sidebar.radio("Ir a", list(pages.keys()))
 
-# Ejecuta la aplicación
-app.run()
+# Renderiza la página seleccionada
+pages[selected_page]()
