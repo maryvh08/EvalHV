@@ -572,7 +572,8 @@ def secondary():
                 </a>
         </div>
         """, unsafe_allow_html=True)
-            st.write("---")
+        
+        st.write("---")
     
         st.markdown(
         """
