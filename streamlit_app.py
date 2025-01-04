@@ -573,7 +573,9 @@ def secondary():
                 ">
                     {link_label_plantilla}
                 </button>
-                """, unsafe_allow_html=True)
+                </a>
+        </div>
+        """, unsafe_allow_html=True)
 
 # Diccionario de páginas
 pages = {
