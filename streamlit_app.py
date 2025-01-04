@@ -533,17 +533,6 @@ def secondary():
     - El análisis puede presentar inconsistencias si la HV no está debidamente separada en subtítulos.
     - Si la sección de EXPERIENCIA EN ANEIAP está dispuesta como tabla, la herramienta puede fallar.
     """)
-    
-    st.write("---")
-    
-    st.markdown(
-    """
-    <div style="text-align: center; font-weight: bold; font-size: 20px;">
-    DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
-    </div>
-    """,
-    unsafe_allow_html=True
-    )
 
     st.write("---")
 
@@ -583,13 +572,23 @@ def secondary():
                 </a>
         </div>
         """, unsafe_allow_html=True)
-
-# Diccionario de páginas
-pages = {
-    "Inicio": home_page,
-    "Versión actual": primary,
-    "Analizador descriptivo": secondary,
-}
+            st.write("---")
+    
+        st.markdown(
+        """
+        <div style="text-align: center; font-weight: bold; font-size: 20px;">
+        DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
+        </div>
+        """,
+        unsafe_allow_html=True
+        )
+    
+    # Diccionario de páginas
+    pages = {
+        "Inicio": home_page,
+        "Versión actual": primary,
+        "Analizador descriptivo": secondary,
+    }
 
 # Sidebar para seleccionar página
 st.sidebar.title("Menú")
