@@ -504,7 +504,6 @@ def primary():
     
 def secondary():
     st.title("Evaluador de Hoja de Vida ANEIAP")
-    st.write("Esta es la página de Acerca de.")
     imagen_secondary= 'Analizador Versión Descriptiva.jpg'
     st.image(imagen_secondary, use_container_width=True)
     st.subheader("Versión Descriptiva de Hoja de Vida ANEIAP")
