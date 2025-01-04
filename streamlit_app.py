@@ -556,6 +556,8 @@ def secondary():
     unsafe_allow_html=True
     )
 
+    st.write("")
+
     imagen_plantilla= 'PLANTILLA PROPUESTA HV ANEIAP.jpg'
     st.image(imagen_plantilla, use_container_width=True)
 
