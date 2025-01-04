@@ -193,6 +193,53 @@ def calculate_presence(lines, keywords):
     )
     return (matched_lines / len(lines)) * 100 if lines else 0
 
+def analyze_descriptive_cv(pdf_path, position, candidate_name):
+    """
+    Analiza una hoja de vida en formato descriptivo.
+    :param pdf_path: Ruta del PDF.
+    :param position: Cargo al que aspira.
+    :param candidate_name: Nombre del candidato.
+    """
+    experience_text = extract_experience_section_with_ocr(pdf_path)
+    if not experience_text:
+        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
+        return
+
+    # Separar ítems y viñetas
+    items = experience_text.split("\n- ")  # Asume que las viñetas comienzan con "- "
+    position_indicators = indicators.get(position, {})
+
+    # Analizar cada ítem y sus viñetas
+    item_results = {}
+    for item in items:
+        lines = item.split("\n")  # Dividir por líneas dentro del ítem
+        header = lines[0] if lines else "Sin título"
+        details = lines[1:] if len(lines) > 1 else []
+
+        # Evaluar concordancia para el encabezado y detalles
+        header_match = calculate_all_indicators([header], position_indicators)
+        detail_match = calculate_all_indicators(details, position_indicators)
+
+        # Consolidar resultados
+        item_results[header] = {
+            "header_match": header_match,
+            "detail_match": detail_match
+        }
+
+    # Mostrar resultados
+    st.subheader(f"Resultados para {candidate_name} ({position})")
+    for header, result in item_results.items():
+        st.write(f"### {header}")
+        st.write(f"- Concordancia del encabezado:")
+        for indicator, percentage in result["header_match"].items():
+            st.write(f"  - {indicator}: {percentage:.2f}%")
+        st.write(f"- Concordancia de los detalles:")
+        for indicator, percentage in result["detail_match"].items():
+            st.write(f"  - {indicator}: {percentage:.2f}%")
+
+    # (Opcional) Generar reporte PDF
+    # create_descriptive_pdf_report(candidate_name, position, item_results)
+
 def generate_report(pdf_path, position, candidate_name):
     """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
     experience_text = extract_experience_section_with_ocr(pdf_path)
@@ -504,55 +551,51 @@ def primary():
     
 def secondary():
     st.title("Evaluador de Hoja de Vida ANEIAP")
-    imagen_secondary= 'Analizador Versión Descriptiva.jpg'
+    imagen_secondary = 'Analizador Versión Descriptiva.jpg'
     st.image(imagen_secondary, use_container_width=True)
     st.subheader("Versión Descriptiva de Hoja de Vida ANEIAP ⏭️")
     st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
-    
+
     # Entrada de datos del usuario
     candidate_name = st.text_input("Nombre del candidato:")
     uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
     position = st.selectbox("Selecciona el cargo al que aspiras:", [
         "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
     ])
+
     # Configuración BOTÓN GENERAR REPORTE
     if st.button("Generar Reporte"):
         if uploaded_file is not None:
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
-            generate_report("uploaded_cv.pdf", position, candidate_name)
+            analyze_descriptive_cv("uploaded_cv.pdf", position, candidate_name)
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
-    
+
     st.write(f"---")
-    
+
     st.subheader("Recomendaciones a tener en cuenta ✅")
     st.markdown("""
-    - Es preferible que la HV no haya sido cambiada de formato varias veces, ya que esto puede complicar la lectura y extracción del texto.
-    - La EXPERIENCIA EN ANEIAP debe estar enumerada para facilitar el análisis de la misma.
-    - El análisis puede presentar inconsistencias si la HV no está debidamente separada en subtítulos.
-    - Si la sección de EXPERIENCIA EN ANEIAP está dispuesta como tabla, la herramienta puede fallar.
+    - Organiza tu HV en formato descriptivo para cada cargo o proyecto.
+    - Usa viñetas para detallar las acciones realizadas en cada ítem.
+    - Evita usar tablas para la sección de experiencia, ya que esto dificulta la extracción de datos.
     """)
-
     st.write("---")
 
     st.markdown(
-    """
-    <div style="text-align: center; font-weight: bold; font-size: 20px;">
-    Plantilla Propuesta HV 📑
-    </div>
-    """,
-    unsafe_allow_html=True
+        """
+        <div style="text-align: center; font-weight: bold; font-size: 20px;">
+        Plantilla Propuesta HV 📑
+        </div>
+        """,
+        unsafe_allow_html=True
     )
-
     st.write("")
-
-    imagen_plantilla= 'PLANTILLA PROPUESTA HV ANEIAP.jpg'
+    imagen_plantilla = 'PLANTILLA PROPUESTA HV ANEIAP.jpg'
     st.image(imagen_plantilla, use_container_width=True)
 
-    link_url_plantilla= "https://drive.google.com/drive/folders/16i35reQpBq9eC2EuZfy6E6Uul5XVDN8D?usp=sharing"
-    link_label_plantilla= "Descargar plantilla"
-    
+    link_url_plantilla = "https://drive.google.com/drive/folders/16i35reQpBq9eC2EuZfy6E6Uul5XVDN8D?usp=sharing"
+    link_label_plantilla = "Descargar plantilla"
 
     st.markdown(f"""
         <div style="display: flex; justify-content: center; gap: 20px;">
@@ -569,21 +612,21 @@ def secondary():
                 ">
                     {link_label_plantilla}
                 </button>
-                </a>
+            </a>
         </div>
         """, unsafe_allow_html=True)
         
     st.write("---")
 
     st.markdown(
-    """
-    <div style="text-align: center; font-weight: bold; font-size: 20px;">
-    ⚠️ DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
-    </div>
-    """,
-    unsafe_allow_html=True
+        """
+        <div style="text-align: center; font-weight: bold; font-size: 20px;">
+        ⚠️ DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
+        </div>
+        """,
+        unsafe_allow_html=True
     )
-    
+
 # Diccionario de páginas
 pages = {
     "🏠 Inicio": home_page,
