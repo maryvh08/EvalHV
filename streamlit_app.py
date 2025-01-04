@@ -390,41 +390,6 @@ def generate_report(pdf_path, position, candidate_name):
 # Interfaz en Streamlit
 def home_page():
     st.title("Bienvenido a EvalHV")
-
-
-def primary():
-    imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
-    st.title("Evaluador de Hoja de Vida ANEIAP")
-    st.image(imagen_aneiap, use_container_width=True)
-    st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁")
-    st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
-    
-    # Entrada de datos del usuario
-    candidate_name = st.text_input("Nombre del candidato:")
-    uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
-    position = st.selectbox("Selecciona el cargo al que aspiras:", [
-        "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
-    ])
-    
-    # Configuración BOTÓN GENERAR REPORTE
-    if st.button("Generar Reporte"):
-        if uploaded_file is not None:
-            with open("uploaded_cv.pdf", "wb") as f:
-                f.write(uploaded_file.read())
-            generate_report("uploaded_cv.pdf", position, candidate_name)
-        else:
-            st.error("Por favor, sube un archivo PDF para continuar.")
-    
-    st.write(f"---")
-    
-    st.subheader("Recomendaciones a tener en cuenta ✅")
-    st.markdown("""
-    - Es preferible que la HV no haya sido cambiada de formato varias veces, ya que esto puede complicar la lectura y extracción del texto.
-    - La EXPERIENCIA EN ANEIAP debe estar enumerada para facilitar el análisis de la misma.
-    - El análisis puede presentar inconsistencias si la HV no está debidamente separada en subtítulos.
-    - Si la sección de EXPERIENCIA EN ANEIAP está dispuesta como tabla, la herramienta puede fallar.
-    """)
-    
     st.write("") 
     
     st.write("ℹ️ Aquí puedes encontrar información si quieres saber un poco más") 
@@ -478,11 +443,58 @@ def primary():
     st.markdown(
     """
     <div style="text-align: center; font-weight: bold; font-size: 20px;">
+    DISCLAIRMER: LA HERRAMIENTA ES MERAMENTE ILUSTRATIVA.
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+
+
+def primary():
+    imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
+    st.title("Evaluador de Hoja de Vida ANEIAP")
+    st.image(imagen_aneiap, use_container_width=True)
+    st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁")
+    st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
+    
+    # Entrada de datos del usuario
+    candidate_name = st.text_input("Nombre del candidato:")
+    uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
+    position = st.selectbox("Selecciona el cargo al que aspiras:", [
+        "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
+    ])
+    
+    # Configuración BOTÓN GENERAR REPORTE
+    if st.button("Generar Reporte"):
+        if uploaded_file is not None:
+            with open("uploaded_cv.pdf", "wb") as f:
+                f.write(uploaded_file.read())
+            generate_report("uploaded_cv.pdf", position, candidate_name)
+        else:
+            st.error("Por favor, sube un archivo PDF para continuar.")
+    
+    st.write(f"---")
+    
+    st.subheader("Recomendaciones a tener en cuenta ✅")
+    st.markdown("""
+    - Es preferible que la HV no haya sido cambiada de formato varias veces, ya que esto puede complicar la lectura y extracción del texto.
+    - La EXPERIENCIA EN ANEIAP debe estar enumerada para facilitar el análisis de la misma.
+    - El análisis puede presentar inconsistencias si la HV no está debidamente separada en subtítulos.
+    - Si la sección de EXPERIENCIA EN ANEIAP está dispuesta como tabla, la herramienta puede fallar.
+    """)
+    
+     st.write("---")
+    
+    st.markdown(
+    """
+    <div style="text-align: center; font-weight: bold; font-size: 20px;">
     DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
     </div>
     """,
     unsafe_allow_html=True
     )
+    
+    
     
 def secondary():
     st.title("Acerca de")
