@@ -389,6 +389,10 @@ def generate_report(pdf_path, position, candidate_name):
 
 # Interfaz en Streamlit
 def home_page():
+    st.title("Bienvenido a EvalHV")
+
+
+def primary():
     imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
     st.title("Evaluador de Hoja de Vida ANEIAP")
     st.image(imagen_aneiap, use_container_width=True)
@@ -415,10 +419,10 @@ def home_page():
     
     st.subheader("Recomendaciones a tener en cuenta ✅")
     st.markdown("""
-    - Asegurate de que tu HV no haya sido cambiada de formato varias veces, esto puede complicar la lectura y extracción del texto.
-    - Enumerar tu EXPERIENCIA EN ANEIAP facilitará el análisis de la misma.
-    - Evita que en tu HV no tenga separado el subtítulo "EXPERIENCIA EN ANEIAP" del contenido de esta sección para evitar inconsistencias en el análisis.
-    - Evita utilizar tablas en tu sección de EXPERIENCIA EN ANEIAP para un mejor análisis de la información.
+    - Es preferible que la HV no haya sido cambiada de formato varias veces, ya que esto puede complicar la lectura y extracción del texto.
+    - La EXPERIENCIA EN ANEIAP debe estar enumerada para facilitar el análisis de la misma.
+    - El análisis puede presentar inconsistencias si la HV no está debidamente separada en subtítulos.
+    - Si la sección de EXPERIENCIA EN ANEIAP está dispuesta como tabla, la herramienta puede fallar.
     """)
     
     st.write("") 
@@ -479,18 +483,20 @@ def home_page():
     """,
     unsafe_allow_html=True
     )
-def about_page():
+    
+def secondary():
     st.title("Acerca de")
     st.write("Esta es la página de Acerca de.")
 
 # Diccionario de páginas
 pages = {
     "Inicio": home_page,
-    "Acerca de": about_page,
+    "Analizador con versión actual": primary,
+    "Analizador con funciones": secondary,
 }
 
 # Sidebar para seleccionar página
-st.sidebar.title("Navegación")
+st.sidebar.title("Menú")
 selected_page = st.sidebar.radio("Ir a", list(pages.keys()))
 
 # Renderiza la página seleccionada
