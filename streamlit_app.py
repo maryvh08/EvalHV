@@ -381,6 +381,52 @@ def generate_report(pdf_path, position, candidate_name):
 
 
 # FUNCIONES PARA SECUNDARY
+def extract_experience_items_with_details(pdf_path):
+    """
+    Extrae encabezados y sus viñetas desde la sección 'EXPERIENCIA EN ANEIAP' de un PDF.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Diccionario con encabezados y detalles.
+    """
+    experience_text = extract_experience_section_with_ocr(pdf_path)
+    if not experience_text:
+        return None
+
+    # Separar por líneas
+    lines = experience_text.split("\n")
+    items = {}
+    current_header = None
+
+    for line in lines:
+        if line.strip() and not line.startswith("-"):  # Es un encabezado
+            current_header = line.strip()
+            items[current_header] = []
+        elif line.startswith("-") and current_header:  # Es una viñeta asociada al encabezado
+            items[current_header].append(line.strip("- ").strip())
+
+    return items
+
+def analyze_items_and_details(items, position_indicators):
+    """
+    Analiza los encabezados y sus viñetas según los indicadores.
+    :param items: Diccionario con encabezados y detalles.
+    :param position_indicators: Indicadores del cargo seleccionado.
+    :return: Diccionario con resultados del análisis.
+    """
+    results = {}
+    for header, details in items.items():
+        # Evaluar el encabezado
+        header_match = calculate_all_indicators([header], position_indicators)
+
+        # Evaluar las viñetas
+        detail_match = calculate_all_indicators(details, position_indicators)
+
+        results[header] = {
+            "header_match": header_match,
+            "detail_match": detail_match
+        }
+
+    return results
+
 def analyze_descriptive_cv(pdf_path, position, candidate_name):
     """
     Analiza una hoja de vida en formato descriptivo.
@@ -535,16 +581,16 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
 
     # Guardar el reporte
-        report_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
-        pdf.output(report_path, 'F')
-    
-        st.success("Reporte generado exitosamente.")
-        st.download_button(
-            label="Descargar Reporte",
-            data=open(report_path, "rb"),
-            file_name=report_path,
-            mime="application/pdf"
-        )
+    report_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
+    pdf.output(report_path, 'F')
+
+    st.success("Reporte generado exitosamente.")
+    st.download_button(
+        label="Descargar Reporte",
+        data=open(report_path, "rb"),
+        file_name=report_path,
+        mime="application/pdf"
+    )
 
 # Interfaz en Streamlit
 def home_page():
@@ -680,7 +726,15 @@ def secondary():
         if uploaded_file is not None:
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
-            analyze_descriptive_cv("uploaded_cv.pdf", position, candidate_name)
+            
+            # Proceso de análisis
+            items = extract_experience_items_with_details("uploaded_cv.pdf")
+            if items:
+                position_indicators = indicators.get(position, {})
+                item_results = analyze_items_and_details(items, position_indicators)
+                create_descriptive_pdf_report(candidate_name, position, item_results)
+            else:
+                st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP'.")
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
 
