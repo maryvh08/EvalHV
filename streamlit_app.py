@@ -541,7 +541,8 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
     critical_indicators,
     func_score,
     profile_score,
-    critical_advice  # Pasar los consejos al reporte)
+    critical_advice  # Pasar los consejos al reporte
+    )
 
     # Crear reporte en PDF
     pdf = FPDF()
