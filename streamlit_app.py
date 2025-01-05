@@ -467,9 +467,9 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
     position_indicators = indicators.get(position, {})
 
     # Calcular el porcentaje por cada indicador
-    indicator_results = calculate_indicators_for_report(lines, position_indicators)
+    indicator_results = calculate_indicators_for_report(items, position_indicators)
     for indicator, keywords in position_indicators.items():
-        indicator_results = calculate_indicators_for_report(lines, position_indicators)
+        indicator_results = calculate_indicators_for_report(items, position_indicators)
 
     # Calcular la presencia total (si es necesario)
     total_presence = sum(result["percentage"] for result in indicator_results.values())
