@@ -583,8 +583,6 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         # Guardar el reporte
         descriptive_report_path = f"Reporte_Descriptivo_cargo_{candidate_name}_{position}.pdf"
         pdf.output(descriptive_report_path, 'F')
-
-        return descriptive_report_path
     
         st.success("Reporte generado exitosamente.")
         st.download_button(
@@ -593,6 +591,7 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
             file_name=descriptive_report_path,
             mime="application/pdf"
         )
+        return descriptive_report_path
 
 # Interfaz en Streamlit
 def home_page():
@@ -729,6 +728,13 @@ def secondary():
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
             analyze_descriptive_cv("uploaded_cv.pdf", position, candidate_name)
+            with open(descriptive_report_path, "rb") as file:
+                st.download_button(
+                    label="Descargar Reporte PDF",
+                    data=file,
+                    file_name=f"Reporte_Descriptivo_{candidate_name}_{position}.pdf",
+                    mime="application/pdf")
+                    
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
 
