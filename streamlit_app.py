@@ -580,17 +580,17 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         # Mensaje de agradecimiento
         pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
 
-    # Guardar el reporte
-    report_path = f"Reporte_Descriptivo_cargo_{candidate_name}_{position}.pdf"
-    pdf.output(report_path, 'F')
-
-    st.success("Reporte generado exitosamente.")
-    st.download_button(
-        label="Descargar Reporte",
-        data=open(report_path, "rb"),
-        file_name=report_path,
-        mime="application/pdf"
-    )
+        # Guardar el reporte
+        report_path = f"Reporte_Descriptivo_cargo_{candidate_name}_{position}.pdf"
+        pdf.output(report_path, 'F')
+    
+        st.success("Reporte generado exitosamente.")
+        st.download_button(
+            label="Descargar Reporte",
+            data=open(report_path, "rb"),
+            file_name=report_path,
+            mime="application/pdf"
+        )
 
 # Interfaz en Streamlit
 def home_page():
