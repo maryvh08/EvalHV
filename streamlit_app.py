@@ -545,7 +545,7 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
     )
 
     def create_descriptive_pdf_report(candidate_name, position, item_results, critical_indicators, func_score, profile_score, critical_advice):
-    """
+        """
         Genera un reporte PDF para el análisis descriptivo de la hoja de vida.
         :param candidate_name: Nombre del candidato.
         :param position: Cargo al que aspira.
