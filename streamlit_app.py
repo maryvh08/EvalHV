@@ -480,17 +480,17 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
             indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
 
     # Evaluación general de concordancia
-    if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+    if any(keyword.lower() in item.lower() for kw_set in position_indicators.values() for keyword in kw_set):
         func_match = 100.0
         profile_match = 100.0
     else:
         # Calcular similitud 
-        func_match = calculate_similarity(line, functions_text)
-        profile_match = calculate_similarity(line, profile_text)
+        func_match = calculate_similarity(item, functions_text)
+        profile_match = calculate_similarity(item, profile_text)
     
     # Solo agregar al reporte si no tiene 0% en ambas métricas
     if func_match > 0 or profile_match > 0:
-        line_results.append((line, func_match, profile_match))
+        line_results.append((item, func_match, profile_match))
 
     # Normalización de los resultados de indicadores
     total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
