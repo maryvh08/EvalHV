@@ -499,7 +499,7 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
     
     # Solo agregar al reporte si no tiene 0% en ambas métricas
     if func_match > 0 or profile_match > 0:
-        line_results.append((item, func_match, profile_match))
+        item_results.append((item, func_match, profile_match))
 
     # Normalización de los resultados de indicadores
     total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
