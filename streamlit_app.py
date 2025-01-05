@@ -22,7 +22,6 @@ def load_advice(filepath="advice.json"):
 indicators = load_indicators()
 advice = load_advice()
 
-# FUNCIONES PARA PRIMARY
 def extract_text_with_ocr(pdf_path):
     """
     Extrae texto de un PDF utilizando OCR con preprocesamiento.
@@ -42,6 +41,77 @@ def extract_text_with_ocr(pdf_path):
             text += page_text
     return text
 
+def extract_cleaned_lines(text):
+    """
+    Limpia y filtra las líneas de un texto.
+    :param text: Texto a procesar.
+    :return: Lista de líneas limpias.
+    """
+    lines = text.split("\n")
+    return [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías y espacios.
+
+def calculate_all_indicators(lines, position_indicators):
+    """
+    Calcula los porcentajes de todos los indicadores para un cargo.
+    :param lines: Lista de líneas de la sección "EXPERIENCIA EN ANEIAP".
+    :param position_indicators: Diccionario de indicadores y palabras clave del cargo.
+    :return: Diccionario con los porcentajes por indicador.
+    """
+    total_lines = len(lines)
+    if total_lines == 0:
+        return {indicator: 0 for indicator in position_indicators}  # Evitar división por cero
+
+    indicator_results = {}
+    for indicator, keywords in position_indicators.items():
+        relevant_lines = sum(
+            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
+        )
+        indicator_results[indicator] = (relevant_lines / total_lines) * 100  # Cálculo del porcentaje
+    return indicator_results
+
+def calculate_indicators_for_report(lines, position_indicators):
+    """
+    Calcula los porcentajes de relevancia de indicadores para el reporte.
+    :param lines: Lista de líneas de la sección "EXPERIENCIA EN ANEIAP".
+    :param position_indicators: Diccionario de indicadores y palabras clave del cargo.
+    :return: Diccionario con los porcentajes por indicador y detalles de líneas relevantes.
+    """
+    total_lines = len(lines)
+    if total_lines == 0:
+        return {indicator: {"percentage": 0, "relevant_lines": 0} for indicator in position_indicators}
+
+    indicator_results = {}
+    for indicator, keywords in position_indicators.items():
+        relevant_lines = sum(
+            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
+        )
+        percentage = (relevant_lines / total_lines) * 100
+        indicator_results[indicator] = {"percentage": percentage, "relevant_lines": relevant_lines}
+
+    return indicator_results
+
+# Función para calcular la similitud usando TF-IDF y similitud de coseno
+def calculate_similarity(text1, text2):
+    """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
+    vectorizer = TfidfVectorizer()
+    tfidf_matrix = vectorizer.fit_transform([text1, text2])
+    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+    return similarity * 100
+
+def calculate_presence(lines, keywords):
+    """
+    Calcula el porcentaje de renglones que contienen palabras clave específicas.
+    :param lines: Lista de renglones a evaluar.
+    :param keywords: Lista de palabras clave a buscar.
+    :return: Porcentaje de renglones que contienen al menos una palabra clave.
+    """
+    matched_lines = sum(
+        any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
+    )
+    return (matched_lines / len(lines)) * 100 if lines else 0
+
+
+# FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF con soporte de OCR.
@@ -114,75 +184,6 @@ def extract_experience_section_with_ocr(pdf_path):
         print(f"- {line}")
     
     return "\n".join(cleaned_lines)
-
-def extract_cleaned_lines(text):
-    """
-    Limpia y filtra las líneas de un texto.
-    :param text: Texto a procesar.
-    :return: Lista de líneas limpias.
-    """
-    lines = text.split("\n")
-    return [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías y espacios.
-
-def calculate_all_indicators(lines, position_indicators):
-    """
-    Calcula los porcentajes de todos los indicadores para un cargo.
-    :param lines: Lista de líneas de la sección "EXPERIENCIA EN ANEIAP".
-    :param position_indicators: Diccionario de indicadores y palabras clave del cargo.
-    :return: Diccionario con los porcentajes por indicador.
-    """
-    total_lines = len(lines)
-    if total_lines == 0:
-        return {indicator: 0 for indicator in position_indicators}  # Evitar división por cero
-
-    indicator_results = {}
-    for indicator, keywords in position_indicators.items():
-        relevant_lines = sum(
-            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
-        )
-        indicator_results[indicator] = (relevant_lines / total_lines) * 100  # Cálculo del porcentaje
-    return indicator_results
-
-def calculate_indicators_for_report(lines, position_indicators):
-    """
-    Calcula los porcentajes de relevancia de indicadores para el reporte.
-    :param lines: Lista de líneas de la sección "EXPERIENCIA EN ANEIAP".
-    :param position_indicators: Diccionario de indicadores y palabras clave del cargo.
-    :return: Diccionario con los porcentajes por indicador y detalles de líneas relevantes.
-    """
-    total_lines = len(lines)
-    if total_lines == 0:
-        return {indicator: {"percentage": 0, "relevant_lines": 0} for indicator in position_indicators}
-
-    indicator_results = {}
-    for indicator, keywords in position_indicators.items():
-        relevant_lines = sum(
-            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
-        )
-        percentage = (relevant_lines / total_lines) * 100
-        indicator_results[indicator] = {"percentage": percentage, "relevant_lines": relevant_lines}
-
-    return indicator_results
-
-# Función para calcular la similitud usando TF-IDF y similitud de coseno
-def calculate_similarity(text1, text2):
-    """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
-    vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform([text1, text2])
-    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-    return similarity * 100
-
-def calculate_presence(lines, keywords):
-    """
-    Calcula el porcentaje de renglones que contienen palabras clave específicas.
-    :param lines: Lista de renglones a evaluar.
-    :param keywords: Lista de palabras clave a buscar.
-    :return: Porcentaje de renglones que contienen al menos una palabra clave.
-    """
-    matched_lines = sum(
-        any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
-    )
-    return (matched_lines / len(lines)) * 100 if lines else 0
 
 def generate_report(pdf_path, position, candidate_name):
     """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
@@ -377,6 +378,7 @@ def generate_report(pdf_path, position, candidate_name):
         file_name=report_path,
         mime="application/pdf"
     )
+
 
 # FUNCIONES PARA SECUNDARY
 def analyze_descriptive_cv(pdf_path, position, candidate_name):
