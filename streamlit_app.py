@@ -438,6 +438,24 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
 
     return results
 
+def get_critical_advice(critical_indicators, position):
+    """
+    Genera una lista de consejos basados en indicadores críticos.
+    :param critical_indicators: Diccionario con los indicadores críticos y sus porcentajes.
+    :param position: Cargo al que aspira el candidato.
+    :return: Diccionario con los indicadores críticos y sus respectivos consejos.
+    """
+    critical_advice = {}
+
+    for indicator in critical_indicators:
+        # Obtener los consejos para el indicador crítico
+        if position in advice and indicator in advice[position]:
+            critical_advice[indicator] = advice[position][indicator]
+        else:
+            critical_advice[indicator] = ["No hay consejos disponibles para este indicador."]
+
+    return critical_advice
+
 def analyze_descriptive_cv(pdf_path, position, candidate_name):
     """
     Analiza una hoja de vida en formato descriptivo y genera un reporte PDF.
@@ -498,6 +516,9 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
             if percentage < 50:
                 critical_indicators[indicator] = percentage
 
+    # Obtener los consejos para los indicadores críticos
+    critical_advice = get_critical_advice(critical_indicators, position)
+
     # Calcular concordancia global
     global_func_match = sum(
         res["header_func_match"] + res["detail_func_match"]
@@ -512,6 +533,15 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
     # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
+
+    descriptive_report_path= create_descriptive_pdf_report(
+    candidate_name,
+    position,
+    item_results,
+    critical_indicators,
+    func_score,
+    profile_score,
+    critical_advice  # Pasar los consejos al reporte)
 
     # Crear reporte en PDF
     pdf = FPDF()
@@ -556,17 +586,16 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
 
     # Consejos para mejorar indicadores con baja presencia
-    critical_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
-    if critical_indicators:
-        pdf.ln(5)
+    for indicator, percentage in critical_indicators.items():
+        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+
+        # Consejos para el indicador
         pdf.set_font("Arial", style="B", size=12)
-        pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
-        pdf.set_font("Arial", size=12)
-        for indicator, result in critical_indicators.items():
-            percentage = (result["relevant_lines"] / total_lines) * 100 if total_lines > 0 else 0
-            pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
-            for tip in advice[position].get(indicator, []):
-                pdf.multi_cell(0, 10, f"  * {tip}")
+        pdf.cell(0, 10, "Recomendaciones:", ln=True)
+        pdf.set_font("Arial", size=11)
+        if indicator in critical_advice:
+            for advice in critical_advice[indicator]:
+                pdf.cell(0, 10, f"  * {advice}", ln=True)
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
@@ -613,6 +642,7 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
             file_name=f"Reporte_Descriptivo_{candidate_name}_{position}.pdf",
             mime="application/pdf"
         )
+    return report_path
 
 # Interfaz en Streamlit
 def home_page():
