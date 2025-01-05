@@ -581,7 +581,7 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
 
     # Guardar el reporte
-    report_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
+    report_path = f"Reporte_Descriptivo_cargo_{candidate_name}_{position}.pdf"
     pdf.output(report_path, 'F')
 
     st.success("Reporte generado exitosamente.")
@@ -726,15 +726,7 @@ def secondary():
         if uploaded_file is not None:
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
-            
-            # Proceso de análisis
-            items = extract_experience_items_with_details("uploaded_cv.pdf")
-            if items:
-                position_indicators = indicators.get(position, {})
-                item_results = analyze_items_and_details(items, position_indicators)
-                create_descriptive_pdf_report(candidate_name, position, item_results)
-            else:
-                st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP'.")
+            analyze_descriptive_cv(pdf_path, position, candidate_name):
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
 
