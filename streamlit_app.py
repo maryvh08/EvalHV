@@ -441,6 +441,9 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
 def analyze_descriptive_cv(pdf_path, position, candidate_name):
     """
     Analiza una hoja de vida en formato descriptivo y genera un reporte PDF.
+    :param pdf_path: Ruta del PDF.
+    :param position: Cargo al que aspira.
+    :param candidate_name: Nombre del candidato.
     """
     # Extraer texto de la sección 'EXPERIENCIA EN ANEIAP'
     experience_text = extract_experience_section_with_ocr(pdf_path)
@@ -465,50 +468,51 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         return
 
     position_indicators = indicators.get(position, {})
+    item_results = {}
 
-    # Calcular el porcentaje por cada indicador
-    indicator_results = calculate_indicators_for_report(items, position_indicators)
-    for indicator, keywords in position_indicators.items():
-        indicator_results = calculate_indicators_for_report(items, position_indicators)
-
-    # Calcular la presencia total (si es necesario)
-    total_presence = sum(result["percentage"] for result in indicator_results.values())
-
-    # Normalizar los porcentajes si es necesario
-    if total_presence > 0:
-        for indicator in indicator_results:
-            indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
-
-    # Evaluación general de concordancia
-    if any(keyword.lower() in item.lower() for kw_set in position_indicators.values() for keyword in kw_set):
-        func_match = 100.0
-        profile_match = 100.0
-    else:
-        # Calcular similitud 
-        func_match = calculate_similarity(item, functions_text)
-        profile_match = calculate_similarity(item, profile_text)
-    
-    # Solo agregar al reporte si no tiene 0% en ambas métricas
-    if func_match > 0 or profile_match > 0:
-        line_results.append((item, func_match, profile_match))
-
-    # Normalización de los resultados de indicadores
-    total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
-    if total_presence > 0:
-        for indicator in indicator_results:
-            indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
-            
     # Analizar cada encabezado y sus viñetas
-    item_results = analyze_items_and_details(items, position_indicators, functions_text, profile_text)
+    for header, details in items.items():
+        # Evaluar encabezado y detalles
+        header_match = calculate_all_indicators([header], position_indicators)
+        header_func_match = calculate_similarity(header, functions_text)
+        header_profile_match = calculate_similarity(header, profile_text)
 
-    # Cálculo de concordancia global
-    global_func_match = sum(res["func_match"] for res in item_results.values()) / len(item_results)
-    global_profile_match = sum(res["profile_match"] for res in item_results.values()) / len(item_results)
+        detail_match = calculate_all_indicators(details, position_indicators)
+        detail_func_match = sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
+        detail_profile_match = sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
 
-    #Calculo puntajes
+        # Consolidar resultados
+        item_results[header] = {
+            "header_match": header_match,
+            "header_func_match": header_func_match,
+            "header_profile_match": header_profile_match,
+            "detail_match": detail_match,
+            "detail_func_match": detail_func_match,
+            "detail_profile_match": detail_profile_match,
+        }
+
+    # Calcular indicadores críticos (<50% de concordancia)
+    critical_indicators = {
+        indicator: result
+        for header, result in item_results.items()
+        for indicator, percentage in result["header_match"].items()
+        if percentage < 50
+    }
+
+    # Calcular concordancia global
+    global_func_match = sum(
+        res["header_func_match"] + res["detail_func_match"]
+        for res in item_results.values()
+    ) / (2 * len(item_results))
+
+    global_profile_match = sum(
+        res["header_profile_match"] + res["detail_profile_match"]
+        for res in item_results.values()
+    ) / (2 * len(item_results))
+
+    # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
-
 
     # Crear reporte en PDF
     pdf = FPDF()
@@ -543,46 +547,15 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
             pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
         pdf.cell(0, 10, f"- Funciones del Cargo: {result['detail_func_match']:.2f}%", ln=True)
         pdf.cell(0, 10, f"- Perfil del Cargo: {result['detail_profile_match']:.2f}%", ln=True)
-
-        pdf.ln(5)  # Espacio entre ítems
-
-    # Total de líneas analizadas
-    pdf.set_font("Arial", style="B", size=12)
-    total_lines = len(lines)
-    pdf.cell(0, 10, f"Total de líneas analizadas: {total_lines}", ln=True)
-    pdf.ln(5)
-
-    # Resultados de indicadores
-    pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
-    pdf.set_font("Arial", size=12)
-    for indicator, result in indicator_results.items():
-        relevant_lines = result["relevant_lines"]
-        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", ln=True)
-
-    # Indicador con menor presencia
-    lowest_indicator = min(indicator_results, key=lambda k: indicator_results[k]["relevant_lines"])
-    pdf.ln(5)
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Indicador con Menor Presencia:", ln=True)
-    pdf.set_font("Arial", size=12)
-    lowest_relevant_lines = indicator_results[lowest_indicator]["relevant_lines"]
-    lowest_percentage = (lowest_relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-    pdf.cell(0, 10, f"{lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
-
-    # Consejos para mejorar indicadores con baja presencia
-    low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
-    if low_performance_indicators:
         pdf.ln(5)
-        pdf.set_font("Arial", style="B", size=12)
-        pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
-        pdf.set_font("Arial", size=12)
-        for indicator, result in low_performance_indicators.items():
-            percentage = (result["relevant_lines"] / total_lines) * 100 if total_lines > 0 else 0
-            pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
-            for tip in advice[position].get(indicator, []):
-                pdf.multi_cell(0, 10, f"  * {tip}")
-    
+
+    # Indicadores críticos
+    pdf.set_font("Arial", style="B", size=12)
+    pdf.cell(0, 10, "Indicadores Críticos (<50%):", ln=True)
+    pdf.set_font("Arial", size=11)
+    for indicator, percentage in critical_indicators.items():
+        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Concordancia Global:", ln=True)
@@ -590,13 +563,13 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
     pdf.cell(0, 10, f"La concordancia Global de Funciones es: {global_func_match:.2f}%", ln=True)
     pdf.cell(0, 10, f"La concordancia Global de Perfil es: {global_profile_match:.2f}%", ln=True)
 
-    #Puntaje global
+    # Puntajes globales
     pdf.set_font("Arial", style="B", size=12)
-    pdf.multi_cell(0, 10, "\nPuntaje Global:")
-    pdf.set_font("Arial", style="", size=12)
-    pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
-    pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
-
+    pdf.cell(0, 10, "Puntajes Globales:", ln=True)
+    pdf.set_font("Arial", size=11)
+    pdf.cell(0, 10, f"- Puntaje Global Funciones: {func_score}", ln=True)
+    pdf.cell(0, 10, f"- Puntaje Global Perfil: {profile_score}", ln=True)
+    
     # Interpretación de resultados
     pdf.set_font("Arial", style="B", size=12)
     pdf.multi_cell(0, 10, "\nInterpretación de resultados:")
@@ -620,14 +593,14 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
     descriptive_report_path = f"Reporte_Descriptivo_cargo_{candidate_name}_{position}.pdf"
     pdf.output(descriptive_report_path, 'F')
 
-    st.success("Reporte generado exitosamente.")
-    st.download_button(
-        label="Descargar Reporte",
-        data=open(descriptive_report_path, "rb"),
-        file_name=descriptive_report_path,
-        mime="application/pdf"
-    )
-    return descriptive_report_path
+    # Descargar el reporte desde Streamlit
+    with open(descriptive_report_path, "rb") as file:
+        st.download_button(
+            label="Descargar Reporte PDF",
+            data=file,
+            file_name=f"Reporte_Descriptivo_{candidate_name}_{position}.pdf",
+            mime="application/pdf"
+        )
 
 # Interfaz en Streamlit
 def home_page():
