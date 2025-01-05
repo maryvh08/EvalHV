@@ -728,12 +728,6 @@ def secondary():
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
             analyze_descriptive_cv("uploaded_cv.pdf", position, candidate_name)
-            with open(descriptive_report_path, "rb") as file:
-                st.download_button(
-                    label="Descargar Reporte PDF",
-                    data=file,
-                    file_name=f"Reporte_Descriptivo_{candidate_name}_{position}.pdf",
-                    mime="application/pdf")
                     
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
