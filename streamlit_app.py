@@ -526,28 +526,28 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
     pdf.ln(10)
 
     # Iterar sobre los resultados de los ítems
-        for item, result in item_results.items():
-            pdf.set_font("Arial", style="B", size=12)
-            pdf.cell(0, 10, f"Ítem: {item}", ln=True)
-    
-            # Concordancia del encabezado
-            pdf.set_font("Arial", style="I", size=11)
-            pdf.cell(0, 10, "Concordancia del Encabezado:", ln=True)
-            pdf.set_font("Arial", size=11)
-            for indicator, percentage in result["header_match"].items():
-                pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-            pdf.cell(0, 10, f"- Funciones del Cargo: {result['header_func_match']:.2f}%", ln=True)
-            pdf.cell(0, 10, f"- Perfil del Cargo: {result['header_profile_match']:.2f}%", ln=True)
-    
-            # Concordancia de los detalles
-            pdf.set_font("Arial", style="I", size=11)
-            pdf.cell(0, 10, "Concordancia de los Detalles:", ln=True)
-            pdf.set_font("Arial", size=11)
-            for indicator, percentage in result["detail_match"].items():
-                pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-            pdf.cell(0, 10, f"- Funciones del Cargo: {result['detail_func_match']:.2f}%", ln=True)
-            pdf.cell(0, 10, f"- Perfil del Cargo: {result['detail_profile_match']:.2f}%", ln=True)
-            pdf.ln(5)
+    for item, result in item_results.items():
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.cell(0, 10, f"Ítem: {item}", ln=True)
+
+        # Concordancia del encabezado
+        pdf.set_font("Arial", style="I", size=11)
+        pdf.cell(0, 10, "Concordancia del Encabezado:", ln=True)
+        pdf.set_font("Arial", size=11)
+        for indicator, percentage in result["header_match"].items():
+            pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+        pdf.cell(0, 10, f"- Funciones del Cargo: {result['header_func_match']:.2f}%", ln=True)
+        pdf.cell(0, 10, f"- Perfil del Cargo: {result['header_profile_match']:.2f}%", ln=True)
+
+        # Concordancia de los detalles
+        pdf.set_font("Arial", style="I", size=11)
+        pdf.cell(0, 10, "Concordancia de los Detalles:", ln=True)
+        pdf.set_font("Arial", size=11)
+        for indicator, percentage in result["detail_match"].items():
+            pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+        pdf.cell(0, 10, f"- Funciones del Cargo: {result['detail_func_match']:.2f}%", ln=True)
+        pdf.cell(0, 10, f"- Perfil del Cargo: {result['detail_profile_match']:.2f}%", ln=True)
+        pdf.ln(5)
 
     # Indicadores críticos
     pdf.set_font("Arial", style="B", size=12)
