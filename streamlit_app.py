@@ -549,12 +549,29 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         pdf.cell(0, 10, f"- Perfil del Cargo: {result['detail_profile_match']:.2f}%", ln=True)
         pdf.ln(5)
 
-    # Indicadores críticos
+     # Indicador con menor presencia
+    lowest_indicator = min(indicator_results, key=lambda k: indicator_results[k]["relevant_lines"])
+    pdf.ln(5)
+    
     pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Indicadores Críticos (<50%):", ln=True)
-    pdf.set_font("Arial", size=11)
-    for indicator, percentage in critical_indicators.items():
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+    pdf.cell(0, 10, "Indicador con Menor Presencia:", ln=True)
+    pdf.set_font("Arial", size=12)
+    lowest_relevant_lines = indicator_results[lowest_indicator]["relevant_lines"]
+    lowest_percentage = (lowest_relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+    pdf.cell(0, 10, f"{lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
+
+    # Consejos para mejorar indicadores con baja presencia
+    low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
+    if low_performance_indicators:
+        pdf.ln(5)
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
+        pdf.set_font("Arial", size=12)
+        for indicator, result in low_performance_indicators.items():
+            percentage = (result["relevant_lines"] / total_lines) * 100 if total_lines > 0 else 0
+            pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
+            for tip in advice[position].get(indicator, []):
+                pdf.multi_cell(0, 10, f"  * {tip}")
 
     #Concordancia global
     pdf.set_font("Arial", style="B", size=12)
