@@ -466,13 +466,44 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
 
     position_indicators = indicators.get(position, {})
 
+    # Calcular el porcentaje por cada indicador
+        indicator_results = calculate_indicators_for_report(lines, position_indicators)
+        for indicator, keywords in position_indicators.items():
+            indicator_results = calculate_indicators_for_report(lines, position_indicators)
+
+        # Calcular la presencia total (si es necesario)
+        total_presence = sum(result["percentage"] for result in indicator_results.values())
+
+        # Normalizar los porcentajes si es necesario
+        if total_presence > 0:
+            for indicator in indicator_results:
+                indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
+
+        # Evaluación general de concordancia
+        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+            func_match = 100.0
+            profile_match = 100.0
+        else:
+            # Calcular similitud 
+            func_match = calculate_similarity(line, functions_text)
+            profile_match = calculate_similarity(line, profile_text)
+        
+        # Solo agregar al reporte si no tiene 0% en ambas métricas
+        if func_match > 0 or profile_match > 0:
+            line_results.append((line, func_match, profile_match))
+
+    # Normalización de los resultados de indicadores
+    total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
+    if total_presence > 0:
+        for indicator in indicator_results:
+            indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
+            
     # Analizar cada encabezado y sus viñetas
     item_results = analyze_items_and_details(items, position_indicators, functions_text, profile_text)
 
     # Cálculo de concordancia global
     global_func_match = sum(res["func_match"] for res in item_results.values()) / len(item_results)
     global_profile_match = sum(res["profile_match"] for res in item_results.values()) / len(item_results)
-
 
     #Calculo puntajes
     func_score = round((global_func_match * 5) / 100, 2)
