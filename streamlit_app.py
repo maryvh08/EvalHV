@@ -544,106 +544,118 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
     critical_advice  # Pasar los consejos al reporte
     )
 
-    # Crear reporte en PDF
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-
-    # Título del reporte
-    pdf.set_font("Helvetica", style="B", size=14)
-    pdf.cell(200, 10, txt=f"Reporte de Análisis Descriptivo - {candidate_name}", ln=True, align='C')
-    pdf.cell(200, 10, txt=f"Cargo: {position}", ln=True, align='C')
-    pdf.ln(10)
-
-    # Iterar sobre los resultados de los ítems
-    for item, result in item_results.items():
-        pdf.set_font("Arial", style="B", size=12)
-        pdf.cell(0, 10, f"Ítem: {item}", ln=True)
-
-        # Concordancia del encabezado
-        pdf.set_font("Arial", style="I", size=11)
-        pdf.cell(0, 10, "Concordancia del Encabezado:", ln=True)
-        pdf.set_font("Arial", size=11)
-        for indicator, percentage in result["header_match"].items():
-            pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-        pdf.cell(0, 10, f"- Funciones del Cargo: {result['header_func_match']:.2f}%", ln=True)
-        pdf.cell(0, 10, f"- Perfil del Cargo: {result['header_profile_match']:.2f}%", ln=True)
-
-        # Concordancia de los detalles
-        pdf.set_font("Arial", style="I", size=11)
-        pdf.cell(0, 10, "Concordancia de los Detalles:", ln=True)
-        pdf.set_font("Arial", size=11)
-        for indicator, percentage in result["detail_match"].items():
-            pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-        pdf.cell(0, 10, f"- Funciones del Cargo: {result['detail_func_match']:.2f}%", ln=True)
-        pdf.cell(0, 10, f"- Perfil del Cargo: {result['detail_profile_match']:.2f}%", ln=True)
-        pdf.ln(5)
-
-    # Indicadores críticos
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Indicadores Críticos (<50%):", ln=True)
-    pdf.set_font("Arial", size=11)
-    for indicator, percentage in critical_indicators.items():
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-
-    # Consejos para mejorar indicadores con baja presencia
-    for indicator, percentage in critical_indicators.items():
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-
-        # Consejos para el indicador
-        pdf.set_font("Arial", style="B", size=12)
-        pdf.cell(0, 10, "Recomendaciones:", ln=True)
-        pdf.set_font("Arial", size=11)
-        if indicator in critical_advice:
-            for advice in critical_advice[indicator]:
-                pdf.cell(0, 10, f"  * {advice}", ln=True)
-
-    #Concordancia global
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Concordancia Global:", ln=True)
-    pdf.set_font("Arial", size=12)
-    pdf.cell(0, 10, f"La concordancia Global de Funciones es: {global_func_match:.2f}%", ln=True)
-    pdf.cell(0, 10, f"La concordancia Global de Perfil es: {global_profile_match:.2f}%", ln=True)
-
-    # Puntajes globales
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Puntajes Globales:", ln=True)
-    pdf.set_font("Arial", size=11)
-    pdf.cell(0, 10, f"- Puntaje Global Funciones: {func_score}", ln=True)
-    pdf.cell(0, 10, f"- Puntaje Global Perfil: {profile_score}", ln=True)
-    
-    # Interpretación de resultados
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.multi_cell(0, 10, "\nInterpretación de resultados:")
-    pdf.set_font("Arial", style="", size=12)
-    if global_profile_match >75 and global_func_match > 75:
-        pdf.multi_cell(0, 10, f"- Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.")
-    
-    elif 50 < global_profile_match < 75 and 50 < global_func_match < 75:
-        pdf.multi_cell(0, 10, f"- Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.")
+    def create_descriptive_pdf_report(candidate_name, position, item_results, critical_indicators, func_score, profile_score, critical_advice):
+    """
+        Genera un reporte PDF para el análisis descriptivo de la hoja de vida.
+        :param candidate_name: Nombre del candidato.
+        :param position: Cargo al que aspira.
+        :param item_results: Resultados del análisis por ítem y viñetas.
+        :param critical_indicators: Indicadores más críticos (<50% de concordancia).
+        :param func_score: Puntaje global respecto a funciones.
+        :param profile_score: Puntaje global respecto a perfil.
+        :param critical_advice: Consejos para los indicadores críticos.
+        """
         
-    else:
-        pdf.multi_cell(0, 10, f"- Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.")
-
-    # Conclusión
-    pdf.multi_cell(0, 10, f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.")
+        # Crear reporte en PDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
     
-    # Mensaje de agradecimiento
-    pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
-
-    # Guardar el reporte
-    descriptive_report_path = f"Reporte_Descriptivo_cargo_{candidate_name}_{position}.pdf"
-    pdf.output(descriptive_report_path, 'F')
-
-    # Descargar el reporte desde Streamlit
-    with open(descriptive_report_path, "rb") as file:
-        st.download_button(
-            label="Descargar Reporte PDF",
-            data=file,
-            file_name=f"Reporte_Descriptivo_{candidate_name}_{position}.pdf",
-            mime="application/pdf"
-        )
-    return report_path
+        # Título del reporte
+        pdf.set_font("Helvetica", style="B", size=14)
+        pdf.cell(200, 10, txt=f"Reporte de Análisis Descriptivo - {candidate_name}", ln=True, align='C')
+        pdf.cell(200, 10, txt=f"Cargo: {position}", ln=True, align='C')
+        pdf.ln(10)
+    
+        # Iterar sobre los resultados de los ítems
+        for item, result in item_results.items():
+            pdf.set_font("Arial", style="B", size=12)
+            pdf.cell(0, 10, f"Ítem: {item}", ln=True)
+    
+            # Concordancia del encabezado
+            pdf.set_font("Arial", style="I", size=11)
+            pdf.cell(0, 10, "Concordancia del Encabezado:", ln=True)
+            pdf.set_font("Arial", size=11)
+            for indicator, percentage in result["header_match"].items():
+                pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+            pdf.cell(0, 10, f"- Funciones del Cargo: {result['header_func_match']:.2f}%", ln=True)
+            pdf.cell(0, 10, f"- Perfil del Cargo: {result['header_profile_match']:.2f}%", ln=True)
+    
+            # Concordancia de los detalles
+            pdf.set_font("Arial", style="I", size=11)
+            pdf.cell(0, 10, "Concordancia de los Detalles:", ln=True)
+            pdf.set_font("Arial", size=11)
+            for indicator, percentage in result["detail_match"].items():
+                pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+            pdf.cell(0, 10, f"- Funciones del Cargo: {result['detail_func_match']:.2f}%", ln=True)
+            pdf.cell(0, 10, f"- Perfil del Cargo: {result['detail_profile_match']:.2f}%", ln=True)
+            pdf.ln(5)
+    
+        # Indicadores críticos
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.cell(0, 10, "Indicadores Críticos (<50%):", ln=True)
+        pdf.set_font("Arial", size=11)
+        for indicator, percentage in critical_indicators.items():
+            pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+    
+        # Consejos para mejorar indicadores con baja presencia
+        for indicator, percentage in critical_indicators.items():
+            pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+    
+            # Consejos para el indicador
+            pdf.set_font("Arial", style="B", size=12)
+            pdf.cell(0, 10, "Recomendaciones:", ln=True)
+            pdf.set_font("Arial", size=11)
+            if indicator in critical_advice:
+                for advice in critical_advice[indicator]:
+                    pdf.cell(0, 10, f"  * {advice}", ln=True)
+    
+        #Concordancia global
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.cell(0, 10, "Concordancia Global:", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.cell(0, 10, f"La concordancia Global de Funciones es: {global_func_match:.2f}%", ln=True)
+        pdf.cell(0, 10, f"La concordancia Global de Perfil es: {global_profile_match:.2f}%", ln=True)
+    
+        # Puntajes globales
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.cell(0, 10, "Puntajes Globales:", ln=True)
+        pdf.set_font("Arial", size=11)
+        pdf.cell(0, 10, f"- Puntaje Global Funciones: {func_score}", ln=True)
+        pdf.cell(0, 10, f"- Puntaje Global Perfil: {profile_score}", ln=True)
+        
+        # Interpretación de resultados
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.multi_cell(0, 10, "\nInterpretación de resultados:")
+        pdf.set_font("Arial", style="", size=12)
+        if global_profile_match >75 and global_func_match > 75:
+            pdf.multi_cell(0, 10, f"- Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.")
+        
+        elif 50 < global_profile_match < 75 and 50 < global_func_match < 75:
+            pdf.multi_cell(0, 10, f"- Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.")
+            
+        else:
+            pdf.multi_cell(0, 10, f"- Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.")
+    
+        # Conclusión
+        pdf.multi_cell(0, 10, f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.")
+        
+        # Mensaje de agradecimiento
+        pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
+    
+        # Guardar el reporte
+        descriptive_report_path = f"Reporte_Descriptivo_cargo_{candidate_name}_{position}.pdf"
+        pdf.output(descriptive_report_path, 'F')
+    
+        # Descargar el reporte desde Streamlit
+        with open(descriptive_report_path, "rb") as file:
+            st.download_button(
+                label="Descargar Reporte PDF",
+                data=file,
+                file_name=f"Reporte_Descriptivo_{candidate_name}_{position}.pdf",
+                mime="application/pdf"
+            )
+        return report_path
 
 # Interfaz en Streamlit
 def home_page():
