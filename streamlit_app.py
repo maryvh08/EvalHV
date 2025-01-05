@@ -471,14 +471,55 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         for indicator, percentage in result["detail_match"].items():
             st.write(f"  - {indicator}: {percentage:.2f}%")
 
-    # Generar reporte PDF Descriptivo
-    def create_descriptive_pdf_report(candidate_name, position, item_results):
-        """
-        Genera un reporte PDF para el análisis descriptivo de la hoja de vida.
-        :param candidate_name: Nombre del candidato.
-        :param position: Cargo al que aspira.
-        :param item_results: Resultados del análisis por ítem y viñetas.
-        """
+    # Obtener los indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
+    indicator_results = {}
+
+    # Calcular el porcentaje por cada indicador
+    indicator_results = calculate_indicators_for_report(lines, position_indicators)
+    for indicator, keywords in position_indicators.items():
+        indicator_results = calculate_indicators_for_report(lines, position_indicators)
+
+    # Calcular la presencia total (si es necesario)
+    total_presence = sum(result["percentage"] for result in indicator_results.values())
+
+    # Normalizar los porcentajes si es necesario
+    if total_presence > 0:
+        for indicator in indicator_results:
+            indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
+
+    # Evaluación general de concordancia
+    if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+        func_match = 100.0
+        profile_match = 100.0
+    else:
+        # Calcular similitud 
+        func_match = calculate_similarity(line, functions_text)
+        profile_match = calculate_similarity(line, profile_text)
+    
+    # Solo agregar al reporte si no tiene 0% en ambas métricas
+    if func_match > 0 or profile_match > 0:
+        line_results.append((line, func_match, profile_match))
+
+# Normalización de los resultados de indicadores
+total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
+if total_presence > 0:
+    for indicator in indicator_results:
+        indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
+        
+# Cálculo de concordancia global
+if line_results:  # Evitar división por cero si no hay ítems válidos
+    global_func_match = sum([res[1] for res in line_results]) / len(line_results)
+    global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
+else:
+    global_func_match = 0
+    global_profile_match = 0
+
+#Calculo puntajes
+func_score = round((global_func_match * 5) / 100, 2)
+profile_score = round((global_profile_match * 5) / 100, 2)
+
+    # Crear reporte en PDF
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
