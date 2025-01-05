@@ -726,7 +726,7 @@ def secondary():
         if uploaded_file is not None:
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
-            analyze_descriptive_cv(pdf_path, position, candidate_name)
+            analyze_descriptive_cv(uploaded_cv.pdf, position, candidate_name)
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
 
