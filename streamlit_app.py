@@ -492,23 +492,22 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         }
 
     # Calcular indicadores críticos (<50% de concordancia)
-    critical_indicators = {
-        indicator: result
-        for header, result in item_results.items()
-        for indicator, percentage in result["header_match"].items()
-        if percentage < 50
-    }
+    critical_indicators = {}
+    for header, result in item_results.items():
+        for indicator, percentage in result["header_match"].items():
+            if percentage < 50:
+                critical_indicators[indicator] = percentage
 
     # Calcular concordancia global
     global_func_match = sum(
         res["header_func_match"] + res["detail_func_match"]
         for res in item_results.values()
-    ) / (2 * len(item_results))
+    ) / (2 * len(item_results)) if item_results else 0
 
     global_profile_match = sum(
         res["header_profile_match"] + res["detail_profile_match"]
         for res in item_results.values()
-    ) / (2 * len(item_results))
+    ) / (2 * len(item_results)) if item_results else 0
 
     # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
