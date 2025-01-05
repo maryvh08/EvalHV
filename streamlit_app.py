@@ -23,6 +23,25 @@ indicators = load_indicators()
 advice = load_advice()
 
 # FUNCIONES PARA PRIMARY
+def extract_text_with_ocr(pdf_path):
+    """
+    Extrae texto de un PDF utilizando OCR con preprocesamiento.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto extraído del PDF.
+    """
+    text = ""
+    with fitz.open(pdf_path) as doc:
+        for page in doc:
+            # Intentar extraer texto con PyMuPDF
+            page_text = page.get_text()
+            if not page_text.strip():  # Si no hay texto, usar OCR
+                pix = page.get_pixmap()
+                img = Image.open(io.BytesIO(pix.tobytes(output="png")))
+                img = preprocess_image(img)  # Preprocesar imagen
+                page_text = pytesseract.image_to_string(img, config="--psm 6")  # Configuración personalizada
+            text += page_text
+    return text
+
 def extract_experience_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF con soporte de OCR.
