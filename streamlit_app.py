@@ -591,7 +591,7 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
             file_name=descriptive_report_path,
             mime="application/pdf"
         )
-        return descriptive_report_path
+    return descriptive_report_path
 
 # Interfaz en Streamlit
 def home_page():
