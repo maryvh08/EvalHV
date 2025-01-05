@@ -22,16 +22,7 @@ def load_advice(filepath="advice.json"):
 indicators = load_indicators()
 advice = load_advice()
 
-def preprocess_image(img):
-    """
-    Aplica preprocesamiento a una imagen para mejorar la precisión de OCR.
-    """
-    img = img.convert("L")  # Convertir a escala de grises
-    img = img.filter(ImageFilter.MedianFilter())  # Reducir ruido
-    enhancer = ImageEnhance.Contrast(img)
-    img = enhancer.enhance(2)  # Mejorar contraste
-    return img
-
+# FUNCIONES PARA PRIMARY
 def extract_text_with_ocr(pdf_path):
     """
     Extrae texto de un PDF utilizando OCR con preprocesamiento.
@@ -387,6 +378,7 @@ def generate_report(pdf_path, position, candidate_name):
         mime="application/pdf"
     )
 
+# FUNCIONES PARA SECUNDARY
 def analyze_descriptive_cv(pdf_path, position, candidate_name):
     """
     Analiza una hoja de vida en formato descriptivo.
