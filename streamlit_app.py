@@ -383,9 +383,9 @@ def generate_report(pdf_path, position, candidate_name):
 # FUNCIONES PARA SECUNDARY
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae encabezados y sus viñetas desde la sección 'EXPERIENCIA EN ANEIAP' de un PDF.
+    Extrae encabezados y viñetas de la sección 'EXPERIENCIA EN ANEIAP' de un PDF.
     :param pdf_path: Ruta del archivo PDF.
-    :return: Diccionario con encabezados y detalles.
+    :return: Diccionario con encabezados y viñetas.
     """
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
@@ -405,34 +405,42 @@ def extract_experience_items_with_details(pdf_path):
 
     return items
 
-def analyze_items_and_details(items, position_indicators):
+def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
-    Analiza los encabezados y sus viñetas según los indicadores.
-    :param items: Diccionario con encabezados y detalles.
+    Analiza encabezados y viñetas según indicadores, funciones y perfil del cargo.
+    :param items: Diccionario con encabezados y viñetas.
     :param position_indicators: Indicadores del cargo seleccionado.
+    :param functions_text: Texto de las funciones del cargo.
+    :param profile_text: Texto del perfil del cargo.
     :return: Diccionario con resultados del análisis.
     """
     results = {}
     for header, details in items.items():
-        # Evaluar el encabezado
+        # Evaluar encabezado
         header_match = calculate_all_indicators([header], position_indicators)
+        header_func_match = calculate_similarity(header, functions_text)
+        header_profile_match = calculate_similarity(header, profile_text)
 
-        # Evaluar las viñetas
+        # Evaluar viñetas
         detail_match = calculate_all_indicators(details, position_indicators)
+        detail_func_match = sum(calculate_similarity(d, functions_text) for d in details) / max(len(details), 1)
+        detail_profile_match = sum(calculate_similarity(d, profile_text) for d in details) / max(len(details), 1)
 
+        # Consolidar resultados
         results[header] = {
             "header_match": header_match,
-            "detail_match": detail_match
+            "header_func_match": header_func_match,
+            "header_profile_match": header_profile_match,
+            "detail_match": detail_match,
+            "detail_func_match": detail_func_match,
+            "detail_profile_match": detail_profile_match,
         }
 
     return results
 
 def analyze_descriptive_cv(pdf_path, position, candidate_name):
     """
-    Analiza una hoja de vida en formato descriptivo.
-    :param pdf_path: Ruta del PDF.
-    :param position: Cargo al que aspira.
-    :param candidate_name: Nombre del candidato.
+    Analiza una hoja de vida en formato descriptivo y genera un reporte PDF.
     """
     # Extraer texto de la sección 'EXPERIENCIA EN ANEIAP'
     experience_text = extract_experience_section_with_ocr(pdf_path)
@@ -446,28 +454,25 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         st.error("No se encontraron encabezados y detalles para analizar.")
         return
 
+    # Cargar funciones y perfil del cargo
+    try:
+        with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
+            functions_text = func_doc[0].get_text()
+        with fitz.open(f"Perfiles//P{position}.pdf") as profile_doc:
+            profile_text = profile_doc[0].get_text()
+    except Exception as e:
+        st.error(f"Error al cargar funciones o perfil: {e}")
+        return
+
     position_indicators = indicators.get(position, {})
-    item_results = {}
 
-    # Analizar cada ítem
-    for header, details in items.items():
-        # Evaluar encabezado y detalles por separado
-        header_match = calculate_all_indicators([header], position_indicators)
-        detail_match = calculate_all_indicators(details, position_indicators)
+    # Analizar cada encabezado y sus viñetas
+    item_results = analyze_items_and_details(items, position_indicators, functions_text, profile_text)
 
-        # Consolidar resultados
-        item_results[header] = {
-            "header_match": header_match,
-            "detail_match": detail_match
-        }
+    # Cálculo de concordancia global
+    global_func_match = sum(res["func_match"] for res in item_results.values()) / len(item_results)
+    global_profile_match = sum(res["profile_match"] for res in item_results.values()) / len(item_results)
 
-        # Cálculo de concordancia global
-    if line_results:  # Evitar división por cero si no hay ítems válidos
-        global_func_match = sum([res[1] for res in line_results]) / len(line_results)
-        global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
-    else:
-        global_func_match = 0
-        global_profile_match = 0
 
     #Calculo puntajes
     func_score = round((global_func_match * 5) / 100, 2)
@@ -496,6 +501,8 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         pdf.set_font("Arial", size=11)
         for indicator, percentage in result["header_match"].items():
             pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+        pdf.cell(0, 10, f"- Funciones del Cargo: {result['header_func_match']:.2f}%", ln=True)
+        pdf.cell(0, 10, f"- Perfil del Cargo: {result['header_profile_match']:.2f}%", ln=True)
 
         # Concordancia de los detalles
         pdf.set_font("Arial", style="I", size=11)
@@ -503,6 +510,8 @@ def analyze_descriptive_cv(pdf_path, position, candidate_name):
         pdf.set_font("Arial", size=11)
         for indicator, percentage in result["detail_match"].items():
             pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+        pdf.cell(0, 10, f"- Funciones del Cargo: {result['detail_func_match']:.2f}%", ln=True)
+        pdf.cell(0, 10, f"- Perfil del Cargo: {result['detail_profile_match']:.2f}%", ln=True)
 
         pdf.ln(5)  # Espacio entre ítems
 
