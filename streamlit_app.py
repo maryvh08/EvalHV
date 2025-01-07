@@ -437,12 +437,6 @@ def extract_experience_items_with_details(pdf_path):
 
     return cleaned_items
 
-# Mostrar encabezados y detalles
-print("Encabezados y Detalles:")
-for header, details in items.items():
-    print(f"\nEncabezado: {header}")
-    for detail in details:
-        print(f"  - {detail}")
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
