@@ -509,9 +509,15 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         st.error(f"Error al cargar funciones o perfil: {e}")
         return
 
+    # Filtrar indicadores correspondientes al cargo seleccionado
+    position_indicators = indicators.get(position, {})
+    if not position_indicators:
+        st.error("No se encontraron indicadores para el cargo seleccionado.")
+        return
+
     # Analizar encabezados y detalles
     item_results = {}
-    related_items_count = {indicator: 0 for indicator in indicators}
+    related_items_count = {indicator: 0 for indicator in position_indicators}
 
     for header, details in items.items():
         header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
@@ -521,7 +527,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         profile_match = 100 if any(keyword in header_and_details for keyword in profile_text.split()) else calculate_similarity(header_and_details, profile_text)
 
         # Evaluar indicadores
-        for indicator, keywords in indicators.items():
+        for indicator, keywords in position_indicators.items():
             if any(keyword in header_and_details for keyword in keywords):
                 related_items_count[indicator] += 1
 
@@ -529,10 +535,6 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             "Funciones del Cargo": func_match,
             "Perfil del Cargo": profile_match,
         }
-
-    # Solo agregar al reporte si no tiene 0% en ambas métricas
-        if func_match > 0 or profile_match > 0:
-            item_results.append((items, func_match, profile_match))
 
     # Calcular porcentajes de indicadores
     total_items = len(items)
@@ -579,7 +581,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             pdf.cell(0, 10, f"- {key}: {value:.2f}%", ln=True)
         pdf.ln(5)
 
-    # Resultados por indicadores
+     # Resultados por indicadores
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
     pdf.set_font("Arial", size=12)
