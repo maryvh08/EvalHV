@@ -398,16 +398,27 @@ def extract_experience_items_with_details(pdf_path):
     for line in lines:
         line = line.strip()
 
-        # Identificar encabezados (ítems): Líneas que no comienzan con "•" y no están vacías
-        if line and not line.startswith("•"):
+        # Ignorar líneas vacías
+        if not line:
+            continue
+
+        # Identificar detalles (líneas que comienzan con "•")
+        if line.startswith("•"):
+            detail = line.lstrip("•").strip()  # Eliminar "•" y espacios adicionales
+            if current_item:
+                items[current_item].append(detail)
+            else:
+                # Caso donde un detalle aparece sin encabezado válido previo
+                items["Sin encabezado"] = items.get("Sin encabezado", []) + [detail]
+
+        # Identificar encabezados (líneas que no comienzan con "•")
+        else:
             current_item = line
-            items[current_item] = []  # Inicializar lista de detalles para este encabezado
-        elif current_item and line.startswith("•"):
-            # Identificar detalles: Comienzan con "•"
-            detail = line.lstrip("•").strip()  # Eliminar el símbolo y espacios adicionales
-            items[current_item].append(detail)
+            if current_item not in items:
+                items[current_item] = []  # Crear una lista vacía para los detalles
 
     return items
+
 
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
