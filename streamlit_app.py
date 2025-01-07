@@ -569,23 +569,13 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             pdf.cell(0, 10, f"- {key}: {value:.2f}%", ln=True)
         pdf.ln(5)
 
-    # Resultados por indicador
+    # Indicadores
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
     pdf.set_font("Arial", size=12)
     for indicator, percentage in indicator_percentages.items():
         pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-    pdf.ln(10)
-
-    # Consejos para indicadores críticos
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Consejos para Indicadores Críticos:", ln=True)
-    pdf.set_font("Arial", size=12)
-    for indicator, percentage in indicator_percentages.items():
-        if percentage < 50:  # Indicadores críticos (<50%)
-            pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-            for tip in advice.get(position, {}).get(indicator, ["No hay consejos disponibles."]):
-                pdf.multi_cell(0, 10, f"  * {tip}")
+    pdf.ln(5)
 
     # Concordancia global
     pdf.set_font("Arial", style="B", size=12)
