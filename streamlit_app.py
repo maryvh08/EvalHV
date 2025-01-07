@@ -484,19 +484,20 @@ def get_critical_advice(critical_indicators, position):
 
     return critical_advice
 
-def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, indicators, advice):
+def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, advice, indicators):
     """
     Analiza un CV descriptivo y genera un reporte PDF.
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
-    :param indicators: Diccionario con indicadores y palabras clave.
     :param advice: Diccionario con consejos.
+    :param indicators: Diccionario con indicadores y palabras clave.
     """
-    # Extraer encabezados y detalles
+    # Extraer texto de la sección EXPERIENCIA EN ANEIAP
     items = extract_experience_items_with_details(pdf_path)
     if not items:
-        return "No se encontraron encabezados y detalles para analizar."
+        st.error("No se encontraron encabezados y detalles para analizar.")
+        return
 
     # Cargar funciones y perfil del cargo
     try:
@@ -505,32 +506,25 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         with fitz.open(f"Perfiles//P{position}.pdf") as profile_doc:
             profile_text = profile_doc[0].get_text()
     except Exception as e:
-        return f"Error al cargar funciones o perfil: {e}"
+        st.error(f"Error al cargar funciones o perfil: {e}")
+        return
 
+    # Analizar encabezados y detalles
     item_results = {}
-    indicator_counts = {indicator: 0 for indicator in indicators}
+    related_items_count = {indicator: 0 for indicator in indicators}
 
-    # Analizar cada encabezado y detalles
     for header, details in items.items():
-        # Inicializar concordancia de funciones y perfil
-        func_match = 0
-        profile_match = 0
+        header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
 
-        # Verificar si las palabras clave están en el encabezado o los detalles
-        header_and_details = " ".join([header] + details).lower()
+        # Calcular concordancia con funciones y perfil
+        func_match = 100 if any(keyword in header_and_details for keyword in functions_text.split()) else calculate_similarity(header_and_details, functions_text)
+        profile_match = 100 if any(keyword in header_and_details for keyword in profile_text.split()) else calculate_similarity(header_and_details, profile_text)
+
+        # Evaluar indicadores
         for indicator, keywords in indicators.items():
-            if any(keyword.lower() in header_and_details for keyword in keywords):
-                indicator_counts[indicator] += 1
-                func_match = 100
-                profile_match = 100
+            if any(keyword in header_and_details for keyword in keywords):
+                related_items_count[indicator] += 1
 
-        # Concordancia por defecto si no se alcanzó 100%
-        if func_match < 100:
-            func_match = sum(calculate_similarity(header_and_details, functions_text))
-        if profile_match < 100:
-            profile_match = sum(calculate_similarity(header_and_details, profile_text))
-
-        # Guardar resultados del ítem
         item_results[header] = {
             "Funciones del Cargo": func_match,
             "Perfil del Cargo": profile_match,
@@ -538,21 +532,22 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
     # Calcular porcentajes de indicadores
     total_items = len(items)
-    indicator_results = {
-        indicator: (count / total_items) * 100
-        for indicator, count in indicator_counts.items()
+    indicator_percentages = {
+        indicator: (count / total_items) * 100 for indicator, count in related_items_count.items()
     }
 
-    critical_advice = {
-        indicator: advice.get(position, {}).get(indicator, ["No hay consejos disponibles para este indicador."])
-        for indicator in critical_indicators
-    }
+    # Calcular concordancia global para funciones y perfil
+    if item_results:
+        global_func_match = sum(res["Funciones del Cargo"] for res in item_results.values()) / len(item_results)
+        global_profile_match = sum(res["Perfil del Cargo"] for res in item_results.values()) / len(item_results)
+    else:
+        global_func_match = 0
+        global_profile_match = 0
 
-    global_func_match = sum(res["Funciones del Cargo"] for res in item_results.values()) / len(item_results)
-    global_profile_match = sum(res["Perfil del Cargo"] for res in item_results.values()) / len(item_results)
-
+    # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
+
     
     # Crear el reporte PDF
     pdf = FPDF()
