@@ -527,7 +527,6 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             st.warning(f"El encabezado '{header}' no tiene detalles válidos para calcular indicadores.")
             continue  # Saltar este encabezado si no hay detalles
 
-
         # Concordancia de funciones y perfil
         detail_func_match = sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
         detail_profile_match = sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
@@ -555,42 +554,29 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
 
     # Calcular el porcentaje de concordancia para los indicadores en conjunto (detalles)
-    header_indicator_match = {
-        indicator: (
-            sum(
-                detail_match[indicator]
-                for detail_match in detail_matches
-                if indicator in detail_match
-            ) / len(detail_matches)
-            if len(detail_matches) > 0 else 0  # Evitar división por cero
-        )
-        for indicator in position_indicators
-    }
-
     header_indicator_match = {}
+    
     for indicator in position_indicators:
+        # Extraer los valores relevantes para el indicador
         relevant_details = [
             detail_match[indicator]
             for detail_match in detail_matches
             if indicator in detail_match
         ]
+        # Evitar división por cero al calcular el promedio
         if relevant_details:
             header_indicator_match[indicator] = sum(relevant_details) / len(relevant_details)
         else:
             header_indicator_match[indicator] = 0  # Asignar 0 si no hay detalles relevantes
 
-
-
     # Cálculo de concordancia global basado en los porcentajes consolidados de los encabezados
-    global_func_match = sum(
-        res["header_func_match"]  # Concordancia con funciones
-        for res in item_results.values()
-    ) / len(item_results)
-    
-    global_profile_match = sum(
-        res["header_profile_match"]  # Concordancia con el perfil
-        for res in item_results.values()
-    ) / len(item_results)
+    if item_results:
+        global_func_match = sum(res["func_match"] for res in item_results.values()) / len(item_results)
+        global_profile_match = sum(res["profile_match"] for res in item_results.values()) / len(item_results)
+    else:
+        global_func_match = 0  # No hay resultados para calcular
+        global_profile_match = 0  # No hay resultados para calcular
+
     
     # Calcular el puntaje global para funciones y perfil
     func_score = round((global_func_match * 5) / 100, 2)
