@@ -573,64 +573,38 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf.cell(200, 10, txt=f"Cargo: {position}", ln=True, align='C')
     pdf.ln(10)
 
-    # Iterar sobre los resultados de los ítems
-    for item, result in item_results.items():
+        # Resultados por ítem
+    for header, result in item_results.items():
         pdf.set_font("Arial", style="B", size=12)
-        pdf.cell(0, 10, f"Ítem: {item}", ln=True)
-    
-        # Concordancia del encabezado
-        pdf.set_font("Arial", style="I", size=11)
-        pdf.cell(0, 10, "Concordancia del Encabezado:", ln=True)
-        pdf.set_font("Arial", size=11)
-        for indicator, percentage in result["header_match"].items():
+        pdf.cell(0, 10, f"Ítem: {header}", ln=True)
+        pdf.set_font("Arial", size=12)
+        for indicator, percentage in result.items():
             pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-        pdf.cell(0, 10, f"- Funciones del Cargo: {result['header_func_match']:.2f}%", ln=True)
-        pdf.cell(0, 10, f"- Perfil del Cargo: {result['header_profile_match']:.2f}%", ln=True)
-    
-        # Detalles (viñetas) del ítem
-        pdf.set_font("Arial", style="I", size=11)
-        pdf.cell(0, 10, "Detalles del Ítem:", ln=True)
-        pdf.set_font("Arial", size=11)
-        for detail in result.get("details", []):  # Asegúrate de que los detalles estén en result["details"]
-            pdf.cell(0, 10, f"  - {detail}", ln=True)
-    
-        # Concordancia de los detalles
-        pdf.set_font("Arial", style="I", size=11)
-        pdf.cell(0, 10, "Concordancia de los Detalles:", ln=True)
-        pdf.set_font("Arial", size=11)
-        for indicator, percentage in result["detail_match"].items():
-            pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-        pdf.cell(0, 10, f"- Funciones del Cargo: {result['detail_func_match']:.2f}%", ln=True)
-        pdf.cell(0, 10, f"- Perfil del Cargo: {result['detail_profile_match']:.2f}%", ln=True)
         pdf.ln(5)
 
-        pdf.ln(5)
+    # Indicadores críticos y consejos
+    if critical_indicators:
+        pdf.set_font("Arial", style="B", size=12)
+        pdf.cell(0, 10, "Indicadores Críticos y Consejos:", ln=True)
+        pdf.set_font("Arial", size=12)
+        for indicator, advice_list in critical_advice.items():
+            pdf.cell(0, 10, f"- {indicator}: {critical_indicators[indicator]:.2f}%", ln=True)
+            for advice in advice_list:
+                pdf.multi_cell(0, 10, f"  * {advice}")
 
-    # Indicadores críticos
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Indicadores Críticos (<50%):", ln=True)
-    pdf.set_font("Arial", size=11)
-    for indicator, percentage in critical_indicators.items():
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
-
-        # Consejos para el indicador
-        if indicator in critical_advice:
-            for advice in critical_advice[indicator]:
-                pdf.cell(0, 10, f"  * {advice}", ln=True)
-
-    #Concordancia global
+    # Concordancia global
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Concordancia Global:", ln=True)
     pdf.set_font("Arial", size=12)
-    pdf.cell(0, 10, f"La concordancia Global de Funciones es: {global_func_match:.2f}%", ln=True)
-    pdf.cell(0, 10, f"La concordancia Global de Perfil es: {global_profile_match:.2f}%", ln=True)
+    pdf.cell(0, 10, f"- Funciones del Cargo: {global_func_match:.2f}%", ln=True)
+    pdf.cell(0, 10, f"- Perfil del Cargo: {global_profile_match:.2f}%", ln=True)
 
-    #Puntaje global
+    # Puntaje global
     pdf.set_font("Arial", style="B", size=12)
-    pdf.multi_cell(0, 10, "\nPuntaje Global:")
-    pdf.set_font("Arial", style="", size=12)
-    pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
-    pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
+    pdf.cell(0, 10, "Puntaje Global:", ln=True)
+    pdf.set_font("Arial", size=12)
+    pdf.cell(0, 10, f"- Funciones del Cargo: {func_score}", ln=True)
+    pdf.cell(0, 10, f"- Perfil del Cargo: {profile_score}", ln=True)
 
     # Interpretación de resultados
     pdf.set_font("Arial", style="B", size=12)
