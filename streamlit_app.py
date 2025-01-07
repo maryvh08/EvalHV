@@ -437,11 +437,6 @@ def extract_experience_items_with_details(pdf_path):
 
     return cleaned_items
 
-
-# Prueba del código
-pdf_path = "ruta_del_pdf.pdf"
-items = extract_experience_items_with_details(pdf_path)
-
 # Mostrar encabezados y detalles
 print("Encabezados y Detalles:")
 for header, details in items.items():
