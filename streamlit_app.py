@@ -392,7 +392,7 @@ def generate_report(pdf_path, position, candidate_name):
 # FUNCIONES PARA SECUNDARY
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae los encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
+    Extrae encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
     :param pdf_path: Ruta del PDF.
     :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
@@ -405,7 +405,6 @@ def extract_experience_items_with_details(pdf_path):
             blocks = page.get_text("dict")["blocks"]  # Extraer bloques de texto con formato
 
             for block in blocks:
-                # Verificar si el bloque tiene la clave 'lines'
                 if "lines" not in block:
                     continue
 
@@ -413,7 +412,7 @@ def extract_experience_items_with_details(pdf_path):
                     for span in line["spans"]:
                         text = span["text"].strip()
 
-                        # Detectar inicio y fin de la sección
+                        # Detectar el inicio y el fin de la sección
                         if text.lower().startswith("experiencia en aneiap"):
                             in_experience_section = True
                             continue
@@ -424,18 +423,15 @@ def extract_experience_items_with_details(pdf_path):
                         if not in_experience_section:
                             continue
 
-                        # Detectar encabezados basados en negrita
-                        if span["font"]).lower().find("bold") != -1:
-                            current_item = text  # Encabezado detectado
-                            items[current_item] = []  # Crear lista vacía para detalles
+                        # Detectar encabezados (negrita)
+                        if "bold" in span["font"].lower():
+                            current_item = text  # Nuevo encabezado detectado
+                            items[current_item] = []  # Crear una lista vacía para los detalles
                         elif current_item:
-                            # Agregar todos los textos que no son encabezados como detalles
+                            # Agregar texto subsiguiente como detalle
                             items[current_item].append(text)
 
-    # Limpiar los encabezados y detalles
-    cleaned_items = {header: [detail.strip() for detail in details if detail.strip()] for header, details in items.items()}
-
-    return cleaned_items
+    return items
     
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
