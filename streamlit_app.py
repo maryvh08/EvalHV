@@ -405,7 +405,8 @@ def extract_experience_items_with_details(pdf_path):
             blocks = page.get_text("dict")["blocks"]  # Extraer bloques de texto con formato
 
             for block in blocks:
-                if "lines" not in block:  # Verificar si el bloque tiene la clave 'lines'
+                # Verificar si el bloque tiene la clave 'lines'
+                if "lines" not in block:
                     continue
 
                 for line in block["lines"]:
@@ -424,16 +425,29 @@ def extract_experience_items_with_details(pdf_path):
                             continue
 
                         # Detectar encabezados basados en negrita
-                        if span["font"].lower().find("bold") != -1 and text:
+                        if span["font"].lower().find("bold") != -1:
                             current_item = text  # Encabezado detectado
                             items[current_item] = []  # Crear lista vacía para detalles
                         elif current_item:
-                            # Todo texto no en negrita se considera detalle del encabezado actual
-                            if text:  # Ignorar líneas vacías
-                                items[current_item].append(text)
+                            # Agregar todos los textos que no son encabezados como detalles
+                            items[current_item].append(text)
 
-    return items
+    # Limpiar los encabezados y detalles
+    cleaned_items = {header: [detail.strip() for detail in details if detail.strip()] for header, details in items.items()}
 
+    return cleaned_items
+
+
+# Prueba del código
+pdf_path = "ruta_del_pdf.pdf"
+items = extract_experience_items_with_details(pdf_path)
+
+# Mostrar encabezados y detalles
+print("Encabezados y Detalles:")
+for header, details in items.items():
+    print(f"\nEncabezado: {header}")
+    for detail in details:
+        print(f"  - {detail}")
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
