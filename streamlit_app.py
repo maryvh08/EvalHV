@@ -482,25 +482,19 @@ def get_critical_advice(critical_indicators, position):
 
 def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, advice):
     """
-    Analiza una hoja de vida en formato descriptivo y genera un reporte PDF.
-    :param pdf_path: Ruta del archivo PDF.
+    Analiza un CV descriptivo y genera un reporte PDF.
+    :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
-    :param advice: Diccionario con los consejos asociados a los indicadores críticos.
+    :param advice: Diccionario con consejos.
     """
-    # Extraer texto de la sección 'EXPERIENCIA EN ANEIAP'
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
-    # Extraer encabezados y viñetas
+    # Extraer encabezados y detalles
     items = extract_experience_items_with_details(pdf_path)
-    for header, details in items.items():
-        print(f"Encabezado: {header}")
-        for detail in details:
-            print(f"  - Detalle: {detail}")
-    
     if not items:
         st.error("No se encontraron encabezados y detalles para analizar.")
         return
@@ -518,36 +512,27 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     position_indicators = indicators.get(position, {})
     item_results = {}
 
-    # Consolidar resultados de cada ítem
+    # Analizar cada encabezado y detalles
     for header, details in items.items():
-        # Evaluar encabezado
-        header_match = calculate_all_indicators([header], position_indicators)
-        header_func_match = calculate_similarity(header, functions_text)
-        header_profile_match = calculate_similarity(header, profile_text)
-    
-        # Evaluar detalles
-        detail_match = calculate_all_indicators(details, position_indicators)
-        detail_func_match = sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
-        detail_profile_match = sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
-    
-        # Calcular un resultado general para el ítem
-        # Por ejemplo, un promedio ponderado de encabezado y detalles
-        general_func_match = (header_func_match + detail_func_match) / 2
-        general_profile_match = (header_profile_match + detail_profile_match) / 2
-    
-        # Consolidar resultados
-        item_results[header] = {
-            "header_match": header_match,
-            "header_func_match": header_func_match,
-            "header_profile_match": header_profile_match,
-            "detail_match": detail_match,
-            "detail_func_match": detail_func_match,
-            "detail_profile_match": detail_profile_match,
-            "details": details,  # Incluir los detalles del ítem
-            "general_func_match": general_func_match,  # Resultado general para funciones
-            "general_profile_match": general_profile_match,  # Resultado general para perfil
+        detail_matches = {
+            indicator: sum(
+                calculate_presence([detail], [keyword])
+                for detail in details
+                for keyword in keywords
+            ) / len(details)
+            for indicator, keywords in position_indicators.items()
         }
 
+        # Concordancia de funciones y perfil
+        detail_func_match = sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
+        detail_profile_match = sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
+
+        # Consolidar resultados
+        item_results[header] = {
+            **detail_matches,
+            "Funciones del Cargo": detail_func_match,
+            "Perfil del Cargo": detail_profile_match,
+        }
     # Calcular indicadores críticos (<50% de concordancia)
     critical_indicators = {}
     for header, result in item_results.items():
