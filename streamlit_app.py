@@ -490,40 +490,57 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
-    :param indicators: Diccionario de indicadores.
+    :param indicators: Diccionario con indicadores y palabras clave.
     :param advice: Diccionario con consejos.
     """
+    # Extraer encabezados y detalles
     items = extract_experience_items_with_details(pdf_path)
     if not items:
-        raise ValueError("No se encontraron encabezados y detalles para analizar.")
+        return "No se encontraron encabezados y detalles para analizar."
 
-    position_indicators = indicators.get(position, {})
+    # Cargar funciones y perfil del cargo
+    try:
+        with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
+            functions_text = func_doc[0].get_text()
+        with fitz.open(f"Perfiles//P{position}.pdf") as profile_doc:
+            profile_text = profile_doc[0].get_text()
+    except Exception as e:
+        return f"Error al cargar funciones o perfil: {e}"
+
     item_results = {}
+    indicator_counts = {indicator: 0 for indicator in indicators}
 
+    # Analizar cada encabezado y detalles
     for header, details in items.items():
-        detail_matches = {
-            indicator: 100 if any(calculate_presence(detail, keywords) for detail in details) else 0
-            for indicator, keywords in position_indicators.items()
-        }
+        # Inicializar concordancia de funciones y perfil
+        func_match = 0
+        profile_match = 0
 
-        # Concordancia de funciones y perfil
-        detail_func_match = 100 if any(calculate_presence(detail, position_indicators.get("Funciones del Cargo", [])) for detail in details) else sum(
-            calculate_similarity(detail, "Funciones del Cargo") for detail in details) / max(len(details), 1)
+        # Verificar si las palabras clave están en el encabezado o los detalles
+        header_and_details = " ".join([header] + details).lower()
+        for indicator, keywords in indicators.items():
+            if any(keyword.lower() in header_and_details for keyword in keywords):
+                indicator_counts[indicator] += 1
+                func_match = 100
+                profile_match = 100
 
-        detail_profile_match = 100 if any(calculate_presence(detail, position_indicators.get("Perfil del Cargo", [])) for detail in details) else sum(
-            calculate_similarity(detail, "Perfil del Cargo") for detail in details) / max(len(details), 1)
+        # Concordancia por defecto si no se alcanzó 100%
+        if func_match < 100:
+            func_match = sum(calculate_similarity(header_and_details, functions_text))
+        if profile_match < 100:
+            profile_match = sum(calculate_similarity(header_and_details, profile_text))
 
+        # Guardar resultados del ítem
         item_results[header] = {
-            **detail_matches,
-            "Funciones del Cargo": detail_func_match,
-            "Perfil del Cargo": detail_profile_match,
+            "Funciones del Cargo": func_match,
+            "Perfil del Cargo": profile_match,
         }
 
-    critical_indicators = {
-        indicator: percentage
-        for header, result in item_results.items()
-        for indicator, percentage in result.items()
-        if percentage < 50
+    # Calcular porcentajes de indicadores
+    total_items = len(items)
+    indicator_results = {
+        indicator: (count / total_items) * 100
+        for indicator, count in indicator_counts.items()
     }
 
     critical_advice = {
