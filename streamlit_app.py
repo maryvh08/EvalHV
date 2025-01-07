@@ -530,6 +530,10 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             "Perfil del Cargo": profile_match,
         }
 
+    # Solo agregar al reporte si no tiene 0% en ambas métricas
+        if func_match > 0 or profile_match > 0:
+            item_results.append((items, func_match, profile_match))
+
     # Calcular porcentajes de indicadores
     total_items = len(items)
     indicator_percentages = {
