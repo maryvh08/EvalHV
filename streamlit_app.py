@@ -383,25 +383,29 @@ def generate_report(pdf_path, position, candidate_name):
 # FUNCIONES PARA SECUNDARY
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae encabezados y viñetas de la sección 'EXPERIENCIA EN ANEIAP' de un PDF.
+    Extrae los encabezados (ítems) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
     :param pdf_path: Ruta del archivo PDF.
-    :return: Diccionario con encabezados y viñetas.
+    :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
-        return None
+        return {}
 
-    # Separar por líneas
-    lines = experience_text.split("\n")
+    lines = experience_text.split("\n")  # Dividir el texto en líneas
     items = {}
-    current_header = None
+    current_item = None
 
     for line in lines:
-        if line.strip() and not line.startswith("●"):  # Es un encabezado
-            current_header = line.strip()
-            items[current_header] = []
-        elif line.startswith("●") and current_header:  # Es una viñeta asociada al encabezado
-            items[current_header].append(line.strip("● ").strip())
+        line = line.strip()
+
+        # Identificar encabezados (ítems): Generalmente no tienen "-" al inicio
+        if line and not line.startswith("-"):
+            current_item = line
+            items[current_item] = []  # Inicializar lista de detalles para este encabezado
+        elif current_item and line.startswith("-"):
+            # Identificar detalles: Comienzan con "-"
+            detail = line.lstrip("-").strip()  # Eliminar el guion y espacios adicionales
+            items[current_item].append(detail)
 
     return items
 
