@@ -484,72 +484,41 @@ def get_critical_advice(critical_indicators, position):
 
     return critical_advice
 
-def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, advice, indicators):
+def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, indicators, advice):
     """
     Analiza un CV descriptivo y genera un reporte PDF.
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
+    :param indicators: Diccionario de indicadores.
     :param advice: Diccionario con consejos.
-    :param indicators: Diccionario con palabras clave para indicadores.
     """
-    # Extraer encabezados y detalles
     items = extract_experience_items_with_details(pdf_path)
     if not items:
-        print("No se encontraron encabezados y detalles para analizar.")
-        return
+        raise ValueError("No se encontraron encabezados y detalles para analizar.")
 
-    # Cargar funciones y perfil del cargo
-    try:
-        with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
-            functions_text = func_doc[0].get_text()
-        with fitz.open(f"Perfiles//P{position}.pdf") as profile_doc:
-            profile_text = profile_doc[0].get_text()
-    except Exception as e:
-        print(f"Error al cargar funciones o perfil: {e}")
-        return
-
+    position_indicators = indicators.get(position, {})
     item_results = {}
 
-    # Analizar cada encabezado y detalles
     for header, details in items.items():
-        # Verificar coincidencia con palabras clave de indicadores
         detail_matches = {
-            indicator: max(
-                calculate_presence(details, keywords),
-                calculate_presence([header], keywords)
-            )
-            for indicator, keywords in indicators.items()
+            indicator: 100 if any(calculate_presence(detail, keywords) for detail in details) else 0
+            for indicator, keywords in position_indicators.items()
         }
 
-        # Verificar que los porcentajes no sean 0 debido a problemas con la entrada
-        if not any(detail_matches.values()):
-            st.warning(f"Todos los indicadores para '{header}' resultaron en 0. Verifique los datos.")
-        
-        if any(keyword.lower() in functions_text.lower() for kw_set in position_indicators.values() for keyword in kw_set):
-            detail_func_match = 100.0
-        else:
-            detail_func_match = calculate_similarity(item, functions_text)
+        # Concordancia de funciones y perfil
+        detail_func_match = 100 if any(calculate_presence(detail, position_indicators.get("Funciones del Cargo", [])) for detail in details) else sum(
+            calculate_similarity(detail, "Funciones del Cargo") for detail in details) / max(len(details), 1)
 
-        if any(keyword.lower() in functions_text.lower() for kw_set in position_indicators.values() for keyword in kw_set):
-            detail_profile_match = 100.0
-        else:
-            detail_profile_match = calculate_similarity(item, profile_text)
-        
-        # Validar resultados
-        if detail_func_match == 0 or detail_profile_match == 0:
-            st.warning(f"La concordancia para funciones o perfil en '{header}' resultó en 0.")
+        detail_profile_match = 100 if any(calculate_presence(detail, position_indicators.get("Perfil del Cargo", [])) for detail in details) else sum(
+            calculate_similarity(detail, "Perfil del Cargo") for detail in details) / max(len(details), 1)
 
-
-
-        # Consolidar resultados para el encabezado
         item_results[header] = {
             **detail_matches,
             "Funciones del Cargo": detail_func_match,
             "Perfil del Cargo": detail_profile_match,
         }
 
-    # Calcular indicadores críticos (<50% de concordancia)
     critical_indicators = {
         indicator: percentage
         for header, result in item_results.items()
@@ -557,24 +526,17 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         if percentage < 50
     }
 
-    # Generar consejos para indicadores críticos
     critical_advice = {
         indicator: advice.get(position, {}).get(indicator, ["No hay consejos disponibles para este indicador."])
         for indicator in critical_indicators
     }
 
-    # Calcular concordancia global para funciones y perfil
-    if item_results:
-        global_func_match = sum(res["Funciones del Cargo"] for res in item_results.values()) / len(item_results)
-        global_profile_match = sum(res["Perfil del Cargo"] for res in item_results.values()) / len(item_results)
-    else:
-        global_func_match = 0
-        global_profile_match = 0
+    global_func_match = sum(res["Funciones del Cargo"] for res in item_results.values()) / len(item_results)
+    global_profile_match = sum(res["Perfil del Cargo"] for res in item_results.values()) / len(item_results)
 
-    # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
-
+    
     # Crear el reporte PDF
     pdf = FPDF()
     pdf.add_page()
