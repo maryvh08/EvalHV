@@ -477,6 +477,11 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
     # Extraer encabezados y viñetas
     items = extract_experience_items_with_details(pdf_path)
+    for header, details in items.items():
+        print(f"Encabezado: {header}")
+        for detail in details:
+            print(f"  - Detalle: {detail}")
+    
     if not items:
         st.error("No se encontraron encabezados y detalles para analizar.")
         return
