@@ -425,7 +425,7 @@ def extract_experience_items_with_details(pdf_path):
                             continue
 
                         # Detectar encabezados basados en negrita
-                        if span["font"].lower().find("bold") != -1:
+                        if span["font"]).lower().find("bold") != -1:
                             current_item = text  # Encabezado detectado
                             items[current_item] = []  # Crear lista vacía para detalles
                         elif current_item:
