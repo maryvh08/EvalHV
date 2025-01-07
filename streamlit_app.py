@@ -428,6 +428,7 @@ def extract_experience_items_with_details(pdf_path):
     return items
 
 
+
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
     Analiza encabezados y viñetas según indicadores, funciones y perfil del cargo.
