@@ -489,17 +489,23 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     position_indicators = indicators.get(position, {})
     item_results = {}
 
-    # Analizar cada encabezado y sus viñetas
+    # Consolidar resultados de cada ítem
     for header, details in items.items():
-        # Evaluar encabezado y detalles
+        # Evaluar encabezado
         header_match = calculate_all_indicators([header], position_indicators)
         header_func_match = calculate_similarity(header, functions_text)
         header_profile_match = calculate_similarity(header, profile_text)
-
+    
+        # Evaluar detalles
         detail_match = calculate_all_indicators(details, position_indicators)
         detail_func_match = sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
         detail_profile_match = sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
-
+    
+        # Calcular un resultado general para el ítem
+        # Por ejemplo, un promedio ponderado de encabezado y detalles
+        general_func_match = (header_func_match + detail_func_match) / 2
+        general_profile_match = (header_profile_match + detail_profile_match) / 2
+    
         # Consolidar resultados
         item_results[header] = {
             "header_match": header_match,
@@ -508,6 +514,9 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             "detail_match": detail_match,
             "detail_func_match": detail_func_match,
             "detail_profile_match": detail_profile_match,
+            "details": details,  # Incluir los detalles del ítem
+            "general_func_match": general_func_match,  # Resultado general para funciones
+            "general_profile_match": general_profile_match,  # Resultado general para perfil
         }
 
     # Calcular indicadores críticos (<50% de concordancia)
