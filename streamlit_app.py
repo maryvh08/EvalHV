@@ -523,6 +523,11 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             for indicator, keywords in position_indicators.items()
         }
 
+        if not detail_matches:
+            st.warning(f"El encabezado '{header}' no tiene detalles válidos para calcular indicadores.")
+            continue  # Saltar este encabezado si no hay detalles
+
+
         # Concordancia de funciones y perfil
         detail_func_match = sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
         detail_profile_match = sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
@@ -548,13 +553,20 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         else:
             critical_advice[indicator] = ["No hay consejos disponibles para este indicador."]
 
+
     # Calcular el porcentaje de concordancia para los indicadores en conjunto (detalles)
     header_indicator_match = {
-        indicator: sum(
-            detail_match[indicator] for detail_match in detail_matches if indicator in detail_match
-        ) / len(detail_matches) if len(detail_matches) > 0 else 0  # Evitar división por cero
+        indicator: (
+            sum(
+                detail_match[indicator]
+                for detail_match in detail_matches
+                if indicator in detail_match
+            ) / len(detail_matches)
+            if len(detail_matches) > 0 else 0  # Evitar división por cero
+        )
         for indicator in position_indicators
     }
+
 
     # Cálculo de concordancia global basado en los porcentajes consolidados de los encabezados
     global_func_match = sum(
