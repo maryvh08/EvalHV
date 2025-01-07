@@ -456,12 +456,13 @@ def get_critical_advice(critical_indicators, position):
 
     return critical_advice
 
-def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name):
+def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, advice):
     """
     Analiza una hoja de vida en formato descriptivo y genera un reporte PDF.
     :param pdf_path: Ruta del archivo PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
+    :param advice: Diccionario con los consejos asociados a los indicadores críticos.
     """
     # Extraer texto de la sección 'EXPERIENCIA EN ANEIAP'
     experience_text = extract_experience_section_with_ocr(pdf_path)
@@ -620,11 +621,11 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name):
     pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
 
     # Guardar el reporte
-    report_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
-    pdf.output(report_path, 'F')
+    describe_report_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
+    pdf.output(describe_report_path, 'F')
 
     # Descargar el reporte desde Streamlit
-    with open(report_path, "rb") as file:
+    with open(describe_report_path, "rb") as file:
         st.download_button(
             label="Descargar Reporte PDF",
             data=file,
