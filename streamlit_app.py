@@ -565,24 +565,32 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf.cell(200, 10, txt=f"Cargo: {position}", ln=True, align='C')
     pdf.ln(10)
 
-        # Resultados por ítem
+    # Resultados por ítem
     for header, result in item_results.items():
         pdf.set_font("Arial", style="B", size=12)
         pdf.cell(0, 10, f"Ítem: {header}", ln=True)
         pdf.set_font("Arial", size=12)
-        for indicator, percentage in result.items():
-            pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+        for key, value in result.items():
+            pdf.cell(0, 10, f"- {key}: {value:.2f}%", ln=True)
         pdf.ln(5)
 
-    # Indicadores críticos y consejos
-    if critical_indicators:
-        pdf.set_font("Arial", style="B", size=12)
-        pdf.cell(0, 10, "Indicadores Críticos y Consejos:", ln=True)
-        pdf.set_font("Arial", size=12)
-        for indicator, advice_list in critical_advice.items():
-            pdf.cell(0, 10, f"- {indicator}: {critical_indicators[indicator]:.2f}%", ln=True)
-            for advice in advice_list:
-                pdf.multi_cell(0, 10, f"  * {advice}")
+    # Resultados por indicador
+    pdf.set_font("Arial", style="B", size=12)
+    pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
+    pdf.set_font("Arial", size=12)
+    for indicator, percentage in indicator_results.items():
+        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+    pdf.ln(10)
+
+    # Consejos para indicadores críticos
+    pdf.set_font("Arial", style="B", size=12)
+    pdf.cell(0, 10, "Consejos para Indicadores Críticos:", ln=True)
+    pdf.set_font("Arial", size=12)
+    for indicator, percentage in indicator_results.items():
+        if percentage < 50:  # Indicadores críticos (<50%)
+            pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+            for tip in advice.get(position, {}).get(indicator, ["No hay consejos disponibles."]):
+                pdf.multi_cell(0, 10, f"  * {tip}")
 
     # Concordancia global
     pdf.set_font("Arial", style="B", size=12)
