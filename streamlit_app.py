@@ -392,7 +392,7 @@ def generate_report(pdf_path, position, candidate_name):
 # FUNCIONES PARA SECUNDARY
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae los encabezados (en negrita) y sus detalles (comenzando con un guion) 
+    Extrae los encabezados (en negrita) y sus detalles (comenzando con un guion)
     de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
     :param pdf_path: Ruta del PDF.
     :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
@@ -406,8 +406,7 @@ def extract_experience_items_with_details(pdf_path):
             blocks = page.get_text("dict")["blocks"]  # Extraer bloques de texto con formato
 
             for block in blocks:
-                # Verificar si el bloque tiene la clave 'lines'
-                if "lines" not in block:
+                if "lines" not in block:  # Verificar si el bloque tiene la clave 'lines'
                     continue
 
                 for line in block["lines"]:
@@ -425,7 +424,7 @@ def extract_experience_items_with_details(pdf_path):
                         if not in_experience_section:
                             continue
 
-                        # Detectar encabezados basados en negrita
+                        # Detectar encabezados (en negrita y no comenzando con guion)
                         if span["font"].lower().find("bold") != -1 and not text.startswith("-"):
                             current_item = text  # Encabezado detectado
                             items[current_item] = []  # Crear lista vacía para detalles
@@ -435,8 +434,6 @@ def extract_experience_items_with_details(pdf_path):
                             items[current_item].append(detail)
 
     return items
-
-
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
@@ -646,13 +643,6 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Guardar el reporte
     describe_report_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
     pdf.output(describe_report_path, 'F')
-
-    print("Encabezados y detalles extraídos:", items)
-    print("Indicadores y palabras clave:", position_indicators)
-    print("Texto de funciones:", functions_text)
-    print("Texto de perfil:", profile_text)
-
-
 
     # Descargar el reporte desde Streamlit
     with open(describe_report_path, "rb") as file:
