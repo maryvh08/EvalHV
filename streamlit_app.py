@@ -567,6 +567,19 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         for indicator in position_indicators
     }
 
+    header_indicator_match = {}
+    for indicator in position_indicators:
+        relevant_details = [
+            detail_match[indicator]
+            for detail_match in detail_matches
+            if indicator in detail_match
+        ]
+        if relevant_details:
+            header_indicator_match[indicator] = sum(relevant_details) / len(relevant_details)
+        else:
+            header_indicator_match[indicator] = 0  # Asignar 0 si no hay detalles relevantes
+
+
 
     # Cálculo de concordancia global basado en los porcentajes consolidados de los encabezados
     global_func_match = sum(
