@@ -392,8 +392,7 @@ def generate_report(pdf_path, position, candidate_name):
 # FUNCIONES PARA SECUNDARY
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae los encabezados (en negrita) y sus detalles (comenzando con un guion)
-    de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
+    Extrae los encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
     :param pdf_path: Ruta del PDF.
     :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
@@ -424,14 +423,13 @@ def extract_experience_items_with_details(pdf_path):
                         if not in_experience_section:
                             continue
 
-                        # Detectar encabezados (en negrita y no comenzando con guion)
-                        if span["font"].lower().find("bold") != -1 and not text.startswith("-"):
+                        # Detectar encabezados basados en negrita
+                        if span["font"].lower().find("bold") != -1:
                             current_item = text  # Encabezado detectado
                             items[current_item] = []  # Crear lista vacía para detalles
-                        elif current_item and text.startswith("-"):
-                            # Detectar detalles basados en guion
-                            detail = text.lstrip("-").strip()
-                            items[current_item].append(detail)
+                        elif current_item:
+                            # Todo texto no en negrita se considera detalle del encabezado actual
+                            items[current_item].append(text)
 
     return items
 
