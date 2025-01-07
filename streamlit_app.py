@@ -749,10 +749,7 @@ def primary():
     )
     
 def secondary():
-    st.title("Evaluador de Hoja de Vida ANEIAP")
-    imagen_secondary = 'Analizador Versión Descriptiva.jpg'
-    st.image(imagen_secondary, use_container_width=True)
-    st.subheader("Versión Descriptiva de Hoja de Vida ANEIAP ⏭️")
+    st.title("Evaluador de Hoja de Vida ANEIAP - Versión Descriptiva")
     st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
 
     # Entrada de datos del usuario
@@ -762,15 +759,16 @@ def secondary():
         "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
     ])
 
-    # Configuración BOTÓN GENERAR REPORTE
     if st.button("Generar Reporte"):
         if uploaded_file is not None:
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
-            analyze_descriptive_cv("uploaded_cv.pdf", position, candidate_name)
-                    
+            
+            # Llamar a la nueva función unificada
+            analyze_and_generate_descriptive_report("uploaded_cv.pdf", position, candidate_name)
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
+
 
     st.write(f"---")
 
