@@ -398,16 +398,17 @@ def extract_experience_items_with_details(pdf_path):
     for line in lines:
         line = line.strip()
 
-        # Identificar encabezados (ítems): Generalmente no tienen "-" al inicio
-        if line and not line.startswith("-"):
+        # Identificar encabezados (ítems): Líneas que no comienzan con "•" y no están vacías
+        if line and not line.startswith("•"):
             current_item = line
             items[current_item] = []  # Inicializar lista de detalles para este encabezado
-        elif current_item and line.startswith("-"):
-            # Identificar detalles: Comienzan con "-"
-            detail = line.lstrip("-").strip()  # Eliminar el guion y espacios adicionales
+        elif current_item and line.startswith("•"):
+            # Identificar detalles: Comienzan con "•"
+            detail = line.lstrip("•").strip()  # Eliminar el símbolo y espacios adicionales
             items[current_item].append(detail)
 
     return items
+
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
