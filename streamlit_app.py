@@ -451,7 +451,15 @@ def extract_experience_items_with_details(pdf_path):
             # Añadir detalles bajo el encabezado actual
             items[current_header].append(line.lstrip("-").strip())
 
-    return items
+    # Filtrar encabezados y detalles excluidos
+    cleaned_items = {
+        header: [detail for detail in details if detail.lower() not in exclude_lines]
+        for header, details in items.items()
+        if header.lower() not in exclude_lines
+    }
+
+    return cleaned_items
+
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
