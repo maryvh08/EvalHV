@@ -92,23 +92,34 @@ def calculate_indicators_for_report(lines, position_indicators):
 
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def calculate_similarity(text1, text2):
-    """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
+    """
+    Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno.
+    :param text1: Primer texto.
+    :param text2: Segundo texto.
+    :return: Porcentaje de similitud.
+    """
+    if not text1 or not text2:  # Evitar problemas con entradas vacías
+        return 0
+
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform([text1, text2])
     similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
     return similarity * 100
 
-def calculate_presence(lines, keywords):
+
+def calculate_presence(texts, keywords):
     """
-    Calcula el porcentaje de renglones que contienen palabras clave específicas.
-    :param lines: Lista de renglones a evaluar.
+    Calcula el porcentaje de palabras clave presentes en los textos.
+    :param texts: Lista de textos (e.g., detalles).
     :param keywords: Lista de palabras clave a buscar.
-    :return: Porcentaje de renglones que contienen al menos una palabra clave.
+    :return: Porcentaje de coincidencia.
     """
-    matched_lines = sum(
-        any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
-    )
-    return (matched_lines / len(lines)) * 100 if lines else 0
+    total_keywords = len(keywords)
+    if total_keywords == 0:  # Evitar división por cero
+        return 0
+
+    matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
+    return (matches / total_keywords) * 100
 
 
 # FUNCIONES PARA PRIMARY
@@ -524,10 +535,19 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             ) / max(len(details), 1)  # Evitar división por cero
             for indicator, keywords in position_indicators.items()
         }
-
-        # Calcular concordancia con funciones y perfil
+        
+        # Verificar que los porcentajes no sean 0 debido a problemas con la entrada
+        if not any(detail_matches.values()):
+            st.warning(f"Todos los indicadores para '{header}' resultaron en 0. Verifique los datos.")
+        
         detail_func_match = sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
         detail_profile_match = sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
+        
+        # Validar resultados
+        if detail_func_match == 0 or detail_profile_match == 0:
+            st.warning(f"La concordancia para funciones o perfil en '{header}' resultó en 0.")
+
+
 
         # Consolidar resultados para el encabezado
         item_results[header] = {
