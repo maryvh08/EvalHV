@@ -387,6 +387,7 @@ def extract_experience_items_with_details(pdf_path):
     :param pdf_path: Ruta del archivo PDF.
     :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
+    # Extraer texto de la sección 'EXPERIENCIA EN ANEIAP'
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
         return {}
@@ -396,28 +397,19 @@ def extract_experience_items_with_details(pdf_path):
     current_item = None
 
     for line in lines:
-        line = line.strip()
+        line = line.strip()  # Limpiar espacios al inicio y al final
 
-        # Ignorar líneas vacías
-        if not line:
-            continue
-
-        # Identificar detalles (líneas que comienzan con "-")
-        if line.startswith("-"):
-            detail = line.lstrip("•").strip()  # Eliminar "-" y espacios adicionales
-            if current_item:
-                items[current_item].append(detail)
-            else:
-                # Caso donde un detalle aparece sin encabezado válido previo
-                items["Sin encabezado"] = items.get("Sin encabezado", []) + [detail]
-
-        # Identificar encabezados (líneas que no comienzan con "-")
-        else:
-            current_item = line
-            if current_item not in items:
-                items[current_item] = []  # Crear una lista vacía para los detalles
+        # Identificar encabezados (líneas sin guion al inicio)
+        if line and not line.startswith("-"):
+            current_item = line  # Asignar la línea como el encabezado actual
+            items[current_item] = []  # Inicializar lista de detalles para este encabezado
+        elif current_item and line.startswith("-"):
+            # Identificar detalles (líneas que comienzan con guion '-')
+            detail = line.lstrip("-").strip()  # Quitar el guion y limpiar espacios
+            items[current_item].append(detail)
 
     return items
+
 
 
 
