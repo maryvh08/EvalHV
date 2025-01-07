@@ -484,24 +484,19 @@ def get_critical_advice(critical_indicators, position):
 
     return critical_advice
 
-def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, advice):
+def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, advice, indicators):
     """
     Analiza un CV descriptivo y genera un reporte PDF.
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
     :param advice: Diccionario con consejos.
+    :param indicators: Diccionario con palabras clave para indicadores.
     """
-    # Extraer texto de la sección EXPERIENCIA EN ANEIAP
-    experience_text = extract_experience_section_with_ocr(pdf_path)
-    if not experience_text:
-        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
-        return
-
     # Extraer encabezados y detalles
     items = extract_experience_items_with_details(pdf_path)
     if not items:
-        st.error("No se encontraron encabezados y detalles para analizar.")
+        print("No se encontraron encabezados y detalles para analizar.")
         return
 
     # Cargar funciones y perfil del cargo
@@ -511,30 +506,32 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         with fitz.open(f"Perfiles//P{position}.pdf") as profile_doc:
             profile_text = profile_doc[0].get_text()
     except Exception as e:
-        st.error(f"Error al cargar funciones o perfil: {e}")
+        print(f"Error al cargar funciones o perfil: {e}")
         return
 
-    position_indicators = indicators.get(position, {})
     item_results = {}
 
     # Analizar cada encabezado y detalles
     for header, details in items.items():
-        # Calcular concordancia para indicadores
+        # Verificar coincidencia con palabras clave de indicadores
         detail_matches = {
-            indicator: sum(
-                calculate_presence([detail], [keyword])
-                for detail in details
-                for keyword in keywords
-            ) / max(len(details), 1)  # Evitar división por cero
-            for indicator, keywords in position_indicators.items()
+            indicator: max(
+                calculate_presence(details, keywords),
+                calculate_presence([header], keywords)
+            )
+            for indicator, keywords in indicators.items()
         }
-        
+
         # Verificar que los porcentajes no sean 0 debido a problemas con la entrada
         if not any(detail_matches.values()):
             st.warning(f"Todos los indicadores para '{header}' resultaron en 0. Verifique los datos.")
         
-        detail_func_match = sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
-        detail_profile_match = sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
+        detail_func_match = (
+            100 if any(keyword.lower() in functions_text.lower() for keyword in sum(indicators.values(), [])) else 0
+        )
+        detail_profile_match = (
+            100 if any(keyword.lower() in profile_text.lower() for keyword in sum(indicators.values(), [])) else 0
+        )
         
         # Validar resultados
         if detail_func_match == 0 or detail_profile_match == 0:
