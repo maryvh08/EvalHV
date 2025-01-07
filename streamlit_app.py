@@ -488,6 +488,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     :param candidate_name: Nombre del candidato.
     :param advice: Diccionario con consejos.
     """
+    # Extraer texto de la sección EXPERIENCIA EN ANEIAP
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
@@ -514,73 +515,52 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
     # Analizar cada encabezado y detalles
     for header, details in items.items():
+        # Calcular concordancia para indicadores
         detail_matches = {
             indicator: sum(
                 calculate_presence([detail], [keyword])
                 for detail in details
                 for keyword in keywords
-            ) / len(details)
+            ) / max(len(details), 1)  # Evitar división por cero
             for indicator, keywords in position_indicators.items()
         }
 
-        if not detail_matches:
-            st.warning(f"El encabezado '{header}' no tiene detalles válidos para calcular indicadores.")
-            continue  # Saltar este encabezado si no hay detalles
-
-        # Concordancia de funciones y perfil
+        # Calcular concordancia con funciones y perfil
         detail_func_match = sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
         detail_profile_match = sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
 
-        # Consolidar resultados
-        item_results= {
+        # Consolidar resultados para el encabezado
+        item_results[header] = {
             **detail_matches,
             "Funciones del Cargo": detail_func_match,
             "Perfil del Cargo": detail_profile_match,
         }
+
     # Calcular indicadores críticos (<50% de concordancia)
-    critical_indicators = {}
-    for header, result in item_results.items():
-        for indicator, percentage in result["header_match"].items():
-            if percentage < 50:
-                critical_indicators[indicator] = percentage
+    critical_indicators = {
+        indicator: percentage
+        for header, result in item_results.items()
+        for indicator, percentage in result.items()
+        if percentage < 50
+    }
 
-    # Calcular consejos para indicadores críticos
-    critical_advice = {}
-    for indicator in critical_indicators:
-        if position in advice and indicator in advice[position]:
-            critical_advice[indicator] = advice[position][indicator]
-        else:
-            critical_advice[indicator] = ["No hay consejos disponibles para este indicador."]
+    # Generar consejos para indicadores críticos
+    critical_advice = {
+        indicator: advice.get(position, {}).get(indicator, ["No hay consejos disponibles para este indicador."])
+        for indicator in critical_indicators
+    }
 
-
-    # Calcular el porcentaje de concordancia para los indicadores en conjunto (detalles)
-    header_indicator_match = {}
-    
-    for indicator in position_indicators:
-        # Extraer los valores relevantes para el indicador
-        relevant_details = [
-            detail_match[indicator]
-            for detail_match in detail_matches
-            if indicator in detail_match
-        ]
-        # Evitar división por cero al calcular el promedio
-        if relevant_details:
-            header_indicator_match[indicator] = sum(relevant_details) / len(relevant_details)
-        else:
-            header_indicator_match[indicator] = 0  # Asignar 0 si no hay detalles relevantes
-
-    # Cálculo de concordancia global basado en los porcentajes consolidados de los encabezados
+    # Calcular concordancia global para funciones y perfil
     if item_results:
-        global_func_match = sum(res["func_match"] for res in item_results.values()) / len(item_results)
-        global_profile_match = sum(res["profile_match"] for res in item_results.values()) / len(item_results)
+        global_func_match = sum(res["Funciones del Cargo"] for res in item_results.values()) / len(item_results)
+        global_profile_match = sum(res["Perfil del Cargo"] for res in item_results.values()) / len(item_results)
     else:
-        global_func_match = 0  # No hay resultados para calcular
-        global_profile_match = 0  # No hay resultados para calcular
+        global_func_match = 0
+        global_profile_match = 0
 
-    # Calcular el puntaje global para funciones y perfil
+    # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
-
 
     # Crear el reporte PDF
     pdf = FPDF()
