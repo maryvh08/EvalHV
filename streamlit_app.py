@@ -548,6 +548,14 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         else:
             critical_advice[indicator] = ["No hay consejos disponibles para este indicador."]
 
+    # Calcular el porcentaje de concordancia para los indicadores en conjunto (detalles)
+    header_indicator_match = {
+        indicator: sum(
+            detail_match[indicator] for detail_match in detail_matches if indicator in detail_match
+        ) / len(detail_matches) if len(detail_matches) > 0 else 0  # Evitar división por cero
+        for indicator in position_indicators
+    }
+
     # Cálculo de concordancia global basado en los porcentajes consolidados de los encabezados
     global_func_match = sum(
         res["header_func_match"]  # Concordancia con funciones
