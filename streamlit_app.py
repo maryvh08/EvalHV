@@ -383,101 +383,83 @@ def generate_report(pdf_path, position, candidate_name):
 # FUNCIONES PARA SECUNDARY
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae los encabezados (en negrita) y sus detalles (comenzando con un guion) 
-    de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
-    :param pdf_path: Ruta del PDF.
+    Extrae los encabezados y detalles de la sección 'EXPERIENCIA EN ANEIAP' de un PDF.
+    :param pdf_path: Ruta del archivo PDF.
     :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
-    # Leer texto del PDF
+    import re
+    import fitz  # PyMuPDF para trabajar con PDFs
+
+    # Abrir el archivo PDF y extraer el texto completo
+    text = ""
     with fitz.open(pdf_path) as doc:
-        text = ""
         for page in doc:
             text += page.get_text()
 
     # Palabras clave para identificar el inicio y final de la sección
     start_keyword = "EXPERIENCIA EN ANEIAP"
     end_keywords = [
-        "EVENTOS ORGANIZADOS", 
-        "Reconocimientos individuales", 
-        "Reconocimientos", 
-        "Reconocimientos grupales"
+        "EVENTOS ORGANIZADOS",
+        "Reconocimientos individuales",
+        "Reconocimientos grupales",
+        "Reconocimientos"
     ]
 
-    # Encontrar índice de inicio
+    # Encontrar el índice de inicio de la sección
     start_idx = text.lower().find(start_keyword.lower())
     if start_idx == -1:
         return None  # No se encontró la sección
 
-    # Encontrar índice más cercano de fin basado en palabras clave
-    end_idx = len(text)  # Por defecto, tomar hasta el final
+    # Encontrar el índice de fin de la sección
+    end_idx = len(text)
     for keyword in end_keywords:
         idx = text.lower().find(keyword.lower(), start_idx)
         if idx != -1:
             end_idx = min(end_idx, idx)
 
-    # Extraer la sección entre inicio y fin
+    # Extraer el texto de la sección "EXPERIENCIA EN ANEIAP"
     experience_text = text[start_idx:end_idx].strip()
 
-    # Lista de renglones a excluir 
+    # Lista de líneas a excluir
     exclude_lines = [
         "a nivel capitular",
         "a nivel nacional",
         "a nivel seccional",
-        "reconocimientos individuales",
-        "reconocimientos grupales",
         "nacional 2024",
-        "cargos",
         "trabajo capitular",
         "trabajo nacional",
         "actualización profesional",
         "nacional 2021-2023",
-        "nacional 20212023",
-        "experiencia aneiap"
+        "nacional 20212023"
     ]
 
-    experience_lines = experience_text.split("\n")
-    cleaned_lines = []
-    for line in experience_lines:
-        line = line.strip()
-        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
-        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        if (
-            normalized_line
-            and normalized_line not in exclude_lines
-            and normalized_line != start_keyword.lower()
-            and normalized_line not in [kw.lower() for kw in end_keywords]
-        ):
-            cleaned_lines.append(line)
-
-    # Extraer encabezados y detalles
+    # Procesar las líneas del texto
+    lines = experience_text.split("\n")
     items = {}
-    current_item = None
+    current_header = None
 
-    with fitz.open(pdf_path) as doc:
-        for page in doc:
-            blocks = page.get_text("dict")["blocks"]  # Extraer bloques de texto con formato
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue  # Ignorar líneas vacías
 
-            for block in blocks:
-                if "lines" not in block:
-                    continue
+        # Identificar encabezados en negrita (títulos)
+        if re.match(r"^[^\-].*", line) and not line.startswith("-"):
+            current_header = line
+            items[current_header] = []  # Crear una nueva entrada en el diccionario
+        elif line.startswith("-") and current_header:
+            # Añadir detalles bajo el encabezado actual
+            items[current_header].append(line.lstrip("-").strip())
 
-                for line in block["lines"]:
-                    for span in line["spans"]:
-                        text = span["text"].strip()
+    # Filtrar encabezados y detalles excluidos
+    cleaned_items = {
+        header: [detail for detail in details if detail.lower() not in exclude_lines]
+        for header, details in items.items()
+        if header.lower() not in exclude_lines
+    }
 
-                        # Detectar encabezados basados en negrita
-                        if span["font"].lower().find("bold") != -1 and not text.startswith("-"):
-                            current_item = text  # Encabezado detectado
-                            items[current_item] = []  # Crear lista vacía para detalles
-                        elif current_item and text.startswith("-"):
-                            # Detectar detalles basados en guion
-                            detail = text.lstrip("-").strip()
-                            items[current_item].append(detail)
+    return cleaned_items
 
-    return items
-
-
-    
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
     Analiza encabezados y viñetas según indicadores, funciones y perfil del cargo.
