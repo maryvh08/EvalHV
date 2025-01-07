@@ -398,23 +398,20 @@ def extract_experience_items_with_details(pdf_path):
     current_item = None
 
     for line in lines:
-        # Limpiar la línea de espacios adicionales y caracteres no visibles
+        # Limpiar la línea de espacios adicionales
         line = line.strip()
 
-        # Validar si la línea no está vacía
-        if not line:
-            continue
-
-        # Identificar encabezados (líneas sin guion al inicio)
-        if not line.startswith("-") and not line.startswith("•") and not line.startswith("·"):
-            current_item = line  # Asignar la línea como el encabezado actual
-            items[current_item] = []  # Inicializar lista de detalles para este encabezado
-        elif current_item and (line.startswith("-") or line.startswith("•") or line.startswith("·")):
-            # Identificar detalles (líneas que comienzan con guion, viñeta '•', o punto '·')
-            detail = line.lstrip("-•·").strip()  # Quitar el guion/viñeta y limpiar espacios
+        # Identificar encabezados (líneas que no comienzan con un guion)
+        if line and not line.startswith("-"):
+            current_item = line  # Asignar como encabezado actual
+            items[current_item] = []  # Crear una lista vacía para los detalles
+        elif current_item and line.startswith("-"):
+            # Detalles (líneas que comienzan con un guion)
+            detail = line.lstrip("-").strip()  # Quitar el guion y limpiar espacios
             items[current_item].append(detail)
 
     return items
+
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
