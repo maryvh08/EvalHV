@@ -540,6 +540,8 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     total_items = len(items)
     indicator_percentages = {
         indicator: (count / total_items) * 100 for indicator, count in related_items_count.items()
+    }
+        
 def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, advice, indicators):
     """
     Analiza un CV descriptivo y genera un reporte PDF.
