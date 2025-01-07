@@ -555,7 +555,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     for item, result in item_results.items():
         pdf.set_font("Arial", style="B", size=12)
         pdf.cell(0, 10, f"Ítem: {item}", ln=True)
-
+    
         # Concordancia del encabezado
         pdf.set_font("Arial", style="I", size=11)
         pdf.cell(0, 10, "Concordancia del Encabezado:", ln=True)
@@ -564,7 +564,14 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
         pdf.cell(0, 10, f"- Funciones del Cargo: {result['header_func_match']:.2f}%", ln=True)
         pdf.cell(0, 10, f"- Perfil del Cargo: {result['header_profile_match']:.2f}%", ln=True)
-
+    
+        # Detalles (viñetas) del ítem
+        pdf.set_font("Arial", style="I", size=11)
+        pdf.cell(0, 10, "Detalles del Ítem:", ln=True)
+        pdf.set_font("Arial", size=11)
+        for detail in result.get("details", []):  # Asegúrate de que los detalles estén en result["details"]
+            pdf.cell(0, 10, f"  - {detail}", ln=True)
+    
         # Concordancia de los detalles
         pdf.set_font("Arial", style="I", size=11)
         pdf.cell(0, 10, "Concordancia de los Detalles:", ln=True)
@@ -573,6 +580,8 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
         pdf.cell(0, 10, f"- Funciones del Cargo: {result['detail_func_match']:.2f}%", ln=True)
         pdf.cell(0, 10, f"- Perfil del Cargo: {result['detail_profile_match']:.2f}%", ln=True)
+        pdf.ln(5)
+
         pdf.ln(5)
 
     # Indicadores críticos
