@@ -397,10 +397,10 @@ def extract_experience_items_with_details(pdf_path):
     current_header = None
 
     for line in lines:
-        if line.strip() and not line.startswith("-"):  # Es un encabezado
+        if line.strip() and not line.startswith("•"):  # Es un encabezado
             current_header = line.strip()
             items[current_header] = []
-        elif line.startswith("-") and current_header:  # Es una viñeta asociada al encabezado
+        elif line.startswith("•") and current_header:  # Es una viñeta asociada al encabezado
             items[current_header].append(line.strip("- ").strip())
 
     return items
