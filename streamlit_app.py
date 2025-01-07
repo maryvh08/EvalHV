@@ -532,7 +532,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         detail_profile_match = sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
 
         # Consolidar resultados
-        item_results[header] = {
+        item_results= {
             **detail_matches,
             "Funciones del Cargo": detail_func_match,
             "Perfil del Cargo": detail_profile_match,
@@ -577,7 +577,6 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         global_func_match = 0  # No hay resultados para calcular
         global_profile_match = 0  # No hay resultados para calcular
 
-    
     # Calcular el puntaje global para funciones y perfil
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
