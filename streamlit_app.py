@@ -527,12 +527,12 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             st.warning(f"Todos los indicadores para '{header}' resultaron en 0. Verifique los datos.")
         
         detail_func_match = (
-            keywords = [keyword for keywords_list in indicators.values() for keyword in keywords_list]
+            keywords == [keyword for keywords_list in indicators.values() for keyword in keywords_list]
             100 if any(keyword.lower() in functions_text.lower() for keyword in keywords) else 0
 
         )
         detail_profile_match = (
-            keywords = [keyword for keywords_list in indicators.values() for keyword in keywords_list]
+            keywords == [keyword for keywords_list in indicators.values() for keyword in keywords_list]
             100 if any(keyword.lower() in functions_text.lower() for keyword in keywords) else 0
 
         )
