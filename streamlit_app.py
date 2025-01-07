@@ -98,14 +98,13 @@ def calculate_similarity(text1, text2):
     :param text2: Segundo texto.
     :return: Porcentaje de similitud.
     """
-    if not text1 or not text2:  # Evitar problemas con entradas vacías
+    if not text1.strip() or not text2.strip():  # Evitar problemas con entradas vacías
         return 0
 
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform([text1, text2])
     similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
     return similarity * 100
-
 
 def calculate_presence(texts, keywords):
     """
@@ -120,7 +119,6 @@ def calculate_presence(texts, keywords):
 
     matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
     return (matches / total_keywords) * 100
-
 
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
@@ -648,6 +646,13 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Guardar el reporte
     describe_report_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
     pdf.output(describe_report_path, 'F')
+
+    print("Encabezados y detalles extraídos:", items)
+    print("Indicadores y palabras clave:", position_indicators)
+    print("Texto de funciones:", functions_text)
+    print("Texto de perfil:", profile_text)
+
+
 
     # Descargar el reporte desde Streamlit
     with open(describe_report_path, "rb") as file:
