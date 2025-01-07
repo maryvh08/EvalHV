@@ -548,20 +548,21 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         else:
             critical_advice[indicator] = ["No hay consejos disponibles para este indicador."]
 
-    # Calcular concordancia global
+    # Cálculo de concordancia global basado en los porcentajes consolidados de los encabezados
     global_func_match = sum(
-        res["header_func_match"] + res["detail_func_match"]
+        res["header_func_match"]  # Concordancia con funciones
         for res in item_results.values()
-    ) / (2 * len(item_results)) if item_results else 0
-
+    ) / len(item_results)
+    
     global_profile_match = sum(
-        res["header_profile_match"] + res["detail_profile_match"]
+        res["header_profile_match"]  # Concordancia con el perfil
         for res in item_results.values()
-    ) / (2 * len(item_results)) if item_results else 0
-
-    # Calcular puntaje global
+    ) / len(item_results)
+    
+    # Calcular el puntaje global para funciones y perfil
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
+
 
     # Crear el reporte PDF
     pdf = FPDF()
