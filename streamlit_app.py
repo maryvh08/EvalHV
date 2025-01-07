@@ -641,6 +641,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
     # Descargar el reporte desde Streamlit
     with open(describe_report_path, "rb") as file:
+        st.success("Reporte detallado generado exitosamente.")
         st.download_button(
             label="Descargar Reporte PDF",
             data=file,
@@ -781,7 +782,8 @@ def secondary():
                 f.write(uploaded_file.read())
             
             # Llamar a la nueva función unificada
-            analyze_and_generate_descriptive_report("uploaded_cv.pdf", position, candidate_name, advice)
+            analyze_and_generate_descriptive_report("uploaded_cv.pdf", position, candidate_name, advice, indicators)
+
 
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
