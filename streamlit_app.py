@@ -401,6 +401,10 @@ def extract_experience_items_with_details(pdf_path):
             blocks = page.get_text("dict")["blocks"]  # Extraer bloques de texto con formato
             
             for block in blocks:
+                # Verificar si el bloque tiene la clave 'lines'
+                if "lines" not in block:
+                    continue
+                
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
@@ -415,6 +419,7 @@ def extract_experience_items_with_details(pdf_path):
                             items[current_item].append(detail)
 
     return items
+
     
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
