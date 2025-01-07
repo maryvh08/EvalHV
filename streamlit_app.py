@@ -531,12 +531,14 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         if not any(detail_matches.values()):
             st.warning(f"Todos los indicadores para '{header}' resultaron en 0. Verifique los datos.")
         
-        if any(keyword.lower() in items.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+        if any(keyword.lower() in functions_text.lower() for kw_set in position_indicators.values() for keyword in kw_set):
             detail_func_match = 100.0
+        else:
+            detail_func_match = calculate_similarity(item, functions_text)
+
+        if any(keyword.lower() in functions_text.lower() for kw_set in position_indicators.values() for keyword in kw_set):
             detail_profile_match = 100.0
         else:
-            # Calcular similitud 
-            detail_func_match = calculate_similarity(item, functions_text)
             detail_profile_match = calculate_similarity(item, profile_text)
         
         # Validar resultados
