@@ -766,7 +766,8 @@ def secondary():
                 f.write(uploaded_file.read())
             
             # Llamar a la nueva función unificada
-            analyze_and_generate_descriptive_report("uploaded_cv.pdf", position, candidate_name)
+            analyze_and_generate_descriptive_report("uploaded_cv.pdf", position, candidate_name, advice)
+
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
 
