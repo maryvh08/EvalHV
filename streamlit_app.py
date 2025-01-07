@@ -383,36 +383,39 @@ def generate_report(pdf_path, position, candidate_name):
 # FUNCIONES PARA SECUNDARY
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae los encabezados (ítems) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
-    :param pdf_path: Ruta del archivo PDF.
+    Extrae los encabezados (en negrita) y sus detalles (comenzando con un guion) 
+    de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
+    :param pdf_path: Ruta del PDF.
     :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
-    # Extraer texto de la sección 'EXPERIENCIA EN ANEIAP'
+    # Abrir el PDF y leer la sección completa
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
         return {}
 
-    # Dividir el texto en líneas
-    lines = experience_text.split("\n")
     items = {}
     current_item = None
 
-    for line in lines:
-        # Limpiar la línea de espacios adicionales
-        line = line.strip()
+    with fitz.open(pdf_path) as doc:
+        for page in doc:
+            blocks = page.get_text("dict")["blocks"]  # Extraer bloques de texto con formato
+            
+            for block in blocks:
+                for line in block["lines"]:
+                    for span in line["spans"]:
+                        text = span["text"].strip()
 
-        # Identificar encabezados (líneas que no comienzan con un guion)
-        if line and not line.startswith("-"):
-            current_item = line  # Asignar como encabezado actual
-            items[current_item] = []  # Crear una lista vacía para los detalles
-        elif current_item and line.startswith("-"):
-            # Detalles (líneas que comienzan con un guion)
-            detail = line.lstrip("-").strip()  # Quitar el guion y limpiar espacios
-            items[current_item].append(detail)
+                        # Detectar encabezados basados en negrita
+                        if span["font"].lower().find("bold") != -1 and not text.startswith("-"):
+                            current_item = text  # Encabezado detectado
+                            items[current_item] = []  # Crear lista vacía para detalles
+                        elif current_item and text.startswith("-"):
+                            # Detectar detalles basados en guion
+                            detail = text.lstrip("-").strip()
+                            items[current_item].append(detail)
 
     return items
-
-
+    
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
     Analiza encabezados y viñetas según indicadores, funciones y perfil del cargo.
