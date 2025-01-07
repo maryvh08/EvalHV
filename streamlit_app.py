@@ -502,6 +502,8 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
 
+    indicator_results = calculate_all_indicators(items, position_indicators)
+
     # Cargar funciones y perfil del cargo
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
