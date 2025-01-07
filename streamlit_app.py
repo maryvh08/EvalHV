@@ -536,6 +536,12 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         indicator: (count / total_items) * 100 for indicator, count in related_items_count.items()
     }
 
+    # Consejos para indicadores críticos (<50% de concordancia)
+    critical_advice = {
+        indicator: advice.get(position, {}).get(indicator, ["No hay consejos disponibles para este indicador."])
+        for indicator, percentage in indicator_percentages.items() if percentage < 50
+    }
+
     # Calcular concordancia global para funciones y perfil
     if item_results:
         global_func_match = sum(res["Funciones del Cargo"] for res in item_results.values()) / len(item_results)
@@ -569,13 +575,17 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             pdf.cell(0, 10, f"- {key}: {value:.2f}%", ln=True)
         pdf.ln(5)
 
-    # Resultados de indicadores
+    # Resultados por indicadores
+    pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
     pdf.set_font("Arial", size=12)
-    for indicator, result in indicator_percentage.items():
-        relevant_lines = result["relevant_lines"]
-        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", ln=True)
+    for indicator, percentage in indicator_percentages.items():
+        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+        if percentage < 50 and indicator in critical_advice:
+            pdf.cell(0, 10, f"  Consejos para {indicator}:", ln=True)
+            for tip in critical_advice[indicator]:
+                pdf.cell(0, 10, f"    * {tip}", ln=True)
+    pdf.ln(5)
 
     # Indicador con menor presencia
     lowest_indicator = min(indicator_percentage, key=lambda k: indicator_percentage[k]["relevant_lines"])
