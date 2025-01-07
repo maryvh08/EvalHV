@@ -425,7 +425,7 @@ def extract_experience_items_with_details(pdf_path):
                             continue
 
                         # Detectar encabezados basados en negrita
-                        if span["font"].lower().find("bold") != -1:
+                        if span["font"]).lower().find("bold") != -1:
                             current_item = text  # Encabezado detectado
                             items[current_item] = []  # Crear lista vacía para detalles
                         elif current_item:
@@ -436,8 +436,7 @@ def extract_experience_items_with_details(pdf_path):
     cleaned_items = {header: [detail.strip() for detail in details if detail.strip()] for header, details in items.items()}
 
     return cleaned_items
-
-
+    
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
     Analiza encabezados y viñetas según indicadores, funciones y perfil del cargo.
