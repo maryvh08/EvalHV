@@ -388,23 +388,79 @@ def extract_experience_items_with_details(pdf_path):
     :param pdf_path: Ruta del PDF.
     :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
-    # Abrir el PDF y leer la sección completa
-    experience_text = extract_experience_section_with_ocr(pdf_path)
-    if not experience_text:
-        return {}
+    # Leer texto del PDF
+    with fitz.open(pdf_path) as doc:
+        text = ""
+        for page in doc:
+            text += page.get_text()
 
+    # Palabras clave para identificar el inicio y final de la sección
+    start_keyword = "EXPERIENCIA EN ANEIAP"
+    end_keywords = [
+        "EVENTOS ORGANIZADOS", 
+        "Reconocimientos individuales", 
+        "Reconocimientos", 
+        "Reconocimientos grupales"
+    ]
+
+    # Encontrar índice de inicio
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None  # No se encontró la sección
+
+    # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
+
+    # Extraer la sección entre inicio y fin
+    experience_text = text[start_idx:end_idx].strip()
+
+    # Lista de renglones a excluir 
+    exclude_lines = [
+        "a nivel capitular",
+        "a nivel nacional",
+        "a nivel seccional",
+        "reconocimientos individuales",
+        "reconocimientos grupales",
+        "nacional 2024",
+        "cargos",
+        "trabajo capitular",
+        "trabajo nacional",
+        "actualización profesional",
+        "nacional 2021-2023",
+        "nacional 20212023",
+        "experiencia aneiap"
+    ]
+
+    experience_lines = experience_text.split("\n")
+    cleaned_lines = []
+    for line in experience_lines:
+        line = line.strip()
+        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
+        if (
+            normalized_line
+            and normalized_line not in exclude_lines
+            and normalized_line != start_keyword.lower()
+            and normalized_line not in [kw.lower() for kw in end_keywords]
+        ):
+            cleaned_lines.append(line)
+
+    # Extraer encabezados y detalles
     items = {}
     current_item = None
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
             blocks = page.get_text("dict")["blocks"]  # Extraer bloques de texto con formato
-            
+
             for block in blocks:
-                # Verificar si el bloque tiene la clave 'lines'
                 if "lines" not in block:
                     continue
-                
+
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
@@ -419,6 +475,7 @@ def extract_experience_items_with_details(pdf_path):
                             items[current_item].append(detail)
 
     return items
+
 
     
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
