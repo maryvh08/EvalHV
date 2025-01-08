@@ -410,7 +410,8 @@ def clean_text_for_pdf(text):
 
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae los encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
+    Extrae los encabezados (en negrita) y sus detalles (comenzando con un guion o estilo similar)
+    de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
     :param pdf_path: Ruta del PDF.
     :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
@@ -446,9 +447,9 @@ def extract_experience_items_with_details(pdf_path):
                         if "bold" in span["font"].lower() and not text.startswith("-"):
                             current_item = text  # Encabezado detectado
                             items[current_item] = []  # Crear lista vacía para detalles
-                        elif current_item and text.startswith("-"):
-                            # Detectar detalles basados en guion
-                            detail = text.lstrip("-").strip()
+                        elif current_item and (text.startswith("-") or text[0].isdigit()):
+                            # Detectar detalles basados en guion o numeración
+                            detail = text.lstrip("-0123456789. ").strip()
                             items[current_item].append(detail)
 
     return items
@@ -509,6 +510,7 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
             "Detalles - Funciones del Cargo": detail_func_match,
             "Detalles - Perfil del Cargo": detail_profile_match,
             "Indicadores": indicator_matches,
+            "Detalles": details,  # Añadir detalles para referencia
         }
 
     return results
