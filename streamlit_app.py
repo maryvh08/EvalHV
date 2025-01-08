@@ -636,9 +636,6 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         indicator: (count / total_items) * 100 if total_items > 0 else 0 for indicator, count in related_items_count.items()
     }
 
-    # Calcular la presencia total (si es necesario)
-    total_presence = sum(result["percentage"] for result in indicator_percentages.values())
-
     # Consejos para indicadores críticos (<50% de concordancia)
     critical_advice = {
         indicator: advice.get(position, {}).get(indicator, ["No hay consejos disponibles para este indicador."])
