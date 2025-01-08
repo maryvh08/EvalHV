@@ -631,12 +631,12 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         }
 
     # Calcular porcentajes de indicadores
-    indicator_results = calculate_indicators_for_report(items, position_indicators)
+    indicator_percentages = calculate_indicators_for_report(items, position_indicators)
     for indicator, keywords in position_indicators.items():
-        indicator_results = calculate_indicators_for_report(items, position_indicators)
+        indicator_percentages = calculate_indicators_for_report(items, position_indicators)
 
     # Calcular la presencia total (si es necesario)
-    total_presence = sum(result["percentage"] for result in indicator_results.values())
+    total_presence = sum(result["percentage"] for result in indicator_percentages.values())
 
     # Consejos para indicadores críticos (<50% de concordancia)
     critical_advice = {
