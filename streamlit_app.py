@@ -410,7 +410,8 @@ def clean_text_for_pdf(text):
 
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
+    Extrae los encabezados (en negrita) y sus detalles (comenzando con un guion o estilo similar)
+    de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
     :param pdf_path: Ruta del PDF.
     :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
@@ -423,6 +424,7 @@ def extract_experience_items_with_details(pdf_path):
             blocks = page.get_text("dict")["blocks"]  # Extraer bloques de texto con formato
 
             for block in blocks:
+                # Verificar si el bloque tiene la clave 'lines'
                 if "lines" not in block:
                     continue
 
@@ -430,7 +432,7 @@ def extract_experience_items_with_details(pdf_path):
                     for span in line["spans"]:
                         text = span["text"].strip()
 
-                        # Detectar el inicio y el fin de la sección
+                        # Detectar inicio y fin de la sección
                         if text.lower().startswith("experiencia en aneiap"):
                             in_experience_section = True
                             continue
@@ -441,19 +443,20 @@ def extract_experience_items_with_details(pdf_path):
                         if not in_experience_section:
                             continue
 
-                        # Detectar encabezados (negrita)
-                        if "bold" in span["font"].lower():
-                            current_item = text  # Nuevo encabezado detectado
-                            items[current_item] = []  # Crear una lista vacía para los detalles
-                        elif current_item:
-                            # Agregar texto subsiguiente como detalle
-                            items[current_item].append(text)
+                        # Detectar encabezados basados en negrita
+                        if span["font"]["weight"] >= 700 and not text.startswith("-"):
+                            current_item = text  # Encabezado detectado
+                            items[current_item] = []  # Crear lista vacía para detalles
+                        elif current_item and text.startswith("-"):
+                            # Detectar detalles basados en guion
+                            detail = text.lstrip("-").strip()
+                            items[current_item].append(detail)
 
     return items
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
-    Analiza encabezados y viñetas según indicadores, funciones y perfil del cargo.
+    Analiza encabezados y detalles según indicadores, funciones y perfil del cargo.
     :param items: Diccionario con encabezados y viñetas.
     :param position_indicators: Indicadores del cargo seleccionado.
     :param functions_text: Texto de las funciones del cargo.
@@ -461,25 +464,52 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
     :return: Diccionario con resultados del análisis.
     """
     results = {}
-    for header, details in items.items():
-        # Evaluar encabezado
-        header_match = calculate_all_indicators([header], position_indicators)
-        header_func_match = calculate_similarity(header, functions_text)
-        header_profile_match = calculate_similarity(header, profile_text)
 
-        # Evaluar viñetas
-        detail_match = calculate_all_indicators(details, position_indicators)
-        detail_func_match = sum(calculate_similarity(d, functions_text) for d in details) / max(len(details), 1)
-        detail_profile_match = sum(calculate_similarity(d, profile_text) for d in details) / max(len(details), 1)
+    for header, details in items.items():
+        # Identificar palabras clave en encabezado
+        header_contains_keywords = any(
+            keyword.lower() in header.lower() for keywords in position_indicators.values() for keyword in keywords
+        )
+
+        # Identificar palabras clave en detalles
+        details_contain_keywords = any(
+            keyword.lower() in detail.lower() for detail in details for keywords in position_indicators.values() for keyword in keywords
+        )
+
+        # Evaluar encabezado y detalles
+        if header_contains_keywords or details_contain_keywords:
+            header_func_match = 100
+            header_profile_match = 100
+        else:
+            header_func_match = calculate_similarity(header, functions_text)
+            header_profile_match = calculate_similarity(header, profile_text)
+
+        detail_func_match = (
+            100
+            if details_contain_keywords
+            else sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
+        )
+        detail_profile_match = (
+            100
+            if details_contain_keywords
+            else sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
+        )
+
+        # Evaluar indicadores
+        indicator_matches = {
+            indicator: sum(
+                1 for detail in details if any(keyword.lower() in detail.lower() for keyword in keywords)
+            ) / max(len(details), 1)
+            for indicator, keywords in position_indicators.items()
+        }
 
         # Consolidar resultados
         results[header] = {
-            "header_match": header_match,
-            "header_func_match": header_func_match,
-            "header_profile_match": header_profile_match,
-            "detail_match": detail_match,
-            "detail_func_match": detail_func_match,
-            "detail_profile_match": detail_profile_match,
+            "Funciones del Cargo": header_func_match,
+            "Perfil del Cargo": header_profile_match,
+            "Detalles - Funciones del Cargo": detail_func_match,
+            "Detalles - Perfil del Cargo": detail_profile_match,
+            "Indicadores": indicator_matches,
         }
 
     return results
