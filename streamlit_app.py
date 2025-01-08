@@ -443,8 +443,8 @@ def extract_experience_items_with_details(pdf_path):
                         if not in_experience_section:
                             continue
 
-                        # Detectar encabezados basados en negrita
-                        if "bold" in span["font"].lower() and not text.startswith("-"):
+                        # Verificar que el valor de `span["font"]` sea una cadena antes de trabajar con él
+                        if isinstance(span["font"], str) and "bold" in span["font"].lower() and not text.startswith("-"):
                             current_item = text  # Encabezado detectado
                             items[current_item] = []  # Crear lista vacía para detalles
                         elif current_item and (text.startswith("-") or text[0].isdigit()):
@@ -453,6 +453,7 @@ def extract_experience_items_with_details(pdf_path):
                             items[current_item].append(detail)
 
     return items
+
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
