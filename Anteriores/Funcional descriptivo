@@ -453,7 +453,7 @@ def extract_experience_items_with_details(pdf_path):
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
-    Analiza encabezados y viñetas según indicadores, funciones y perfil del cargo.
+    Analiza encabezados y detalles según indicadores, funciones y perfil del cargo.
     :param items: Diccionario con encabezados y viñetas.
     :param position_indicators: Indicadores del cargo seleccionado.
     :param functions_text: Texto de las funciones del cargo.
@@ -461,25 +461,64 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
     :return: Diccionario con resultados del análisis.
     """
     results = {}
-    for header, details in items.items():
-        # Evaluar encabezado
-        header_match = calculate_all_indicators([header], position_indicators)
-        header_func_match = calculate_similarity(header, functions_text)
-        header_profile_match = calculate_similarity(header, profile_text)
 
-        # Evaluar viñetas
-        detail_match = calculate_all_indicators(details, position_indicators)
-        detail_func_match = sum(calculate_similarity(d, functions_text) for d in details) / max(len(details), 1)
-        detail_profile_match = sum(calculate_similarity(d, profile_text) for d in details) / max(len(details), 1)
+    for header, details in items.items():
+        # Inicializar banderas para palabras clave
+        header_contains_keywords = False
+        details_contains_keywords = False
+
+        # Buscar palabras clave en encabezado
+        for keywords in position_indicators.values():
+            if any(keyword.lower() in header.lower() for keyword in keywords):
+                header_contains_keywords = True
+                break
+
+        # Buscar palabras clave en detalles
+        for keywords in position_indicators.values():
+            if any(keyword.lower() in detail.lower() for detail in details for keyword in keywords):
+                details_contains_keywords = True
+                break
+
+        # Evaluar concordancia en encabezado y detalles
+        if header_contains_keywords or details_contains_keywords:
+            # Si hay palabras clave en encabezado o detalles, asignar 100%
+            header_func_match = 100
+            header_profile_match = 100
+            detail_func_match = 100
+            detail_profile_match = 100
+        else:
+            # Calcular similitud si no hay palabras clave
+            header_func_match = calculate_similarity(header, functions_text)
+            header_profile_match = calculate_similarity(header, profile_text)
+            detail_func_match = (
+                sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
+            )
+            detail_profile_match = (
+                sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
+            )
+
+        # Evaluar indicadores: contar detalles relacionados para cada indicador
+        indicator_matches = {
+            indicator: sum(
+                1 for detail in details if any(keyword.lower() in detail.lower() for keyword in keywords)
+            )
+            for indicator, keywords in position_indicators.items()
+        }
+
+        # Normalizar porcentajes de indicadores respecto al número total de ítems
+        total_items = len(details) or 1  # Evitar división por cero
+        indicator_percentages = {
+            indicator: (count / total_items) * 100 for indicator, count in indicator_matches.items()
+        }
 
         # Consolidar resultados
         results[header] = {
-            "header_match": header_match,
-            "header_func_match": header_func_match,
-            "header_profile_match": header_profile_match,
-            "detail_match": detail_match,
-            "detail_func_match": detail_func_match,
-            "detail_profile_match": detail_profile_match,
+            "Funciones del Cargo": header_func_match,
+            "Perfil del Cargo": header_profile_match,
+            "Detalles - Funciones del Cargo": detail_func_match,
+            "Detalles - Perfil del Cargo": detail_profile_match,
+            "Indicadores": indicator_percentages,
+            "Detalles": details,  # Añadir detalles para referencia
         }
 
     return results
@@ -553,22 +592,30 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
     # Analizar encabezados y detalles
     item_results = {}
+
+    # Calcular la cantidad de ítems relacionados para cada indicador
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
     for header, details in items.items():
         header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
 
-        # Calcular concordancia con funciones y perfil utilizando palabras clave específicas
-        func_match = (
-            100
-            if any(keyword.lower() in header_and_details.lower() for keywords in position_indicators.values() for keyword in keywords)
-            else calculate_similarity(header_and_details, functions_text)
+        # Revisar palabras clave en el encabezado
+        header_contains_keywords = any(
+            keyword.lower() in header.lower() for keywords in position_indicators.values() for keyword in keywords
         )
-        profile_match = (
-            100
-            if any(keyword.lower() in header_and_details.lower() for keywords in position_indicators.values() for keyword in keywords)
-            else calculate_similarity(header_and_details, profile_text)
+
+        # Revisar palabras clave en los detalles
+        details_contains_keywords = any(
+            keyword.lower() in detail.lower() for detail in details for keywords in position_indicators.values() for keyword in keywords
         )
+
+        # Determinar concordancia en funciones y perfil
+        if header_contains_keywords or details_contains_keywords:
+            func_match = 100
+            profile_match = 100
+        else:
+            func_match = calculate_similarity(header_and_details, functions_text)
+            profile_match = calculate_similarity(header_and_details, profile_text)
 
         # Ignorar ítems con 0% en funciones y perfil
         if func_match == 0 and profile_match == 0:
@@ -576,6 +623,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
         # Evaluar indicadores únicamente para el cargo seleccionado
         for indicator, keywords in position_indicators.items():
+            # Identificar si el encabezado o detalles contienen palabras clave del indicador
             if any(keyword.lower() in header_and_details.lower() for keyword in keywords):
                 related_items_count[indicator] += 1
 
@@ -607,7 +655,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
-
+    
     # Crear el reporte PDF
     pdf = FPDF()
     pdf.add_page()
@@ -640,6 +688,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf.set_font("Arial", size=12)
     for indicator, percentage in indicator_percentages.items():
         related_items = related_items_count[indicator]
+        percentage = (related_items / total_items) * 100 if total_items > 0 else 0
         pdf.cell(0, 10, clean_text_for_pdf( f"- {indicator}: {percentage:.2f}% ({related_items} ítems relacionados)"), ln=True)
         if percentage < 50 and indicator in critical_advice:
             pdf.cell(0, 10, clean_text_for_pdf(f"  Consejos para {indicator}:"), ln=True)
@@ -782,7 +831,7 @@ def primary():
     ])
     
     # Configuración BOTÓN GENERAR REPORTE
-    if st.button("Generar Reporte"):
+    if st.button("Generar Reporte PDF"):
         if uploaded_file is not None:
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
@@ -822,7 +871,7 @@ def secondary():
         "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
     ])
 
-    if st.button("Generar Reporte"):
+    if st.button("Generar Reporte PDF"):
         if uploaded_file is not None:
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
