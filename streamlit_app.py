@@ -463,32 +463,34 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
     results = {}
 
     for header, details in items.items():
-        # Identificar palabras clave en encabezado
-        header_contains_keywords = any(
-            keyword.lower() in header.lower() for keywords in position_indicators.values() for keyword in keywords
+        # Combinar encabezado y detalles para buscar palabras clave
+        header_and_details = f"{header} {' '.join(details)}"
+
+        # Identificar palabras clave en encabezado o detalles
+        contains_keywords = any(
+            keyword.lower() in header_and_details.lower()
+            for keywords in position_indicators.values()
+            for keyword in keywords
         )
 
-        # Identificar palabras clave en detalles
-        details_contain_keywords = any(
-            keyword.lower() in detail.lower() for detail in details for keywords in position_indicators.values() for keyword in keywords
-        )
-
-        # Evaluar encabezado y detalles
-        if header_contains_keywords or details_contain_keywords:
+        # Si contiene palabras clave, asignar 100% de concordancia
+        if contains_keywords:
             header_func_match = 100
             header_profile_match = 100
         else:
+            # Evaluar encabezado y detalles si no contienen palabras clave
             header_func_match = calculate_similarity(header, functions_text)
             header_profile_match = calculate_similarity(header, profile_text)
 
+        # Evaluar concordancia en detalles
         detail_func_match = (
             100
-            if details_contain_keywords
+            if contains_keywords
             else sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
         )
         detail_profile_match = (
             100
-            if details_contain_keywords
+            if contains_keywords
             else sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
         )
 
@@ -511,7 +513,6 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
         }
 
     return results
-
 
 def get_critical_advice(critical_indicators, position):
     """
