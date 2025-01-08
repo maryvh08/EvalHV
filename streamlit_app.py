@@ -411,17 +411,14 @@ def clean_text_for_pdf(text):
 def extract_experience_items_with_details(pdf_path):
     """
     Extrae encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
-    :param pdf_path: Ruta del PDF.
-    :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
     items = {}
     current_item = None
-    in_experience_section = False  # Bandera para identificar si estamos dentro de la sección
+    in_experience_section = False
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
-            blocks = page.get_text("dict")["blocks"]  # Extraer bloques de texto con formato
-
+            blocks = page.get_text("dict")["blocks"]
             for block in blocks:
                 if "lines" not in block:
                     continue
@@ -429,24 +426,25 @@ def extract_experience_items_with_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
+                        if not text:
+                            continue
 
-                        # Detectar el inicio y el fin de la sección
-                        if text.lower().startswith("experiencia en aneiap"):
+                        # Detectar inicio y fin de la sección
+                        if "experiencia en aneiap" in text.lower():
                             in_experience_section = True
                             continue
-                        elif text.lower().startswith("reconocimientos") or text.lower().startswith("eventos organizados"):
+                        elif any(key in text.lower() for key in ["reconocimientos", "eventos organizados"]):
                             in_experience_section = False
                             break
 
                         if not in_experience_section:
                             continue
 
-                        # Detectar encabezados (negrita)
-                        if "bold" in span["font"].lower():
-                            current_item = text  # Nuevo encabezado detectado
-                            items[current_item] = []  # Crear una lista vacía para los detalles
+                        # Detectar encabezados (negrita) y detalles
+                        if "bold" in span["font"].lower() and not text.startswith("-"):
+                            current_item = text
+                            items[current_item] = []
                         elif current_item:
-                            # Agregar texto subsiguiente como detalle
                             items[current_item].append(text)
 
     return items
@@ -454,48 +452,24 @@ def extract_experience_items_with_details(pdf_path):
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
     Analiza encabezados y detalles según indicadores, funciones y perfil del cargo.
-    :param items: Diccionario con encabezados y viñetas.
-    :param position_indicators: Indicadores del cargo seleccionado.
-    :param functions_text: Texto de las funciones del cargo.
-    :param profile_text: Texto del perfil del cargo.
-    :return: Diccionario con resultados del análisis.
     """
     results = {}
-
     for header, details in items.items():
-        # Inicializar banderas para palabras clave
-        header_contains_keywords = False
-        details_contains_keywords = False
+        # Buscar palabras clave en encabezado y detalles
+        header_contains_keywords = any(
+            keyword.lower() in header.lower() for keywords in position_indicators.values() for keyword in keywords
+        )
+        details_contains_keywords = any(
+            keyword.lower() in detail.lower() for detail in details for keywords in position_indicators.values() for keyword in keywords
+        )
 
-        # Buscar palabras clave en encabezado
-        for keywords in position_indicators.values():
-            if any(keyword.lower() in header.lower() for keyword in keywords):
-                header_contains_keywords = True
-                break
-
-        # Buscar palabras clave en detalles
-        for keywords in position_indicators.values():
-            if any(keyword.lower() in detail.lower() for detail in details for keyword in keywords):
-                details_contains_keywords = True
-                break
-
-        # Evaluar concordancia en encabezado y detalles
+        # Determinar concordancia en funciones y perfil
         if header_contains_keywords or details_contains_keywords:
-            # Si hay palabras clave en encabezado o detalles, asignar 100%
-            header_func_match = 100
-            header_profile_match = 100
-            detail_func_match = 100
-            detail_profile_match = 100
+            func_match = 100
+            profile_match = 100
         else:
-            # Calcular similitud si no hay palabras clave
-            header_func_match = calculate_similarity(header, functions_text)
-            header_profile_match = calculate_similarity(header, profile_text)
-            detail_func_match = (
-                sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
-            )
-            detail_profile_match = (
-                sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
-            )
+            func_match = calculate_similarity(header + " ".join(details), functions_text)
+            profile_match = calculate_similarity(header + " ".join(details), profile_text)
 
         # Evaluar indicadores: contar detalles relacionados para cada indicador
         indicator_matches = {
@@ -505,20 +479,12 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
             for indicator, keywords in position_indicators.items()
         }
 
-        # Normalizar porcentajes de indicadores respecto al número total de ítems
-        total_items = len(details) or 1  # Evitar división por cero
-        indicator_percentages = {
-            indicator: (count / total_items) * 100 for indicator, count in indicator_matches.items()
-        }
-
         # Consolidar resultados
         results[header] = {
-            "Funciones del Cargo": header_func_match,
-            "Perfil del Cargo": header_profile_match,
-            "Detalles - Funciones del Cargo": detail_func_match,
-            "Detalles - Perfil del Cargo": detail_profile_match,
-            "Indicadores": indicator_percentages,
-            "Detalles": details,  # Añadir detalles para referencia
+            "Funciones del Cargo": func_match,
+            "Perfil del Cargo": profile_match,
+            "Indicadores": indicator_matches,
+            "Detalles": details,
         }
 
     return results
