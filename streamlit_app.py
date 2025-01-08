@@ -410,8 +410,7 @@ def clean_text_for_pdf(text):
 
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae los encabezados (en negrita) y sus detalles (comenzando con un guion o estilo similar)
-    de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
+    Extrae los encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
     :param pdf_path: Ruta del PDF.
     :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
@@ -444,7 +443,7 @@ def extract_experience_items_with_details(pdf_path):
                             continue
 
                         # Detectar encabezados basados en negrita
-                        if span["font"]["weight"] >= 700 and not text.startswith("-"):
+                        if "bold" in span["font"].lower() and not text.startswith("-"):
                             current_item = text  # Encabezado detectado
                             items[current_item] = []  # Crear lista vacía para detalles
                         elif current_item and text.startswith("-"):
