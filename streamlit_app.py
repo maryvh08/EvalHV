@@ -511,6 +511,24 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     :param advice: Diccionario con consejos.
     :param indicators: Diccionario con indicadores y palabras clave.
     """
+    def clean_text_for_pdf(text):
+        """
+        Limpia caracteres no soportados por FPDF reemplazándolos por equivalentes.
+        :param text: Texto a limpiar.
+        :return: Texto limpio.
+        """
+        replacements = {
+            "\u2013": "-",  # Guion largo
+            "\u2014": "-",  # Guion em dash
+            "\u201c": "\"",  # Comillas dobles de apertura
+            "\u201d": "\"",  # Comillas dobles de cierre
+            "\u2018": "'",  # Comillas simples de apertura
+            "\u2019": "'",  # Comillas simples de cierre
+        }
+        for original, replacement in replacements.items():
+            text = text.replace(original, replacement)
+        return text
+
     # Extraer texto de la sección EXPERIENCIA EN ANEIAP
     items = extract_experience_items_with_details(pdf_path)
     if not items:
@@ -536,7 +554,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Analizar encabezados y detalles
     item_results = {}
     related_items_count = {indicator: 0 for indicator in position_indicators}
-    
+
     for header, details in items.items():
         header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
 
@@ -548,7 +566,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         if func_match == 0 and profile_match == 0:
             continue
 
-        # Evaluar indicadores
+        # Evaluar indicadores únicamente para el cargo seleccionado
         for indicator, keywords in position_indicators.items():
             if any(keyword.lower() in header_and_details.lower() for keyword in keywords):
                 related_items_count[indicator] += 1
@@ -561,8 +579,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Calcular porcentajes de indicadores
     total_items = len(items)
     indicator_percentages = {
-    indicator: (count / total_items) * 100 if total_items > 0 else 0
-    for indicator, count in related_items_count.items()
+        indicator: (count / total_items) * 100 if total_items > 0 else 0 for indicator, count in related_items_count.items()
     }
 
     # Consejos para indicadores críticos (<50% de concordancia)
@@ -582,7 +599,6 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
-
     # Crear el reporte PDF
     pdf = FPDF()
     pdf.add_page()
