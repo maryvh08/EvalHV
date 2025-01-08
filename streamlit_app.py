@@ -445,19 +445,23 @@ def extract_experience_items_with_details(pdf_path):
 
                         # Detectar encabezados basados en negrita
                         try:
-                            if isinstance(span["font"], str) and "bold" in span["font"].lower() and not text.startswith("-"):
+                            is_bold = "bold" in span["font"].lower()
+                            if is_bold and not text.startswith("-") and len(text) > 1:
                                 current_item = text  # Encabezado detectado
                                 items[current_item] = []  # Crear lista vacía para detalles
-                            elif current_item and (text.startswith("-") or (len(text) > 0 and text[0].isdigit())):
+                            elif current_item and (text.startswith("-") or text[0].isdigit()):
                                 # Detectar detalles basados en guion o numeración
                                 detail = text.lstrip("-0123456789. ").strip()
-                                items[current_item].append(detail)
+                                if detail:
+                                    items[current_item].append(detail)
                         except (KeyError, AttributeError, IndexError):
                             # Ignorar spans mal formateados o errores inesperados
                             continue
 
-    return items
+    # Filtrar encabezados sin detalles si es necesario
+    items = {key: value for key, value in items.items() if value or len(key.split()) > 1}
 
+    return items
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
