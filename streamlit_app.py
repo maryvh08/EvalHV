@@ -410,8 +410,7 @@ def clean_text_for_pdf(text):
 
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae los encabezados (en negrita) y sus detalles (comenzando con un guion o estilo similar)
-    de la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF.
+    Extrae encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
     :param pdf_path: Ruta del PDF.
     :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
@@ -424,7 +423,6 @@ def extract_experience_items_with_details(pdf_path):
             blocks = page.get_text("dict")["blocks"]  # Extraer bloques de texto con formato
 
             for block in blocks:
-                # Verificar si el bloque tiene la clave 'lines'
                 if "lines" not in block:
                     continue
 
@@ -432,7 +430,7 @@ def extract_experience_items_with_details(pdf_path):
                     for span in line["spans"]:
                         text = span["text"].strip()
 
-                        # Detectar inicio y fin de la sección
+                        # Detectar el inicio y el fin de la sección
                         if text.lower().startswith("experiencia en aneiap"):
                             in_experience_section = True
                             continue
@@ -440,26 +438,16 @@ def extract_experience_items_with_details(pdf_path):
                             in_experience_section = False
                             break
 
-                        if not in_experience_section or not text:
+                        if not in_experience_section:
                             continue
 
-                        # Detectar encabezados basados en negrita
-                        try:
-                            is_bold = "bold" in span["font"].lower()
-                            if is_bold and not text.startswith("-") and len(text) > 1:
-                                current_item = text  # Encabezado detectado
-                                items[current_item] = []  # Crear lista vacía para detalles
-                            elif current_item and (text.startswith("-") or text[0].isdigit()):
-                                # Detectar detalles basados en guion o numeración
-                                detail = text.lstrip("-0123456789. ").strip()
-                                if detail:
-                                    items[current_item].append(detail)
-                        except (KeyError, AttributeError, IndexError):
-                            # Ignorar spans mal formateados o errores inesperados
-                            continue
-
-    # Filtrar encabezados sin detalles si es necesario
-    items = {key: value for key, value in items.items() if value or len(key.split()) > 1}
+                        # Detectar encabezados (negrita)
+                        if "bold" in span["font"].lower():
+                            current_item = text  # Nuevo encabezado detectado
+                            items[current_item] = []  # Crear una lista vacía para los detalles
+                        elif current_item:
+                            # Agregar texto subsiguiente como detalle
+                            items[current_item].append(text)
 
     return items
 
