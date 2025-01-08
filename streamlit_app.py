@@ -599,6 +599,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
+
     # Crear el reporte PDF
     pdf = FPDF()
     pdf.add_page()
