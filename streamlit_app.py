@@ -390,6 +390,24 @@ def generate_report(pdf_path, position, candidate_name):
 
 
 # FUNCIONES PARA SECUNDARY
+def clean_text_for_pdf(text):
+    """
+    Limpia caracteres no soportados por FPDF reemplazándolos por equivalentes.
+    :param text: Texto a limpiar.
+    :return: Texto limpio.
+    """
+    replacements = {
+        "\u2013": "-",  # Guion largo
+        "\u2014": "-",  # Guion em dash
+        "\u201c": "\"",  # Comillas dobles de apertura
+        "\u201d": "\"",  # Comillas dobles de cierre
+        "\u2018": "'",  # Comillas simples de apertura
+        "\u2019": "'",  # Comillas simples de cierre
+    }
+    for original, replacement in replacements.items():
+        text = text.replace(original, replacement)
+    return text
+
 def extract_experience_items_with_details(pdf_path):
     """
     Extrae encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
@@ -432,24 +450,6 @@ def extract_experience_items_with_details(pdf_path):
                             items[current_item].append(text)
 
     return items
-
-def clean_text_for_pdf(text):
-    """
-    Limpia caracteres no soportados por FPDF reemplazándolos por equivalentes.
-    :param text: Texto a limpiar.
-    :return: Texto limpio.
-    """
-    replacements = {
-        "\u2013": "-",  # Guion largo
-        "\u2014": "-",  # Guion em dash
-        "\u201c": "\"",  # Comillas dobles de apertura
-        "\u201d": "\"",  # Comillas dobles de cierre
-        "\u2018": "'",  # Comillas simples de apertura
-        "\u2019": "'",  # Comillas simples de cierre
-    }
-    for original, replacement in replacements.items():
-        text = text.replace(original, replacement)
-    return text
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
