@@ -556,35 +556,33 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
     for header, details in items.items():
-        header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
+    header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
 
-        # Calcular concordancia con funciones y perfil utilizando palabras clave específicas
-        func_match = (
-            100
-            if any(keyword.lower() in header_and_details.lower() or any(keyword.lower() in detail.lower() for detail in details)
-                   for keywords in position_indicators.values() for keyword in keywords)
-            else calculate_similarity(header_and_details, functions_text)
-        )
-        profile_match = (
-            100
-            if any(keyword.lower() in header_and_details.lower() or any(keyword.lower() in detail.lower() for detail in details)
-                   for keywords in position_indicators.values() for keyword in keywords)
-            else calculate_similarity(header_and_details, profile_text)
-        )
+    # Calcular concordancia con funciones y perfil utilizando palabras clave específicas
+    func_match = (
+        100
+        if any(keyword.lower() in header_and_details.lower() for keyword in functions_text.split() if keyword in position_indicators)
+        else calculate_similarity(header_and_details, functions_text)
+    )
+    profile_match = (
+        100
+        if any(keyword.lower() in header_and_details.lower() for keyword in profile_text.split() if keyword in position_indicators)
+        else calculate_similarity(header_and_details, profile_text)
+    )
 
-        # Ignorar ítems con 0% en funciones y perfil
-        if func_match == 0 and profile_match == 0:
-            continue
+    # Ignorar ítems con 0% en funciones y perfil
+    if func_match == 0 and profile_match == 0:
+        continue
 
-        # Evaluar indicadores únicamente para el cargo seleccionado
-        for indicator, keywords in position_indicators.items():
-            if any(keyword.lower() in header_and_details.lower() or any(keyword.lower() in detail.lower() for detail in details) for keyword in keywords):
-                related_items_count[indicator] += 1
+    # Evaluar indicadores únicamente para el cargo seleccionado
+    for indicator, keywords in position_indicators.items():
+        if any(keyword.lower() in header_and_details.lower() for keyword in keywords):
+            related_items_count[indicator] += 1
 
-        item_results[header] = {
-            "Funciones del Cargo": func_match,
-            "Perfil del Cargo": profile_match,
-        }
+    item_results[header] = {
+        "Funciones del Cargo": func_match,
+        "Perfil del Cargo": profile_match,
+    }
 
     # Calcular porcentajes de indicadores
     total_items = len(items)
