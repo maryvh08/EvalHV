@@ -642,6 +642,12 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
             pdf.cell(0, 10, f"- {key}: {value:.2f}%", ln=True)
         pdf.ln(5)
 
+    # Total de líneas analizadas
+    pdf.set_font("Arial", style="B", size=12)
+    total_lines = len(lines)
+    pdf.cell(0, 10, f"Total de líneas analizadas: {total_lines}", ln=True)
+    pdf.ln(5)
+
      # Resultados por indicadores
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
