@@ -463,12 +463,9 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
     results = {}
 
     for header, details in items.items():
-        # Combinar encabezado y detalles en un solo texto para facilitar la búsqueda
-        header_and_details = f"{header} {' '.join(details)}"
-
         # Inicializar banderas para palabras clave
         header_contains_keywords = False
-        details_contain_keywords = False
+        details_contains_keywords = False
 
         # Buscar palabras clave en encabezado
         for keywords in position_indicators.values():
@@ -479,28 +476,39 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
         # Buscar palabras clave en detalles
         for keywords in position_indicators.values():
             if any(keyword.lower() in detail.lower() for detail in details for keyword in keywords):
-                details_contain_keywords = True
+                details_contains_keywords = True
                 break
 
         # Evaluar concordancia en encabezado y detalles
-        if header_contains_keywords or details_contain_keywords:
+        if header_contains_keywords or details_contains_keywords:
+            # Si hay palabras clave en encabezado o detalles, asignar 100%
             header_func_match = 100
             header_profile_match = 100
             detail_func_match = 100
             detail_profile_match = 100
         else:
-            # Calcular similitud para encabezado y detalles si no contienen palabras clave
+            # Calcular similitud si no hay palabras clave
             header_func_match = calculate_similarity(header, functions_text)
             header_profile_match = calculate_similarity(header, profile_text)
-            detail_func_match = sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
-            detail_profile_match = sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
+            detail_func_match = (
+                sum(calculate_similarity(detail, functions_text) for detail in details) / max(len(details), 1)
+            )
+            detail_profile_match = (
+                sum(calculate_similarity(detail, profile_text) for detail in details) / max(len(details), 1)
+            )
 
-        # Evaluar indicadores: calcular proporción de detalles relacionados por cada indicador
+        # Evaluar indicadores: contar detalles relacionados para cada indicador
         indicator_matches = {
             indicator: sum(
                 1 for detail in details if any(keyword.lower() in detail.lower() for keyword in keywords)
-            ) / max(len(details), 1)
+            )
             for indicator, keywords in position_indicators.items()
+        }
+
+        # Normalizar porcentajes de indicadores respecto al número total de ítems
+        total_items = len(details) or 1  # Evitar división por cero
+        indicator_percentages = {
+            indicator: (count / total_items) * 100 for indicator, count in indicator_matches.items()
         }
 
         # Consolidar resultados
@@ -509,12 +517,11 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
             "Perfil del Cargo": header_profile_match,
             "Detalles - Funciones del Cargo": detail_func_match,
             "Detalles - Perfil del Cargo": detail_profile_match,
-            "Indicadores": indicator_matches,
+            "Indicadores": indicator_percentages,
             "Detalles": details,  # Añadir detalles para referencia
         }
 
     return results
-
 
 def get_critical_advice(critical_indicators, position):
     """
