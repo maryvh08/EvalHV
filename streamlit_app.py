@@ -561,12 +561,14 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         # Calcular concordancia con funciones y perfil utilizando palabras clave específicas
         func_match = (
             100
-            if any(keyword.lower() in header_and_details.lower() for keywords in position_indicators.values() for keyword in keywords)
+            if any(keyword.lower() in header_and_details.lower() or any(keyword.lower() in detail.lower() for detail in details)
+                   for keywords in position_indicators.values() for keyword in keywords)
             else calculate_similarity(header_and_details, functions_text)
         )
         profile_match = (
             100
-            if any(keyword.lower() in header_and_details.lower() for keywords in position_indicators.values() for keyword in keywords)
+            if any(keyword.lower() in header_and_details.lower() or any(keyword.lower() in detail.lower() for detail in details)
+                   for keywords in position_indicators.values() for keyword in keywords)
             else calculate_similarity(header_and_details, profile_text)
         )
 
@@ -576,7 +578,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
         # Evaluar indicadores únicamente para el cargo seleccionado
         for indicator, keywords in position_indicators.items():
-            if any(keyword.lower() in header_and_details.lower() for keyword in keywords):
+            if any(keyword.lower() in header_and_details.lower() or any(keyword.lower() in detail.lower() for detail in details) for keyword in keywords):
                 related_items_count[indicator] += 1
 
         item_results[header] = {
