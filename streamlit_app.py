@@ -594,14 +594,10 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf.cell(200, 10, txt=f"Cargo: {position}", ln=True, align='C')
     pdf.ln(10)
 
-    def clean_text(text):
-        """Reemplaza caracteres no compatibles con latin-1."""
-        return text.encode('latin-1', 'replace').decode('latin-1')
-
     # Resultados por ítem
     for header, result in item_results.items():
         pdf.set_font("Arial", style="B", size=12)
-        pdf.cell(0, 10, f"Ítem: {header}", ln=True)
+        pdf.cell(0, 10, clean_text_for_pdf(f"Ítem: {header}"), ln=True)
         pdf.set_font("Arial", size=12)
         for key, value in result.items():
             pdf.cell(0, 10, f"- {key}: {value:.2f}%", ln=True)
@@ -610,18 +606,18 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Total de líneas analizadas
     pdf.set_font("Arial", style="B", size=12)
     total_items = len(item_results)
-    pdf.cell(0, 10, f"Total de líneas analizadas: {total_items}", ln=True)
+    pdf.cell(0, 10, clean_text_for_pdf(f"Total de líneas analizadas: {total_items}"), ln=True)
     pdf.ln(5)
 
     # Resultados por indicadores
     pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
+    pdf.cell(0, 10, clean_text_for_pdf("Resultados por Indicadores:"), ln=True)
     pdf.set_font("Arial", size=12)
     for indicator, percentage in indicator_percentages.items():
         related_items = related_items_count[indicator]
         pdf.cell(0, 10, clean_text_for_pdf( f"- {indicator}: {percentage:.2f}% ({related_items} ítems relacionados)"), ln=True)
         if percentage < 50 and indicator in critical_advice:
-            pdf.cell(0, 10, f"  Consejos para {indicator}:", ln=True)
+            pdf.cell(0, 10, clean_text_for_pdf(f"  Consejos para {indicator}:"), ln=True)
             for tip in critical_advice[indicator]:
                 pdf.cell(0, 10, f"    * {tip}", ln=True)
                 
@@ -631,15 +627,15 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Concordancia Global:", ln=True)
     pdf.set_font("Arial", size=12)
-    pdf.cell(0, 10, f"- Funciones del Cargo: {global_func_match:.2f}%", ln=True)
-    pdf.cell(0, 10, f"- Perfil del Cargo: {global_profile_match:.2f}%", ln=True)
+    pdf.cell(0, 10, clean_text_for_pdf(f"- Funciones del Cargo: {global_func_match:.2f}%"), ln=True)
+    pdf.cell(0, 10, clean_text_for_pdf(f"- Perfil del Cargo: {global_profile_match:.2f}%"), ln=True)
 
     # Puntaje global
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Puntaje Global:", ln=True)
     pdf.set_font("Arial", size=12)
-    pdf.cell(0, 10, f"- Funciones del Cargo: {func_score}", ln=True)
-    pdf.cell(0, 10, f"- Perfil del Cargo: {profile_score}", ln=True)
+    pdf.cell(0, 10, clean_text_for_pdf(f"- Funciones del Cargo: {func_score}"), ln=True)
+    pdf.cell(0, 10, clean_text_for_pdf(f"- Perfil del Cargo: {profile_score}"), ln=True)
 
     # Interpretación de resultados
     pdf.set_font("Arial", style="B", size=12)
