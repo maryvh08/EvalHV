@@ -827,7 +827,10 @@ def primary():
     )
     
 def secondary():
-    st.title("Evaluador de Hoja de Vida ANEIAP - Versión Descriptiva")
+    imagen_secundary= 'Analizador Versión Descriptiva.jpg'
+    st.title("Evaluador de Hoja de Vida ANEIAP")
+    st.image(imagen_secundary, use_container_width=True)
+    st.subheader("Versión Descriptiva Hoja de Vida ANEIAP⏩")
     st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
 
     # Entrada de datos del usuario
