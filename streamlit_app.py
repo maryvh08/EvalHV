@@ -557,28 +557,34 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
     for header, details in items.items():
         header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
-        
-        # Calcular concordancia con funciones y perfil utilizando palabras clave específicas
-        func_match = (
-            100
-            if any(keyword.lower() in header_and_details.lower() for keyword in functions_text.split() if keyword in position_indicators)
-            else calculate_similarity(header_and_details, functions_text)
+
+        # Revisar palabras clave en el encabezado
+        header_contains_keywords = any(
+            keyword.lower() in header.lower() for keywords in position_indicators.values() for keyword in keywords
         )
-        profile_match = (
-            100
-            if any(keyword.lower() in header_and_details.lower() for keyword in profile_text.split() if keyword in position_indicators)
-            else calculate_similarity(header_and_details, profile_text)
+
+        # Revisar palabras clave en los detalles
+        details_contains_keywords = any(
+            keyword.lower() in detail.lower() for detail in details for keywords in position_indicators.values() for keyword in keywords
         )
-        
+
+        # Determinar concordancia en funciones y perfil
+        if header_contains_keywords or details_contains_keywords:
+            func_match = 100
+            profile_match = 100
+        else:
+            func_match = calculate_similarity(header_and_details, functions_text)
+            profile_match = calculate_similarity(header_and_details, profile_text)
+
         # Ignorar ítems con 0% en funciones y perfil
         if func_match == 0 and profile_match == 0:
             continue
-        
+
         # Evaluar indicadores únicamente para el cargo seleccionado
         for indicator, keywords in position_indicators.items():
             if any(keyword.lower() in header_and_details.lower() for keyword in keywords):
                 related_items_count[indicator] += 1
-        
+
         item_results[header] = {
             "Funciones del Cargo": func_match,
             "Perfil del Cargo": profile_match,
@@ -607,7 +613,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
-
+    
     # Crear el reporte PDF
     pdf = FPDF()
     pdf.add_page()
