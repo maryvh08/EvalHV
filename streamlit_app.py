@@ -519,6 +519,8 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     item_results = {}
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
+    cleaned_lines=[]
+    
     for header, details in items.items():
         header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
 
@@ -534,6 +536,8 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         for indicator, keywords in position_indicators.items():
             if any(keyword.lower() in header_and_details.lower() for keyword in keywords):
                 related_items_count[indicator] += 1
+
+        cleaned_lines.append(items)
 
 
         item_results[header] = {
@@ -570,8 +574,6 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-
-    cleaned_lines=[]
 
     # Título del reporte
     pdf.set_font("Helvetica", style="B", size=14)
