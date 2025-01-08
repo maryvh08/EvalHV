@@ -515,6 +515,7 @@ def analyze_items_and_details(items, position_indicators, functions_text, profil
 
     return results
 
+
 def get_critical_advice(critical_indicators, position):
     """
     Genera una lista de consejos basados en indicadores críticos.
