@@ -596,7 +596,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf.set_font("Arial", size=12)
     for indicator, percentage in indicator_percentages.items():
         related_items = related_items_count[indicator]
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({related_items}/{total_items} ítems relacionados)", ln=True)
+        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({related_items} ítems relacionados)", ln=True)
         if percentage < 50 and indicator in critical_advice:
             pdf.cell(0, 10, f"  Consejos para {indicator}:", ln=True)
             for tip in critical_advice[indicator]:
