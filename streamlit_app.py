@@ -644,8 +644,8 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
     # Total de líneas analizadas
     pdf.set_font("Arial", style="B", size=12)
-    total_lines = len(lines)
-    pdf.cell(0, 10, f"Total de líneas analizadas: {total_lines}", ln=True)
+    total_items = len(items)
+    pdf.cell(0, 10, f"Total de líneas analizadas: {total_items}", ln=True)
     pdf.ln(5)
 
      # Resultados por indicadores
