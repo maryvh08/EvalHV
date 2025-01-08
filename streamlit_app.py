@@ -782,7 +782,7 @@ def primary():
     ])
     
     # Configuración BOTÓN GENERAR REPORTE
-    if st.button("Generar Reporte"):
+    if st.button("Generar Reporte PDF"):
         if uploaded_file is not None:
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
@@ -822,7 +822,7 @@ def secondary():
         "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
     ])
 
-    if st.button("Generar Reporte"):
+    if st.button("Generar Reporte PDF"):
         if uploaded_file is not None:
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
