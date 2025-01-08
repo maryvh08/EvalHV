@@ -484,38 +484,7 @@ def get_critical_advice(critical_indicators, position):
 
     return critical_advice
 
-def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, advice, indicators):
-    """
-    Analiza un CV descriptivo y genera un reporte PDF.
-    :param pdf_path: Ruta del PDF.
-    :param position: Cargo al que aspira.
-    :param candidate_name: Nombre del candidato.
-    :param advice: Diccionario con consejos.
-    :param indicators: Diccionario con indicadores y palabras clave.
-    """
-    # Extraer texto de la sección EXPERIENCIA EN ANEIAP
-    items = extract_experience_items_with_details(pdf_path)
-    if not items:
-        st.error("No se encontraron encabezados y detalles para analizar.")
-        return
-
-    # Cargar funciones y perfil del cargo
-    try:
-        with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
-            functions_text = func_doc[0].get_text()
-        with fitz.open(f"Perfiles//P{position}.pdf") as profile_doc:
-            profile_text = profile_doc[0].get_text()
-    except Exception as e:
-        st.error(f"Error al cargar funciones o perfil: {e}")
-        return
-
-    # Filtrar indicadores correspondientes al cargo seleccionado
-    position_indicators = indicators.get(position, {})
-    if not position_indicators:
-        st.error("No se encontraron indicadores para el cargo seleccionado.")
-        return
-
-    # Analizar encabezados y detalles
+# Analizar encabezados y detalles
     item_results = {}
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
@@ -523,8 +492,8 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
 
         # Calcular concordancia con funciones y perfil
-        func_match = 100 if any(keyword in header_and_details for keyword in functions_text.split()) else calculate_similarity(header_and_details, functions_text)
-        profile_match = 100 if any(keyword in header_and_details for keyword in profile_text.split()) else calculate_similarity(header_and_details, profile_text)
+        func_match = 100 if any(keyword.lower() in header_and_details.lower() for keyword in functions_text.split()) else calculate_similarity(header_and_details, functions_text)
+        profile_match = 100 if any(keyword.lower() in header_and_details.lower() for keyword in profile_text.split()) else calculate_similarity(header_and_details, profile_text)
 
         # Ignorar ítems con 0% en funciones y perfil
         if func_match == 0 and profile_match == 0:
@@ -532,7 +501,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
         # Evaluar indicadores
         for indicator, keywords in position_indicators.items():
-            if any(keyword in header_and_details for keyword in keywords):
+            if any(keyword.lower() in header_and_details.lower() for keyword in keywords):
                 related_items_count[indicator] += 1
 
         item_results[header] = {
@@ -596,11 +565,12 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf.set_font("Arial", size=12)
     for indicator, percentage in indicator_percentages.items():
         related_items = related_items_count[indicator]
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({related_items} ítems relacionados)", ln=True)
+        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({related_items}/{total_items} ítems relacionados)", ln=True)
         if percentage < 50 and indicator in critical_advice:
             pdf.cell(0, 10, f"  Consejos para {indicator}:", ln=True)
             for tip in critical_advice[indicator]:
                 pdf.cell(0, 10, f"    * {tip}", ln=True)
+                
     pdf.ln(5)
 
     # Concordancia global
