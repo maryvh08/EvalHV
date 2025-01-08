@@ -443,17 +443,20 @@ def extract_experience_items_with_details(pdf_path):
                         if not in_experience_section:
                             continue
 
-                        # Verificar que el valor de `span["font"]` sea una cadena antes de trabajar con él
-                        if isinstance(span["font"], str) and "bold" in span["font"].lower() and not text.startswith("-"):
-                            current_item = text  # Encabezado detectado
-                            items[current_item] = []  # Crear lista vacía para detalles
-                        elif current_item and (text.startswith("-") or text[0].isdigit()):
-                            # Detectar detalles basados en guion o numeración
-                            detail = text.lstrip("-0123456789. ").strip()
-                            items[current_item].append(detail)
+                        # Detectar encabezados basados en negrita
+                        try:
+                            if isinstance(span["font"], str) and "bold" in span["font"].lower() and not text.startswith("-"):
+                                current_item = text  # Encabezado detectado
+                                items[current_item] = []  # Crear lista vacía para detalles
+                            elif current_item and (text.startswith("-") or text[0].isdigit()):
+                                # Detectar detalles basados en guion o numeración
+                                detail = text.lstrip("-0123456789. ").strip()
+                                items[current_item].append(detail)
+                        except (KeyError, AttributeError):
+                            # Ignorar spans mal formateados
+                            continue
 
     return items
-
 
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
