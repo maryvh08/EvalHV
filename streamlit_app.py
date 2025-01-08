@@ -432,7 +432,25 @@ def extract_experience_items_with_details(pdf_path):
                             items[current_item].append(text)
 
     return items
-    
+
+def clean_text_for_pdf(text):
+    """
+    Limpia caracteres no soportados por FPDF reemplazándolos por equivalentes.
+    :param text: Texto a limpiar.
+    :return: Texto limpio.
+    """
+    replacements = {
+        "\u2013": "-",  # Guion largo
+        "\u2014": "-",  # Guion em dash
+        "\u201c": "\"",  # Comillas dobles de apertura
+        "\u201d": "\"",  # Comillas dobles de cierre
+        "\u2018": "'",  # Comillas simples de apertura
+        "\u2019": "'",  # Comillas simples de cierre
+    }
+    for original, replacement in replacements.items():
+        text = text.replace(original, replacement)
+    return text
+
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
     Analiza encabezados y viñetas según indicadores, funciones y perfil del cargo.
@@ -518,8 +536,6 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Analizar encabezados y detalles
     item_results = {}
     related_items_count = {indicator: 0 for indicator in position_indicators}
-
-    cleaned_lines=[]
     
     for header, details in items.items():
         header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
@@ -536,9 +552,6 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         for indicator, keywords in position_indicators.items():
             if any(keyword.lower() in header_and_details.lower() for keyword in keywords):
                 related_items_count[indicator] += 1
-
-        cleaned_lines.append(items)
-
 
         item_results[header] = {
             "Funciones del Cargo": func_match,
@@ -606,20 +619,13 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf.set_font("Arial", size=12)
     for indicator, percentage in indicator_percentages.items():
         related_items = related_items_count[indicator]
-        pdf.cell(0, 10, cleaned_lines( f"- {indicator}: {percentage:.2f}% ({related_items} ítems relacionados)"), ln=True)
+        pdf.cell(0, 10, clean_text_for_pdf( f"- {indicator}: {percentage:.2f}% ({related_items} ítems relacionados)"), ln=True)
         if percentage < 50 and indicator in critical_advice:
             pdf.cell(0, 10, f"  Consejos para {indicator}:", ln=True)
             for tip in critical_advice[indicator]:
                 pdf.cell(0, 10, f"    * {tip}", ln=True)
                 
     pdf.ln(5)
-
-    # Debugging: Imprime líneas procesadas
-    print("Líneas procesadas:")
-    for line in cleaned_lines:
-        print(f"- {line}")
-    
-    return "\n".join(cleaned_lines)
 
     # Concordancia global
     pdf.set_font("Arial", style="B", size=12)
