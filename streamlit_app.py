@@ -648,17 +648,19 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf.cell(0, 10, f"Total de líneas analizadas: {total_items}", ln=True)
     pdf.ln(5)
 
-     # Resultados por indicadores
+    # Resultados por indicadores
     pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
     pdf.set_font("Arial", size=12)
     for indicator, percentage in indicator_percentages.items():
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}%", ln=True)
+        related_items = related_items_count[indicator]
+        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({related_items} ítems relacionados)", ln=True)
         if percentage < 50 and indicator in critical_advice:
             pdf.cell(0, 10, f"  Consejos para {indicator}:", ln=True)
             for tip in critical_advice[indicator]:
                 pdf.cell(0, 10, f"    * {tip}", ln=True)
     pdf.ln(5)
+
 
     # Concordancia global
     pdf.set_font("Arial", style="B", size=12)
