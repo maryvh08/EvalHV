@@ -571,11 +571,17 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf.add_page()
     pdf.set_font("Arial", size=12)
 
+    cleaned_lines={}
+
     # Título del reporte
     pdf.set_font("Helvetica", style="B", size=14)
     pdf.cell(200, 10, txt=f"Reporte de Análisis Descriptivo - {candidate_name}", ln=True, align='C')
     pdf.cell(200, 10, txt=f"Cargo: {position}", ln=True, align='C')
     pdf.ln(10)
+
+    def clean_text(text):
+        """Reemplaza caracteres no compatibles con latin-1."""
+        return text.encode('latin-1', 'replace').decode('latin-1')
 
     # Resultados por ítem
     for header, result in item_results.items():
