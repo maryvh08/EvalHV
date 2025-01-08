@@ -631,9 +631,9 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
         }
 
     # Calcular porcentajes de indicadores
-    indicator_percentages = {calculate_indicators_for_report(items, position_indicators)}
-    for indicator, keywords in position_indicators.items():
-        indicator_percentages = {calculate_indicators_for_report(items, position_indicators)}
+    total_items = len(items)
+    indicator_percentages = {
+        indicator: (count / total_items) * 100 if total_items > 0 else 0 for indicator, count in related_items_count.items()
 
     # Calcular la presencia total (si es necesario)
     total_presence = sum(result["percentage"] for result in indicator_percentages.values())
