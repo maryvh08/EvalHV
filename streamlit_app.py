@@ -571,7 +571,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     pdf.add_page()
     pdf.set_font("Arial", size=12)
 
-    cleaned_lines={}
+    cleaned_lines=[]
 
     # Título del reporte
     pdf.set_font("Helvetica", style="B", size=14)
@@ -611,6 +611,13 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
                 pdf.cell(0, 10, f"    * {tip}", ln=True)
                 
     pdf.ln(5)
+
+    # Debugging: Imprime líneas procesadas
+    print("Líneas procesadas:")
+    for line in cleaned_lines:
+        print(f"- {line}")
+    
+    return "\n".join(cleaned_lines)
 
     # Concordancia global
     pdf.set_font("Arial", style="B", size=12)
