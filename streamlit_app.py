@@ -590,6 +590,8 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
     # Analizar encabezados y detalles
     item_results = {}
+
+    # Calcular la cantidad de ítems relacionados para cada indicador
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
     for header, details in items.items():
@@ -619,6 +621,7 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
 
         # Evaluar indicadores únicamente para el cargo seleccionado
         for indicator, keywords in position_indicators.items():
+            # Identificar si el encabezado o detalles contienen palabras clave del indicador
             if any(keyword.lower() in header_and_details.lower() for keyword in keywords):
                 related_items_count[indicator] += 1
 
