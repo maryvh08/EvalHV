@@ -537,14 +537,6 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     :param indicators: Diccionario con indicadores y palabras clave.
     """
 
-    # Ruta de la imagen de fondo
-    background_image = "Fondo ANEIAP.jpg"  # Cambia esto a la ruta correcta de tu imagen
-
-    # Verifica si la imagen existe
-    if not os.path.exists(background_image):
-        st.error(f"No se encontró la imagen de fondo en la ruta: {background_image}")
-        return
-
     # Crear un buffer en memoria para el PDF
     buffer = BytesIO()
 
