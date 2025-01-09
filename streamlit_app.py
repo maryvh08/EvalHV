@@ -744,8 +744,6 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     # Cerrar el PDF
     c.save()
 
-    # Guardar PDF
-    c.save()
     st.success("Reporte PDF generado exitosamente.")
     with open(output_path, "rb") as file:
         st.download_button(
