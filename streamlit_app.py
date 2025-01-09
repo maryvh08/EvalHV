@@ -629,7 +629,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
 
-   """
+    """
     Analiza un CV descriptivo y genera un reporte PDF usando ReportLab con Paragraph.
     """
     # Registrar la fuente personalizada
