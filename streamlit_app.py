@@ -394,24 +394,27 @@ def generate_report(pdf_path, position, candidate_name):
 
 
 # FUNCIONES PARA SECUNDARY
-def clean_text_for_pdf(text):
+def add_wrapped_text(canvas, text, x, y, max_width=500, line_height=12, font_name="CenturyGothic", font_size=12):
     """
-    Limpia caracteres no soportados por FPDF reemplazándolos por equivalentes.
-    :param text: Texto a limpiar.
-    :return: Texto limpio.
+    Agrega texto envuelto al canvas, manejando automáticamente el ajuste al ancho máximo especificado.
+    :param canvas: El canvas de reportlab.
+    :param text: El texto que deseas agregar.
+    :param x: Coordenada X inicial.
+    :param y: Coordenada Y inicial.
+    :param max_width: Ancho máximo permitido para el texto.
+    :param line_height: Altura de cada línea de texto.
+    :param font_name: Nombre de la fuente a utilizar.
+    :param font_size: Tamaño de la fuente a utilizar.
+    :return: La posición Y actualizada después de agregar el texto.
     """
-    replacements = {
-        "\u2013": "-",  # Guion largo
-        "\u2014": "-",  # Guion em dash
-        "\u201c": "\"",  # Comillas dobles de apertura
-        "\u201d": "\"",  # Comillas dobles de cierre
-        "\u2018": "'",  # Comillas simples de apertura
-        "\u2019": "'",  # Comillas simples de cierre
-    }
-    for original, replacement in replacements.items():
-        text = text.replace(original, replacement)
-    return text
-
+    canvas.setFont(font_name, font_size)
+    # Dividir texto en líneas que se ajusten al ancho máximo
+    lines = simpleSplit(text, font_name, font_size, max_width)
+    for line in lines:
+        canvas.drawString(x, y, line)
+        y -= line_height  # Mover hacia abajo para la próxima línea
+    return y
+    
 def extract_experience_items_with_details(pdf_path):
     """
     Extrae encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
