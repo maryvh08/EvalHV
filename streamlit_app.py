@@ -323,7 +323,7 @@ def generate_report(pdf_path, position, candidate_name):
         elements.append(Paragraph(f"- Concordancia con perfil: {profile_match:.2f}%"), styles['CenturyGothic'])
         elements.append(Spacer(1, 0.2 * inch))
 
-    elements.append(Spacer(1, 0.2 * inch))pdf.ln(5)
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Total de líneas analizadas
     total_items = len(line_results)
