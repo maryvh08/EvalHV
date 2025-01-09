@@ -11,6 +11,7 @@ from reportlab.lib.units import inch
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
+from io import BytesIO
 from fpdf import FPDF
 from collections import Counter
 import pytesseract
@@ -536,6 +537,27 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     :param indicators: Diccionario con indicadores y palabras clave.
     """
 
+    # Ruta de la imagen de fondo
+    background_image = "Fondo_ANEIAP.jpg"  # Cambia esto a la ruta correcta de tu imagen
+
+    # Verifica si la imagen existe
+    if not os.path.exists(background_image):
+        st.error(f"No se encontró la imagen de fondo en la ruta: {background_image}")
+        return
+
+    # Crear un buffer en memoria para el PDF
+    buffer = BytesIO()
+
+    # Crear canvas para escribir el PDF
+    c = canvas.Canvas(buffer, pagesize=letter)
+
+    # Dibujar la imagen de fondo en toda la página
+    try:
+        c.drawImage(background_image, 0, 0, width=letter[0], height=letter[1])
+    except Exception as e:
+        st.error(f"No se pudo cargar la imagen de fondo: {e}")
+        return
+
     # Extraer texto de la sección EXPERIENCIA EN ANEIAP
     items = extract_experience_items_with_details(pdf_path)
     if not items:
@@ -652,13 +674,6 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
     doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
 
-     # Imagen de fondo (opcional)
-    background_image = "Fondo ANEIAP.jpg"  # Ruta de la imagen de fondo
-    try:
-        c.drawImage(background_image, 0, 0, width=letter[0], height=letter[1])
-    except Exception as e:
-        st.warning(f"No se pudo cargar la imagen de fondo: {e}")
-
     # Coordenadas iniciales
     x, y = inch, 10 * inch
 
@@ -743,6 +758,9 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
 
     # Cerrar el PDF
     c.save()
+
+    # Volver al inicio del buffer
+    buffer.seek(0)
 
     st.success("Reporte PDF generado exitosamente.")
     with open(output_path, "rb") as file:
