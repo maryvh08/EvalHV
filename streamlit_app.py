@@ -295,8 +295,8 @@ def generate_report(pdf_path, position, candidate_name):
     styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14))
 
     # Crear el documento PDF
-    output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
-    doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
+    report_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
+    doc = SimpleDocTemplate(report_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
 
     # Lista de elementos para el reporte
     elements = []
@@ -412,13 +412,18 @@ def generate_report(pdf_path, position, candidate_name):
     report_path = f"Reporte_analisis_cargo_{position}_{candidate_name}.pdf"
     pdf.output(report_path, 'F')
 
-    st.success("Reporte generado exitosamente.")
-    st.download_button(
-        label="Descargar Reporte",
-        data=open(report_path, "rb"),
-        file_name=report_path,
-        mime="application/pdf"
-    )
+    # Construir el PDF
+    doc.build(elements)
+
+    # Descargar el reporte desde Streamlit
+    with open(report_path, "rb") as file:
+        st.success("Reporte PDF generado exitosamente.")
+        st.download_button(
+            label="Descargar Reporte PDF",
+            data=file,
+            file_name=f"Reporte_análisis_cargo{candidate_name}_{position}.pdf",
+            mime="application/pdf"
+        )
 
 
 # FUNCIONES PARA SECUNDARY
