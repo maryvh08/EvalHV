@@ -684,6 +684,18 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     total_items = len(item_results)
     elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}",styles['CenturyGothic']))
 
+    # Iterar sobre los resultados por ítem
+    for header, result in item_results.items():
+        elements.append(Paragraph(f"Ítem: {header}", styles['CenturyGothic']))
+    
+        # Validar que 'result' es un diccionario antes de iterar
+        if isinstance(result, dict):
+            for key, value in result.items():
+                elements.append(Paragraph(f"- {key}: {value:.2f}%", styles['CenturyGothic']))
+        else:
+            elements.append(Paragraph("Error: El resultado no tiene la estructura esperada.", styles['CenturyGothic']))
+        
+        elements.append(Spacer(1, 0.2 * inch))  # Espaciado entre ítems
 
     # Resultados por indicadores
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothic']))
