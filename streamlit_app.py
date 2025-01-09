@@ -672,19 +672,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     elements.append(Paragraph(f"Cargo: {position}", styles['CenturyGothic']))
     elements.append(Spacer(1, 0.2 * inch))
     
-   # Resultados por ítem
-    elements.append(Paragraph("<b>Resultados por ítems:</b>", styles['CenturyGothic']))
-    for header, result in items.items():
-        elements.append(Paragraph(f"<b>Ítem:</b> {header}", styles['CenturyGothic']))
-        for key, value in result.items():
-            elements.append(Paragraph(f"- {key}: {value:.2f}%", styles['CenturyGothic']))
-        elements.append(Spacer(1, 0.2 * inch))
-
-    # Total de líneas analizadas
-    total_items = len(item_results)
-    elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}",styles['CenturyGothic']))
-
-    # Iterar sobre los resultados por ítem
+   # Iterar sobre los resultados por ítem
     for header, result in item_results.items():
         elements.append(Paragraph(f"Ítem: {header}", styles['CenturyGothic']))
     
@@ -696,6 +684,10 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
             elements.append(Paragraph("Error: El resultado no tiene la estructura esperada.", styles['CenturyGothic']))
         
         elements.append(Spacer(1, 0.2 * inch))  # Espaciado entre ítems
+        
+    # Total de líneas analizadas
+    total_items = len(item_results)
+    elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}",styles['CenturyGothic']))
 
     # Resultados por indicadores
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothic']))
