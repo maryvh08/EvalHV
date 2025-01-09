@@ -643,7 +643,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     c = canvas.Canvas(output_path, pagesize=letter)
 
      # Imagen de fondo (opcional)
-    background_image = "background_image.jpg"  # Ruta de la imagen de fondo
+    background_image = "Fondo ANEIAP.jpg"  # Ruta de la imagen de fondo
     try:
         c.drawImage(background_image, 0, 0, width=letter[0], height=letter[1])
     except Exception as e:
