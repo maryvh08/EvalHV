@@ -626,8 +626,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     # Título del reporte
     c.setFont("CenturyGothicBold", 16)
     c.setFillColor(colors.black)
-    c.drawCentredString(width / 2, height - 50, f"Reporte de Análisis Descriptivo - {candidate_name}")
-    c.drawCentredString(width / 2, height - 70, f"Cargo: {position}")
+    y = add_wrapped_text(canvas, f"Reporte de Análisis Descriptivo - {candidate_name}", 70, y, max_width=450)
 
     # Espaciado
     y = height - 100
@@ -637,11 +636,10 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     c.drawString(50, y, "Resultados por Ítem:")
     y -= 20
     for header, result in item_results.items():
-        c.drawString(60, y, f"Ítem: {header}")
-        y -= 15
-        for key, value in result.items():
-            c.drawString(80, y, f"- {key}: {value:.2f}%")
-            y -= 15
+    y = add_wrapped_text(canvas, f"Ítem: {header}", 70, y)
+    for key, value in result.items():
+        y = add_wrapped_text(canvas, f"- {key}: {value:.2f}%", 70, y)
+        y -= 10  # Espacio adicional entre ítems
         if y < 50:
             c.showPage()
             c.setFont("CenturyGothicRegular", 12)
