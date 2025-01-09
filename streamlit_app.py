@@ -329,7 +329,7 @@ def generate_report(pdf_path, position, candidate_name):
     total_items = len(line_results)
     elements.append(Paragraph(f"- Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
     
-    elements.append(Spacer(1, 0.2 * inch))pdf.ln(5)
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Resultados de indicadores
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
