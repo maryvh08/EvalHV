@@ -17,8 +17,8 @@ import json
 import os
 
 # Registrar la fuente Century Gothic
-pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic_Regular.ttf'))
-pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic_Bold.ttf'))
+pdfmetrics.registerFont(TTFont('CenturyGothicRegular', 'Century_Gothic_Regular.ttf'))
+pdfmetrics.registerFont(TTFont('CenturyGothicBold', 'Century_Gothic_Bold.ttf'))
 
 
 # Cargar las palabras clave y consejos desde los archivos JSON
@@ -620,7 +620,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
         c.drawImage(bg_image, 0, 0, width=width, height=height)
 
     # Título del reporte
-    c.setFont("CenturyGothic", 16)
+    c.setFont("CenturyGothicBold", 16)
     c.setFillColor(colors.black)
     c.drawCentredString(width / 2, height - 50, f"Reporte de Análisis Descriptivo - {candidate_name}")
     c.drawCentredString(width / 2, height - 70, f"Cargo: {position}")
@@ -629,7 +629,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     y = height - 100
     
    # Resultados por ítem
-    c.setFont("CenturyGothic", 12)
+    c.setFont("CenturyGothicBold", 12)
     c.drawString(50, y, "Resultados por Ítem:")
     y -= 20
     for header, result in item_results.items():
@@ -640,7 +640,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
             y -= 15
         if y < 50:
             c.showPage()
-            c.setFont("CenturyGothic", 12)
+            c.setFont("CenturyGothicRegular", 12)
             y = height - 50
 
     # Total de líneas analizadas
@@ -649,7 +649,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     y = height - 50
 
     # Resultados por indicadores
-    c.setFont("CenturyGothic", 12)
+    c.setFont("CenturyGothicBold", 12)
     c.drawString(50, y, "Resultados por Indicadores:")
     y -= 20
     for indicator, percentage in indicator_percentages.items():
@@ -665,7 +665,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
 
         if y < 50:
             c.showPage()
-            c.setFont("CenturyGothic", 12)
+            c.setFont("CenturyGothicRegular", 12)
             y = height - 50
 
     # Concordancia global
