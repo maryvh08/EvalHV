@@ -625,13 +625,6 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
 
-    """
-    Analiza un CV descriptivo y genera un reporte PDF usando ReportLab con Paragraph.
-    """
-
-    # Declarar la lista de elementos
-    elements = []
-    
     # Registrar la fuente personalizada
     pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
 
@@ -639,49 +632,34 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle(name="CenturyGothic", fontName="CenturyGothic", fontSize=12, leading=14))
 
-    # Configurar estilo personalizado para la fuente Century Gothic
-    styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle(
-        name='CenturyGothic',
-        fontName='CenturyGothic',
-        fontSize=12,
-        leading=14,
-        textColor=colors.black
-    ))
-
     # Crear el documento PDF
     output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
     doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
 
-    # Coordenadas iniciales
-    x, y = inch, 10 * inch
-
-     # Crear PDF con reportlab
-    filename = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
-    c = canvas.Canvas(filename, pagesize=letter)
-    width, height = letter
-
-    # Título del reporte
+    # Lista de elementos para el reporte
+    elements = []
+    
+        # Título del reporte
     elements.append(Paragraph(f"Reporte de Análisis Descriptivo - {candidate_name}", styles['CenturyGothic']))
     elements.append(Paragraph(f"Cargo: {position}", styles['CenturyGothic']))
     elements.append(Spacer(1, 0.2 * inch))
-    
-   # Iterar sobre los resultados por ítem
+
+    # Iterar sobre los resultados por ítem
     for header, result in item_results.items():
         elements.append(Paragraph(f"Ítem: {header}", styles['CenturyGothic']))
-    
+
         # Validar que 'result' es un diccionario antes de iterar
         if isinstance(result, dict):
             for key, value in result.items():
                 elements.append(Paragraph(f"- {key}: {value:.2f}%", styles['CenturyGothic']))
         else:
             elements.append(Paragraph("Error: El resultado no tiene la estructura esperada.", styles['CenturyGothic']))
-        
+
         elements.append(Spacer(1, 0.2 * inch))  # Espaciado entre ítems
-        
+
     # Total de líneas analizadas
     total_items = len(item_results)
-    elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}",styles['CenturyGothic']))
+    elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}", styles['CenturyGothic']))
 
     # Resultados por indicadores
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothic']))
@@ -724,22 +702,23 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     # Conclusión
     elements.append(Paragraph("<b>Conclusión:</b>", styles['CenturyGothic']))
     elements.append(Paragraph(
-        f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.", 
+        f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}.",
         styles['CenturyGothic']
     ))
-    
+
     # Mensaje de agradecimiento
     elements.append(Paragraph("<b>Agradecimiento:</b>", styles['CenturyGothic']))
     elements.append(Paragraph(
-        f"Gracias, {candidate_name}, por tu interés en el cargo de {position} ¡Éxitos en tu proceso!", 
+        f"Gracias, {candidate_name}, por tu interés en el cargo de {position} ¡Éxitos en tu proceso!",
         styles['CenturyGothic']
     ))
 
-    # Cerrar el PDF
-    c.save()
+    # Construir el PDF
+    doc.build(elements)
 
-    st.success("Reporte PDF generado exitosamente.")
+    # Descargar el reporte desde Streamlit
     with open(output_path, "rb") as file:
+        st.success("Reporte PDF generado exitosamente.")
         st.download_button(
             label="Descargar Reporte PDF",
             data=file,
