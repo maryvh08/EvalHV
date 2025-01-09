@@ -641,14 +641,14 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     # Lista de elementos para el reporte
     elements = []
     
-        # Título del reporte
+    # Título del reporte
     elements.append(Paragraph(f"Reporte de Análisis Descriptivo - {candidate_name}", styles['CenturyGothicBold']))
     elements.append(Paragraph(f"Cargo: {position}", styles['CenturyGothic']))
     elements.append(Spacer(1, 0.2 * inch))
 
     # Iterar sobre los resultados por ítem
     for header, result in item_results.items():
-        elements.append(Paragraph(f"Ítem: {header}", styles['CenturyGothic']))
+        elements.append(Paragraph(f"Ítem: {header}", styles['CenturyGothicBold']))
 
         # Validar que 'result' es un diccionario antes de iterar
         if isinstance(result, dict):
@@ -661,10 +661,10 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
 
     # Total de líneas analizadas
     total_items = len(item_results)
-    elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}", styles['CenturyGothic']))
+    elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
 
     # Resultados por indicadores
-    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothic']))
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     for indicator, percentage in indicator_percentages.items():
         elements.append(Paragraph(f"- {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
         if percentage < 50:
@@ -672,19 +672,19 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia global
-    elements.append(Paragraph("<b>Concordancia Global:</b>", styles['CenturyGothic']))
+    elements.append(Paragraph("<b>Concordancia Global:</b>", styles['CenturyGothicBold']))
     elements.append(Paragraph(f"- Funciones del Cargo: {global_func_match:.2f}%", styles['CenturyGothic']))
     elements.append(Paragraph(f"- Perfil del Cargo: {global_profile_match:.2f}%", styles['CenturyGothic']))
     elements.append(Spacer(1, 0.2 * inch))
 
     # Puntaje global
-    elements.append(Paragraph("<b>Puntaje Global:</b>", styles['CenturyGothic']))
+    elements.append(Paragraph("<b>Puntaje Global:</b>", styles['CenturyGothicBold']))
     elements.append(Paragraph(f"- Funciones del Cargo: {func_score}", styles['CenturyGothic']))
     elements.append(Paragraph(f"- Perfil del Cargo: {profile_score}", styles['CenturyGothic']))
     elements.append(Spacer(1, 0.2 * inch))
 
     # Interpretación de resultados
-    elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothic']))
+    elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
     if global_profile_match > 75 and global_func_match > 75:
         elements.append(Paragraph(
             f"- Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.",
@@ -702,14 +702,12 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
         ))
 
     # Conclusión
-    elements.append(Paragraph("<b>Conclusión:</b>", styles['CenturyGothic']))
     elements.append(Paragraph(
         f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.",
         styles['CenturyGothic']
     ))
 
     # Mensaje de agradecimiento
-    elements.append(Paragraph("<b>Agradecimiento:</b>", styles['CenturyGothic']))
     elements.append(Paragraph(
         f"Gracias, {candidate_name}, por tu interés en el cargo de {position} ¡Éxitos en tu proceso!",
         styles['CenturyGothic']
