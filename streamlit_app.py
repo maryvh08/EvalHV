@@ -285,99 +285,128 @@ def generate_report(pdf_path, position, candidate_name):
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
     
-    # Crear reporte en PDF
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Times", size=12)
+    # Registrar la fuente personalizada
+    pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
+    pdfmetrics.registerFont(TTFont('CenturyGothicBold', 'Century_Gothic_Bold.ttf'))
 
-    def clean_text(text):
-        """Reemplaza caracteres no compatibles con latin-1."""
-        return text.encode('latin-1', 'replace').decode('latin-1')
+    # Estilos
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name="CenturyGothic", fontName="CenturyGothic", fontSize=12, leading=14))
+    styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14))
+
+    # Crear el documento PDF
+    output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
+    doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
+
+    # Lista de elementos para el reporte
+    elements = []
+
+    # Título del reporte centrado
+    title_style = ParagraphStyle(
+        name='CenteredTitle',
+        fontName='CenturyGothicBold',
+        fontSize=14,
+        leading=16,
+        alignment=1,  # 1 significa centrado
+        textColor=colors.black
+    )
     
-    # Título del reporte
-    pdf.set_font("Helvetica", style="B", size=14)  
-    pdf.cell(200, 10, txt=f"Reporte de Concordancia de {candidate_name} para el cargo de {position}", ln=True, align='C')
+    elements.append(Paragraph(f"Reporte de Concordancia de {candidate_name} para el cargo de {position}", title_style))
     
-    pdf.ln(3)
+    elements.append(Spacer(1, 0.2 * inch))
     
     #Concordancia de items
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Análisis de items:", ln=True)
-    pdf.set_font("Arial", style="", size=12)
+    elements.append(Paragraph("<b>Análisis de items:</b>", styles['CenturyGothicBold']))
     for line, func_match, profile_match in line_results:
-        pdf.multi_cell(0, 10, clean_text(f"Item: {line}"))
-        pdf.multi_cell(0, 10, clean_text(f"- Concordancia con funciones: {func_match:.2f}%"))
-        pdf.multi_cell(0, 10, clean_text( f"- Concordancia con perfil: {profile_match:.2f}%"))
+        elements.append(Paragraph(f"Item: {line}"))
+        elements.append(Paragraph(f"- Concordancia con funciones: {func_match:.2f}%"), styles['CenturyGothic']))
+        elements.append(Paragraph(f"- Concordancia con perfil: {profile_match:.2f}%"), styles['CenturyGothic']))
+        elements.append(Spacer(1, 0.2 * inch))
+
+    elements.append(Spacer(1, 0.2 * inch))pdf.ln(5)
 
     # Total de líneas analizadas
-    pdf.set_font("Arial", style="B", size=12)
-    total_lines = len(line_results)
-    pdf.cell(0, 10, f"Total de líneas analizadas: {total_lines}", ln=True)
-    pdf.ln(5)
+    total_items = len(line_results)
+    elements.append(Paragraph(f"- Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
+    
+    elements.append(Spacer(1, 0.2 * inch))pdf.ln(5)
 
     # Resultados de indicadores
-    pdf.cell(0, 10, "Resultados por Indicadores:", ln=True)
-    pdf.set_font("Arial", size=12)
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     for indicator, result in indicator_results.items():
         relevant_lines = result["relevant_lines"]
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        pdf.cell(0, 10, f"- {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", ln=True)
+        elements.append(Paragraph(f"- {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", styles['CenturyGothic']))
 
     # Indicador con menor presencia
     lowest_indicator = min(indicator_results, key=lambda k: indicator_results[k]["relevant_lines"])
-    pdf.ln(5)
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Indicador con Menor Presencia:", ln=True)
-    pdf.set_font("Arial", size=12)
+    elements.append(Paragraph("<b>Indicador con Menor Presencia:</b>", styles['CenturyGothicBold']))
     lowest_relevant_lines = indicator_results[lowest_indicator]["relevant_lines"]
     lowest_percentage = (lowest_relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-    pdf.cell(0, 10, f"{lowest_indicator} ({lowest_percentage:.2f}%)", ln=True)
+    elements.append(Paragraph(f"{lowest_indicator} ({lowest_percentage:.2f}%)", styles['CenturyGothic']))
+
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
     if low_performance_indicators:
-        pdf.ln(5)
-        pdf.set_font("Arial", style="B", size=12)
-        pdf.cell(0, 10, "Consejos para Mejorar:", ln=True)
-        pdf.set_font("Arial", size=12)
+         elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
         for indicator, result in low_performance_indicators.items():
             percentage = (result["relevant_lines"] / total_lines) * 100 if total_lines > 0 else 0
-            pdf.cell(0, 10, f"- {indicator}: ({percentage:.2f}%)", ln=True)
+            elements.append(Paragraph(f"- {indicator}: ({percentage:.2f}%)", styles['CenturyGothic']))
             for tip in advice[position].get(indicator, []):
-                pdf.multi_cell(0, 10, f"  * {tip}")
-    
-    #Concordancia global
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(0, 10, "Concordancia Global:", ln=True)
-    pdf.set_font("Arial", size=12)
-    pdf.cell(0, 10, f"La concordancia Global de Funciones es: {global_func_match:.2f}%", ln=True)
-    pdf.cell(0, 10, f"La concordancia Global de Perfil es: {global_profile_match:.2f}%", ln=True)
+                elements.append(Paragraph(f"  * {tip}", styles['CenturyGothic']))
+                elements.append(Spacer(1, 0.2 * inch))
 
-    #Puntaje global
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.multi_cell(0, 10, "\nPuntaje Global:")
-    pdf.set_font("Arial", style="", size=12)
-    pdf.multi_cell(0,10, f"- El puntaje respecto a las funciones de cargo es: {func_score}")
-    pdf.multi_cell(0,10, f"- El puntaje respecto al perfil de cargo es: {profile_score}")
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Concordancia global
+    elements.append(Paragraph("<b>Concordancia Global:</b>", styles['CenturyGothicBold']))
+    elements.append(Paragraph(f"- Funciones del Cargo: {global_func_match:.2f}%", styles['CenturyGothic']))
+    elements.append(Paragraph(f"- Perfil del Cargo: {global_profile_match:.2f}%", styles['CenturyGothic']))
+   
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Puntaje global
+    elements.append(Paragraph("<b>Puntaje Global:</b>", styles['CenturyGothicBold']))
+    elements.append(Paragraph(f"- Funciones del Cargo: {func_score}", styles['CenturyGothic']))
+    elements.append(Paragraph(f"- Perfil del Cargo: {profile_score}", styles['CenturyGothic']))
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Interpretación de resultados
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.multi_cell(0, 10, "\nInterpretación de resultados:")
-    pdf.set_font("Arial", style="", size=12)
-    if global_profile_match >75 and global_func_match > 75:
-        pdf.multi_cell(0, 10, f"- Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.")
-    
-    elif 50 < global_profile_match < 75 and 50 < global_func_match < 75:
-        pdf.multi_cell(0, 10, f"- Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.")
-        
+    elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
+    if global_profile_match > 75 and global_func_match > 75:
+        elements.append(Paragraph(
+            f"- Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.",
+            styles['CenturyGothic']
+        ))
+    elif 50 < global_profile_match <= 75 and 50 < global_func_match <= 75:
+        elements.append(Paragraph(
+            f"-Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.",
+            styles['CenturyGothic']
+        ))
     else:
-        pdf.multi_cell(0, 10, f"- Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.")
+        elements.append(Paragraph(
+            f"- Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.",
+            styles['CenturyGothic']
+        ))
 
-    # Conclusión
-    pdf.multi_cell(0, 10, f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.")
+    elements.append(Spacer(1, 0.2 * inch))
     
+    # Conclusión
+    elements.append(Paragraph(
+        f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.",
+        styles['CenturyGothic']
+    ))
+
+    elements.append(Spacer(1, 0.2 * inch))
+
     # Mensaje de agradecimiento
-    pdf.cell(0, 10, f"Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
+    elements.append(Paragraph(
+        f"Gracias, {candidate_name}, por tu interés en el cargo de {position} ¡Éxitos en tu proceso!",
+        styles['CenturyGothic']
+    ))
+
 
     # Guardar PDF
     report_path = f"Reporte_analisis_cargo_{position}_{candidate_name}.pdf"
