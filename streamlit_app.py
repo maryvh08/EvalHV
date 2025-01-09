@@ -1,5 +1,7 @@
 import fitz  # PyMuPDF para trabajar con PDFs
 from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase.ttfonts import TTFont
@@ -627,20 +629,26 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
 
-    """
-    Analiza un CV descriptivo y genera un reporte PDF usando ReportLab.
+   """
+    Analiza un CV descriptivo y genera un reporte PDF usando ReportLab con Paragraph.
     """
     # Registrar la fuente personalizada
-    try:
-        pdfmetrics.registerFont(TTFont('CenturyGothicRegular', 'Century_Gothic_Regular.ttf'))
-        pdfmetrics.registerFont(TTFont('CenturyGothicBold', 'Century_Gothic_Bold.ttf'))
-    except Exception as e:
-        st.error(f"No se pudo registrar la fuente Century Gothic: {e}")
-        return
+    pdfmetrics.registerFont(TTFont('CenturyGothicRegular', 'Century_Gothic_Regular.ttf'))
+    pdfmetrics.registerFont(TTFont('CenturyGothicBold', 'Century_Gothic_Bold.ttf'))
 
-    # Crear el canvas del PDF
+    # Configurar estilo personalizado para la fuente Century Gothic
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(
+        name='CenturyGothic',
+        fontName='CenturyGothic',
+        fontSize=12,
+        leading=14,
+        textColor=colors.black
+    ))
+
+    # Crear el documento PDF
     output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
-    c = canvas.Canvas(output_path, pagesize=letter)
+    doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
 
      # Imagen de fondo (opcional)
     background_image = "Fondo ANEIAP.jpg"  # Ruta de la imagen de fondo
@@ -657,32 +665,20 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     c = canvas.Canvas(filename, pagesize=letter)
     width, height = letter
 
-    # Fondo personalizado
-    background_path = "Fondo ANEIAP.jpg"
-    if os.path.exists(background_path):
-        bg_image = ImageReader(background_path)
-        c.drawImage(bg_image, 0, 0, width=width, height=height)
-
     # Título del reporte
-    y = add_wrapped_text(c, f"Reporte de Análisis Descriptivo - {candidate_name}", x, y, font_name="CenturyGothic", font_size=14)
-    y = add_wrapped_text(c, f"Cargo: {position}", x, y, font_name="CenturyGothic", font_size=14)
-
-    # Espaciado
-    y = height - 100
+    elements.append(Paragraph(f"Reporte de Análisis Descriptivo - {candidate_name}", x, y, font_name="CenturyGothic", font_size=14)
+    elements.append(Paragraph(f"Cargo: {position}", x, y, font_name="CenturyGothic", font_size=14)
+    elements.append(Spacer(1, 0.2 * inch))
     
    # Resultados por ítem
     c.setFont("CenturyGothicBold", 12)
     c.drawString(50, y, "Resultados por Ítem:")
     y -= 20
-    for header, result in item_results.items():
-        y = add_wrapped_text(canvas, f"Ítem: {header}", 70, y)
-    for key, value in result.items():
-        y = add_wrapped_text(canvas, f"- {key}: {value:.2f}%", 70, y)
-        y -= 10  # Espacio adicional entre ítems
-        if y < 50:
-            c.showPage()
-            c.setFont("CenturyGothicRegular", 12)
-            y = height - 50
+    for header, result in items.items():
+        elements.append(Paragraph(f"<b>Ítem:</b> {header}", styles['CenturyGothic']))
+        for key, value in result.items():
+            elements.append(Paragraph(f"- {key}: {value:.2f}%", styles['CenturyGothic']))
+        elements.append(Spacer(1, 0.2 * inch))
 
     # Total de líneas analizadas
     total_items = len(item_results)
@@ -690,65 +686,41 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     y = height - 50
 
     # Resultados por indicadores
-    c.setFont("CenturyGothicBold", 12)
-    c.drawString(50, y, "Resultados por Indicadores:")
-    y -= 20
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothic']))
     for indicator, percentage in indicator_percentages.items():
-        related_items = related_items_count[indicator]
-        c.drawString(60, y, f"- {indicator}: {percentage:.2f}% ({related_items} ítems relacionados)")
-        if percentage < 50 and indicator in critical_advice:
-            y -= 15
-            c.drawString(80, y, f"  Consejos para {indicator}:")
-            y -= 15
-            for tip in critical_advice[indicator]:
-                c.drawString(100, y, f"* {tip}")
-                y -= 15
-
-        if y < 50:
-            c.showPage()
-            c.setFont("CenturyGothicRegular", 12)
-            y = height - 50
+        elements.append(Paragraph(f"- {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
+        if percentage < 50:
+            elements.append(Paragraph(f"  Consejos: Mejorar estrategias relacionadas el indicador de {indicator}.", styles['CenturyGothic']))
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia global
-    c.drawString(50, y, "Concordancia Global:")
-    y -= 20
-    c.drawString(60, y, f"- Funciones del Cargo: {global_func_match:.2f}%")
-    y -= 15
-    c.drawString(60, y, f"- Perfil del Cargo: {global_profile_match:.2f}%")
-    y -= 20
+    elements.append(Paragraph("<b>Concordancia Global:</b>", styles['CenturyGothic']))
+    elements.append(Paragraph(f"- Funciones del Cargo: {global_func_match:.2f}%", styles['CenturyGothic']))
+    elements.append(Paragraph(f"- Perfil del Cargo: {global_profile_match:.2f}%", styles['CenturyGothic']))
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Puntaje global
-    c.drawString(50, y, "Puntaje Global:")
-    y -= 20
-    c.drawString(60, y, f"- Funciones del Cargo: {func_score}")
-    y -= 15
-    c.drawString(60, y, f"- Perfil del Cargo: {profile_score}")
-    y -= 20
+    elements.append(Paragraph("<b>Puntaje Global:</b>", styles['CenturyGothic']))
+    elements.append(Paragraph(f"- Funciones del Cargo: {func_score}", styles['CenturyGothic']))
+    elements.append(Paragraph(f"- Perfil del Cargo: {profile_score}", styles['CenturyGothic']))
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Interpretación de resultados
-    c.drawString(50, y, "Interpretación de Resultados:")
-    y -= 20
+   elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothic']))
     if global_profile_match > 75 and global_func_match > 75:
-        c.drawString(60, y, f"- Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.")
-        y = add_wrapped_text(canvas, text, 70, y)
+        elements.append(Paragraph(f"- Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.")
     elif 50 < global_profile_match < 75 and 50 < global_func_match < 75:
-        c.drawString(60, y, f"- Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.")
-        y = add_wrapped_text(canvas, text, 70, y)
+         elements.append(Paragraph(f"- Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.")
     else:
-        c.drawString(60, y, f"- Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.")
-    y -= 20
+         elements.append(Paragraph(f"- Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.")
 
     # Conclusión
-    c.drawString(50, y, "Conclusión:")
-    y -= 20  
-    c.drawString(60, y, f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.")
+    elements.append(Paragraph("<b>Conclusión:</b>", styles['CenturyGothic']))
+    elements.append(Paragraph(f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.")
     
     # Mensaje de agradecimiento
-    c.drawString(50, y, "Agradecimiento:")
-    y -= 15
-    c.drawString(60, y, f"Gracias, {candidate_name}, por tu interés en el cargo de {position}.")
-    y -= 15
-    c.drawString(60, y, "¡Éxito en tu proceso!")
+    elements.append(Paragraph("<b>Agradecimiento:</b>", styles['CenturyGothic']))
+    elements.append(Paragraph(f"Gracias, {candidate_name}, por tu interés en el cargo de {position} ¡Éxitos en tu proceso!")
 
     # Cerrar el PDF
     c.save()
