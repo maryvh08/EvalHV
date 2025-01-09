@@ -703,7 +703,9 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     # Mensaje de agradecimiento
     c.drawString(50, y, "Agradecimiento:")
     y -= 15
-    c.drawString(60, y, f""Muchas gracias {candidate_name} por tu interés en convertirte en {position}. ¡Éxitos en tu proceso!")
+    c.drawString(60, y, f""Muchas gracias {candidate_name} por tu interés en convertirte en {position}.")
+    y -= 15
+    c.drawString(60, y, "¡Éxito en tu proceso!")
 
     # Guardar PDF
     c.save()
