@@ -3,4 +3,5 @@ scikit-learn
 fpdf
 pytesseract
 streamlit-multipage
+pdfgen
 
