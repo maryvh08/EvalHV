@@ -619,9 +619,6 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
     c = canvas.Canvas(output_path, pagesize=letter)
 
-    # Establecer la fuente
-    c.setFont("CenturyGothic", 12)
-
     # Coordenadas iniciales
     x, y = 70, 750
 
@@ -723,15 +720,18 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     y -= 15
     c.drawString(60, y, "¡Éxito en tu proceso!")
 
+    # Cerrar el PDF
+    c.save()
+
     # Guardar PDF
     c.save()
     st.success("Reporte PDF generado exitosamente.")
-    with open(filename, "rb") as file:
+    with open(output_path, "rb") as file:
         st.download_button(
             label="Descargar Reporte PDF",
             data=file,
-            file_name=filename,
-            mime="application/pdf",
+            file_name=f"Reporte_Descriptivo_{candidate_name}_{position}.pdf",
+            mime="application/pdf"
         )
 
 
