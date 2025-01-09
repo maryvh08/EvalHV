@@ -689,7 +689,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
 
     # Total de líneas analizadas
     total_items = len(item_results)
-    elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}",styles['CenturyGothicRegular'])
+    elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}",styles['CenturyGothicRegular']))
 
 
     # Resultados por indicadores
