@@ -835,15 +835,15 @@ def secondary():
 
     # Entrada de datos del usuario
     candidate_name = st.text_input("Nombre del candidato:")
-    uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
+    detailed_uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
     position = st.selectbox("Selecciona el cargo al que aspiras:", [
         "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
     ])
 
     if st.button("Generar Reporte PDF"):
-        if uploaded_file is not None:
+        if detailed_uploaded_file is not None:
             with open("uploaded_cv.pdf", "wb") as f:
-                f.write(uploaded_file.read())
+                f.write(detailed_uploaded_file.read())
             
             # Llamar a la nueva función unificada
             analyze_and_generate_descriptive_report("uploaded_cv.pdf", position, candidate_name, advice, indicators)
