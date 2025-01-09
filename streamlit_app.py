@@ -738,9 +738,6 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     # Cerrar el PDF
     c.save()
 
-    # Volver al inicio del buffer
-    buffer.seek(0)
-
     st.success("Reporte PDF generado exitosamente.")
     with open(output_path, "rb") as file:
         st.download_button(
