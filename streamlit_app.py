@@ -643,7 +643,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     
     # Título del reporte
     elements.append(Paragraph(f"Reporte de Análisis Descriptivo - {candidate_name}", styles['CenturyGothicBold']))
-    elements.append(Paragraph(f"Cargo: {position}", styles['CenturyGothic']))
+    elements.append(Paragraph(f"Cargo: {position}", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
 
     # Iterar sobre los resultados por ítem
@@ -659,6 +659,8 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
 
         elements.append(Spacer(1, 0.2 * inch))  # Espaciado entre ítems
 
+    elements.append(Spacer(1, 0.2 * inch))
+
     # Total de líneas analizadas
     total_items = len(item_results)
     elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
@@ -668,13 +670,17 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     for indicator, percentage in indicator_percentages.items():
         elements.append(Paragraph(f"- {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
         if percentage < 50:
-            elements.append(Paragraph(f"  Consejos: Mejorar estrategias relacionadas el indicador de {indicator}.", styles['CenturyGothic']))
+            elements.append(Paragraph(f"  Consejos para el indicador {indicator}:", styles['CenturyGothicBold']))
+            for tip in critical_advice.get(indicator, ["No hay consejos disponibles para este indicador."]):
+                elements.append(Paragraph(f"    * {tip}", styles['CenturyGothic']))
+    
     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia global
     elements.append(Paragraph("<b>Concordancia Global:</b>", styles['CenturyGothicBold']))
     elements.append(Paragraph(f"- Funciones del Cargo: {global_func_match:.2f}%", styles['CenturyGothic']))
     elements.append(Paragraph(f"- Perfil del Cargo: {global_profile_match:.2f}%", styles['CenturyGothic']))
+   
     elements.append(Spacer(1, 0.2 * inch))
 
     # Puntaje global
@@ -701,11 +707,15 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
             styles['CenturyGothic']
         ))
 
+    elements.append(Spacer(1, 0.2 * inch))
+    
     # Conclusión
     elements.append(Paragraph(
         f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.",
         styles['CenturyGothic']
     ))
+
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Mensaje de agradecimiento
     elements.append(Paragraph(
