@@ -623,11 +623,11 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
         bg_image = ImageReader(background_path)
         c.drawImage(bg_image, 0, 0, width=width, height=height)
 
-    # Título del reporte
-    c.setFont("CenturyGothicBold", 16)
+     # Título
+    c.setFont("CenturyGothic", 16)
     c.setFillColor(colors.black)
-    y = add_wrapped_text(canvas, f"Reporte de Análisis Descriptivo - {candidate_name}", 70, y, max_width=450)
-
+    c.drawCentredString(width / 2, height - 50, f"Reporte de Análisis Descriptivo - {candidate_name} {position}")
+    
     # Espaciado
     y = height - 100
     
