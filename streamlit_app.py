@@ -543,13 +543,6 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     # Crear canvas para escribir el PDF
     c = canvas.Canvas(buffer, pagesize=letter)
 
-    # Dibujar la imagen de fondo en toda la página
-    try:
-        c.drawImage(background_image, 0, 0, width=letter[0], height=letter[1])
-    except Exception as e:
-        st.error(f"No se pudo cargar la imagen de fondo: {e}")
-        return
-
     # Extraer texto de la sección EXPERIENCIA EN ANEIAP
     items = extract_experience_items_with_details(pdf_path)
     if not items:
