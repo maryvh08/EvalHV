@@ -350,7 +350,7 @@ def generate_report(pdf_path, position, candidate_name):
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
     if low_performance_indicators:
-         elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
+        elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
         for indicator, result in low_performance_indicators.items():
             percentage = (result["relevant_lines"] / total_lines) * 100 if total_lines > 0 else 0
             elements.append(Paragraph(f"- {indicator}: ({percentage:.2f}%)", styles['CenturyGothic']))
