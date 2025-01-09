@@ -636,7 +636,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     c.drawString(50, y, "Resultados por Ítem:")
     y -= 20
     for header, result in item_results.items():
-    y = add_wrapped_text(canvas, f"Ítem: {header}", 70, y)
+        y = add_wrapped_text(canvas, f"Ítem: {header}", 70, y)
     for key, value in result.items():
         y = add_wrapped_text(canvas, f"- {key}: {value:.2f}%", 70, y)
         y -= 10  # Espacio adicional entre ítems
