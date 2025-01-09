@@ -1,4 +1,9 @@
-import fitz  # PyMuPDF para trabajar con PDFs
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.lib import colors
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
@@ -9,6 +14,10 @@ from PIL import Image
 import io
 import re
 import json
+import os
+
+# Registrar la fuente Century Gothic
+pdfmetrics.registerFont(TTFont('CenturyGothic', 'CenturyGothic.ttf'))
 
 # Cargar las palabras clave y consejos desde los archivos JSON
 def load_indicators(filepath="indicators.json"):
@@ -499,32 +508,15 @@ def get_critical_advice(critical_indicators, position):
 
     return critical_advice
 
-def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, advice, indicators):
+def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, candidate_name, advice, indicators):
     """
-    Analiza un CV descriptivo y genera un reporte PDF.
+    Analiza un CV descriptivo y genera un reporte PDF con reportlab.
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
     :param advice: Diccionario con consejos.
     :param indicators: Diccionario con indicadores y palabras clave.
     """
-    def clean_text_for_pdf(text):
-        """
-        Limpia caracteres no soportados por FPDF reemplazándolos por equivalentes.
-        :param text: Texto a limpiar.
-        :return: Texto limpio.
-        """
-        replacements = {
-            "\u2013": "-",  # Guion largo
-            "\u2014": "-",  # Guion em dash
-            "\u201c": "\"",  # Comillas dobles de apertura
-            "\u201d": "\"",  # Comillas dobles de cierre
-            "\u2018": "'",  # Comillas simples de apertura
-            "\u2019": "'",  # Comillas simples de cierre
-        }
-        for original, replacement in replacements.items():
-            text = text.replace(original, replacement)
-        return text
 
     # Extraer texto de la sección EXPERIENCIA EN ANEIAP
     items = extract_experience_items_with_details(pdf_path)
@@ -613,6 +605,17 @@ def analyze_and_generate_descriptive_report(pdf_path, position, candidate_name, 
     # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
+
+     # Crear PDF con reportlab
+    filename = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
+    c = canvas.Canvas(filename, pagesize=letter)
+    width, height = letter
+
+    # Fondo personalizado
+    background_path = "background_image.jpg"
+    if os.path.exists(background_path):
+        bg_image = ImageReader(background_path)
+        c.drawImage(bg_image, 0, 0, width=width, height=height)
     
     # Crear el reporte PDF
     pdf = FPDF()
