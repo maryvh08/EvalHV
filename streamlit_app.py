@@ -641,9 +641,18 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     # Lista de elementos para el reporte
     elements = []
     
-    # Título del reporte
-    elements.append(Paragraph(f"Reporte de Análisis Descriptivo - {candidate_name}", styles['CenturyGothicBold']))
-    elements.append(Paragraph(f"Cargo: {position}", styles['CenturyGothicBold']))
+    # Título del reporte centrado
+    title_style = ParagraphStyle(
+        name='CenteredTitle',
+        fontName='CenturyGothicBold',
+        fontSize=14,
+        leading=16,
+        alignment=1,  # 1 significa centrado
+        textColor=colors.black
+    )
+    
+    elements.append(Paragraph(f"Reporte de Análisis Descriptivo - {candidate_name}", title_style))
+    elements.append(Paragraph(f"Cargo: {position}", title_style))
     elements.append(Spacer(1, 0.2 * inch))
 
     # Iterar sobre los resultados por ítem
@@ -665,6 +674,8 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     total_items = len(item_results)
     elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
 
+    elements.append(Spacer(1, 0.2 * inch))
+
     # Resultados por indicadores
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     for indicator, percentage in indicator_percentages.items():
@@ -673,6 +684,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
             elements.append(Paragraph(f"  Consejos para el indicador {indicator}:", styles['CenturyGothicBold']))
             for tip in critical_advice.get(indicator, ["No hay consejos disponibles para este indicador."]):
                 elements.append(Paragraph(f"    * {tip}", styles['CenturyGothic']))
+        elements.append(Spacer(1, 0.2 * inch))
     
     elements.append(Spacer(1, 0.2 * inch))
 
