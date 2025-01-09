@@ -773,7 +773,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
 
     # Descargar el reporte desde Streamlit
     with open(output_path, "rb") as file:
-        st.success("Reporte PDF generado exitosamente.")
+        st.success("Reporte PDF descriptivo generado exitosamente.")
         st.download_button(
             label="Descargar Reporte PDF",
             data=file,
