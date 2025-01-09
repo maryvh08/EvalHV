@@ -338,6 +338,8 @@ def generate_report(pdf_path, position, candidate_name):
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         elements.append(Paragraph(f"- {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", styles['CenturyGothic']))
 
+    elements.append(Spacer(1, 0.2 * inch))
+
     # Indicador con menor presencia
     lowest_indicator = min(indicator_results, key=lambda k: indicator_results[k]["relevant_lines"])
     elements.append(Paragraph("<b>Indicador con Menor Presencia:</b>", styles['CenturyGothicBold']))
@@ -371,6 +373,7 @@ def generate_report(pdf_path, position, candidate_name):
     elements.append(Paragraph("<b>Puntaje Global:</b>", styles['CenturyGothicBold']))
     elements.append(Paragraph(f"- Funciones del Cargo: {func_score}", styles['CenturyGothic']))
     elements.append(Paragraph(f"- Perfil del Cargo: {profile_score}", styles['CenturyGothic']))
+    
     elements.append(Spacer(1, 0.2 * inch))
 
     # Interpretación de resultados
