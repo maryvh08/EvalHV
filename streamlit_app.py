@@ -842,11 +842,11 @@ def secondary():
 
     if st.button("Generar Reporte PDF"):
         if detailed_uploaded_file is not None:
-            with open("uploaded_cv.pdf", "wb") as f:
+            with open("detailed_uploaded_cv.pdf", "wb") as f:
                 f.write(detailed_uploaded_file.read())
             
             # Llamar a la nueva función unificada
-            analyze_and_generate_descriptive_report("uploaded_cv.pdf", position, candidate_name, advice, indicators)
+            analyze_and_generate_descriptive_report("detailed_uploaded_cv.pdf", position, candidate_name, advice, indicators)
 
 
         else:
