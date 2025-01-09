@@ -408,10 +408,6 @@ def generate_report(pdf_path, position, candidate_name):
     ))
 
 
-    # Guardar PDF
-    report_path = f"Reporte_analisis_cargo_{position}_{candidate_name}.pdf"
-    pdf.output(report_path, 'F')
-
     # Construir el PDF
     doc.build(elements)
 
