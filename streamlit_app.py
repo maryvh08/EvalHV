@@ -538,7 +538,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     """
 
     # Ruta de la imagen de fondo
-    background_image = "Fondo_ANEIAP.jpg"  # Cambia esto a la ruta correcta de tu imagen
+    background_image = "Fondo ANEIAP.jpg"  # Cambia esto a la ruta correcta de tu imagen
 
     # Verifica si la imagen existe
     if not os.path.exists(background_image):
