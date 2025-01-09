@@ -612,6 +612,19 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
 
+    """
+    Analiza un CV descriptivo y genera un reporte PDF usando ReportLab.
+    """
+    # Crear el canvas del PDF
+    output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
+    c = canvas.Canvas(output_path, pagesize=letter)
+
+    # Establecer la fuente
+    c.setFont("CenturyGothic", 12)
+
+    # Coordenadas iniciales
+    x, y = 70, 750
+
      # Crear PDF con reportlab
     filename = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
     c = canvas.Canvas(filename, pagesize=letter)
@@ -623,11 +636,10 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
         bg_image = ImageReader(background_path)
         c.drawImage(bg_image, 0, 0, width=width, height=height)
 
-     # Título
-    c.setFont("CenturyGothic", 16)
-    c.setFillColor(colors.black)
-    c.drawCentredString(width / 2, height - 50, f"Reporte de Análisis Descriptivo - {candidate_name} {position}")
-    
+    # Título del reporte
+    y = add_wrapped_text(c, f"Reporte de Análisis Descriptivo - {candidate_name}", x, y, font_name="CenturyGothic", font_size=14)
+    y = add_wrapped_text(c, f"Cargo: {position}", x, y, font_name="CenturyGothic", font_size=14)
+
     # Espaciado
     y = height - 100
     
