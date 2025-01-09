@@ -629,6 +629,9 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     """
     Analiza un CV descriptivo y genera un reporte PDF usando ReportLab.
     """
+    # Registrar la fuente personalizada
+    pdfmetrics.registerFont(TTFont("CenturyGothic", "CenturyGothic.ttf"))
+
     # Crear el canvas del PDF
     output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
     c = canvas.Canvas(output_path, pagesize=letter)
