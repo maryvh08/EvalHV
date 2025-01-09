@@ -5,6 +5,7 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from reportlab.lib import colors
+from reportlab.lib.units import inch
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
@@ -630,15 +631,26 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     Analiza un CV descriptivo y genera un reporte PDF usando ReportLab.
     """
     # Registrar la fuente personalizada
-    pdfmetrics.registerFont(TTFont('CenturyGothicRegular', 'Century_Gothic_Regular.ttf'))
-    pdfmetrics.registerFont(TTFont('CenturyGothicBold', 'Century_Gothic_Bold.ttf'))
+    try:
+        pdfmetrics.registerFont(TTFont('CenturyGothicRegular', 'Century_Gothic_Regular.ttf'))
+        pdfmetrics.registerFont(TTFont('CenturyGothicBold', 'Century_Gothic_Bold.ttf'))
+    except Exception as e:
+        st.error(f"No se pudo registrar la fuente Century Gothic: {e}")
+        return
 
     # Crear el canvas del PDF
     output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
     c = canvas.Canvas(output_path, pagesize=letter)
 
+     # Imagen de fondo (opcional)
+    background_image = "background_image.jpg"  # Ruta de la imagen de fondo
+    try:
+        c.drawImage(background_image, 0, 0, width=letter[0], height=letter[1])
+    except Exception as e:
+        st.warning(f"No se pudo cargar la imagen de fondo: {e}")
+
     # Coordenadas iniciales
-    x, y = 70, 750
+    x, y = inch, 10 * inch
 
      # Crear PDF con reportlab
     filename = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
