@@ -642,7 +642,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     elements = []
     
         # Título del reporte
-    elements.append(Paragraph(f"Reporte de Análisis Descriptivo - {candidate_name}", styles['CenturyGothic']))
+    elements.append(Paragraph(f"Reporte de Análisis Descriptivo - {candidate_name}", styles['CenturyGothicBold']))
     elements.append(Paragraph(f"Cargo: {position}", styles['CenturyGothic']))
     elements.append(Spacer(1, 0.2 * inch))
 
