@@ -666,14 +666,12 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     width, height = letter
 
     # Título del reporte
-    elements.append(Paragraph(f"Reporte de Análisis Descriptivo - {candidate_name}", x, y, font_name="CenturyGothic", font_size=14)
-    elements.append(Paragraph(f"Cargo: {position}", x, y, font_name="CenturyGothic", font_size=14)
+    elements.append(Paragraph(f"Reporte de Análisis Descriptivo - {candidate_name}", styles['CenturyGothic']))
+    elements.append(Paragraph(f"Cargo: {position}", styles['CenturyGothic']))
     elements.append(Spacer(1, 0.2 * inch))
     
    # Resultados por ítem
-    c.setFont("CenturyGothicBold", 12)
-    c.drawString(50, y, "Resultados por Ítem:")
-    y -= 20
+    elements.append(Paragraph("<b>Resultados por ítems:</b>", styles['CenturyGothic']))
     for header, result in items.items():
         elements.append(Paragraph(f"<b>Ítem:</b> {header}", styles['CenturyGothic']))
         for key, value in result.items():
