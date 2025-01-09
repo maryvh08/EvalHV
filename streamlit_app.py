@@ -20,10 +20,6 @@ import re
 import json
 import os
 
-# Registrar la fuente Century Gothic
-pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
-
-
 # Cargar las palabras clave y consejos desde los archivos JSON
 def load_indicators(filepath="indicators.json"):
     with open(filepath, "r", encoding="utf-8") as file:
