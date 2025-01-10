@@ -292,8 +292,8 @@ def generate_report(pdf_path, position, candidate_name):
 
     # Estilos
     styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle(name="CenturyGothic", fontName="CenturyGothic", fontSize=12, leading=14))
-    styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14))
+    styles.add(ParagraphStyle(name="CenturyGothic", fontName="CenturyGothic", fontSize=12, leading=14, alignment=TA_JUSTIFY))
+    styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14, alignment=TA_JUSTIFY))
 
     # Crear el documento PDF
     report_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
@@ -303,16 +303,13 @@ def generate_report(pdf_path, position, candidate_name):
     elements = []
 
     # Título del reporte centrado
-    title_style = ParagraphStyle(
-        name='CenteredTitle',
-        fontName='CenturyGothicBold',
-        fontSize=14,
-        leading=16,
-        alignment=1,  # 1 significa centrado
-        textColor=colors.black
-    )
+    title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black)
+
+    # Convertir texto a mayúsculas
+    title_candidate_name = candidate_name.upper()
+    title_position = position.upper()
     
-    elements.append(Paragraph(f"Reporte de Concordancia de {candidate_name} para el cargo de {position}", title_style))
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS {title_candidate_name} CARGO {title_position}", title_style))
     
     elements.append(Spacer(1, 0.2 * inch))
     
