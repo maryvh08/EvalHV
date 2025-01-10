@@ -955,7 +955,7 @@ def secondary():
     st.image(imagen_plantilla, use_container_width=True)
 
     link_url_plantilla = "https://drive.google.com/drive/folders/16i35reQpBq9eC2EuZfy6E6Uul5XVDN8D?usp=sharing"
-    link_label_plantilla = "Descargar plantilla"
+    link_label_plantilla = "Explorar plantilla"
 
     st.markdown(f"""
         <div style="display: flex; justify-content: center; gap: 20px;">
