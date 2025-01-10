@@ -675,14 +675,9 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     elements = []
     
     # Título del reporte centrado
-    title_style = ParagraphStyle(
-        name='CenteredTitle',
-        fontName='CenturyGothicBold',
-        fontSize=14,
-        leading=16,
-        alignment=1,  # 1 significa centrado
-        textColor=colors.black
-    )
+    # Título del reporte centrado
+    title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
+                                )
     
     # Convertir texto a mayúsculas
     title_candidate_name = candidate_name.upper()
@@ -700,7 +695,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
         # Validar que 'result' es un diccionario antes de iterar
         if isinstance(result, dict):
             for key, value in result.items():
-                elements.append(Paragraph(f"- {key}: {value:.2f}%", styles['CenturyGothic']))
+                elements.append(Paragraph(f"• {key}: {value:.2f}%", styles['CenturyGothic']))
         else:
             elements.append(Paragraph("Error: El resultado no tiene la estructura esperada.", styles['CenturyGothic']))
 
@@ -710,14 +705,14 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
 
     # Total de líneas analizadas
     total_items = len(item_results)
-    elements.append(Paragraph(f"- Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
+    elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
 
     elements.append(Spacer(1, 0.2 * inch))
 
     # Resultados por indicadores
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     for indicator, percentage in indicator_percentages.items():
-        elements.append(Paragraph(f"- {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
+        elements.append(Paragraph(f"• {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
         if percentage < 50:
             elements.append(Paragraph(f"  Consejos para el indicador {indicator}:", styles['CenturyGothicBold']))
             for tip in critical_advice.get(indicator, ["No hay consejos disponibles para este indicador."]):
