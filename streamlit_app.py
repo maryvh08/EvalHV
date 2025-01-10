@@ -142,7 +142,7 @@ def calculate_presence(texts, keywords):
 # Función para agregar fondo a cada página
 def add_background(canvas, doc, background_path):
     """
-    Agrega una imagen de fondo en cada página.
+    Dibuja una imagen de fondo en cada página del PDF.
     :param canvas: Lienzo de ReportLab.
     :param doc: Documento actual.
     :param background_path: Ruta a la imagen de fondo.
@@ -794,7 +794,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         styles['CenturyGothic']
     ))
 
-    # Crear el marco con el fondo
+    # Crear el marco con el fondo en todas las páginas
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="normal")
     template = PageTemplate(id="background", frames=frame, onPage=lambda c, d: add_background(c, d, background_path))
     doc.addPageTemplates([template])
