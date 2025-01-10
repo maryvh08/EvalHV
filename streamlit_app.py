@@ -189,6 +189,7 @@ def extract_experience_section_with_ocr(pdf_path):
         "trabajo capitular",
         "trabajo nacional",
         "nacional 2024",
+        "nacional 20212023",
     ]
     experience_lines = experience_text.split("\n")
     cleaned_lines = []
