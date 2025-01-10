@@ -319,7 +319,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14, alignment=TA_JUSTIFY))
 
     # Crear el documento PDF
-    report_path = f"Reporte_cargo_{candidate_name}_{position}.pdf"
+    report_path = f"Reporte_analisis_cargo_{candidate_name}_{position}.pdf"
     doc = SimpleDocTemplate(report_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
 
     # Lista de elementos para el reporte
