@@ -686,7 +686,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Crear el documento PDF
     output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
-    doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
+    doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
 
     # Lista de elementos para el reporte
     elements = []
@@ -802,6 +802,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Descargar el reporte desde Streamlit
     with open(output_path, "rb") as file:
+        st.success("Reporte detallado PDF generado exitosamente.")
         st.download_button(
             label="Descargar Reporte PDF",
             data=file,
