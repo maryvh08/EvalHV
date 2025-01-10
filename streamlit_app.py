@@ -22,6 +22,8 @@ import re
 import json
 import os
 
+#Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app/
+
 # Cargar las palabras clave y consejos desde los archivos JSON
 def load_indicators(filepath="indicators.json"):
     with open(filepath, "r", encoding="utf-8") as file:
