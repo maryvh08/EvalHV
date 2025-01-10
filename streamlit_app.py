@@ -664,8 +664,8 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
 
     # Estilos
     styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle(name="CenturyGothic", fontName="CenturyGothic", fontSize=12, leading=14))
-    styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14))
+    styles.add(ParagraphStyle(name="CenturyGothic", fontName="CenturyGothic", fontSize=12, leading=14, alignment=TA_JUSTIFY))
+    styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14, alignment=TA_JUSTIFY))
 
     # Crear el documento PDF
     output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
@@ -684,9 +684,14 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
         textColor=colors.black
     )
     
-    elements.append(Paragraph(f"Reporte de Análisis Descriptivo - {candidate_name}", title_style))
-    elements.append(Paragraph(f"Cargo: {position}", title_style))
+    # Convertir texto a mayúsculas
+    title_candidate_name = candidate_name.upper()
+    title_position = position.upper()
+    
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO - {title_candidate_name}", title_style))
+    elements.append(Paragraph(f"CARGO: {title_position}", title_style))
     elements.append(Spacer(1, 0.2 * inch))
+
 
     # Iterar sobre los resultados por ítem
     for header, result in item_results.items():
