@@ -796,7 +796,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Crear el marco con el fondo en todas las páginas
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="normal")
-    template = PageTemplate(id="background", frames=frame, onPage=lambda c, d: add_background(c, d, background_path))
+    template = PageTemplate(id="background", frames=frame, onPage=lambda canvas, doc: add_background(canvas, doc, background_path))
     doc.addPageTemplates([template])
 
     # Construir el PDF
@@ -804,12 +804,11 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Descargar el reporte desde Streamlit
     with open(output_path, "rb") as file:
-        st.success("Reporte PDF descriptivo generado exitosamente.")
         st.download_button(
             label="Descargar Reporte PDF",
             data=file,
-            file_name=f"Reporte_Descriptivo_{candidate_name}_{position}.pdf",
-            mime="application/pdf"
+            file_name=output_path,
+            mime="application/pdf",
         )
 
 
@@ -948,7 +947,7 @@ def secondary():
                 f.write(detailed_uploaded_file.read())
             
             # Llamar a la nueva función unificada
-            analyze_and_generate_descriptive_report_with_background("detailed_uploaded_cv.pdf", position, candidate_name, advice, indicators, PageTemplate)
+            analyze_and_generate_descriptive_report_with_background("detailed_uploaded_cv.pdf", position, candidate_name, advice, indicators, background_path)
 
 
         else:
