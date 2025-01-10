@@ -305,7 +305,8 @@ def generate_report(pdf_path, position, candidate_name):
     elements = []
 
     # Título del reporte centrado
-    title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black)
+    title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
+                                )
 
     # Convertir texto a mayúsculas
     title_candidate_name = candidate_name.upper()
