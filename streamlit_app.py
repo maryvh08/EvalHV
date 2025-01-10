@@ -453,41 +453,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
 
 # FUNCIONES PARA SECUNDARY
-def add_wrapped_text(c, text, x, y, max_width=450, line_height=14, font_name="CenturyGothic", font_size=12):
-    """
-    Añade texto ajustado al ancho máximo permitido en el PDF.
-    :param c: Objeto Canvas.
-    :param text: Texto a agregar.
-    :param x: Coordenada X de inicio.
-    :param y: Coordenada Y de inicio.
-    :param max_width: Ancho máximo para ajustar el texto.
-    :param line_height: Altura de línea.
-    :param font_name: Nombre de la fuente.
-    :param font_size: Tamaño de la fuente.
-    :return: Nueva coordenada Y después de agregar el texto.
-    """
-    from reportlab.pdfbase.pdfmetrics import stringWidth
-
-    # Ajustar fuente
-    c.setFont(font_name, font_size)
-
-    # Dividir texto en líneas según el ancho máximo
-    words = text.split()
-    line = ""
-    for word in words:
-        test_line = f"{line} {word}".strip()
-        if stringWidth(test_line, font_name, font_size) <= max_width:
-            line = test_line
-        else:
-            c.drawString(x, y, line)
-            y -= line_height
-            line = word  # Nueva línea empieza con la palabra que no cupo
-    if line:  # Dibujar cualquier texto restante
-        c.drawString(x, y, line)
-        y -= line_height
-
-    return y
-    
 def extract_experience_items_with_details(pdf_path):
     """
     Extrae encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
