@@ -319,7 +319,7 @@ def generate_report(pdf_path, position, candidate_name):
     # Concordancia de items
     elements.append(Paragraph("<b>Análisis de items:</b>", styles['CenturyGothicBold']))
     for line, func_match, profile_match in line_results:
-        elements.append(Paragraph(f"• Item: {line}", styles['CenturyGothic']))
+        elements.append(Paragraph(f"• Item: {line}", styles['CenturyGothicBold']))
         elements.append(Paragraph(f"  • Concordancia con funciones: {func_match:.2f}%", styles['CenturyGothic']))
         elements.append(Paragraph(f"  • Concordancia con perfil: {profile_match:.2f}%", styles['CenturyGothic']))
         elements.append(Spacer(1, 0.2 * inch))
