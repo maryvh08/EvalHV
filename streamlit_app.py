@@ -907,7 +907,7 @@ def primary():
         if uploaded_file is not None:
             with open("uploaded_cv.pdf", "wb") as f:
                 f.write(uploaded_file.read())
-            generate_report("uploaded_cv.pdf", position, candidate_name)
+            def generate_report_with_background("uploaded_cv.pdf", position, candidate_name, background_path)
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
     
