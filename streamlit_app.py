@@ -1,7 +1,6 @@
 import fitz  # PyMuPDF para trabajar con PDFs
 from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageTemplate, Frame
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import letter
@@ -139,7 +138,6 @@ def calculate_presence(texts, keywords):
     return (matches / total_keywords) * 100
 
 # Definir función para añadir fondo
-# Función para agregar fondo a cada página
 def add_background(canvas, doc, background_path):
     """
     Dibuja una imagen de fondo en cada página del PDF.
@@ -688,7 +686,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Crear el documento PDF
     output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
-    doc = SimpleDocTemplate(output_path, pagesize=letter)
+    doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
 
     # Lista de elementos para el reporte
     elements = []
@@ -794,8 +792,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         styles['CenturyGothic']
     ))
 
-    # Crear el marco con el fondo en todas las páginas
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="normal")
+    # Configurar un marco y plantilla con fondo
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="content_frame")
     template = PageTemplate(id="background", frames=frame, onPage=lambda canvas, doc: add_background(canvas, doc, background_path))
     doc.addPageTemplates([template])
 
