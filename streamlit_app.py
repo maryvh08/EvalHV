@@ -710,10 +710,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Convertir texto a mayúsculas
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
-    
-    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO - {title_candidate_name}" "CARGO: {title_position}", title_style))
-    elements.append(Spacer(1, 0.2 * inch))
 
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position}", title_style))
+
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Iterar sobre los resultados por ítem
     for header, result in item_results.items():
