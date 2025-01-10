@@ -36,6 +36,9 @@ def load_advice(filepath="advice.json"):
 indicators = load_indicators()
 advice = load_advice()
 
+# Uso del código
+background_path = "ruta_a_tu_imagen_fondo.jpg"
+
 def extract_text_with_ocr(pdf_path):
     """
     Extrae texto de un PDF utilizando OCR con preprocesamiento.
@@ -133,6 +136,19 @@ def calculate_presence(texts, keywords):
 
     matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
     return (matches / total_keywords) * 100
+
+# Definir función para añadir fondo
+# Función para agregar fondo a cada página
+def add_background(canvas, doc, background_path):
+    """
+    Agrega una imagen de fondo en cada página.
+    :param canvas: Lienzo de ReportLab.
+    :param doc: Documento actual.
+    :param background_path: Ruta a la imagen de fondo.
+    """
+    canvas.saveState()
+    canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
+    canvas.restoreState()
 
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
@@ -560,14 +576,16 @@ def get_critical_advice(critical_indicators, position):
 
     return critical_advice
 
-def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, candidate_name, advice, indicators):
+# Función principal para generar el reporte descriptivo
+def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
     """
-    Analiza un CV descriptivo y genera un reporte PDF con reportlab.
+    Analiza un CV descriptivo y genera un reporte PDF con un fondo en cada página.
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
     :param advice: Diccionario con consejos.
     :param indicators: Diccionario con indicadores y palabras clave.
+    :param background_path: Ruta de la imagen de fondo.
     """
 
     # Extraer texto de la sección EXPERIENCIA EN ANEIAP
@@ -669,7 +687,7 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
 
     # Crear el documento PDF
     output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
-    doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
+    doc = SimpleDocTemplate(output_path, pagesize=letter)
 
     # Lista de elementos para el reporte
     elements = []
@@ -774,6 +792,11 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
         f"Gracias, {candidate_name}, por tu interés en el cargo de {position} ¡Éxitos en tu proceso!",
         styles['CenturyGothic']
     ))
+
+    # Crear el marco con el fondo
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="normal")
+    template = PageTemplate(id="background", frames=frame, onPage=lambda c, d: add_background(c, d, background_path))
+    doc.addPageTemplates([template])
 
     # Construir el PDF
     doc.build(elements)
