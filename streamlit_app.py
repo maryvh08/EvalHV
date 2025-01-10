@@ -214,7 +214,7 @@ def extract_experience_section_with_ocr(pdf_path):
     
     return "\n".join(cleaned_lines)
 
-def generate_report(pdf_path, position, candidate_name):
+def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
@@ -313,7 +313,7 @@ def generate_report(pdf_path, position, candidate_name):
 
     # Crear el documento PDF
     report_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
-    doc = SimpleDocTemplate(report_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
+    doc = SimpleDocTemplate(report_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
 
     # Lista de elementos para el reporte
     elements = []
@@ -424,9 +424,15 @@ def generate_report(pdf_path, position, candidate_name):
         styles['CenturyGothic']
     ))
 
+     # Configuración de funciones de fondo
+    def on_first_page(canvas, doc):
+        add_background(canvas, background_path)
 
-    # Construir el PDF
-    doc.build(elements)
+    def on_later_pages(canvas, doc):
+        add_background(canvas, background_path)
+
+    # Construcción del PDF
+    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 
     # Descargar el reporte desde Streamlit
     with open(report_path, "rb") as file:
