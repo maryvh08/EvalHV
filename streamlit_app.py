@@ -1,4 +1,4 @@
-import fitz  # PyMuPDF para trabajar con PDFs
+import fitz
 from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageTemplate, Frame
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -13,14 +13,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 from io import BytesIO
-from fpdf import FPDF
-from collections import Counter
-import pytesseract
-from PIL import Image
-import io
 import re
 import json
 import os
+import pytesseract
+from PIL import Image
+
 
 #Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app/
 
