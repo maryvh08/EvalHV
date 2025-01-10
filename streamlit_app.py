@@ -692,7 +692,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements = []
     
     # Título del reporte centrado
-    # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
                                 )
     
@@ -792,13 +791,15 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         styles['CenturyGothic']
     ))
 
-    # Configurar un marco y plantilla con fondo
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="content_frame")
-    template = PageTemplate(id="background", frames=frame, onPage=lambda canvas, doc: add_background(canvas, doc, background_path))
-    doc.addPageTemplates([template])
+    # Configuración de funciones de fondo
+    def on_first_page(canvas, doc):
+        add_background(canvas, background_path)
 
-    # Construir el PDF
-    doc.build(elements)
+    def on_later_pages(canvas, doc):
+        add_background(canvas, background_path)
+
+    # Construcción del PDF
+    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 
     # Descargar el reporte desde Streamlit
     with open(output_path, "rb") as file:
