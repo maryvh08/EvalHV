@@ -138,11 +138,10 @@ def calculate_presence(texts, keywords):
     return (matches / total_keywords) * 100
 
 # Definir función para añadir fondo
-def add_background(canvas, doc, background_path):
+def add_background(canvas, background_path):
     """
     Dibuja una imagen de fondo en cada página del PDF.
     :param canvas: Lienzo de ReportLab.
-    :param doc: Documento actual.
     :param background_path: Ruta a la imagen de fondo.
     """
     canvas.saveState()
