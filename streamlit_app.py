@@ -37,7 +37,7 @@ indicators = load_indicators()
 advice = load_advice()
 
 # Uso del código
-background_path = "ruta_a_tu_imagen_fondo.jpg"
+background_path = "Fondo Comunicado.png"
 
 def extract_text_with_ocr(pdf_path):
     """
