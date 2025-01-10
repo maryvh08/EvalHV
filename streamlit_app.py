@@ -215,7 +215,13 @@ def extract_experience_section_with_ocr(pdf_path):
     return "\n".join(cleaned_lines)
 
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
-    """Genera un reporte en PDF basado en la comparación de la hoja de vida con funciones, perfil e indicadores."""
+    """
+    Genera un reporte con un fondo en cada página.
+    :param pdf_path: Ruta del PDF.
+    :param position: Cargo al que aspira.
+    :param candidate_name: Nombre del candidato.
+    :param background_path: Ruta de la imagen de fondo.
+    """
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
