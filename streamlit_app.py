@@ -697,7 +697,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14, alignment=TA_JUSTIFY))
 
     # Crear el documento PDF
-    output_path = f"Reporte_Descriptivo_{candidate_name}_{position}.pdf"
+    output_path = f"Reporte_descriptivo_cargo_{candidate_name}_{position}.pdf"
     doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
 
     # Lista de elementos para el reporte
@@ -711,8 +711,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
     
-    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO - {title_candidate_name}", title_style))
-    elements.append(Paragraph(f"CARGO: {title_position}", title_style))
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO - {title_candidate_name}", "CARGO: {title_position}", title_style))
     elements.append(Spacer(1, 0.2 * inch))
 
 
