@@ -328,7 +328,7 @@ def generate_report(pdf_path, position, candidate_name):
 
     # Total de líneas analizadas
     total_lines = len(line_results)
-    elements.append(Paragraph(f"- Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
+    elements.append(Paragraph(f"• Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
     
     elements.append(Spacer(1, 0.2 * inch))
 
@@ -713,11 +713,18 @@ def analyze_and_generate_descriptive_report_with_reportlab(pdf_path, position, c
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     for indicator, percentage in indicator_percentages.items():
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Mostrar consejos para indicadores con porcentaje menor al 50%
+    elements.append(Paragraph("<b>Consejos para Indicadores Críticos:</b>", styles['CenturyGothicBold']))
+    for indicator, percentage in indicator_percentages.items():
         if percentage < 50:
-            elements.append(Paragraph(f"  Consejos para el indicador {indicator}:", styles['CenturyGothicBold']))
+            elements.append(Paragraph(f"  Indicador: {indicator}", styles['CenturyGothicBold']))
             for tip in critical_advice.get(indicator, ["No hay consejos disponibles para este indicador."]):
-                elements.append(Paragraph(f"    * {tip}", styles['CenturyGothic']))
-        elements.append(Spacer(1, 0.2 * inch))
+                elements.append(Paragraph(f"    • {tip}", styles['CenturyGothic']))
+            elements.append(Spacer(1, 0.2 * inch))
+
     
     elements.append(Spacer(1, 0.2 * inch))
 
