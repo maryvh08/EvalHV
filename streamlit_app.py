@@ -790,10 +790,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
 # Interfaz en Streamlit
 def home_page():
-    st.title("Bienvenido a EvalHVA")
+    st.title("Bienvenido a EvalHVAN")
     
     st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁") 
-    imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
+    imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP.jpg'
     st.image(imagen_aneiap, use_container_width=True)
     st.write("Esta herramienta analiza el contenido de la hoja de vida ANEIAP, comparandola con las funciones y perfil del cargo al que aspira, evaluando por medio de indicadores los aspectos puntuales en los cuales se hace necesario el aspirante enfatice para asegurar que este se encuentre preparado.") 
     st.write("Esta fue diseñada para apoyar en el proceso de convocatoria a los evaluadores para calificar las hojas de vida de los aspirantes.")
