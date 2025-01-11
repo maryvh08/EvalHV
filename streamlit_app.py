@@ -29,14 +29,10 @@ def load_indicators(filepath="indicators.json"):
 def load_advice(filepath="advice.json"):
     with open(filepath, "r", encoding="utf-8") as file:
         return json.load(file)
-def load_course(filepath="course.json"):
-    with open(filepath, "r", encoding="utf-8") as file:
-        return json.load(file)
 
 # Cargar indicadores y consejos al inicio del script
 indicators = load_indicators()
 advice = load_advice()
-course= load_course()
 
 # Uso del código
 background_path = "Fondo Comunicado.png"
