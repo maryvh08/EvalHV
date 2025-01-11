@@ -639,6 +639,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         for indicator, percentage in indicator_percentages.items() if percentage < 50
     }
 
+    # Cursos recomendados por indicador critico
+    recomended_course= {
+        indicator: course.get(position, {}).get(indicator, ["No hay cursos para este indicador"])
+        for indicator, percentage in indicator_percentages.items() if percentage < 50
+    }
+
     # Calcular concordancia global para funciones y perfil
     if item_results:
         global_func_match = sum(res["Funciones del Cargo"] for res in item_results.values()) / len(item_results)
@@ -715,8 +721,17 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             elements.append(Paragraph(f"  Indicador: {indicator}", styles['CenturyGothicBold']))
             for tip in critical_advice.get(indicator, ["No hay consejos disponibles para este indicador."]):
                 elements.append(Paragraph(f"    • {tip}", styles['CenturyGothic']))
-            elements.append(Spacer(1, 0.2 * inch))
+            elements.append(Spacer.2(1, 0 * inch))
 
+    #Mostrar cursos recomendados
+    elements.append(Paragraph("<b>Cursos para Indicadores Críticos:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.05 * inch))
+    for indicator, percentage in indicator_percentages.items():
+        if percentage < 50:
+            elements.append(Paragraph(f" Indicator: {indicator}", styles['CenturyGothicBold']))
+            for course in recomended_course.get(indicator, ["No hay cursos para este indicador"]):
+                elements.append(Paragraph(f"    • {course}", styles['CenturyGothic']))
+            elements.append(Spacer.2(1, 0 * inch))
     
     elements.append(Spacer(1, 0.2 * inch))
 
