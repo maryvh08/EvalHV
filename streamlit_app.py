@@ -644,8 +644,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     }
 
     # Cursos recomendados por indicador critico
-    recomended_course= {
-        indicator: course.get(position, {}).get(indicator, ["No hay cursos para este indicador"])
+    recomended_course = {
+        indicator: course.get(position, {}).get(indicator, ["No hay cursos disponibles para este indicador."])
         for indicator, percentage in indicator_percentages.items() if percentage < 50
     }
 
@@ -727,13 +727,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 elements.append(Paragraph(f"    • {tip}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.2 * inch))
 
-    #Mostrar cursos recomendados
+    # Mostrar cursos recomendados
     elements.append(Paragraph("<b>Cursos para Indicadores Críticos:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.05 * inch))
     for indicator, percentage in indicator_percentages.items():
         if percentage < 50:
-            elements.append(Paragraph(f" Indicator: {indicator}", styles['CenturyGothicBold']))
-            for course in recomended_course.get(indicator, ["No hay cursos para este indicador"]):
+            elements.append(Paragraph(f"  Indicador: {indicator}", styles['CenturyGothicBold']))
+            for course in recomended_course.get(indicator, ["No hay cursos disponibles para este indicador."]):
                 elements.append(Paragraph(f"    • {course}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.2 * inch))
     
