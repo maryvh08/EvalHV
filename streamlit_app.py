@@ -790,7 +790,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
 # Interfaz en Streamlit
 def home_page():
-    st.title("Bienvenido a EvalHVUN")
+    st.title("Bienvenido a EvalHVA")
     
     st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁") 
     imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP UNINORTE.jpg'
