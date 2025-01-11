@@ -3,18 +3,21 @@
     "Diseño académico": [
       "Desarrolla capacidades pedagógicas para diseñar programas de formación académica.",
       "Aprende a coordinar eventos académicos de alto impacto como talleres y olimpiadas.",
-      "Promueve la interdisciplinaridad en las actividades académicas."
+      "Promueve la interdisciplinaridad en las actividades académicas.",
+      "Curso recomendado: Eventos ANEIAP."
     ],
     "Innovación e investigación": [
       "Domina herramientas de investigación para generar contenido relevante y actualizado.",
       "Fortalece tus conocimientos en innovación educativa y herramientas tecnológicas.",
       "Domina la gestión de talento para identificar y apoyar a asociados destacados.",
-      "Fomenta la colaboración con instituciones académicas externas."
+      "Fomenta la colaboración con instituciones académicas externas.",
+      "Curso recomendado: Big Data: Dominando el análisis de datos."
     ],
     "Formación y capacitación": [
       "Fomenta la integración del entorno académico con los objetivos de ANEIAP.",
       "Aprende a diseñar sistemas de evaluación de impacto académico.",
-      "Asegura que las actividades estén alineadas con los valores y objetivos del capítulo."
+      "Asegura que las actividades estén alineadas con los valores y objetivos del capítulo.",
+      "Curso recomendado: Liderazgo integral para la vida."
     ]
   },
   "DCC": {
@@ -28,11 +31,13 @@
       "Aprende a diseñar estrategias de comunicación eficaces para captar la atención de asociados y externos.",
       "Domina herramientas de diseño gráfico y edición audiovisual para generar contenido atractivo.",
       "Fomenta la interacción digital mediante plataformas sociales y blogs.",
-      "Crea planes de contenido que estén alineados con los objetivos del capítulo."
+      "Crea planes de contenido que estén alineados con los objetivos del capítulo.",
+      "Curso recomendado: Big Data: Dominando el análisis de datos."
     ],
     "Gestión de documental": [
       "Participa en iniciativas capitulares relacionadas a la gestión documental.",
-      "Infórmate acerca de la gestión documental y el manejo de los datos a nivel nacional. "
+      "Infórmate acerca de la gestión documental y el manejo de los datos a nivel nacional. ",
+      "Curso recomendado: Big Data: Dominando el análisis de datos."
     ]
   },
   "DCD": {
@@ -57,13 +62,15 @@
     "Gestión financiera": [
       "Aprende a diseñar presupuestos y controlar el flujo de caja del capítulo.",
       "Domina la elaboración de informes financieros claros y precisos.",
-      "Implementa sistemas para la gestión de cuentas por pagar y cobrar."
+      "Implementa sistemas para la gestión de cuentas por pagar y cobrar.",
+      "Curso recomendado: Finanzas personales para inexpertos."
     ],
     "Sostenibilidad económica": [
       "Gestiona actividades de obtención de recursos de manera eficiente.",
       "Fortalece tus conocimientos en análisis financiero y proyecciones económicas.",
       "Fortalece tus habilidades en la planeación de sostenibilidad financiera.",
-      "Desarrolla indicadores de gestión financiera para evaluar el desempeño del capítulo."
+      "Desarrolla indicadores de gestión financiera para evaluar el desempeño del capítulo.",
+      "Curso recomendado: Finanzas personales para inexpertos."
     ],
     "Análisis  y transparencia": [
       "Aprende a negociar con proveedores y patrocinadores.",
@@ -81,7 +88,8 @@
       "Domina herramientas de análisis de mercado para identificar necesidades de los asociados.",
       "Implementa sistemas de CRM para gestionar relaciones con asociados y aliados.",
       "Coordina la organización de eventos para promover la participación de asociados.",
-      "Mide el impacto de las campañas y ajusta estrategias según los resultados."
+      "Mide el impacto de las campañas y ajusta estrategias según los resultados.",
+      "Curso recomendado: Big Data: Dominando el análisis de datos."
     ],
     "Gestión comercial": [
       "Aprende a manejar campañas publicitarias en redes sociales y otros medios.",
@@ -94,7 +102,8 @@
       "Desarrolla habilidades intrapersonales como autogestión emocional y disciplina para liderar de forma efectiva.",
       "Fomenta el liderazgo y la comunicación asertiva para relacionarte eficientemente con las instancias internas y externas.",
       "Fortalece tus habilidades en planeación estratégica para dirigir proyectos y alcanzar objetivos.",
-      "Promueve la cohesión del equipo a través de motivación y delegación responsable."
+      "Promueve la cohesión del equipo a través de motivación y delegación responsable.",
+      "Curso recomendado: Liderazgo integral para la vida."
     ],
     "Gestión organizacional": [
       "Conoce y comprende a fondo los procesos operativos y normativos de ANEIAP.",
@@ -112,17 +121,20 @@
       "Domina las metodologías de gestión de proyectos para asegurar la correcta ejecución de los mismos.",
       "Aprende a identificar y mitigar riesgos asociados a los proyectos.",
       "Promueve el desarrollo de indicadores de éxito para evaluar los proyectos implementados.",
-      "Define sistemas de seguimiento continuo para asegurar la alineación con los objetivos del capítulo."
+      "Define sistemas de seguimiento continuo para asegurar la alineación con los objetivos del capítulo.",
+      "Curso recomendado: Liderazgo integral para la vida."
     ],
     "Innovación y creatividad": [
       "Identifica y prioriza objetivos de innovación en los proyectos para aumentar su impacto.",
       "Fomenta la creatividad en los equipos para diseñar proyectos innovadores.",
-      "Comprende la importancia de la sostenibilidad en cada proyecto que líderes."
+      "Comprende la importancia de la sostenibilidad en cada proyecto que líderes.",
+      "Curso recomendado: Big Data: Dominando el análisis de datos."
     ],
     "Colaboración estratégica": [
       "Desarrolla habilidades en la formación de equipos multidisciplinarios para proyectos complejos.",
       "Fortalece la creación de alianzas estratégicas con patrocinadores y socios.",
-      "Trabaja en habilidades de negociación para garantizar recursos y apoyo."
+      "Trabaja en habilidades de negociación para garantizar recursos y apoyo.",
+      "Curso recomendado: Liderazgo integral para la vida."
     ]
   },
   "IC": {
@@ -130,17 +142,20 @@
       "Domina las funciones de veeduría, asesoría y control interno en los proyectos del capítulo.",
       "Aprende a utilizar herramientas de auditoría y evaluación de proyectos.",
       "Participa activamente en el seguimiento del cumplimiento de los objetivos del capítulo.",
-      "Asegura que toda documentación esté alineada con los estándares de ANEIAP."
+      "Asegura que toda documentación esté alineada con los estándares de ANEIAP.",
+      "Curso recomendado: ABC de la normativa."
     ],
     "Normativa y transparencia": [
       "Fortalece tu capacidad para analizar e interpretar normativas asociativas.",
       "Fomenta la transparencia en todos los procesos de la asociación.",
-      "Adquiere experiencia en la moderación de conflictos internos."
+      "Adquiere experiencia en la moderación de conflictos internos.",
+      "Curso recomendado: ABC de la normativa."
     ],
     "Seguimiento y evaluación": [
       "Desarrolla habilidades para emitir conceptos imparciales y objetivos sobre situaciones complejas.",
       "Aprende a coordinar reuniones estratégicas para abordar desviaciones en los proyectos.",
-      "Fortalece la representación de intereses de asociados ante la Junta Directiva."
+      "Fortalece la representación de intereses de asociados ante la Junta Directiva.",
+      "Curso recomendado: ABC de la normativa."
     ]
   }
 }
