@@ -735,7 +735,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             elements.append(Paragraph(f" Indicator: {indicator}", styles['CenturyGothicBold']))
             for course in recomended_course.get(indicator, ["No hay cursos para este indicador"]):
                 elements.append(Paragraph(f"    • {course}", styles['CenturyGothic']))
-            elements.append(Spacer.2(1, 0 * inch))
+                elements.append(Spacer.2(1, 0 * inch))
     
     elements.append(Spacer(1, 0.2 * inch))
 
