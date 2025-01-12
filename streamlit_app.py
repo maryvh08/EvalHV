@@ -420,6 +420,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
     ]))
 
+    # Resultados de indicadores con gráficas
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
+    elements.append(chart_table)
+    elements.append(Spacer(1, 0.2 * inch))
+
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
     if low_performance_indicators:
