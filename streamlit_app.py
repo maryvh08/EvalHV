@@ -431,11 +431,14 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Generar gráficos de indicadores
     chart_rows = []
     for indicator, percentage in indicator_results.items():
-        if isinstance(percentage, (int, float)):
-            # Generar gráfico de dona
-            chart_buffer = generate_donut_chart_for_report(percentage)
-            chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)
-            chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
+        if isinstance(percentage, (int, float)):  # Validar porcentaje
+            try:
+                # Generar gráfico de dona
+                chart_buffer = generate_donut_chart_for_report(percentage)
+                chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)
+                chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
+            except Exception as e:
+                st.warning(f"No se pudo generar el gráfico para {indicator}: {e}")
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
