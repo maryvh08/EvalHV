@@ -398,23 +398,39 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", styles['CenturyGothic']))
 
+    # Calcular porcentajes de indicadores
+    total_items = len(items)  # Define `items` según la lógica previa
+    related_items_count = {indicator: 0 for indicator in position_indicators}  # Inicializa
+    
+    # Lógica para calcular related_items_count basada en los indicadores
+    for header, details in items.items():
+        header_and_details = f"{header} {' '.join(details)}"
+        for indicator, keywords in position_indicators.items():
+            if any(keyword.lower() in header_and_details.lower() for keyword in keywords):
+                related_items_count[indicator] += 1
+    
+    indicator_percentages = {
+        indicator: (count / total_items) * 100 if total_items > 0 else 0
+        for indicator, count in related_items_count.items()
+    }
+    
     # Gráficas de indicadores
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     chart_data = []
     row = []
     
     for indicator, percentage in indicator_percentages.items():
-        if isinstance(percentage, (int, float)):  # Verifica que el porcentaje sea un número
-            chart_buffer = generate_donut_chart(percentage)  # Solo pasa el valor del porcentaje
+        if isinstance(percentage, (int, float)):  # Verifica que el porcentaje sea válido
+            chart_buffer = generate_donut_chart(percentage)
             chart_image = ImageReader(chart_buffer)
             row.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
-            if len(row) == 2:
+            if len(row) == 2:  # Cada fila contiene dos gráficos
                 chart_data.append(row)
                 row = []
         else:
-            st.warning(f"El valor para el indicador '{indicator}' no es un porcentaje válido: {percentage}")
+            st.warning(f"El valor para el indicador '{indicator}' no es válido: {percentage}")
     
-    if row:
+    if row:  # Agrega la última fila si está incompleta
         chart_data.append(row)
     
     chart_table = Table(chart_data, colWidths=[3 * inch] * 2)
