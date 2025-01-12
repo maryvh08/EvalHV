@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import statsmodels.api as sm
+from PIL import Image as PILImage
+from reportlab.platypus import Image as RLImage
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -742,15 +744,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         # Generar gráfica para cada indicador
         chart_path = f"{indicator.replace(' ', '_')}.png"
         generate_indicator_donut_chart(indicator, percentage, chart_path)
-
-        # Añadir texto del indicador
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
-
-        # Añadir gráfica al PDF
-        elements.append(Image(chart_path, width=2 * inch, height=2 * inch))
-        elements.append(Spacer(1, 0.2 * inch))
-
-        # Eliminar la imagen temporal después de agregarla
+        elements.append(RLImage(chart_path, width=2 * inch, height=2 * inch))  # Usar RLImage aquí
         os.remove(chart_path)
 
     elements.append(Spacer(1, 0.2 * inch))
