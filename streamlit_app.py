@@ -407,7 +407,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     chart_data = []
     row = []
 
-    for indicator, percentage in indicator_percentages.items():
+    for indicator, percentage in indicator_results.items():
         # Generar gráfica de anillo
         chart_buffer = generate_donut_chart(percentage)
         chart_image = RLImage(chart_buffer, width=2 * inch, height=2 * inch)
