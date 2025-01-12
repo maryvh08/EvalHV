@@ -190,6 +190,9 @@ def generate_indicator_charts(indicator_percentages, candidate_name, position):
         chart_path = os.path.join(charts_dir, f"{indicator}_chart.png")
         create_donut_chart(indicator, percentage, chart_path)
         chart_paths.append((indicator, chart_path))
+
+    if not os.path.exists(chart_path):
+    print(f"Advertencia: No se encontró la imagen en {chart_path}")
     
     return chart_paths
 
