@@ -5,3 +5,4 @@ pytesseract
 streamlit-multipage
 reportlab
 matplotlib
+statsmodels
