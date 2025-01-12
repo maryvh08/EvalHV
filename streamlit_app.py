@@ -398,7 +398,17 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular porcentajes y graficar indicadores
     charts = []
-    for indicator, percentage in indicator_results.items():
+    # Generar gráficos y agregar al reporte
+    for indicator, data in indicator_results.items():
+        if isinstance(data, dict):
+            percentage = data.get("percentage", 0)
+        else:
+            percentage = data
+    
+        if not isinstance(percentage, (int, float)):
+            st.error(f"El porcentaje para {indicator} no es válido: {percentage}")
+            continue
+    
         chart_buffer = generate_donut_chart(percentage)
         chart_image = ImageReader(chart_buffer)
         charts.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
