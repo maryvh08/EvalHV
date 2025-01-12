@@ -156,33 +156,31 @@ def add_background(canvas, background_path):
 
 def generate_donut_chart(percentage):
     """
-    Genera una gráfica de dona (anillo) para un porcentaje.
-    :param percentage: Porcentaje del indicador.
-    :return: BytesIO con la imagen de la gráfica.
+    Genera un gráfico de anillo/dona y devuelve su buffer de imagen.
+    :param percentage: Porcentaje a representar en el gráfico.
+    :return: BytesIO buffer de la imagen.
     """
-    fig, ax = plt.subplots(figsize=(2, 2), dpi=100)
+    import matplotlib.pyplot as plt
+    from io import BytesIO
 
-    # Datos de la gráfica
+    fig, ax = plt.subplots(figsize=(2, 2))
     values = [percentage, 100 - percentage]
-    colors = ["#4CAF50", "#EEEEEE"]  # Verde para porcentaje, gris para el resto
-
-    # Crear gráfica de dona
-    wedges, _ = ax.pie(
+    colors = ['#4CAF50', '#E0E0E0']  # Colores para el gráfico
+    ax.pie(
         values,
+        labels=['', ''],
         colors=colors,
-        wedgeprops=dict(width=0.3, edgecolor="w"),
         startangle=90,
+        counterclock=False,
+        wedgeprops=dict(width=0.3),
     )
-    # Agregar porcentaje en el centro
-    ax.text(0, 0, f"{percentage:.1f}%", ha="center", va="center", fontsize=12, weight="bold")
-    ax.set_aspect("equal")
-    plt.axis("off")
+    ax.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=14)
+    ax.axis('equal')  # Mantener aspecto circular
 
-    # Guardar la imagen en un buffer
     buffer = BytesIO()
-    plt.savefig(buffer, format="PNG", bbox_inches="tight", transparent=True)
-    buffer.seek(0)
+    plt.savefig(buffer, format='png', bbox_inches='tight', transparent=True)
     plt.close(fig)
+    buffer.seek(0)
     return buffer
 
 # FUNCIONES PARA PRIMARY
