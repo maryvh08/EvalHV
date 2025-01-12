@@ -729,9 +729,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Calcular gráficos para los indicadores
     chart_paths = generate_indicator_charts(indicator_percentages, candidate_name, position)
 
-    if not os.path.exists(chart_path):
-        print(f"Advertencia: No se encontró la imagen en {chart_path}")
-
     # Crear el documento PDF
     output_path = f"Reporte_descriptivo_cargo_{candidate_name}_{position}.pdf"
     doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
