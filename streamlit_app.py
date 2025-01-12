@@ -428,32 +428,37 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", styles['CenturyGothic']))
 
-    # Gráficos de indicadores
+    # Generar gráficos de indicadores
     chart_rows = []
     for indicator, percentage in indicator_results.items():
-        if not isinstance(percentage, (int, float)):
-            st.error(f"El porcentaje para {indicator} no es válido: {percentage}")
-            continue
+        if isinstance(percentage, (int, float)):
+            # Generar gráfico de dona
+            chart_buffer = generate_donut_chart_for_report(percentage)
+            chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)
+            chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
+        else:
+            st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
-        # Generar gráfico de dona
-        chart_buffer = generate_donut_chart_for_report(percentage)
-        chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)
+    # Verificar si hay gráficos generados
+    if chart_rows:
+        # Crear tabla con gráficos
+        chart_table = Table(
+            chart_rows,
+            colWidths=[3 * inch, 3 * inch],
+            hAlign='CENTER'
+        )
+        chart_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ]))
 
-        # Añadir gráfico y descripción
-        chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
-
-    # Crear tabla con gráficos
-    chart_table = Table(chart_rows, colWidths=[3 * inch, 3 * inch], hAlign='CENTER')
-    chart_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-    ]))
-
-    # Incluir tabla de gráficas
-    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-    elements.append(chart_table)
-    elements.append(Spacer(1, 0.2 * inch))
+        # Agregar tabla de gráficos al reporte
+        elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
+        elements.append(chart_table)
+        elements.append(Spacer(1, 0.2 * inch))
+    else:
+        elements.append(Paragraph("No se generaron gráficos para los indicadores.", styles['CenturyGothic']))
 
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
