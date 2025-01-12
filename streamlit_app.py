@@ -12,6 +12,7 @@ from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import statsmodels.api as sm
@@ -420,42 +421,41 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
      # Generar gráficos de indicadores
     chart_rows = []
     for indicator, data in indicator_results.items():
-        if isinstance(data, dict):
-            percentage = data.get("percentage", 0)  # Extraer porcentaje
-        else:
-            percentage = data
-
+        percentage = data.get("percentage", 0) if isinstance(data, dict) else data
         if isinstance(percentage, (int, float)):  # Validar que sea un número
             try:
-                # Generar gráfico de dona
                 chart_buffer = generate_donut_chart_for_report(percentage)
-                chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)  # Usar Image de ReportLab
+                chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)
                 chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
             except Exception as e:
                 st.warning(f"No se pudo generar el gráfico para {indicator}: {e}")
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
-    # Verificar si hay gráficos generados
+    # Incluir tabla de gráficos al reporte si hay datos válidos
     if chart_rows:
-        # Crear tabla con gráficos
-        chart_table = Table(
-            chart_rows,
-            colWidths=[3 * inch, 3 * inch],
-            hAlign='CENTER'
-        )
+        chart_table = Table(chart_rows, colWidths=[2.5 * inch, 2.5 * inch], hAlign='CENTER')
         chart_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
         ]))
-
-        # Agregar tabla de gráficos al reporte
         elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
         elements.append(chart_table)
         elements.append(Spacer(1, 0.2 * inch))
     else:
         elements.append(Paragraph("No se generaron gráficos para los indicadores.", styles['CenturyGothic']))
+
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Indicador con menor presencia
+    lowest_indicator = min(indicator_results, key=lambda k: indicator_results[k]["relevant_lines"])
+    elements.append(Paragraph("<b>Indicador con Menor Presencia:</b>", styles['CenturyGothicBold']))
+    lowest_relevant_lines = indicator_results[lowest_indicator]["relevant_lines"]
+    lowest_percentage = (lowest_relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+    elements.append(Paragraph(f"• {lowest_indicator} ({lowest_percentage:.2f}%)", styles['CenturyGothic']))
+    
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
