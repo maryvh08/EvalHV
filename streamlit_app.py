@@ -163,7 +163,7 @@ def generate_donut_chart(percentage):
 
     # Datos de la gráfica
     values = [percentage, 100 - percentage]
-    colors = ["#0D62AD", "#EEEEEE"]  # Verde para porcentaje y gris para el resto
+    colors = ["#4CAF50", "#EEEEEE"]  # Verde para porcentaje y gris para el resto
     labels = ["", ""]
 
     # Crear gráfica de dona
@@ -171,7 +171,7 @@ def generate_donut_chart(percentage):
         values,
         colors=colors,
         wedgeprops=dict(width=0.3, edgecolor="w"),
-        startangle=60,
+        startangle=90,
     )
     # Agregar porcentaje en el centro
     ax.text(0, 0, f"{percentage:.1f}%", ha="center", va="center", fontsize=12, weight="bold")
@@ -757,7 +757,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         chart_buffer = generate_donut_chart(percentage)
         elements.append(RLImage(chart_buffer, width=2 * inch, height=2 * inch))
         elements.append(Spacer(1, 0.2 * inch))
-
 
     elements.append(Spacer(1, 0.2 * inch))
     
