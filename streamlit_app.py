@@ -397,46 +397,31 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         relevant_lines = result["relevant_lines"]
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", styles['CenturyGothic']))
-    
-    elements.append(Spacer(1, 0.2 * inch))
 
-    # Resultados por indicadores con gráficas en línea
+    # Gráficas de indicadores
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-
-    # Contenedor para las gráficas en filas
     chart_data = []
     row = []
-
-    for indicator, percentage in indicator_results.items():
-        # Generar gráfica de anillo
-        chart_buffer = generate_donut_chart(percentage)
-        chart_image = RLImage(chart_buffer, width=2 * inch, height=2 * inch)
-
-        # Agregar gráfico y texto en una celda
-        cell_content = [
-            chart_image,
-            Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic']),
-        ]
-        row.append(cell_content)
-
-        # Crear una fila cada 2 elementos (2 columnas por fila)
+    for indicator, percentage in indicator_percentages.items():
+        chart_buffer = generate_donut_chart(percentage, indicator)
+        chart_image = ImageReader(chart_buffer)
+        row.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
         if len(row) == 2:
             chart_data.append(row)
             row = []
 
-    # Agregar última fila si queda incompleta
     if row:
         chart_data.append(row)
 
-    # Crear la tabla para las gráficas
     chart_table = Table(chart_data, colWidths=[3 * inch] * 2)
     chart_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
     ]))
-
     elements.append(chart_table)
+    elements.append(Spacer(1, 0.2 * inch))
+    
     elements.append(Spacer(1, 0.2 * inch))
     
     # Indicador con menor presencia
