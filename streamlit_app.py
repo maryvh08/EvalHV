@@ -150,6 +150,29 @@ def add_background(canvas, background_path):
     canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
     canvas.restoreState()
 
+def generate_indicator_donut_chart(indicator, percentage, output_path):
+    """
+    Genera una gráfica de dona para un indicador con su porcentaje.
+    :param indicator: Nombre del indicador.
+    :param percentage: Porcentaje del indicador.
+    :param output_path: Ruta donde se guardará la imagen generada.
+    """
+    plt.figure(figsize=(4, 4))
+    sizes = [percentage, 100 - percentage]
+    colors = ['#4CAF50', '#E0E0E0']  # Verde para porcentaje, gris para restante
+
+    plt.pie(
+        sizes,
+        colors=colors,
+        startangle=90,
+        wedgeprops=dict(width=0.3, edgecolor='white')
+    )
+    plt.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=14, fontweight='bold')
+    plt.title(indicator, fontsize=12, fontweight='bold')
+    plt.axis('equal')  # Asegurar proporción 1:1
+    plt.savefig(output_path, bbox_inches='tight', transparent=True)
+    plt.close()
+
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
     """
@@ -710,6 +733,25 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     for indicator, percentage in indicator_percentages.items():
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
     
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Resultados por indicadores
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
+    for indicator, percentage in indicator_percentages.items():
+        # Generar gráfica para cada indicador
+        chart_path = f"{indicator.replace(' ', '_')}.png"
+        generate_indicator_donut_chart(indicator, percentage, chart_path)
+
+        # Añadir texto del indicador
+        elements.append(Paragraph(f"• {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
+
+        # Añadir gráfica al PDF
+        elements.append(Image(chart_path, width=2 * inch, height=2 * inch))
+        elements.append(Spacer(1, 0.2 * inch))
+
+        # Eliminar la imagen temporal después de agregarla
+        os.remove(chart_path)
+
     elements.append(Spacer(1, 0.2 * inch))
     
     # Mostrar consejos para indicadores con porcentaje menor al 50%
