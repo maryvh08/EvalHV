@@ -301,6 +301,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         position_indicators = indicators.get(position, {})
         indicator_results = {}
 
+        # Obtener los indicadores y palabras clave para el cargo seleccionado
+        position_indicators = indicators.get(position, {})
+        indicator_results = calculate_all_indicators(lines, position_indicators)
+
         # Calcular el porcentaje por cada indicador
         indicator_results = calculate_indicators_for_report(lines, position_indicators)
         for indicator, keywords in position_indicators.items():
