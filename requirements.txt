@@ -4,3 +4,4 @@ fpdf
 pytesseract
 streamlit-multipage
 reportlab
+matplotlib
