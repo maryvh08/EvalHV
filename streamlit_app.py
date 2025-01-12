@@ -402,13 +402,17 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     chart_data = []
     row = []
-    for indicator, percentage in indicator_results.items():
-        chart_buffer = generate_donut_chart(percentage)  # Solo pasa el porcentaje
-        chart_image = ImageReader(chart_buffer)
-        row.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
-        if len(row) == 2:
-            chart_data.append(row)
-            row = []
+    
+    for indicator, percentage in indicator_percentages.items():
+        if isinstance(percentage, (int, float)):  # Verifica que el porcentaje sea un número
+            chart_buffer = generate_donut_chart(percentage)  # Solo pasa el valor del porcentaje
+            chart_image = ImageReader(chart_buffer)
+            row.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
+            if len(row) == 2:
+                chart_data.append(row)
+                row = []
+        else:
+            st.warning(f"El valor para el indicador '{indicator}' no es un porcentaje válido: {percentage}")
     
     if row:
         chart_data.append(row)
@@ -421,21 +425,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     ]))
     elements.append(chart_table)
     elements.append(Spacer(1, 0.2 * inch))
-    
-    elements.append(Spacer(1, 0.2 * inch))
-    
-    # Consejos para mejorar indicadores con baja presencia
-    low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
-    if low_performance_indicators:
-        elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
-        for indicator, result in low_performance_indicators.items():
-            percentage = (result["relevant_lines"] / total_lines) * 100 if total_lines > 0 else 0
-            elements.append(Paragraph(f" {indicator}: ({percentage:.2f}%)", styles['CenturyGothicBold']))
-            elements.append(Spacer(1, 0.05 * inch))
-            for tip in advice[position].get(indicator, []):
-                elements.append(Paragraph(f"  • {tip}", styles['CenturyGothic']))
-                elements.append(Spacer(1, 0.2 * inch))
-    elements.append(Spacer(1, 0.2 * inch))
+
     
     # Concordancia global
     elements.append(Paragraph("<b>Concordancia Global:</b>", styles['CenturyGothicBold']))
