@@ -301,10 +301,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         position_indicators = indicators.get(position, {})
         indicator_results = {}
 
-        # Obtener los indicadores y palabras clave para el cargo seleccionado
-        position_indicators = indicators.get(position, {})
-        indicator_results = calculate_all_indicators(lines, position_indicators)
-
         # Calcular el porcentaje por cada indicador
         indicator_results = calculate_indicators_for_report(lines, position_indicators)
         for indicator, keywords in position_indicators.items():
@@ -399,40 +395,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         relevant_lines = result["relevant_lines"]
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", styles['CenturyGothic']))
-
-    # Generar gráficos para cada indicador
-    charts = []
-    for indicator, percentage in indicator_results.items():
-        if not isinstance(percentage, (int, float)):
-            st.error(f"El porcentaje para {indicator} no es válido: {percentage}")
-            continue
-
-        # Generar gráfico de anillo
-        chart_buffer = generate_donut_chart(percentage)
-        chart_image = ImageReader(chart_buffer)
-        charts.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
-
-    # Validar si hay gráficos
-    if not charts:
-        st.error("No se pudieron generar gráficos. Verifica los indicadores.")
-        return
-
-    # Crear tabla con gráficos y descripciones
-    chart_table = Table(
-        [charts],  # Pasar gráficos como una fila
-        colWidths=[3 * inch, 3 * inch],  # Ancho de cada columna
-        hAlign='CENTER'
-    )
-    chart_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-    ]))
-
-    # Resultados de indicadores con gráficas
-    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-    elements.append(chart_table)
-    elements.append(Spacer(1, 0.2 * inch))
 
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
