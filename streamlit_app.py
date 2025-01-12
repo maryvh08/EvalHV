@@ -403,7 +403,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     chart_data = []
     row = []
     for indicator, result in indicator_results.items():
-        chart_buffer = generate_donut_chart(percentage, indicator)
+        chart_buffer = generate_donut_chart(result, indicator)
         chart_image = ImageReader(chart_buffer)
         row.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
         if len(row) == 2:
