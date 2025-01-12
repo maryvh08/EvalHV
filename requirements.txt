@@ -4,7 +4,6 @@ fpdf
 pytesseract
 streamlit-multipage
 reportlab
-matplotlib
 statsmodels
 numpy
 pandas
