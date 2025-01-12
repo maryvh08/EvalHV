@@ -8,6 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
+from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 import matplotlib.pyplot as plt
