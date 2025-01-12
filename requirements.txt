@@ -7,3 +7,4 @@ reportlab
 matplotlib
 statsmodels
 numpy
+pandas
