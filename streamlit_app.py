@@ -148,31 +148,23 @@ def add_background(canvas, background_path):
     canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
     canvas.restoreState()
 
-def create_donut_chart(indicator_name, percentage, output_path):
-    """
-    Crea un gráfico circular de anillo con el porcentaje en el centro.
-    :param indicator_name: Nombre del indicador.
-    :param percentage: Porcentaje a mostrar.
-    :param output_path: Ruta para guardar la imagen del gráfico.
-    """
-    # Datos del gráfico
-    values = [percentage, 100 - percentage]
-    colors = ['#4CAF50', '#E0E0E0']  # Colores para el anillo (verde y gris)
-    
-    # Crear figura y eje
-    fig, ax = plt.subplots()
-    wedges, _ = ax.pie(values, colors=colors, startangle=90, radius=1.2, wedgeprops=dict(width=0.3))
-    
-    # Texto en el centro
-    ax.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=16, fontweight='bold')
-    
-    # Estilo del título
-    ax.set_title(indicator_name, fontsize=14, fontweight='bold', pad=20)
-    
-    # Guardar gráfico
-    plt.axis('equal')  # Asegurar que el gráfico sea circular
-    plt.savefig(output_path, format='png', bbox_inches='tight', dpi=150)
+def generate_donut_chart(indicator, percentage):
+    fig, ax = plt.subplots(figsize=(2, 2), subplot_kw=dict(aspect="equal"))
+    data = [percentage, 100 - percentage]
+    labels = ["Relacionado", "No Relacionado"]
+    wedges, texts, autotexts = ax.pie(
+        data,
+        labels=labels,
+        autopct="%1.1f%%",
+        startangle=90,
+        wedgeprops=dict(width=0.3, edgecolor="w"),
+    )
+    ax.set_title(indicator, fontsize=10)
+    plt.setp(autotexts, size=8, weight="bold")
+    output_path = f"charts/{indicator}.png"
+    plt.savefig(output_path, dpi=100, bbox_inches="tight")
     plt.close(fig)
+    return output_path
 
 def generate_indicator_charts(indicator_percentages, candidate_name, position):
     """
@@ -187,9 +179,9 @@ def generate_indicator_charts(indicator_percentages, candidate_name, position):
     
     chart_paths = []
     for indicator, percentage in indicator_percentages.items():
-        chart_path = os.path.join(charts_dir, f"{indicator}_chart.png")
-        create_donut_chart(indicator, percentage, chart_path)
+        chart_path = generate_donut_chart(indicator, percentage)
         chart_paths.append((indicator, chart_path))
+
 
     if not os.path.exists(chart_path):
         print(f"Advertencia: No se encontró la imagen en {chart_path}")
@@ -209,11 +201,16 @@ def add_charts_to_report(elements, chart_paths, styles):
     for indicator, chart_path in chart_paths:
         elements.append(Paragraph(f"{indicator}", styles['CenturyGothicBold']))
         try:
-            elements.append(Image(chart_path, width=2 * inch, height=2 * inch))  # Asegúrate de importar bien la clase
+            # Verifica que la imagen exista
+            if not os.path.exists(chart_path):
+                raise FileNotFoundError(f"No se encontró la imagen en {chart_path}")
+            
+            # Agrega la imagen
+            elements.append(Image(chart_path, width=2 * inch, height=2 * inch))
         except Exception as e:
             elements.append(Paragraph(f"Error al cargar la imagen para {indicator}: {e}", styles['CenturyGothic']))
         elements.append(Spacer(1, 0.5 * inch))  # Espaciado entre gráficos
-
+        
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
     """
