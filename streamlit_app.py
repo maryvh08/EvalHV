@@ -160,7 +160,7 @@ def generate_donut_chart(percentage):
     :param percentage: Porcentaje del indicador.
     :return: BytesIO con la imagen de la gráfica.
     """
-    fig, ax = plt.subplots(figsize=(1, 1), dpi=100)
+    fig, ax = plt.subplots(figsize=(1, 1), dpi=65)
 
     # Datos de la gráfica
     values = [percentage, 100 - percentage]
@@ -171,7 +171,7 @@ def generate_donut_chart(percentage):
         values,
         colors=colors,
         wedgeprops=dict(width=0.3, edgecolor="w"),
-        startangle=45,
+        startangle=90,
     )
     # Agregar porcentaje en el centro
     ax.text(0, 0, f"{percentage:.1f}%", ha="center", va="center", fontsize=12, weight="bold")
