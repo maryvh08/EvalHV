@@ -153,28 +153,37 @@ def add_background(canvas, background_path):
     canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
     canvas.restoreState()
 
-def generate_indicator_donut_chart(indicator, percentage, output_path):
+def generate_donut_chart(percentage):
     """
-    Genera una gráfica de dona para un indicador con su porcentaje.
-    :param indicator: Nombre del indicador.
+    Genera una gráfica de dona (anillo) en memoria.
     :param percentage: Porcentaje del indicador.
-    :param output_path: Ruta donde se guardará la imagen generada.
+    :return: BytesIO con la imagen de la gráfica.
     """
-    plt.figure(figsize=(4, 4))
-    sizes = [percentage, 100 - percentage]
-    colors = ['#4CAF50', '#E0E0E0']  # Verde para porcentaje, gris para restante
+    fig, ax = plt.subplots(figsize=(2, 2), dpi=100)
 
-    plt.pie(
-        sizes,
+    # Datos de la gráfica
+    values = [percentage, 100 - percentage]
+    colors = ["#4CAF50", "#EEEEEE"]  # Verde para porcentaje y gris para el resto
+    labels = ["", ""]
+
+    # Crear gráfica de dona
+    wedges, texts = ax.pie(
+        values,
         colors=colors,
+        wedgeprops=dict(width=0.3, edgecolor="w"),
         startangle=90,
-        wedgeprops=dict(width=0.3, edgecolor='white')
     )
-    plt.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=14, fontweight='bold')
-    plt.title(indicator, fontsize=12, fontweight='bold')
-    plt.axis('equal')  # Asegurar proporción 1:1
-    plt.savefig(output_path, bbox_inches='tight', transparent=True)
-    plt.close()
+    # Agregar porcentaje en el centro
+    ax.text(0, 0, f"{percentage:.1f}%", ha="center", va="center", fontsize=12, weight="bold")
+    ax.set_aspect("equal")
+    plt.axis("off")
+
+    # Guardar la imagen en un buffer
+    buffer = BytesIO()
+    plt.savefig(buffer, format="PNG", bbox_inches="tight", transparent=True)
+    buffer.seek(0)
+    plt.close(fig)
+    return buffer
 
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
@@ -738,15 +747,17 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Resultados por indicadores
+    # Resultados por indicadores con gráficas
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     for indicator, percentage in indicator_percentages.items():
-        # Generar gráfica para cada indicador
-        chart_path = f"{indicator.replace(' ', '_')}.png"
-        generate_indicator_donut_chart(indicator, percentage, chart_path)
+        # Texto del indicador
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
-        elements.append(RLImage(chart_path, width=2 * inch, height=2 * inch))  # Usar RLImage aquí
-        os.remove(chart_path)
+
+        # Generar gráfica de anillo
+        chart_buffer = generate_donut_chart(percentage)
+        elements.append(RLImage(chart_buffer, width=2 * inch, height=2 * inch))
+        elements.append(Spacer(1, 0.2 * inch))
+
 
     elements.append(Spacer(1, 0.2 * inch))
     
