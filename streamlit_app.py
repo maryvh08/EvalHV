@@ -171,7 +171,7 @@ def generate_donut_chart(percentage):
         values,
         colors=colors,
         wedgeprops=dict(width=0.3, edgecolor="w"),
-        startangle=90,
+        startangle=65,
     )
     # Agregar porcentaje en el centro
     ax.text(0, 0, f"{percentage:.1f}%", ha="center", va="center", fontsize=12, weight="bold")
