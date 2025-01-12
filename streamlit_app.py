@@ -398,17 +398,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular porcentajes y graficar indicadores
     charts = []
-    # Generar gráficos y agregar al reporte
-    for indicator, data in indicator_results.items():
-        if isinstance(data, dict):
-            percentage = data.get("percentage", 0)
-        else:
-            percentage = data
-    
+    for indicator, percentage in indicator_results.items():
         if not isinstance(percentage, (int, float)):
             st.error(f"El porcentaje para {indicator} no es válido: {percentage}")
             continue
-    
+
+        # Generar el gráfico de anillo
         chart_buffer = generate_donut_chart(percentage)
         chart_image = ImageReader(chart_buffer)
         charts.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
@@ -424,11 +419,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
     ]))
-
-    # Incluir tabla de gráficas
-    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-    elements.append(chart_table)
-    elements.append(Spacer(1, 0.2 * inch))
 
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
