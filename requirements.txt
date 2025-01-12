@@ -6,3 +6,4 @@ streamlit-multipage
 reportlab
 matplotlib
 statsmodels
+numpy
