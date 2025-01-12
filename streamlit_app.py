@@ -183,6 +183,38 @@ def generate_donut_chart(percentage):
     buffer.seek(0)
     return buffer
 
+def generate_donut_chart_for_report(percentage):
+    """
+    Genera un gráfico de dona para un porcentaje dado.
+    :param percentage: Porcentaje a representar.
+    :return: Buffer de imagen del gráfico.
+    """
+    # Datos para el gráfico
+    values = [percentage, 100 - percentage]
+    labels = ["", ""]
+    colors = ['#4CAF50', '#D3D3D3']  # Verde y gris
+    fig, ax = plt.subplots()
+
+    # Crear gráfico de dona
+    wedges, texts = ax.pie(
+        values,
+        labels=labels,
+        startangle=90,
+        colors=colors,
+        wedgeprops=dict(width=0.4, edgecolor='w'),
+    )
+
+    # Añadir el porcentaje en el centro
+    plt.text(0, 0, f"{percentage:.0f}%", ha='center', va='center', fontsize=14, fontweight='bold')
+
+    # Convertir gráfico a buffer
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png", bbox_inches='tight', transparent=True)
+    plt.close(fig)
+    buffer.seek(0)
+    return buffer
+
+
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
     """
@@ -395,6 +427,33 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         relevant_lines = result["relevant_lines"]
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", styles['CenturyGothic']))
+
+    # Gráficos de indicadores
+    chart_rows = []
+    for indicator, percentage in indicator_results.items():
+        if not isinstance(percentage, (int, float)):
+            st.error(f"El porcentaje para {indicator} no es válido: {percentage}")
+            continue
+
+        # Generar gráfico de dona
+        chart_buffer = generate_donut_chart_for_report(percentage)
+        chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)
+
+        # Añadir gráfico y descripción
+        chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
+
+    # Crear tabla con gráficos
+    chart_table = Table(chart_rows, colWidths=[3 * inch, 3 * inch], hAlign='CENTER')
+    chart_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+    ]))
+
+    # Incluir tabla de gráficas
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
+    elements.append(chart_table)
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
