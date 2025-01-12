@@ -163,7 +163,7 @@ def generate_donut_chart(percentage):
 
     # Datos de la gráfica
     values = [percentage, 100 - percentage]
-    colors = ["#76C04E", "#EEEEEE"]  # Verde para porcentaje y gris para el resto
+    colors = ["#0D62AD", "#EEEEEE"]  # Verde para porcentaje y gris para el resto
     labels = ["", ""]
 
     # Crear gráfica de dona
