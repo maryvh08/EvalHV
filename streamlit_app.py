@@ -186,35 +186,22 @@ def generate_donut_chart(percentage):
 def generate_donut_chart_for_report(percentage):
     """
     Genera un gráfico de dona para un porcentaje dado.
-    :param percentage: Porcentaje a representar.
-    :return: Buffer de imagen del gráfico.
     """
-    # Datos para el gráfico
+    from matplotlib import pyplot as plt
+
+    fig, ax = plt.subplots(figsize=(2, 2), dpi=100)
     values = [percentage, 100 - percentage]
-    labels = ["", ""]
-    colors = ['#4CAF50', '#D3D3D3']  # Verde y gris
-    fig, ax = plt.subplots()
+    colors = ['#4CAF50', '#E0E0E0']
+    ax.pie(values, labels=None, startangle=90, colors=colors, wedgeprops={'width': 0.3})
+    ax.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=12)
+    ax.axis('equal')
 
-    # Crear gráfico de dona
-    wedges, texts = ax.pie(
-        values,
-        labels=labels,
-        startangle=90,
-        colors=colors,
-        wedgeprops=dict(width=0.4, edgecolor='w'),
-    )
-
-    # Añadir el porcentaje en el centro
-    plt.text(0, 0, f"{percentage:.0f}%", ha='center', va='center', fontsize=14, fontweight='bold')
-
-    # Convertir gráfico a buffer
-    buffer = BytesIO()
-    plt.savefig(buffer, format="png", bbox_inches='tight', transparent=True)
+    # Guardar la gráfica en un buffer
+    chart_buffer = BytesIO()
+    plt.savefig(chart_buffer, format='png', bbox_inches='tight')
     plt.close(fig)
-    buffer.seek(0)
-    return buffer
-
-
+    chart_buffer.seek(0)
+    return chart_buffer
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
     """
@@ -428,6 +415,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", styles['CenturyGothic']))
 
+    elements.append(Spacer(1, 0.2 * inch))
+
      # Generar gráficos de indicadores
     chart_rows = []
     for indicator, data in indicator_results.items():
@@ -440,7 +429,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             try:
                 # Generar gráfico de dona
                 chart_buffer = generate_donut_chart_for_report(percentage)
-                chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)
+                chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)  # Usar Image de ReportLab
                 chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
             except Exception as e:
                 st.warning(f"No se pudo generar el gráfico para {indicator}: {e}")
