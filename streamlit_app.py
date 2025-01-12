@@ -2,6 +2,7 @@ import fitz
 from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageTemplate, Frame
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import Image
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
@@ -204,7 +205,10 @@ def add_charts_to_report(elements, chart_paths, styles):
     
     for indicator, chart_path in chart_paths:
         elements.append(Paragraph(f"{indicator}", styles['CenturyGothicBold']))
-        elements.append(Image(chart_path, width=2 * inch, height=2 * inch))
+        try:
+            elements.append(Image(chart_path, width=2 * inch, height=2 * inch))  # Asegúrate de importar bien la clase
+        except Exception as e:
+            elements.append(Paragraph(f"Error al cargar la imagen para {indicator}: {e}", styles['CenturyGothic']))
         elements.append(Spacer(1, 0.5 * inch))  # Espaciado entre gráficos
 
 # FUNCIONES PARA PRIMARY
@@ -724,6 +728,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Calcular gráficos para los indicadores
     chart_paths = generate_indicator_charts(indicator_percentages, candidate_name, position)
+
+    if not os.path.exists(chart_path):
+        print(f"Advertencia: No se encontró la imagen en {chart_path}")
 
     # Crear el documento PDF
     output_path = f"Reporte_descriptivo_cargo_{candidate_name}_{position}.pdf"
