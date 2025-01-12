@@ -396,21 +396,26 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", styles['CenturyGothic']))
 
-    # Calcular porcentajes y graficar indicadores
+    # Generar gráficos para cada indicador
     charts = []
     for indicator, percentage in indicator_results.items():
         if not isinstance(percentage, (int, float)):
             st.error(f"El porcentaje para {indicator} no es válido: {percentage}")
             continue
 
-        # Generar el gráfico de anillo
+        # Generar gráfico de anillo
         chart_buffer = generate_donut_chart(percentage)
         chart_image = ImageReader(chart_buffer)
         charts.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
 
+    # Validar si hay gráficos
+    if not charts:
+        st.error("No se pudieron generar gráficos. Verifica los indicadores.")
+        return
+
     # Crear tabla con gráficos y descripciones
     chart_table = Table(
-        charts,
+        [charts],  # Pasar gráficos como una fila
         colWidths=[3 * inch, 3 * inch],  # Ancho de cada columna
         hAlign='CENTER'
     )
