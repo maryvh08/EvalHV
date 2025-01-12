@@ -164,7 +164,6 @@ def generate_donut_chart(percentage):
     # Datos de la gráfica
     values = [percentage, 100 - percentage]
     colors = ["#4CAF50", "#EEEEEE"]  # Verde para porcentaje y gris para el resto
-    labels = ["", ""]
 
     # Crear gráfica de dona
     wedges, texts = ax.pie(
@@ -747,16 +746,44 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Resultados por indicadores con gráficas
+    # Resultados por indicadores con gráficas en línea
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-    for indicator, percentage in indicator_percentages.items():
-        # Texto del indicador
-        elements.append(Paragraph(f"• {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
 
+    # Contenedor para las gráficas en filas
+    chart_data = []
+    row = []
+
+    for indicator, percentage in indicator_percentages.items():
         # Generar gráfica de anillo
         chart_buffer = generate_donut_chart(percentage)
-        elements.append(RLImage(chart_buffer, width=2 * inch, height=2 * inch))
-        elements.append(Spacer(1, 0.2 * inch))
+        chart_image = RLImage(chart_buffer, width=2 * inch, height=2 * inch)
+
+        # Agregar gráfico y texto en una celda
+        cell_content = [
+            chart_image,
+            Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic']),
+        ]
+        row.append(cell_content)
+
+        # Crear una fila cada 2 elementos (2 columnas por fila)
+        if len(row) == 2:
+            chart_data.append(row)
+            row = []
+
+    # Agregar última fila si queda incompleta
+    if row:
+        chart_data.append(row)
+
+    # Crear la tabla para las gráficas
+    chart_table = Table(chart_data, colWidths=[3 * inch] * 2)
+    chart_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+    ]))
+
+    elements.append(chart_table)
+    elements.append(Spacer(1, 0.2 * inch))
 
     elements.append(Spacer(1, 0.2 * inch))
     
