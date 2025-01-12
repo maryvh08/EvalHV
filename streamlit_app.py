@@ -188,8 +188,6 @@ def generate_donut_chart_for_report(percentage):
     """
     Genera un gráfico de dona para un porcentaje dado.
     """
-    from matplotlib import pyplot as plt
-
     fig, ax = plt.subplots(figsize=(2, 2), dpi=100)
     values = [percentage, 100 - percentage]
     colors = ['#4CAF50', '#E0E0E0']
@@ -197,12 +195,12 @@ def generate_donut_chart_for_report(percentage):
     ax.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=12)
     ax.axis('equal')
 
-    # Guardar la gráfica en un buffer
     chart_buffer = BytesIO()
     plt.savefig(chart_buffer, format='png', bbox_inches='tight')
     plt.close(fig)
     chart_buffer.seek(0)
     return chart_buffer
+    
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
     """
