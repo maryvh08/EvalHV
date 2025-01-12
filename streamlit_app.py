@@ -12,8 +12,10 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import statsmodels.api as sm
+import numpy as np
+import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
 from io import BytesIO
 import re
 import json
@@ -148,69 +150,6 @@ def add_background(canvas, background_path):
     canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
     canvas.restoreState()
 
-def generate_donut_chart(indicator, percentage):
-    fig, ax = plt.subplots(figsize=(2, 2), subplot_kw=dict(aspect="equal"))
-    data = [percentage, 100 - percentage]
-    labels = ["Relacionado", "No Relacionado"]
-    wedges, texts, autotexts = ax.pie(
-        data,
-        labels=labels,
-        autopct="%1.1f%%",
-        startangle=90,
-        wedgeprops=dict(width=0.3, edgecolor="w"),
-    )
-    ax.set_title(indicator, fontsize=10)
-    plt.setp(autotexts, size=8, weight="bold")
-    output_path = f"charts/{indicator}.png"
-    plt.savefig(output_path, dpi=100, bbox_inches="tight")
-    plt.close(fig)
-    return output_path
-
-def generate_indicator_charts(indicator_percentages, candidate_name, position):
-    """
-    Genera gráficos circulares para cada indicador.
-    :param indicator_percentages: Diccionario de indicadores y sus porcentajes.
-    :param candidate_name: Nombre del candidato.
-    :param position: Cargo al que aspira.
-    :return: Lista de rutas de las imágenes generadas.
-    """
-    charts_dir = f"charts_{candidate_name}_{position}"
-    os.makedirs(charts_dir, exist_ok=True)  # Crear carpeta temporal para gráficos
-    
-    chart_paths = []
-    for indicator, percentage in indicator_percentages.items():
-        chart_path = generate_donut_chart(indicator, percentage)
-        chart_paths.append((indicator, chart_path))
-
-
-    if not os.path.exists(chart_path):
-        print(f"Advertencia: No se encontró la imagen en {chart_path}")
-    
-    return chart_paths
-
-def add_charts_to_report(elements, chart_paths, styles):
-    """
-    Añade gráficos de indicadores al reporte.
-    :param elements: Lista de elementos del reporte.
-    :param chart_paths: Lista de rutas de gráficos generados.
-    :param styles: Estilos para los párrafos.
-    """
-    elements.append(Paragraph("<b>Gráficas de Indicadores:</b>", styles['CenturyGothicBold']))
-    elements.append(Spacer(1, 0.2 * inch))
-    
-    for indicator, chart_path in chart_paths:
-        elements.append(Paragraph(f"{indicator}", styles['CenturyGothicBold']))
-        try:
-            # Verifica que la imagen exista
-            if not os.path.exists(chart_path):
-                raise FileNotFoundError(f"No se encontró la imagen en {chart_path}")
-            
-            # Agrega la imagen
-            elements.append(Image(chart_path, width=2 * inch, height=2 * inch))
-        except Exception as e:
-            elements.append(Paragraph(f"Error al cargar la imagen para {indicator}: {e}", styles['CenturyGothic']))
-        elements.append(Spacer(1, 0.5 * inch))  # Espaciado entre gráficos
-        
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
     """
@@ -726,9 +665,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     styles.add(ParagraphStyle(name="CenturyGothic", fontName="CenturyGothic", fontSize=12, leading=14, alignment=TA_JUSTIFY))
     styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14, alignment=TA_JUSTIFY))
 
-    # Calcular gráficos para los indicadores
-    chart_paths = generate_indicator_charts(indicator_percentages, candidate_name, position)
-
     # Crear el documento PDF
     output_path = f"Reporte_descriptivo_cargo_{candidate_name}_{position}.pdf"
     doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
@@ -775,9 +711,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
     
     elements.append(Spacer(1, 0.2 * inch))
-
-    # Añadir gráficas de indicadores
-    add_charts_to_report(elements, chart_paths, styles)
     
     # Mostrar consejos para indicadores con porcentaje menor al 50%
     elements.append(Paragraph("<b>Consejos para Indicadores Críticos:</b>", styles['CenturyGothicBold']))
