@@ -156,18 +156,18 @@ def add_background(canvas, background_path):
 
 def generate_donut_chart(percentage):
     """
-    Genera una gráfica de dona (anillo) en memoria.
+    Genera una gráfica de dona (anillo) para un porcentaje.
     :param percentage: Porcentaje del indicador.
     :return: BytesIO con la imagen de la gráfica.
     """
-    fig, ax = plt.subplots(figsize=(2.5, 2.5), dpi=100)
+    fig, ax = plt.subplots(figsize=(2, 2), dpi=100)
 
     # Datos de la gráfica
     values = [percentage, 100 - percentage]
-    colors = ["#4CAF50", "#EEEEEE"]  # Verde para porcentaje y gris para el resto
+    colors = ["#4CAF50", "#EEEEEE"]  # Verde para porcentaje, gris para el resto
 
     # Crear gráfica de dona
-    wedges, texts = ax.pie(
+    wedges, _ = ax.pie(
         values,
         colors=colors,
         wedgeprops=dict(width=0.3, edgecolor="w"),
@@ -402,17 +402,17 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     chart_data = []
     row = []
-    for indicator, result in indicator_results.items():
-        chart_buffer = generate_donut_chart(result, indicator)
+    for indicator, percentage in indicator_percentages.items():
+        chart_buffer = generate_donut_chart(percentage)  # Solo pasa el porcentaje
         chart_image = ImageReader(chart_buffer)
         row.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
         if len(row) == 2:
             chart_data.append(row)
             row = []
-
+    
     if row:
         chart_data.append(row)
-
+    
     chart_table = Table(chart_data, colWidths=[3 * inch] * 2)
     chart_table.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -421,15 +421,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     ]))
     elements.append(chart_table)
     elements.append(Spacer(1, 0.2 * inch))
-    
-    elements.append(Spacer(1, 0.2 * inch))
-    
-    # Indicador con menor presencia
-    lowest_indicator = min(indicator_results, key=lambda k: indicator_results[k]["relevant_lines"])
-    elements.append(Paragraph("<b>Indicador con Menor Presencia:</b>", styles['CenturyGothicBold']))
-    lowest_relevant_lines = indicator_results[lowest_indicator]["relevant_lines"]
-    lowest_percentage = (lowest_relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-    elements.append(Paragraph(f"• {lowest_indicator} ({lowest_percentage:.2f}%)", styles['CenturyGothic']))
     
     elements.append(Spacer(1, 0.2 * inch))
     
