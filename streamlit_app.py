@@ -299,12 +299,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
     lines= experience_text.split("\n")
-    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+    lines = [line.strip() for line in experience_text.split("\n") if line.strip()]
 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
 
-    indicator_results = calculate_all_indicators(lines, position_indicators)
+    indicator_results = calculate_indicators_for_report(lines, position_indicators)
 
     # Cargar funciones y perfil
     try:
@@ -428,10 +428,15 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         elements.append(Paragraph(f"• {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", styles['CenturyGothic']))
 
-    # Generar gráficos de indicadores
+     # Generar gráficos de indicadores
     chart_rows = []
-    for indicator, percentage in indicator_results.items():
-        if isinstance(percentage, (int, float)):  # Validar porcentaje
+    for indicator, data in indicator_results.items():
+        if isinstance(data, dict):
+            percentage = data.get("percentage", 0)  # Extraer porcentaje
+        else:
+            percentage = data
+
+        if isinstance(percentage, (int, float)):  # Validar que sea un número
             try:
                 # Generar gráfico de dona
                 chart_buffer = generate_donut_chart_for_report(percentage)
