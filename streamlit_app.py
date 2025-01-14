@@ -423,9 +423,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         if isinstance(percentage, (int, float)):  # Validar que sea un número
             chart_buffer = generate_donut_chart_for_report(percentage)
             chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Crear imagen de gráfico
-            chart_columns.append(Paragraph(f"<b>{indicator}</b>", styles['CenturyGothicBold']))
+            chart_rows.append(Paragraph(f"<b>{indicator}</b>", styles['CenturyGothicBold']))
             chart_rows.append(chart_image)  # Agregar gráfico a la fila
-            chart_columns.append(Paragraph(f"Líneas relacionadas: {relevant_lines}", styles['CenturyGothic']))
+            chart_rows.append(Paragraph(f"Líneas relacionadas: {relevant_lines}", styles['CenturyGothic']))
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
             
@@ -466,16 +466,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             for tip in advice[position].get(indicator, []):
                 elements.append(Paragraph(f"  • {tip}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.2 * inch))
-                
-    elements.append(Spacer(1, 0.2 * inch))
-
-    # Resultados de indicadores
-    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-    for indicator, result in indicator_results.items():
-        relevant_lines = result["relevant_lines"]
-        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        elements.append(Paragraph(f"• {indicator}: ({relevant_lines} items relacionados)", styles['CenturyGothic']))
-
+            
     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia global
