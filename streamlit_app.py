@@ -175,7 +175,7 @@ def generate_donut_chart_for_report(percentage, color='green', background_color=
     # Agregar el texto del porcentaje en el centro con negrita
     ax.text(
         0, 0, f"{percentage:.1f}%", 
-        ha='center', va='center', fontsize=16, color='black', weight='bold'
+        ha='center', va='center', fontsize=10, color='black', weight='bold'
     )
     
     # Remover ejes
