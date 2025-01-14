@@ -439,15 +439,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Resultados de indicadores
-    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-    for indicator, result in indicator_results.items():
-        relevant_lines = result["relevant_lines"]
-        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        elements.append(Paragraph(f"• {indicator}: {percentage:.2f}% ({relevant_lines} items relacionados)", styles['CenturyGothic']))
-
-    elements.append(Spacer(1, 0.2 * inch))
-
     # Generar gráficos de indicadores con nombres
     chart_rows = []
     chart_labels = []
@@ -488,15 +479,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Indicador con menor presencia
-    lowest_indicator = min(indicator_results, key=lambda k: indicator_results[k]["relevant_lines"])
-    elements.append(Paragraph("<b>Indicador con Menor Presencia:</b>", styles['CenturyGothicBold']))
-    lowest_relevant_lines = indicator_results[lowest_indicator]["relevant_lines"]
-    lowest_percentage = (lowest_relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-    elements.append(Paragraph(f"• {lowest_indicator} ({lowest_percentage:.2f}%)", styles['CenturyGothic']))
-    
-    elements.append(Spacer(1, 0.2 * inch))
-
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
     if low_performance_indicators:
@@ -509,6 +491,15 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
                 elements.append(Paragraph(f"  • {tip}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.2 * inch))
                 
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Resultados de indicadores
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
+    for indicator, result in indicator_results.items():
+        relevant_lines = result["relevant_lines"]
+        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+        elements.append(Paragraph(f"• {indicator}: ({relevant_lines} items relacionados)", styles['CenturyGothic']))
+
     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia global
@@ -823,19 +814,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Total de líneas analizadas
-    total_items = len(item_results)
-    elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
-
-    elements.append(Spacer(1, 0.2 * inch))
-
-    # Resultados por indicadores
-    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-    for indicator, percentage in indicator_percentages.items():
-        elements.append(Paragraph(f"• {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
-    
-    elements.append(Spacer(1, 0.05 * inch))
-
     # Generar gráficos de indicadores con nombres
     chart_rows = []
     chart_labels = []
@@ -872,6 +850,17 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(chart_table)
     elements.append(Spacer(1, 0.2 * inch))
+
+    # Resultados por indicadores
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
+    for indicator, percentage in indicator_percentages.items():
+        elements.append(Paragraph(f"• {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
+
+    elements.append(Spacer(1, 0.05 * inch))
+
+    # Total de líneas analizadas
+    total_items = len(item_results)
+    elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
 
     elements.append(Spacer(1, 0.2 * inch))
     
