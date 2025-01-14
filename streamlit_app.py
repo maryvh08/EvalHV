@@ -423,7 +423,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         indicator_table_data.append([
             Paragraph(indicator, styles['CenturyGothic']),  # Indicador
             chart_image,                                    # Gráfica
-            str(relevant_lines),                           # Líneas relacionadas
+            str(relevant_lines)                           # Líneas relacionadas
         ])
         
     # Crear tabla de indicadores con gráficas
