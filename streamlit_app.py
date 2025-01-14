@@ -387,27 +387,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     # Encabezados de la tabla
     table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
-
-    # Generar la gráfica
-    for line, func_match, profile_match in line_results:
-        if isinstance(func_match, (int, float)):  # Validar que el porcentaje sea un número
-            chart_buffer_func = generate_donut_chart_for_report(func_match, color=lime)
-            chart_image_func = RLImage(chart_buffer_func, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
-        else:
-            chart_image_func = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
     
-        if isinstance(profile_match, (int, float)):  # Validar que el porcentaje sea un número
-            chart_buffer_prof = generate_donut_chart_for_report(profile_match, color=lime)
-            chart_image_prof = RLImage(chart_buffer_prof, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
-        else:
-            chart_image_prof = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
-       
-        # Agregar datos de line_results a la tabla
-        table_data.append([
-                Paragraph(line, styles['CenturyGothic']),  #Criterio
-                chart_image_func,                                    # Gráfica función
-                chart_image_prof                           # Gráfica perfil
-         ])
+    # Agregar datos de line_results a la tabla
+    for line, func_match, profile_match in line_results:
+        table_data.append([Paragraph(line, styles['CenturyGothic']), f"{func_match:.2f}%", f"{profile_match:.2f}%"])
 
     # Crear la tabla con ancho de columnas ajustado
     item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
