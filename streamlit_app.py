@@ -440,12 +440,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
     ]))
+    
+    # Incluir tabla de gráficos en el reporte
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(chart_table)
     elements.append(Spacer(1, 0.2 * inch))
-        # Incluir tabla de gráficos en el reporte
-        elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-        elements.append(chart_table)
-        elements.append(Spacer(1, 0.2 * inch))
 
     
     # Consejos para mejorar indicadores con baja presencia
