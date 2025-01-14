@@ -166,7 +166,7 @@ def generate_donut_chart(percentage):
 
     fig, ax = plt.subplots(figsize=(2, 2))
     values = [percentage, 100 - percentage]
-    colors = ['#4CAF50', '#E0E0E0']  # Colores para el gráfico
+    colors = ['#76C04E', '#E0E0E0']  # Colores para el gráfico
     ax.pie(
         values,
         labels=['', ''],
@@ -175,7 +175,7 @@ def generate_donut_chart(percentage):
         counterclock=False,
         wedgeprops=dict(width=0.3),
     )
-    ax.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=14)
+    ax.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=12)
     ax.axis('equal')  # Mantener aspecto circular
 
     buffer = BytesIO()
@@ -190,7 +190,7 @@ def generate_donut_chart_for_report(percentage):
     """
     fig, ax = plt.subplots(figsize=(2, 2), dpi=100)
     values = [percentage, 100 - percentage]
-    colors = ['#4CAF50', '#E0E0E0']
+    colors = ['#76C04E', '#E0E0E0']
     ax.pie(values, labels=None, startangle=90, colors=colors, wedgeprops={'width': 0.3})
     ax.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=12)
     ax.axis('equal')
