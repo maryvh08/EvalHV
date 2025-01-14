@@ -831,7 +831,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         ])
         
     # Crear la tabla
-    item_table = Table(item_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch]))
+    item_table = Table(item_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
     
     # Aplicar estilos a la tabla
     item_table.setStyle(TableStyle([
