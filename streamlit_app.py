@@ -416,29 +416,22 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
-     # Generar gráficos de indicadores
-    chart_rows = []
-    for indicator, data in indicator_results.items():
+    # Generar gráficos de indicadores y alinearlos
+    chart_row = []  # Almacenar una fila de gráficos
+    for i, (indicator, data) in enumerate(indicator_results.items()):
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         if isinstance(percentage, (int, float)):  # Validar que sea un número
             chart_buffer = generate_donut_chart_for_report(percentage)
             chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Usar RLImage para evitar conflictos
-            chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
+            chart_row.append(chart_image)  # Añadir gráfico a la fila
+
+            # Si hemos completado una fila de 3 gráficos o es el último gráfico
+            if (i + 1) % 3 == 0 or i + 1 == len(indicator_results):
+                elements.append(Table([chart_row], colWidths=[2.5 * inch] * len(chart_row), hAlign='CENTER'))
+                elements.append(Spacer(1, 0.2 * inch))
+                chart_row = []  # Reiniciar la fila
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
-
-    # Añadir gráficos al reporte
-    if chart_rows:
-        chart_table = Table(chart_rows, colWidths=[2.5 * inch, 2.5 * inch])
-        chart_table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ]))
-        elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-        elements.append(chart_table)
-    else:
-        elements.append(Paragraph("No se generaron gráficos para los indicadores.", styles['CenturyGothic']))
 
     elements.append(Spacer(1, 0.2 * inch))
 
