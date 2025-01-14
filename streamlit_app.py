@@ -816,9 +816,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     item_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]  # Encabezados
     
     # Agregar filas a la tabla con los resultados por ítem
-    for header, results in item_results:
+    for header, results in item_results.items:
         item_table_data.append([
-            Paragraph(header, styles['CenturyGothic']),   # Ítem
+            Paragraph(item, styles['CenturyGothic']),   # Ítem
             f"{func_match:.2f}%",                      # Funciones del Cargo (%)
             f"{profile_match:.2f}%"                    # Perfil del Cargo (%)
         ])
