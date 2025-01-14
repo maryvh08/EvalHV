@@ -819,7 +819,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         # Agregar gráfico y texto en una celda
         cell_content = [
             chart_image,
-            Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic']),
+            Paragraph(f"{indicator}, styles['CenturyGothic']),
         ]
         row.append(cell_content)
 
