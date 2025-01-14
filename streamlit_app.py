@@ -873,7 +873,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         indicator_table_data.append([
             Paragraph(indicator, styles['CenturyGothic']),  # Indicador
             chart_image,                                    # Gráfica
-            str(related_items_count[indicator)                           # Líneas relacionadas
+            str(related_items_count[indicator])                           # Líneas relacionadas
         ])
 
     # Crear tabla de indicadores con gráficas
