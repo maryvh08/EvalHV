@@ -431,6 +431,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
+        if len(row) == 1:  # Cada fila contiene un gráfico
+                chart_data.append(row)
+                row = []
+
     if row:  # Agrega la última fila si está incompleta
         chart_data.append(row)
     
