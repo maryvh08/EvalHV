@@ -466,7 +466,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
                 elements.append(Paragraph(f"  • {tip}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.2 * inch))
 
-     elements.append(Spacer(1, 0.2 * inch))
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla global con ajuste de texto
     elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
