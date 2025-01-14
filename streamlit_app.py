@@ -431,20 +431,18 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
-    # Organizar gráficos y nombres en filas
-    combined_rows = []
-    for i in range(0, len(chart_rows), 1):
-        combined_rows.append(chart_rows[i:i+3])  # Gráficos
-        combined_rows.append(chart_labels[i:i+3])  # Nombres
-
     # Crear tabla con gráficos
-    chart_table = Table(chart_rows, colWidths=[3 * inch, 3 * inch], hAlign='CENTER')
-    chart_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-    ]))
-
+        chart_table = Table(
+            chart_rows,
+            colWidths=[3 * inch, 3 * inch],
+            hAlign='CENTER'
+        )
+        chart_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        
     # Incluir tabla de gráficos en el reporte
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(chart_table)
