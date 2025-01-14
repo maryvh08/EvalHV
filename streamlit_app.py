@@ -390,13 +390,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Generar la gráfica
     for line, func_match, profile_match in line_results:
-        if isinstance(global_func_match, (int, float)):  # Validar que el porcentaje sea un número
+        if isinstance(match, (int, float)):  # Validar que el porcentaje sea un número
             chart_buffer_func = generate_donut_chart_for_report(func_match, color=lime)
             chart_image_func = RLImage(chart_buffer_func, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
         else:
             chart_image_func = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
     
-        if isinstance(global_profile_match, (int, float)):  # Validar que el porcentaje sea un número
+        if isinstance(profile_match, (int, float)):  # Validar que el porcentaje sea un número
             chart_buffer_prof = generate_donut_chart_for_report(profile_match, color=lime)
             chart_image_prof = RLImage(chart_buffer_prof, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
         else:
@@ -841,13 +841,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     for header, result in item_results.items():
         # Generar la gráfica
-        if isinstance(global_func_match, (int, float)):  # Validar que el porcentaje sea un número
+        if isinstance(func_match, (int, float)):  # Validar que el porcentaje sea un número
             chart_buffer_func = generate_donut_chart_for_report(func_match, color=lime)
             chart_image_func = RLImage(chart_buffer_func, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
         else:
             chart_image_func = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
     
-        if isinstance(global_profile_match, (int, float)):  # Validar que el porcentaje sea un número
+        if isinstance(profile_match, (int, float)):  # Validar que el porcentaje sea un número
             chart_buffer_prof = generate_donut_chart_for_report(profile_match, color=lime)
             chart_image_prof = RLImage(chart_buffer_prof, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
         else:
