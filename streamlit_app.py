@@ -374,8 +374,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         table_data.append([Paragraph(line, styles['CenturyGothic']), f"{func_match:.2f}%", f"{profile_match:.2f}%"])
 
     #Lineas adicionales
-    table_data.append(["<b>Concordancia Global</b>", f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
-    table_data.append(["<b>Puntaje Global</b>", f"{func_score:.2f}", f"{profile_score:.2f}"])
+    table_data.append(["<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
+    table_data.append(["<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
 
     # Crear la tabla con ancho de columnas ajustado
     item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
