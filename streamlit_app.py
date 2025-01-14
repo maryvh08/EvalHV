@@ -419,43 +419,29 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(PageBreak())
 
     # Generar gráficos de indicadores con nombres
-    chart_rows = []
-    chart_labels = []
+    chart_data = []
+    row = []
 
-    for indicator, data in indicator_results.items():
-        relevant_lines = sum(
-            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
-        )
-        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        if isinstance(percentage, (int, float)):  # Validar que sea un número
-            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
-            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Crear imagen de gráfico
-            chart_rows.append(chart_image)  # Agregar gráfico a la fila
-            chart_labels.append(Paragraph(indicator, styles['CenturyGothic']))  # Agregar nombre del indicador
+    for indicator, percentage in indicator_percentages.items():
+        if isinstance(percentage, (int, float)):  # Verifica que el porcentaje sea válido
+            chart_buffer = generate_donut_chart(percentage)
+            chart_image = ImageReader(chart_buffer)
+            row.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
+            if len(row) == 2:  # Cada fila contiene dos gráficos
+                chart_data.append(row)
+                row = []
         else:
-            st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
-
-    # Organizar gráficos y nombres en filas
-    combined_rows = []
-    for i in range(0, len(chart_rows), 3):
-        # Crear filas con hasta 3 gráficos y sus nombres
-        combined_rows.append(chart_rows[i:i+3])  # Gráficos
-        combined_rows.append(chart_labels[i:i+3])  # Nombres
-
-    # Crear tabla con gráficos y nombres
-    chart_table = Table(
-        combined_rows,
-        colWidths=[2.5 * inch] * 3,  # Hasta 3 gráficos por fila
-        hAlign='CENTER'
-    )
+            st.warning(f"El valor para el indicador '{indicator}' no es válido: {percentage}")
+    
+    if row:  # Agrega la última fila si está incompleta
+        chart_data.append(row)
+    
+    chart_table = Table(chart_data, colWidths=[3 * inch] * 2)
     chart_table.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
     ]))
-
-    # Incluir tabla de gráficos en el reporte
-    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(chart_table)
     elements.append(Spacer(1, 0.2 * inch))
     
