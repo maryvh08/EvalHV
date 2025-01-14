@@ -831,7 +831,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     total_items = len(item_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
 
-     elements.append(Spacer(1, 0.2 * inch))
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
