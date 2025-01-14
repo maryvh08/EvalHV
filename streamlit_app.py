@@ -907,6 +907,63 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Spacer(1, 0.2 * inch))
     elements.append(indicator_table)
     elements.append(Spacer(1, 0.2 * inch))
+
+    #Insertar gráficas de indicadores
+    chart_rows = []
+    chart_labels = []
+    for indicator, percentage in indicator_percentages.items():
+        if isinstance(percentage, (int, float)):
+            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
+            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Usar RLImage para evitar conflictos
+            chart_rows.append([chart_image])
+            chart_rows.append([Paragraph(indicator, styles['CenturyGothic'])])
+        else:
+            st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
+
+    # Añadir gráficos al reporte
+    if chart_rows:
+        chart_table = Table(chart_rows, colWidths=[2.5 * inch, 2.5 * inch])
+        chart_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
+        elements.append(chart_table)
+    else:
+        elements.append(Paragraph("No se generaron gráficos para los indicadores.", styles['CenturyGothic']))
+
+    elements.append(Spacer(1, 0.1 * inch))
+
+    # Encabezados de la tabla
+    table_indicator = [["Indicador", "Concordancia (%)"]]
+    
+    # Agregar datos de line_results a la tabla
+    for indicator, percentage in indicator_percentages.items():
+        if isinstance(percentage, (int, float)):
+            table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%"])
+
+    # Crear la tabla con ancho de columnas ajustado
+    indicator_table = Table(table_indicator, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    indicator_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
+        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
+        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(indicator_table)
+
+    elements.append(Spacer(1, 0.2 * inch))
     
     # Mostrar consejos para indicadores con porcentaje menor al 50%
     elements.append(Paragraph("<b>Consejos para Indicadores Críticos:</b>", styles['CenturyGothicBold']))
