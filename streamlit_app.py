@@ -269,8 +269,7 @@ def extract_experience_section_with_ocr(pdf_path):
     
     return "\n".join(cleaned_lines)
 
-def generate_report_with_background(pdf_path, position, candidate_name,background_path):
-    """
+"""
     Genera un reporte con un fondo en cada página.
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
@@ -285,12 +284,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
     lines= experience_text.split("\n")
-    lines = [line.strip() for line in experience_text.split("\n") if line.strip()]
+    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
 
-    indicator_results = calculate_indicators_for_report(lines, position_indicators)
+    indicator_results = calculate_all_indicators(lines, position_indicators)
 
     # Cargar funciones y perfil
     try:
