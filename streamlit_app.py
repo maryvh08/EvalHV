@@ -424,9 +424,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             chart_buffer = generate_donut_chart_for_report(percentage)
             chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Crear imagen de gráfico
             elements.append(Paragraph(f"<b>{indicator}</b>", styles['CenturyGothicBold']))
-             elements.append(Spacer(1, 0.1 * inch))
+            elements.append(Spacer(1, 0.1 * inch))
             chart_rows.append(chart_image)  # Agregar gráfico a la fila
-             elements.append(Spacer(1, 0.1 * inch))
+            elements.append(Spacer(1, 0.1 * inch))
             elements.append(Paragraph(f"Líneas relacionadas: {relevant_lines}", styles['CenturyGothic']))
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
