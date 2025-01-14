@@ -449,6 +449,47 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
+    # Preparar datos para la tabla de indicadores
+    indicator_table_data = [["<b>Indicador</b>", "<b>Porcentaje</b>", "<b>Líneas relacionadas</b>"]]  # Encabezados
+    
+    # Agregar los datos de los indicadores
+    for indicator, result in indicator_results.items():
+        relevant_lines = result.get("relevant_lines", 0)
+        percentage = result.get("percentage", 0)
+    
+        # Agregar fila con datos del indicador
+        indicator_table_data.append([
+            Paragraph(indicator, styles['CenturyGothic']),  # Indicador
+            f"{percentage:.2f}%",                          # Porcentaje
+            str(relevant_lines)                             # Líneas relacionadas
+        ])
+    
+    # Crear tabla de indicadores
+    indicator_table = Table(
+        indicator_table_data,
+        colWidths=[3 * inch, 1.5 * inch, 1.5 * inch]  # Anchos de columnas
+    )
+    
+    # Estilos de la tabla
+    indicator_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo de encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),                 # Color de texto de encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),                        # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),           # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),              # Fuente para celdas
+        ('FONTSIZE', (0, 0), (-1, -1), 10),                           # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),                        # Padding inferior de encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),                 # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),                       # Alinear texto verticalmente
+        ('WORDWRAP', (0, 0), (-1, -1))                                # Ajustar texto dentro de celdas
+    ]))
+    
+    # Agregar tabla al reporte
+    elements.append(Paragraph("<b>Tabla de Indicadores:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(indicator_table)
+    elements.append(Spacer(1, 0.2 * inch))
+
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
     if low_performance_indicators:
