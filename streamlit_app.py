@@ -418,36 +418,31 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Insertar un salto de página
     elements.append(PageBreak())
 
+    # Generar gráficos de indicadores
     chart_rows = []
-    for indicator, percentage in indicator_results.items():
-        if isinstance(percentage, (int, float)):
-            # Generar gráfico de dona
+    for indicator, data in indicator_results.items():
+        percentage = data.get("percentage", 0) if isinstance(data, dict) else data
+        if isinstance(percentage, (int, float)):  # Validar que sea un número
             chart_buffer = generate_donut_chart_for_report(percentage)
-            chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)
+            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Usar RLImage para evitar conflictos
             chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
-    # Verificar si hay gráficos generados
+    # Añadir gráficos al reporte
     if chart_rows:
-        # Crear tabla con gráficos
-        chart_table = Table(
-            chart_rows,
-            colWidths=[3 * inch, 3 * inch],
-            hAlign='CENTER'
-        )
+        chart_table = Table(chart_rows, colWidths=[2.5 * inch, 2.5 * inch])
         chart_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
         ]))
-
-        # Agregar tabla de gráficos al reporte
         elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
         elements.append(chart_table)
-        elements.append(Spacer(1, 0.2 * inch))
     else:
         elements.append(Paragraph("No se generaron gráficos para los indicadores.", styles['CenturyGothic']))
+
+    elements.append(Spacer(1, 0.2 * inch))
     
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
