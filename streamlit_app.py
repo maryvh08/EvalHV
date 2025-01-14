@@ -447,7 +447,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     ]))
     
     # Agregar tabla al reporte
-    elements.append(Paragraph("<b>Tabla de Indicadores con Gráficas:</b>", styles['CenturyGothicBold']))
+    elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
     elements.append(indicator_table)
     elements.append(Spacer(1, 0.2 * inch))
