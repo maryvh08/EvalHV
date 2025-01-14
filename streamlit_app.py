@@ -809,7 +809,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     chart_labels = []
 
     for indicator, data in indicator_percentages.items():
-        percentage = (relevant_lines / total_items) * 100 if total_items > 0 else 0
         if isinstance(percentage, (int, float)):  # Validar que sea un número
             chart_buffer = generate_donut_chart_for_report(percentage)
             chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Crear imagen de gráfico
