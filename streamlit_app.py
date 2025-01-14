@@ -463,20 +463,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Concordancia global
-    elements.append(Paragraph("<b>Concordancia Global:</b>", styles['CenturyGothicBold']))
-    elements.append(Paragraph(f"• Funciones del Cargo: {global_func_match:.2f}%", styles['CenturyGothic']))
-    elements.append(Paragraph(f"• Perfil del Cargo: {global_profile_match:.2f}%", styles['CenturyGothic']))
-   
-    elements.append(Spacer(1, 0.2 * inch))
-
-    # Puntaje global
-    elements.append(Paragraph("<b>Puntaje Global:</b>", styles['CenturyGothicBold']))
-    elements.append(Paragraph(f"• Funciones del Cargo: {func_score}", styles['CenturyGothic']))
-    elements.append(Paragraph(f"• Perfil del Cargo: {profile_score}", styles['CenturyGothic']))
-    
-    elements.append(Spacer(1, 0.2 * inch))
-
     # Interpretación de resultados
     elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
     if global_profile_match > 75 and global_func_match > 75:
@@ -785,6 +771,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Crear imagen de gráfico
             chart_rows.append(chart_image)  # Agregar gráfico a la fila
             chart_labels.append(Paragraph(indicator, styles['CenturyGothic']))  # Agregar nombre del indicador
+            chart_rows.append(Paragraph(f"<b>{indicator}</b>", styles['CenturyGothicBold']))
+            chart_rows.append(chart_image)  # Agregar gráfico a la fila
+            chart_rows.append(Paragraph(f"Líneas relacionadas: {related_items_count}", styles['CenturyGothic']))
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
