@@ -769,14 +769,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         if isinstance(percentage, (int, float)):  # Validar que sea un número
             chart_buffer = generate_donut_chart_for_report(percentage)
             chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Crear imagen de gráfico
-            chart_rows.append(chart_image)  # Agregar gráfico a la fila
-            chart_labels.append(Paragraph(indicator, styles['CenturyGothic']))  # Agregar nombre del indicador
             chart_rows.append(Paragraph(f"<b>{indicator}</b>", styles['CenturyGothicBold']))
             chart_rows.append(chart_image)  # Agregar gráfico a la fila
-            chart_rows.append(Paragraph(f"Líneas relacionadas: {related_items_count[indicator] }", styles['CenturyGothic']))
+            chart_rows.append(Paragraph(f"Líneas relacionadas: {related_items_count[indicator]}", styles['CenturyGothic']))
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
-
+            
     # Organizar gráficos y nombres en filas
     combined_rows = []
     for i in range(0, len(chart_rows), 3):
@@ -799,6 +797,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Incluir tabla de gráficos en el reporte
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(chart_table)
+
     elements.append(Spacer(1, 0.2 * inch))
 
     # Resultados por indicadores
