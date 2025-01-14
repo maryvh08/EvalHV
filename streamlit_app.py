@@ -821,35 +821,23 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Encabezados de la tabla
     item_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]  # Encabezados
-
+    
+    # Iterar sobre los resultados por ítem y construir las filas de la tabla
     for header, result in item_results.items():
         func_match = result.get("Funciones del Cargo", 0)
         profile_match = result.get("Perfil del Cargo", 0)
-
-        # Generar la gráfica
-        if isinstance(func_match, (int, float)):  # Validar que el porcentaje sea un número
-            chart_buffer_func = generate_donut_chart_for_report(func_match, color=lime)
-            chart_image_func = RLImage(chart_buffer_func, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
-        else:
-            chart_image_func = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
-    
-        if isinstance(profile_match, (int, float)):  # Validar que el porcentaje sea un número
-            chart_buffer_prof = generate_donut_chart_for_report(profile_match, color=lime)
-            chart_image_prof = RLImage(chart_buffer_prof, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
-        else:
-            chart_image_prof = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
-
+        
         # Ajustar texto del encabezado para que no desborde
         header_paragraph = Paragraph(header, styles['CenturyGothic'])
     
-        # Agregar datos de global_results a la tabla
+        # Agregar una fila a la tabla
         item_table_data.append([
-                header_paragraph,  #Criterio
-                chart_image_func,                                    # Gráfica función
-                chart_image_prof                           # Gráfica perfil
-         ])
-
-    # Crear la tabla con ancho de columnas ajustado
+            header_paragraph,         # Ítem
+            f"{func_match:.2f}%",    # Funciones del Cargo
+            f"{profile_match:.2f}%"  # Perfil del Cargo
+        ])
+        
+    # Crear la tabla
     item_table = Table(item_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
     
     # Aplicar estilos a la tabla
