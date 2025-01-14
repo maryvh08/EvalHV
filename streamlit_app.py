@@ -470,11 +470,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             str(relevant_lines),                           # Líneas relacionadas
             chart_image                                    # Gráfica
         ])
-    
+        
     # Crear tabla de indicadores con gráficas
     indicator_table = Table(
         indicator_table_data,
-        colWidths=[2.5 * inch, 1 * inch, 1.5 * inch, 2 * inch]  # Anchos de columnas
+        colWidths=[3 * inch, 2 * inch, 2 * inch]  # Anchos de columnas
     )
     
     # Estilos de la tabla
