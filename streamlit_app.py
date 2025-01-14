@@ -431,6 +431,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
+    # Organizar gráficos y nombres en filas
+    combined_rows = []
+    for i in range(0, len(chart_rows), 3):
+        combined_rows.append(chart_rows[i:i+1])  # Gráficos
+        combined_rows.append(chart_labels[i:i+1])  # Nombres
+
     # Crear tabla con gráficos y nombres
     chart_table = Table(
         combined_rows,
