@@ -864,50 +864,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Insertar un salto de página
     elements.append(PageBreak())
 
-    # Preparar datos para la tabla 
-    indicator_table_data = [["Índicador", "Porcentaje", "Lineas relacionadas"]]# Encabezados
-    
-    # Agregar datos de los indicadores
-    for indicator, percentage in indicator_percentages.items():
-        if isinstance(percentage, (int, float)):  # Validar que sea un número
-            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
-            chart_image = RLImage(chart_buffer, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
-        else:
-            chart_image = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
-    
-        # Agregar fila a la tabla
-        indicator_table_data.append([
-            Paragraph(indicator, styles['CenturyGothic']),  # Indicador
-            chart_image,                                    # Gráfica
-            str(related_items_count[indicator])                           # Líneas relacionadas
-        ])
-
-    # Crear tabla de indicadores con gráficas
-    indicator_table = Table(
-        indicator_table_data,
-        colWidths=[3 * inch, 2 * inch, 2 * inch]  # Anchos de columnas
-    )
-
-    # Estilos de la tabla
-    indicator_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo de encabezados
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),                 # Color de texto de encabezados
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),                        # Alinear texto al centro
-        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),           # Fuente para encabezados
-        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),              # Fuente para celdas
-        ('FONTSIZE', (0, 0), (-1, -1), 10),                           # Tamaño de fuente
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),                        # Padding inferior de encabezados
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),                 # Líneas de la tabla
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),                       # Alinear texto verticalmente
-        ('WORDWRAP', (0, 0), (-1, -1))                                # Ajustar texto dentro de celdas
-    ]))
-    
-    # Agregar tabla al reporte
-    elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
-    elements.append(Spacer(1, 0.2 * inch))
-    elements.append(indicator_table)
-    elements.append(Spacer(1, 0.2 * inch))
-
     #Insertar gráficas de indicadores
     chart_rows = []
     chart_labels = []
@@ -985,27 +941,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Encabezados de la tabla global
     global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
-
-    # Generar la gráfica
-    if isinstance(global_func_match, (int, float)):  # Validar que el porcentaje sea un número
-        chart_buffer_func = generate_donut_chart_for_report(global_func_match, color=blue)
-        chart_image_func = RLImage(chart_buffer_func, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
-    else:
-        chart_image_func = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
-
-    if isinstance(global_profile_match, (int, float)):  # Validar que el porcentaje sea un número
-        chart_buffer_prof = generate_donut_chart_for_report(global_profile_match, color=blue)
-        chart_image_prof = RLImage(chart_buffer_prof, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
-    else:
-        chart_image_prof = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
-
-   
+    
     # Agregar datos de global_results a la tabla
-    global_table_data.append([
-            Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']),  #Criterio
-            chart_image_func,                                    # Gráfica función
-            chart_image_prof                           # Gráfica perfil
-     ])
+    global_table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
     global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
 
     # Crear la tabla con ancho de columnas ajustado
@@ -1029,7 +967,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(global_table)
     
     elements.append(Spacer(1, 0.2 * inch))
-
+    
     # Interpretación de resultados
     elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.1 * inch))
