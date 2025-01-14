@@ -773,7 +773,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             chart_labels.append(Paragraph(indicator, styles['CenturyGothic']))  # Agregar nombre del indicador
             chart_rows.append(Paragraph(f"<b>{indicator}</b>", styles['CenturyGothicBold']))
             chart_rows.append(chart_image)  # Agregar gráfico a la fila
-            chart_rows.append(Paragraph(f"Líneas relacionadas: {related_items_count}", styles['CenturyGothic']))
+            chart_rows.append(Paragraph(f"Líneas relacionadas: {related_items_count[indicator] }", styles['CenturyGothic']))
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
