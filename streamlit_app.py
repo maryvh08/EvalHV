@@ -425,7 +425,14 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
         ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
         ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Texto alineado verticalmente al centro
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),  # Alinear texto de la celda a la izquierda
     ]))
+    
+    # Habilitar ajuste de texto dentro de las celdas
+    for row in table_data:
+        for i in range(len(row)):
+            row[i] = Paragraph(row[i], styles['CenturyGothic'])
     
     # Agregar tabla a los elementos
     elements.append(item_table)
