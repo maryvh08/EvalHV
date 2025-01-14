@@ -857,6 +857,50 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
 
     elements.append(Spacer(1, 0.2 * inch))
+
+    # Preparar datos para la tabla 
+    indicator_table_data = [["Índicador", "Porcentaje", "Lineas relacionadas"]]# Encabezados
+    
+    # Agregar datos de los indicadores
+    for indicator, percentage in indicator_percentages.items():
+        if isinstance(percentage, (int, float)):  # Validar que sea un número
+            chart_buffer = generate_donut_chart_for_report(percentage)
+            chart_image = RLImage(chart_buffer, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
+        else:
+            chart_image = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
+    
+        # Agregar fila a la tabla
+        indicator_table_data.append([
+            Paragraph(indicator, styles['CenturyGothic']),  # Indicador
+            chart_image,                                    # Gráfica
+            str(relevant_lines)                           # Líneas relacionadas
+        ])
+
+    # Crear tabla de indicadores con gráficas
+    indicator_table = Table(
+        indicator_table_data,
+        colWidths=[3 * inch, 2 * inch, 2 * inch]  # Anchos de columnas
+    )
+
+    # Estilos de la tabla
+    indicator_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo de encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),                 # Color de texto de encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),                        # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),           # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),              # Fuente para celdas
+        ('FONTSIZE', (0, 0), (-1, -1), 10),                           # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),                        # Padding inferior de encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),                 # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),                       # Alinear texto verticalmente
+        ('WORDWRAP', (0, 0), (-1, -1))                                # Ajustar texto dentro de celdas
+    ]))
+    
+    # Agregar tabla al reporte
+    elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(indicator_table)
+    elements.append(Spacer(1, 0.2 * inch))
     
     # Mostrar consejos para indicadores con porcentaje menor al 50%
     elements.append(Paragraph("<b>Consejos para Indicadores Críticos:</b>", styles['CenturyGothicBold']))
