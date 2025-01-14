@@ -459,7 +459,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
         # Generar la gráfica
         if isinstance(percentage, (int, float)):  # Validar que el porcentaje sea un número
-            chart_buffer = generate_donut_chart_for_report(percentage):
+            chart_buffer = generate_donut_chart_for_report(percentage)
             chart_image = RLImage(chart_buffer, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
         else:
             chart_image = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
