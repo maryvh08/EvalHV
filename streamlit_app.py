@@ -813,6 +813,56 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     elements.append(Spacer(1, 0.2 * inch))
 
+    # Encabezados de la tabla
+    item_table_data = [["<b>Ítem</b>", "<b>Funciones del Cargo (%)</b>", "<b>Perfil del Cargo (%)</b>"]]  # Encabezados
+    
+    # Agregar filas a la tabla con los resultados por ítem
+    for line, func_match, profile_match in line_results:
+        item_table_data.append([
+            Paragraph(line, styles['CenturyGothic']),   # Ítem
+            f"{func_match:.2f}%",                      # Funciones del Cargo (%)
+            f"{profile_match:.2f}%"                    # Perfil del Cargo (%)
+        ])
+    
+    # Agregar filas para Concordancia Global y Puntaje Global
+    item_table_data.append([
+        "<b>Concordancia Global</b>",
+        f"{global_func_match:.2f}%",  # Funciones del Cargo (%)
+        f"{global_profile_match:.2f}%"  # Perfil del Cargo (%)
+    ])
+    
+    item_table_data.append([
+        "<b>Puntaje Global</b>",
+        f"{func_score:.2f}",  # Funciones del Cargo (%)
+        f"{profile_score:.2f}"  # Perfil del Cargo (%)
+    ])
+    
+    # Crear la tabla
+    item_table = Table(
+        item_table_data,
+        colWidths=[4 * inch, 2 * inch, 2 * inch]  # Ajustar anchos de columnas
+    )
+    
+    # Estilo de la tabla
+    item_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo de encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),                 # Color de texto de encabezados
+        ('ALIGN', (1, 1), (-1, -1), 'CENTER'),                        # Centrar las columnas de porcentajes
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),           # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),              # Fuente para celdas
+        ('FONTSIZE', (0, 0), (-1, -1), 10),                           # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),                        # Padding inferior para encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),                 # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),                       # Alinear verticalmente
+        ('WORDWRAP', (0, 0), (-1, -1))                                # Ajustar texto en las celdas
+    ]))
+    
+    # Agregar tabla al reporte
+    elements.append(Paragraph("<b>Resultados por Ítem:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(item_table)
+    elements.append(Spacer(1, 0.2 * inch))
+
     # Total de líneas analizadas
     total_items = len(item_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
