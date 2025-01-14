@@ -419,31 +419,30 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(PageBreak())
 
     # Generar gráficos de indicadores con nombres
-    chart_data = []
-    row = []
+    # Gráficos de indicadores
+    chart_rows = []
+    for indicator, percentage in indicator_results.items():
+        if not isinstance(percentage, (int, float)):
+            st.error(f"El porcentaje para {indicator} no es válido: {percentage}")
+            continue
 
-    for indicator, result in indicator_results.items():
-        relevant_lines = result["relevant_lines"]
-        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        if isinstance(percentage, (int, float)):  # Verifica que el porcentaje sea válido
-            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
-            chart_image = ImageReader(chart_buffer)
-            row.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
-            if len(row) == 2:  # Cada fila contiene dos gráficos
-                chart_data.append(row)
-                row = []
-        else:
-            st.warning(f"El valor para el indicador '{indicator}' no es válido: {percentage}")
-    
-    if row:  # Agrega la última fila si está incompleta
-        chart_data.append(row)
-    
-    chart_table = Table(chart_data, colWidths=[3 * inch] * 2)
+        # Generar gráfico de dona
+        chart_buffer = generate_donut_chart_for_report(percentage, color=green)
+        chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)
+
+        # Añadir gráfico y descripción
+        chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
+
+    # Crear tabla con gráficos
+    chart_table = Table(chart_rows, colWidths=[3 * inch, 3 * inch], hAlign='CENTER')
     chart_table.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
     ]))
+
+    # Incluir tabla de gráficas
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(chart_table)
     elements.append(Spacer(1, 0.2 * inch))
     
