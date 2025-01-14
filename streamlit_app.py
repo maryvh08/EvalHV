@@ -443,6 +443,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     chart_rows = []
     chart_labels = []
 
+    for indicator, result in indicator_results.items():
+        relevant_lines = result["relevant_lines"]
+        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+
     for indicator, data in indicator_results.items():
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         if isinstance(percentage, (int, float)):  # Validar que sea un número
