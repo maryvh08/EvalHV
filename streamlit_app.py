@@ -447,7 +447,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     else:
         elements.append(Paragraph("No se generaron gráficos para los indicadores.", styles['CenturyGothic']))
 
-    elements.append(Spacer1,0.1* inch)
+    elements.append(Spacer(1, 0.1 * inch))
 
     # Encabezados de la tabla
     table_indicator = [["Indicador", "Concordancia (%)"]]
