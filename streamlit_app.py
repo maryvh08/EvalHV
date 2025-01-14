@@ -422,7 +422,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         percentage = data.get("percentage", 0) if isinstance(data, dict) else data
         if isinstance(percentage, (int, float)):  # Validar que sea un número
             chart_buffer = generate_donut_chart_for_report(percentage)
-            chart_image = Image(chart_buffer, width=2 * inch, height=2 * inch)
+            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Usar RLImage para evitar conflictos
             chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
@@ -439,7 +439,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         elements.append(chart_table)
     else:
         elements.append(Paragraph("No se generaron gráficos para los indicadores.", styles['CenturyGothic']))
-
 
     elements.append(Spacer(1, 0.2 * inch))
 
