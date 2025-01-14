@@ -161,7 +161,7 @@ def generate_donut_chart_for_report(percentage, color='green', background_color=
     """
     Genera una gráfica de dona para representar un porcentaje.
     :param percentage: Porcentaje que representa la parte "completa" de la dona.
-    :param color: Color principal de la dona (por defecto, azul).
+    :param color: Color principal de la dona (por defecto, verde).
     :param background_color: Color de fondo de la gráfica (por defecto, blanco).
     :return: Un buffer de la imagen en formato PNG.
     """
@@ -174,8 +174,11 @@ def generate_donut_chart_for_report(percentage, color='green', background_color=
         wedgeprops=dict(width=0.3),  # Dona con grosor
     )
     
-    # Agregar el texto del porcentaje en el centro
-    ax.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=16, color='black')
+    # Agregar el texto del porcentaje en el centro con negrita
+    ax.text(
+        0, 0, f"{percentage:.1f}%", 
+        ha='center', va='center', fontsize=16, color='black', weight='bold'
+    )
     
     # Remover ejes
     ax.axis('equal')
