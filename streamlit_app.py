@@ -465,6 +465,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Concordancia de items organizada en tabla global con ajuste de texto
     elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
 
+    elements.append(Spacer(1, 0.2 * inch))
+
     # Encabezados de la tabla global
     global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
 
@@ -514,6 +516,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Interpretación de resultados
     elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.1 * inch))
     if global_profile_match > 75 and global_func_match > 75:
         elements.append(Paragraph(
             f" Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.",
