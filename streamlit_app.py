@@ -42,7 +42,6 @@ advice = load_advice()
 # Colores
 blue= "#0D62AD"
 green= "#76C04E"
-lime= "#A8CF45"
 
 # Uso del código
 background_path = "Fondo Comunicado.png"
