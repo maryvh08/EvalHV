@@ -155,35 +155,6 @@ def add_background(canvas, background_path):
     canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
     canvas.restoreState()
 
-def generate_donut_chart(percentage):
-    """
-    Genera un gráfico de anillo/dona y devuelve su buffer de imagen.
-    :param percentage: Porcentaje a representar en el gráfico.
-    :return: BytesIO buffer de la imagen.
-    """
-    import matplotlib.pyplot as plt
-    from io import BytesIO
-
-    fig, ax = plt.subplots(figsize=(2, 2))
-    values = [percentage, 100 - percentage]
-    colors = ['#76C04E', '#E0E0E0']  # Colores para el gráfico
-    ax.pie(
-        values,
-        labels=['', ''],
-        colors=colors,
-        startangle=90,
-        counterclock=False,
-        wedgeprops=dict(width=0.3),
-    )
-    ax.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=12)
-    ax.axis('equal')  # Mantener aspecto circular
-
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png', bbox_inches='tight', transparent=True)
-    plt.close(fig)
-    buffer.seek(0)
-    return buffer
-
 def generate_donut_chart_for_report(percentage):
     """
     Genera un gráfico de dona para un porcentaje dado.
@@ -449,25 +420,17 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     for indicator, data in indicator_results.items():
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        if isinstance(percentage, (int, float)):  # Validar que sea un número
-            # Generar gráfico de dona
+         if isinstance(percentage, (int, float)):  # Validar que sea un número
             chart_buffer = generate_donut_chart_for_report(percentage)
-            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)
-    
-            # Agregar nombre del indicador
+            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Crear imagen de gráfico
             elements.append(Paragraph(f"<b>{indicator}</b>", styles['CenturyGothicBold']))
-            elements.append(Spacer(1, 0.1 * inch))
-    
-            # Agregar gráfico
-            elements.append(chart_image)
-            elements.append(Spacer(1, 0.1 * inch))
-    
-            # Agregar líneas relacionadas
+             elements.append(Spacer(1, 0.1 * inch))
+            chart_rows.append(chart_image)  # Agregar gráfico a la fila
+             elements.append(Spacer(1, 0.1 * inch))
             elements.append(Paragraph(f"Líneas relacionadas: {relevant_lines}", styles['CenturyGothic']))
-            elements.append(Spacer(1, 0.2 * inch))
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
-
+            
     # Organizar gráficos y nombres en filas
     combined_rows = []
     for i in range(0, len(chart_rows), 3):
