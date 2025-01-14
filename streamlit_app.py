@@ -433,7 +433,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Crear tabla con gráficos y descripciones
         chart_table = Table(
-            charts,
+            chart_rows,
             colWidths=[3 * inch, 3 * inch],  # Ancho de cada columna
             hAlign='CENTER'
         )
