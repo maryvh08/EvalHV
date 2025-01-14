@@ -870,17 +870,56 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Concordancia global
-    elements.append(Paragraph("<b>Concordancia Global:</b>", styles['CenturyGothicBold']))
-    elements.append(Paragraph(f"• Funciones del Cargo: {global_func_match:.2f}%", styles['CenturyGothic']))
-    elements.append(Paragraph(f"• Perfil del Cargo: {global_profile_match:.2f}%", styles['CenturyGothic']))
-   
+     # Concordancia de items organizada en tabla global con ajuste de texto
+    elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
+
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Puntaje global
-    elements.append(Paragraph("<b>Puntaje Global:</b>", styles['CenturyGothicBold']))
-    elements.append(Paragraph(f"• Funciones del Cargo: {func_score}", styles['CenturyGothic']))
-    elements.append(Paragraph(f"• Perfil del Cargo: {profile_score}", styles['CenturyGothic']))
+    # Encabezados de la tabla global
+    global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
+
+    # Generar la gráfica
+    if isinstance(global_func_match, (int, float)):  # Validar que el porcentaje sea un número
+        chart_buffer_func = generate_donut_chart_for_report(global_func_match)
+        chart_image_func = RLImage(chart_buffer_func, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
+    else:
+        chart_image_func = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
+
+    if isinstance(global_func_match, (int, float)):  # Validar que el porcentaje sea un número
+        chart_buffer_prof = generate_donut_chart_for_report(global_profile_match)
+        chart_image_prof = RLImage(chart_buffer_prof, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
+    else:
+        chart_image_prof = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
+
+   
+    # Agregar datos de global_results a la tabla
+    global_table_data.append([
+            Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']),  #Criterio
+            chart_image_func,                                    # Gráfica función
+            chart_image_prof                           # Gráfica perfil
+     ])
+    global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
+
+    # Crear la tabla con ancho de columnas ajustado
+    global_table = Table(global_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    global_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
+        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
+        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(global_table)
+    
     elements.append(Spacer(1, 0.2 * inch))
 
     # Interpretación de resultados
