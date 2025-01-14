@@ -449,25 +449,33 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Preparar datos para la tabla de indicadores
-    indicator_table_data = [["<b>Indicador</b>", "<b>Porcentaje</b>", "<b>Líneas relacionadas</b>"]]  # Encabezados
+    # Preparar datos para la tabla
+    indicator_table_data = [["<b>Indicador</b>", "<b>Porcentaje</b>", "<b>Líneas relacionadas</b>", "<b>Gráfica</b>"]]  # Encabezados
     
-    # Agregar los datos de los indicadores
+    # Agregar datos de los indicadores
     for indicator, result in indicator_results.items():
         relevant_lines = result.get("relevant_lines", 0)
         percentage = result.get("percentage", 0)
     
-        # Agregar fila con datos del indicador
+        # Generar la gráfica
+        if isinstance(percentage, (int, float)):  # Validar que el porcentaje sea un número
+            chart_buffer = generate_donut_chart_for_indicator(indicator, percentage)
+            chart_image = RLImage(chart_buffer, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
+        else:
+            chart_image = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
+    
+        # Agregar fila a la tabla
         indicator_table_data.append([
             Paragraph(indicator, styles['CenturyGothic']),  # Indicador
             f"{percentage:.2f}%",                          # Porcentaje
-            str(relevant_lines)                             # Líneas relacionadas
+            str(relevant_lines),                           # Líneas relacionadas
+            chart_image                                    # Gráfica
         ])
     
-    # Crear tabla de indicadores
+    # Crear tabla de indicadores con gráficas
     indicator_table = Table(
         indicator_table_data,
-        colWidths=[3 * inch, 1.5 * inch, 1.5 * inch]  # Anchos de columnas
+        colWidths=[2.5 * inch, 1 * inch, 1.5 * inch, 2 * inch]  # Anchos de columnas
     )
     
     # Estilos de la tabla
@@ -485,7 +493,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     ]))
     
     # Agregar tabla al reporte
-    elements.append(Paragraph("<b>Tabla de Indicadores:</b>", styles['CenturyGothicBold']))
+    elements.append(Paragraph("<b>Tabla de Indicadores con Gráficas:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
     elements.append(indicator_table)
     elements.append(Spacer(1, 0.2 * inch))
