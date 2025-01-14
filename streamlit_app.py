@@ -425,6 +425,20 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             chart_image,                                    # Gráfica
             str(relevant_lines)                           # Líneas relacionadas
         ])
+
+    # Estilos de la tabla con ajuste de texto
+    item_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
+        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
+        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
+    ]))
         
     # Crear tabla de indicadores con gráficas
     indicator_table = Table(
