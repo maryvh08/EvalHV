@@ -359,17 +359,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     title_position = position.upper()
     
     elements.append(Paragraph(f"REPORTE DE ANÁLISIS {title_candidate_name} CARGO {title_position}", title_style))
-    
-    elements.append(Spacer(1, 0.2 * inch))
-    
-    # Concordancia de items
-    elements.append(Paragraph("<b>Análisis de items:</b>", styles['CenturyGothicBold']))
-    for line, func_match, profile_match in line_results:
-        elements.append(Paragraph(f" Item: {line}", styles['CenturyGothicBold']))
-        elements.append(Paragraph(f"  • Concordancia con funciones: {func_match:.2f}%", styles['CenturyGothic']))
-        elements.append(Paragraph(f"  • Concordancia con perfil: {profile_match:.2f}%", styles['CenturyGothic']))
-        elements.append(Spacer(1, 0.2 * inch))
-    
+
     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla con ajuste de texto
