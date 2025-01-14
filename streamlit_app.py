@@ -447,6 +447,40 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     else:
         elements.append(Paragraph("No se generaron gráficos para los indicadores.", styles['CenturyGothic']))
 
+    elements.append(Spacer1,0.1* inch)
+
+    # Encabezados de la tabla
+    table_indicator = [["Indicador", "Concordancia (%)"]]
+    
+    # Agregar datos de line_results a la tabla
+    for indicator, data in indicator_results.items():
+        relevant_lines = sum(
+            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
+        )
+        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+        if isinstance(percentage, (int, float)):  # Validar que sea un número
+            table_indicator.append([Paragraph(indicador, styles['CenturyGothic']), f"{percentage:.2f}%"])
+
+    # Crear la tabla con ancho de columnas ajustado
+    indicator_table = Table(table_indicator, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    indicator_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
+        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
+        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(indicator_table)
+
     elements.append(Spacer(1, 0.2 * inch))
     
     # Consejos para mejorar indicadores con baja presencia
