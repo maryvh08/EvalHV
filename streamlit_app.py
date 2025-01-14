@@ -855,7 +855,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             chart_image_prof = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
 
         # Ajustar texto del encabezado para que no desborde
-            header_paragraph = Paragraph(header, styles['CenturyGothic'])
+        header_paragraph = Paragraph(header, styles['CenturyGothic'])
     
        
         # Agregar datos de global_results a la tabla
