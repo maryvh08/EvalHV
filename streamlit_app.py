@@ -418,6 +418,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Insertar un salto de página
     elements.append(PageBreak())
 
+    # Concordancia de items organizada en tabla con ajuste de texto
+    elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+
     # Encabezados de la tabla
     table_indicator = [["Indicador", "Concordancia (%)"]]
     
@@ -832,6 +836,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Insertar un salto de página
     elements.append(PageBreak())
+
+    # Concordancia de items organizada en tabla con ajuste de texto
+    elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Encabezados de la tabla
     table_indicator = [["Indicador", "Concordancia (%)"]]
