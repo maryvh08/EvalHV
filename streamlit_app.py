@@ -431,10 +431,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
-    # Crear tabla con gráficos
+    # Crear tabla con gráficos y descripciones
         chart_table = Table(
-            chart_rows,
-            colWidths=[3 * inch, 3 * inch],
+            charts,
+            colWidths=[3 * inch, 3 * inch],  # Ancho de cada columna
             hAlign='CENTER'
         )
         chart_table.setStyle(TableStyle([
@@ -442,7 +442,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
         ]))
-        
+            
     # Incluir tabla de gráficos en el reporte
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(chart_table)
