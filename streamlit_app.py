@@ -481,27 +481,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Encabezados de la tabla global
     global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
-
-    # Generar la gráfica
-    if isinstance(global_func_match, (int, float)):  # Validar que el porcentaje sea un número
-        chart_buffer_func = generate_donut_chart_for_report(global_func_match, color=blue)
-        chart_image_func = RLImage(chart_buffer_func, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
-    else:
-        chart_image_func = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
-
-    if isinstance(global_profile_match, (int, float)):  # Validar que el porcentaje sea un número
-        chart_buffer_prof = generate_donut_chart_for_report(global_profile_match, color=blue)
-        chart_image_prof = RLImage(chart_buffer_prof, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
-    else:
-        chart_image_prof = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
-
-   
+    
     # Agregar datos de global_results a la tabla
-    global_table_data.append([
-            Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']),  #Criterio
-            chart_image_func,                                    # Gráfica función
-            chart_image_prof                           # Gráfica perfil
-     ])
+    table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothic']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
     global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
 
     # Crear la tabla con ancho de columnas ajustado
