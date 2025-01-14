@@ -426,7 +426,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         relevant_lines = result["relevant_lines"]
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         if isinstance(percentage, (int, float)):  # Verifica que el porcentaje sea válido
-            chart_buffer = generate_donut_chart(percentage)
+            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
             chart_image = ImageReader(chart_buffer)
             row.append((chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])))
             if len(row) == 2:  # Cada fila contiene dos gráficos
