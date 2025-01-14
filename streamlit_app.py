@@ -450,23 +450,23 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     for indicator, data in indicator_results.items():
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         if isinstance(percentage, (int, float)):  # Validar que sea un número
-        # Generar gráfico de dona
-        chart_buffer = generate_donut_chart_for_report(percentage)
-        chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)
-
-        # Agregar nombre del indicador
-        elements.append(Paragraph(f"<b>{indicator}</b>", styles['CenturyGothicBold']))
-        elements.append(Spacer(1, 0.1 * inch))
-
-        # Agregar gráfico
-        elements.append(chart_image)
-        elements.append(Spacer(1, 0.1 * inch))
-
-        # Agregar líneas relacionadas
-        elements.append(Paragraph(f"Líneas relacionadas: {relevant_lines}", styles['CenturyGothic']))
-        elements.append(Spacer(1, 0.2 * inch))
-    else:
-        st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
+            # Generar gráfico de dona
+            chart_buffer = generate_donut_chart_for_report(percentage)
+            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)
+    
+            # Agregar nombre del indicador
+            elements.append(Paragraph(f"<b>{indicator}</b>", styles['CenturyGothicBold']))
+            elements.append(Spacer(1, 0.1 * inch))
+    
+            # Agregar gráfico
+            elements.append(chart_image)
+            elements.append(Spacer(1, 0.1 * inch))
+    
+            # Agregar líneas relacionadas
+            elements.append(Paragraph(f"Líneas relacionadas: {relevant_lines}", styles['CenturyGothic']))
+            elements.append(Spacer(1, 0.2 * inch))
+        else:
+            st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
     # Organizar gráficos y nombres en filas
     combined_rows = []
