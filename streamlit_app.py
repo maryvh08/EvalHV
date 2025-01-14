@@ -431,7 +431,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
-    chart_table = Table(chart_data, colWidths=[3 * inch] * 2)
+    chart_table = Table(chart_rows, colWidths=[3 * inch] * 2)
     chart_table.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
