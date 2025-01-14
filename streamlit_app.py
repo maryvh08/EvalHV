@@ -421,7 +421,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']),  #Criterio
             chart_image_func,                                    # Gráfica función
             chart_image_prof                           # Gráfica perfil
-        ])
+     ])
     global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
 
     # Crear la tabla con ancho de columnas ajustado
