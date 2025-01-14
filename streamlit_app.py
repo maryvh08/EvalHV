@@ -41,6 +41,10 @@ def load_advice(filepath="advice.json"):
 indicators = load_indicators()
 advice = load_advice()
 
+# Colores
+blue= "#0D62AD"
+green= "#76C04E"
+
 # Uso del código
 background_path = "Fondo Comunicado.png"
 
@@ -153,22 +157,37 @@ def add_background(canvas, background_path):
     canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
     canvas.restoreState()
 
-def generate_donut_chart_for_report(percentage):
+def generate_donut_chart_for_report(percentage, color='green', background_color='white'):
     """
-    Genera un gráfico de dona para un porcentaje dado.
+    Genera una gráfica de dona para representar un porcentaje.
+    :param percentage: Porcentaje que representa la parte "completa" de la dona.
+    :param color: Color principal de la dona (por defecto, azul).
+    :param background_color: Color de fondo de la gráfica (por defecto, blanco).
+    :return: Un buffer de la imagen en formato PNG.
     """
-    fig, ax = plt.subplots(figsize=(2, 2), dpi=100)
-    values = [percentage, 100 - percentage]
-    colors = ['#76C04E', '#E0E0E0']
-    ax.pie(values, labels=None, startangle=90, colors=colors, wedgeprops={'width': 0.3})
-    ax.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=12)
+    # Crear figura y eje
+    fig, ax = plt.subplots(figsize=(2, 2), dpi=100, facecolor=background_color)
+    ax.pie(
+        [percentage, 100 - percentage],
+        colors=[color, 'lightgrey'],  # Color principal y color para la parte restante
+        startangle=90,
+        wedgeprops=dict(width=0.3),  # Dona con grosor
+    )
+    
+    # Agregar el texto del porcentaje en el centro
+    ax.text(0, 0, f"{percentage:.1f}%", ha='center', va='center', fontsize=16, color='black')
+    
+    # Remover ejes
     ax.axis('equal')
 
-    chart_buffer = BytesIO()
-    plt.savefig(chart_buffer, format='png', bbox_inches='tight')
+    # Guardar la gráfica en un buffer
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png', bbox_inches='tight', facecolor=background_color)
+    buffer.seek(0)
     plt.close(fig)
-    chart_buffer.seek(0)
-    return chart_buffer
+
+    return buffer
+
     
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
@@ -396,7 +415,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     total_lines = len(line_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
     
-    elements.append(Spacer(1, 0.2 * inch))
+    # Insertar un salto de página
+    elements.append(PageBreak())
 
     # Preparar datos para la tabla 
     indicator_table_data = [["Índicador", "Porcentaje", "Lineas relacionadas"]]# Encabezados
@@ -408,7 +428,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         
         # Generar la gráfica
         if isinstance(percentage, (int, float)):  # Validar que el porcentaje sea un número
-            chart_buffer = generate_donut_chart_for_report(percentage)
+            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
             chart_image = RLImage(chart_buffer, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
         else:
             chart_image = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
@@ -458,7 +478,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
                 elements.append(Paragraph(f"  • {tip}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.2 * inch))
             
-    elements.append(Spacer(1, 0.2 * inch))
+    # Insertar un salto de página
+    elements.append(PageBreak())
 
     # Concordancia de items organizada en tabla global con ajuste de texto
     elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
@@ -470,13 +491,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Generar la gráfica
     if isinstance(global_func_match, (int, float)):  # Validar que el porcentaje sea un número
-        chart_buffer_func = generate_donut_chart_for_report(global_func_match)
+        chart_buffer_func = generate_donut_chart_for_report(global_func_match, color=blue)
         chart_image_func = RLImage(chart_buffer_func, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
     else:
         chart_image_func = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
 
-    if isinstance(global_func_match, (int, float)):  # Validar que el porcentaje sea un número
-        chart_buffer_prof = generate_donut_chart_for_report(global_profile_match)
+    if isinstance(global_profile_match, (int, float)):  # Validar que el porcentaje sea un número
+        chart_buffer_prof = generate_donut_chart_for_report(global_profile_match, color=blue)
         chart_image_prof = RLImage(chart_buffer_prof, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
     else:
         chart_image_prof = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
@@ -850,7 +871,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Agregar datos de los indicadores
     for indicator, percentage in indicator_percentages.items():
         if isinstance(percentage, (int, float)):  # Validar que sea un número
-            chart_buffer = generate_donut_chart_for_report(percentage)
+            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
             chart_image = RLImage(chart_buffer, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
         else:
             chart_image = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
@@ -911,13 +932,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Generar la gráfica
     if isinstance(global_func_match, (int, float)):  # Validar que el porcentaje sea un número
-        chart_buffer_func = generate_donut_chart_for_report(global_func_match)
+        chart_buffer_func = generate_donut_chart_for_report(global_func_match, color=blue)
         chart_image_func = RLImage(chart_buffer_func, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
     else:
         chart_image_func = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
 
-    if isinstance(global_func_match, (int, float)):  # Validar que el porcentaje sea un número
-        chart_buffer_prof = generate_donut_chart_for_report(global_profile_match)
+    if isinstance(global_profile_match, (int, float)):  # Validar que el porcentaje sea un número
+        chart_buffer_prof = generate_donut_chart_for_report(global_profile_match, color=blue)
         chart_image_prof = RLImage(chart_buffer_prof, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
     else:
         chart_image_prof = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
@@ -955,6 +976,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Interpretación de resultados
     elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.1 * inch))
     if global_profile_match > 75 and global_func_match > 75:
         elements.append(Paragraph(
             f" Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.",
