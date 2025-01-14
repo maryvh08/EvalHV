@@ -418,37 +418,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Insertar un salto de página
     elements.append(PageBreak())
 
-    #Insertar gráficas de indicadores
-    chart_rows = []
-    chart_labels = []
-    for indicator, data in indicator_results.items():
-        relevant_lines = sum(
-            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
-        )
-        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        if isinstance(percentage, (int, float)):  # Validar que sea un número
-            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
-            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Usar RLImage para evitar conflictos
-            chart_rows.append([chart_image])
-            chart_rows.append([Paragraph(indicator, styles['CenturyGothic'])])
-        else:
-            st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
-
-    # Añadir gráficos al reporte
-    if chart_rows:
-        chart_table = Table(chart_rows, colWidths=[2.5 * inch, 2.5 * inch])
-        chart_table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ]))
-        elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-        elements.append(chart_table)
-    else:
-        elements.append(Paragraph("No se generaron gráficos para los indicadores.", styles['CenturyGothic']))
-
-    elements.append(Spacer(1, 0.1 * inch))
-
     # Encabezados de la tabla
     table_indicator = [["Indicador", "Concordancia (%)"]]
     
@@ -863,33 +832,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Insertar un salto de página
     elements.append(PageBreak())
-
-    #Insertar gráficas de indicadores
-    chart_rows = []
-    chart_labels = []
-    for indicator, percentage in indicator_percentages.items():
-        if isinstance(percentage, (int, float)):
-            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
-            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Usar RLImage para evitar conflictos
-            chart_rows.append([chart_image])
-            chart_rows.append([Paragraph(indicator, styles['CenturyGothic'])])
-        else:
-            st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
-
-    # Añadir gráficos al reporte
-    if chart_rows:
-        chart_table = Table(chart_rows, colWidths=[2.5 * inch, 2.5 * inch])
-        chart_table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ]))
-        elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-        elements.append(chart_table)
-    else:
-        elements.append(Paragraph("No se generaron gráficos para los indicadores.", styles['CenturyGothic']))
-
-    elements.append(Spacer(1, 0.1 * inch))
 
     # Encabezados de la tabla
     table_indicator = [["Indicador", "Concordancia (%)"]]
