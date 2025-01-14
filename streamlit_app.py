@@ -371,7 +371,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
                                 )
-
     # Convertir texto a mayúsculas
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
@@ -424,6 +423,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     chart_labels = []
 
     for indicator, data in indicator_results.items():
+        relevant_lines = result["relevant_lines"]
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         if isinstance(percentage, (int, float)):  # Validar que sea un número
             chart_buffer = generate_donut_chart_for_report(percentage)
