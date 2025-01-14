@@ -804,42 +804,41 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
     elements.append(Spacer(1, 0.05 * inch))
 
-    # Resultados por indicadores con gráficas en línea
-    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
+    # Generar gráficos de indicadores con nombres
+    chart_rows = []
+    chart_labels = []
 
-    # Contenedor para las gráficas en filas
-    chart_data = []
-    row = []
+    for indicator, data in indicator_percentages.items():
+        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+        if isinstance(percentage, (int, float)):  # Validar que sea un número
+            chart_buffer = generate_donut_chart_for_report(percentage)
+            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Crear imagen de gráfico
+            chart_rows.append(chart_image)  # Agregar gráfico a la fila
+            chart_labels.append(Paragraph(indicator, styles['CenturyGothic']))  # Agregar nombre del indicador
+        else:
+            st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
-    for indicator, percentage in indicator_percentages.items():
-        # Generar gráfica de anillo
-        chart_buffer = generate_donut_chart(percentage)
-        chart_image = RLImage(chart_buffer, width=2 * inch, height=2 * inch)
+    # Organizar gráficos y nombres en filas
+    combined_rows = []
+    for i in range(0, len(chart_rows), 3):
+        # Crear filas con hasta 3 gráficos y sus nombres
+        combined_rows.append(chart_rows[i:i+3])  # Gráficos
+        combined_rows.append(chart_labels[i:i+3])  # Nombres
 
-        # Agregar gráfico y texto en una celda
-        cell_content = [
-            chart_image,
-            Paragraph(f"{indicator}, styles['CenturyGothic']),
-        ]
-        row.append(cell_content)
-
-        # Crear una fila cada 2 elementos (2 columnas por fila)
-        if len(row) == 2:
-            chart_data.append(row)
-            row = []
-
-    # Agregar última fila si queda incompleta
-    if row:
-        chart_data.append(row)
-
-    # Crear la tabla para las gráficas
-    chart_table = Table(chart_data, colWidths=[3 * inch] * 2)
+    # Crear tabla con gráficos y nombres
+    chart_table = Table(
+        combined_rows,
+        colWidths=[2.5 * inch] * 3,  # Hasta 3 gráficos por fila
+        hAlign='CENTER'
+    )
     chart_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
     ]))
 
+    # Incluir tabla de gráficos en el reporte
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(chart_table)
     elements.append(Spacer(1, 0.2 * inch))
 
