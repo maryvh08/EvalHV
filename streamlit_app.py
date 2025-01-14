@@ -269,7 +269,8 @@ def extract_experience_section_with_ocr(pdf_path):
     
     return "\n".join(cleaned_lines)
 
-"""
+def generate_report_with_background(pdf_path, position, candidate_name,background_path):
+    """
     Genera un reporte con un fondo en cada página.
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
