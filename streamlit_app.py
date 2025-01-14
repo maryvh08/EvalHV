@@ -1,4 +1,12 @@
 import fitz
+import numpy as np
+import pandas as pd
+import streamlit as st
+from io import BytesIO
+import re
+import json
+import os
+import pytesseract
 from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageTemplate, Frame, Image, Table, TableStyle, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -9,23 +17,13 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from reportlab.lib import colors
 from reportlab.lib.units import inch
-import matplotlib.pyplot as plt
-from matplotlib import pyplot as plt
+from reportlab.platypus import Image as RLImage
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from PIL import Image as PILImage
-from reportlab.platypus import Image as RLImage
-import numpy as np
-import pandas as pd
-import streamlit as st
-from io import BytesIO
-import re
-import json
-import os
-import pytesseract
 from PIL import Image
-
 
 #Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app/
 
