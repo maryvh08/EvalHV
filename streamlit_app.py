@@ -401,7 +401,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             chart_image_prof = RLImage(chart_buffer_prof, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
         else:
             chart_image_prof = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
-    
        
         # Agregar datos de line_results a la tabla
         table_data.append([
