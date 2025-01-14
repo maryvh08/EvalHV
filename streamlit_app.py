@@ -800,13 +800,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Resultados por indicadores
-    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
-    for indicator, percentage in indicator_percentages.items():
-        elements.append(Paragraph(f"• {indicator}: {percentage:.2f}%", styles['CenturyGothic']))
-
-    elements.append(Spacer(1, 0.05 * inch))
-
     # Total de líneas analizadas
     total_items = len(item_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
