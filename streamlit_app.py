@@ -164,7 +164,7 @@ def generate_donut_chart_for_report(percentage, color='green', background_color=
     :return: Un buffer de la imagen en formato PNG.
     """
     # Crear figura y eje
-    fig, ax = plt.subplots(figsize=(2, 2), dpi=100, facecolor=background_color)
+    fig, ax = plt.subplots(figsize=(1, 1), dpi=100, facecolor=background_color)
     ax.pie(
         [percentage, 100 - percentage],
         colors=[color, 'lightgrey'],  # Color principal y color para la parte restante
