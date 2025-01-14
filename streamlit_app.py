@@ -401,7 +401,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Concordancia de items organizada en tabla
+    # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
     
@@ -410,12 +410,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     # Agregar datos de line_results a la tabla
     for line, func_match, profile_match in line_results:
-        table_data.append([line, f"{func_match:.2f}%", f"{profile_match:.2f}%"])
+        table_data.append([Paragraph(line, styles['CenturyGothic']), f"{func_match:.2f}%", f"{profile_match:.2f}%"])
     
-    # Crear la tabla
+    # Crear la tabla con ancho de columnas ajustado
     item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
     
-    # Estilos de la tabla
+    # Estilos de la tabla con ajuste de texto
     item_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
@@ -425,14 +425,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
         ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
         ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Texto alineado verticalmente al centro
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),  # Alinear texto de la celda a la izquierda
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
+        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
     ]))
-    
-    # Habilitar ajuste de texto dentro de las celdas
-    for row in table_data:
-        for i in range(len(row)):
-            row[i] = Paragraph(row[i], styles['CenturyGothic'])
     
     # Agregar tabla a los elementos
     elements.append(item_table)
