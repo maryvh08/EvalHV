@@ -428,7 +428,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         )
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         if isinstance(percentage, (int, float)):  # Validar que sea un número
-            chart_buffer = generate_donut_chart_for_report(percentage)
+            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
             chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Crear imagen de gráfico
             chart_rows.append(chart_image)  # Agregar gráfico a la fila
             chart_labels.append(Paragraph(indicator, styles['CenturyGothic']))  # Agregar nombre del indicador
@@ -458,6 +458,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(chart_table)
     elements.append(Spacer(1, 0.2 * inch))
+    
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
     if low_performance_indicators:
