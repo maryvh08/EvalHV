@@ -427,7 +427,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ])
 
     # Estilos de la tabla con ajuste de texto
-    item_table.setStyle(TableStyle([
+    indicator_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
