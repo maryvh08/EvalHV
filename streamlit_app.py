@@ -843,7 +843,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     total_items = len(item_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
 
-    elements.append(Spacer(1, 0.2 * inch))
+    # Insertar un salto de página
+    elements.append(PageBreak())
 
     # Preparar datos para la tabla 
     indicator_table_data = [["Índicador", "Porcentaje", "Lineas relacionadas"]]# Encabezados
@@ -899,9 +900,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 elements.append(Paragraph(f"    • {tip}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.2 * inch))
 
-    elements.append(Spacer(1, 0.2 * inch))
+    # Insertar un salto de página
+    elements.append(PageBreak())
 
-     # Concordancia de items organizada en tabla global con ajuste de texto
+    # Concordancia de items organizada en tabla global con ajuste de texto
     elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
 
     elements.append(Spacer(1, 0.2 * inch))
