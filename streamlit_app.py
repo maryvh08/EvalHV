@@ -798,20 +798,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Iterar sobre los resultados por ítem
-    for header, result in item_results.items():
-        elements.append(Paragraph(f"Ítem: {header}", styles['CenturyGothicBold']))
-        # Validar que 'result' es un diccionario antes de iterar
-        if isinstance(result, dict):
-            for key, value in result.items():
-                elements.append(Paragraph(f"• {key}: {value:.2f}%", styles['CenturyGothic']))
-        else:
-            elements.append(Paragraph("Error: El resultado no tiene la estructura esperada.", styles['CenturyGothic']))
-    
-        elements.append(Spacer(1, 0.2 * inch))  # Espaciado entre ítems
-
-    elements.append(Spacer(1, 0.2 * inch))
-
     # Encabezados de la tabla
     item_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]  # Encabezados
     
