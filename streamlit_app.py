@@ -373,10 +373,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     for line, func_match, profile_match in line_results:
         table_data.append([Paragraph(line, styles['CenturyGothic']), f"{func_match:.2f}%", f"{profile_match:.2f}%"])
 
-    #Lineas adicionales
-    table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
-    table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
-
     # Crear la tabla con ancho de columnas ajustado
     item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
     
@@ -403,14 +399,14 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
     
     # Encabezados de la tabla
-    global_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+    global_table_data = [["Funciones del Cargo", "Perfil del Cargo"]]
 
     # Agregar datos de global_results a la tabla
     global_table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
     global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
 
     # Crear la tabla con ancho de columnas ajustado
-    global_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    global_table = Table(global_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
     
     # Estilos de la tabla con ajuste de texto
     global_table.setStyle(TableStyle([
