@@ -843,13 +843,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     for header, result in item_results.items():
         # Generar la gráfica
         if isinstance(global_func_match, (int, float)):  # Validar que el porcentaje sea un número
-            chart_buffer_func = generate_donut_chart_for_report(func_match, color=blue)
+            chart_buffer_func = generate_donut_chart_for_report(func_match, color=lime)
             chart_image_func = RLImage(chart_buffer_func, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
         else:
             chart_image_func = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
     
         if isinstance(global_profile_match, (int, float)):  # Validar que el porcentaje sea un número
-            chart_buffer_prof = generate_donut_chart_for_report(profile_match, color=blue)
+            chart_buffer_prof = generate_donut_chart_for_report(profile_match, color=lime)
             chart_image_prof = RLImage(chart_buffer_prof, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
         else:
             chart_image_prof = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
@@ -857,10 +857,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         # Ajustar texto del encabezado para que no desborde
         header_paragraph = Paragraph(header, styles['CenturyGothic'])
     
-       
         # Agregar datos de global_results a la tabla
         item_table_data.append([
-                Paragraph(header_paragraph,  styles['CenturyGothic']),  #Criterio
+                Paragraph(header_paragraph,  #Criterio
                 chart_image_func,                                    # Gráfica función
                 chart_image_prof                           # Gráfica perfil
          ])
