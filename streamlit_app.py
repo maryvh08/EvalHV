@@ -419,54 +419,43 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Insertar un salto de página
     elements.append(PageBreak())
 
-    # Preparar datos para la tabla 
-    indicator_table_data = [["Índicador", "Porcentaje", "Lineas relacionadas"]]# Encabezados
-    
-    # Agregar datos de los indicadores
-    for indicator, result in indicator_results.items():
-        relevant_lines = result["relevant_lines"]
+    # Generar gráficos de indicadores con nombres
+    chart_rows = []
+    chart_labels = []
+
+    for indicator, data in indicator_results.items():
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        
-        # Generar la gráfica
-        if isinstance(percentage, (int, float)):  # Validar que el porcentaje sea un número
-            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
-            chart_image = RLImage(chart_buffer, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
+        if isinstance(percentage, (int, float)):  # Validar que sea un número
+            chart_buffer = generate_donut_chart_for_report(percentage)
+            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Crear imagen de gráfico
+            chart_rows.append(chart_image)  # Agregar gráfico a la fila
+            chart_labels.append(Paragraph(indicator, styles['CenturyGothic']))  # Agregar nombre del indicador
         else:
-            chart_image = Paragraph("Gráfica no disponible", styles['CenturyGothic'])
-    
-        # Agregar fila a la tabla
-        indicator_table_data.append([
-            Paragraph(indicator, styles['CenturyGothic']),  # Indicador
-            chart_image,                                    # Gráfica
-            str(relevant_lines)                           # Líneas relacionadas
-        ])
+            st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
 
-    # Crear tabla de indicadores con gráficas
-    indicator_table = Table(
-        indicator_table_data,
-        colWidths=[3 * inch, 2 * inch, 2 * inch]  # Anchos de columnas
+    # Organizar gráficos y nombres en filas
+    combined_rows = []
+    for i in range(0, len(chart_rows), 3):
+        # Crear filas con hasta 3 gráficos y sus nombres
+        combined_rows.append(chart_rows[i:i+3])  # Gráficos
+        combined_rows.append(chart_labels[i:i+3])  # Nombres
+
+    # Crear tabla con gráficos y nombres
+    chart_table = Table(
+        combined_rows,
+        colWidths=[2.5 * inch] * 3,  # Hasta 3 gráficos por fila
+        hAlign='CENTER'
     )
-
-    # Estilos de la tabla
-    indicator_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo de encabezados
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),                 # Color de texto de encabezados
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),                        # Alinear texto al centro
-        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),           # Fuente para encabezados
-        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),              # Fuente para celdas
-        ('FONTSIZE', (0, 0), (-1, -1), 10),                           # Tamaño de fuente
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),                        # Padding inferior de encabezados
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),                 # Líneas de la tabla
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),                       # Alinear texto verticalmente
-        ('WORDWRAP', (0, 0), (-1, -1))                                # Ajustar texto dentro de celdas
+    chart_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
     ]))
-    
-    # Agregar tabla al reporte
-    elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
-    elements.append(Spacer(1, 0.2 * inch))
-    elements.append(indicator_table)
-    elements.append(Spacer(1, 0.2 * inch))
 
+    # Incluir tabla de gráficos en el reporte
+    elements.append(Paragraph("<b>Resultados por Indicadores:</b>", styles['CenturyGothicBold']))
+    elements.append(chart_table)
+    elements.append(Spacer(1, 0.2 * inch))
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
     if low_performance_indicators:
