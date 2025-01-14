@@ -814,7 +814,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Spacer(1, 0.2 * inch))
 
     # Encabezados de la tabla
-    item_table_data = [["<b>Ítem</b>", "<b>Funciones del Cargo (%)</b>", "<b>Perfil del Cargo (%)</b>"]]  # Encabezados
+    item_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]  # Encabezados
     
     # Agregar filas a la tabla con los resultados por ítem
     for header, result in item_results.items():
@@ -823,19 +823,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             f"{func_match:.2f}%",                      # Funciones del Cargo (%)
             f"{profile_match:.2f}%"                    # Perfil del Cargo (%)
         ])
-    
-    # Agregar filas para Concordancia Global y Puntaje Global
-    item_table_data.append([
-        "<b>Concordancia Global</b>",
-        f"{global_func_match:.2f}%",  # Funciones del Cargo (%)
-        f"{global_profile_match:.2f}%"  # Perfil del Cargo (%)
-    ])
-    
-    item_table_data.append([
-        "<b>Puntaje Global</b>",
-        f"{func_score:.2f}",  # Funciones del Cargo (%)
-        f"{profile_score:.2f}"  # Perfil del Cargo (%)
-    ])
     
     # Crear la tabla
     item_table = Table(
