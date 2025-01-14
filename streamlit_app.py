@@ -859,7 +859,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
         # Agregar datos de global_results a la tabla
         item_table_data.append([
-                Paragraph(header_paragraph),  #Criterio
+                header_paragraph,  #Criterio
                 chart_image_func,                                    # Gráfica función
                 chart_image_prof                           # Gráfica perfil
          ])
