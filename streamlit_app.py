@@ -8,7 +8,7 @@ import json
 import os
 import pytesseract
 from reportlab.pdfgen import canvas
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageTemplate, Frame, Image, Table, TableStyle, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageTemplate, Frame, Image, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import letter
@@ -409,15 +409,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     # Agregar tabla a los elementos
     elements.append(item_table)
+    
     elements.append(Spacer(1, 0.2 * inch))
     
     # Total de líneas analizadas
     total_lines = len(line_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
     
-    # Insertar un salto de página
-    elements.append(PageBreak())
-
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
@@ -467,14 +465,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             for tip in advice[position].get(indicator, []):
                 elements.append(Paragraph(f"  • {tip}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.2 * inch))
-            
-    # Insertar un salto de página
-    elements.append(PageBreak())
+
+     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla global con ajuste de texto
     elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
 
-    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(Spacer(1, 0.1 * inch))
 
     # Encabezados de la tabla global
     global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
@@ -834,8 +831,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     total_items = len(item_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
 
-    # Insertar un salto de página
-    elements.append(PageBreak())
+     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
@@ -881,8 +877,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 elements.append(Paragraph(f"    • {tip}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.2 * inch))
 
-    # Insertar un salto de página
-    elements.append(PageBreak())
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla global con ajuste de texto
     elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
