@@ -526,7 +526,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Agregar datos de global_results a la tabla
     global_table_data.append([
             Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']),  #Criterio
-            chart_image_global-func,                                    # Gráfica función
+            chart_image_global_func,                                    # Gráfica función
             chart_image_global_prof                           # Gráfica perfil
      ])
     global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
