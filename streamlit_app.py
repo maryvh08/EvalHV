@@ -434,7 +434,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Organizar gráficos y nombres en filas
     combined_rows = []
-    for i in range(0, len(chart_rows), 3):
+    for i in range(0, len(chart_rows), 1):
         # Crear filas con hasta 3 gráficos y sus nombres
         combined_rows.append(chart_rows[i:i+3])  # Gráficos
         combined_rows.append(chart_labels[i:i+3])  # Nombres
@@ -442,7 +442,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Crear tabla con gráficos y nombres
     chart_table = Table(
         combined_rows,
-        colWidths=[2.5 * inch] * 1,  # Hasta 3 gráficos por fila
+        colWidths=[2.5 * inch] * 1, 
         hAlign='CENTER'
     )
     chart_table.setStyle(TableStyle([
