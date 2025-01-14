@@ -449,8 +449,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Preparar datos para la tabla
-    indicator_table_data = [["<b>Indicador</b>", "<b>Líneas relacionadas</b>", "<b>Gráfica</b>"]]  # Encabezados
+    # Preparar datos para la tabla 
+    indicator_table_data = [["Índicador", "Lineas relacionadas", "Gráfica"]]# Encabezados
     
     # Agregar datos de los indicadores
     for indicator, result in indicator_results.items():
