@@ -840,6 +840,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     item_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]  # Encabezados
 
     for header, result in item_results.items():
+        func_match = result.get("Funciones del Cargo", 0)
+        profile_match = result.get("Perfil del Cargo", 0)
+
         # Generar la gráfica
         if isinstance(func_match, (int, float)):  # Validar que el porcentaje sea un número
             chart_buffer_func = generate_donut_chart_for_report(func_match, color=lime)
