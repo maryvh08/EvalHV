@@ -420,17 +420,14 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     #Insertar gráficas de indicadores
     chart_rows = []
-    chart_labels = []
-
     for indicator, data in indicator_results.items():
-        percentage = data.get("percentage", 0) if isinstance(data, dict) else data
         if isinstance(percentage, (int, float)):  # Validar que sea un número
-            chart_buffer = generate_donut_chart_for_report(percentage)
-            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)
-            chart_rows.append(chart_image)  # Agregar gráfico a la fila
-            chart_labels.append(Paragraph(indicator, styles['CenturyGothic']))  # Agregar nombre del indicador
+            chart_buffer = generate_donut_chart_for_report(percentage, color=green)
+            chart_image = RLImage(chart_buffer, 2 * inch, 2 * inch)  # Usar RLImage para evitar conflictos
+            chart_rows.append([chart_image, Paragraph(f"{indicator}: {percentage:.2f}%", styles['CenturyGothic'])])
         else:
             st.warning(f"El porcentaje para {indicator} no es válido: {percentage}")
+
 
     # Añadir gráficos al reporte
     if chart_rows:
