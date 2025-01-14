@@ -831,7 +831,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         ])
         
     # Crear la tabla
-    item_table = Table(item_table_data, colWidths=[3 * inch, 1.5 * inch, 1.5 * inch])
+    item_table = Table(item_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch]))
     
     # Aplicar estilos a la tabla
     item_table.setStyle(TableStyle([
@@ -852,6 +852,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Spacer(1, 0.2 * inch))
     elements.append(item_table)
     elements.append(Spacer(1, 0.2 * inch))
+    
     # Total de líneas analizadas
     total_items = len(item_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
