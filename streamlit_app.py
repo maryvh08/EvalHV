@@ -420,6 +420,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Generar gráficos de indicadores
     chart_rows = []
+    chart_labels = []
     for indicator, data in indicator_results.items():
         relevant_lines = sum(
             any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
