@@ -390,7 +390,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Generar la gráfica
     for line, func_match, profile_match in line_results:
-        if isinstance(fun_match, (int, float)):  # Validar que el porcentaje sea un número
+        if isinstance(func_match, (int, float)):  # Validar que el porcentaje sea un número
             chart_buffer_func = generate_donut_chart_for_report(func_match, color=lime)
             chart_image_func = RLImage(chart_buffer_func, 1.5 * inch, 1.5 * inch)  # Crear imagen de gráfica
         else:
