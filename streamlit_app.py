@@ -459,7 +459,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         )
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         if isinstance(percentage, (int, float)):  # Validar que sea un número
-            table_indicator.append([Paragraph(indicador, styles['CenturyGothic']), f"{percentage:.2f}%"])
+            table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%"])
 
     # Crear la tabla con ancho de columnas ajustado
     indicator_table = Table(table_indicator, colWidths=[3 * inch, 2 * inch, 2 * inch])
