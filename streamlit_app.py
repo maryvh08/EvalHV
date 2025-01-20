@@ -313,6 +313,9 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         st.error("No se encontraron indicadores para el cargo seleccionado.")
         return
 
+    # Inicializar section_results
+    section_results = {}
+
     # Analizar secciones
     exp_results, exp_func_global, exp_profile_global = analyze_section(
         experience_lines, position_indicators, functions_text, profile_text
@@ -323,10 +326,25 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     org_results, org_func_global, org_profile_global = analyze_section(
         organized_events_lines, position_indicators, functions_text, profile_text
     )
-    
-    # Convertir lista en diccionario si aplica
-    if isinstance(section_results, list) and len(section_results) > 0:
-        section_results = section_results[0]
+
+    # Agregar resultados a section_results
+    section_results = {
+        "EXPERIENCIA EN ANEIAP": {
+            "lines": exp_results,
+            "global_func_match": exp_func_global,
+            "global_profile_match": exp_profile_global,
+        },
+        "EVENTOS ORGANIZADOS": {
+            "lines": org_results,
+            "global_func_match": org_func_global,
+            "global_profile_match": org_profile_global,
+        },
+        "ASISTENCIA A EVENTOS ANEIAP": {
+            "lines": att_results,
+            "global_func_match": att_func_global,
+            "global_profile_match": att_profile_global,
+        },
+    }
       
     # Evaluación de renglones
     for line in lines:
