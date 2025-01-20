@@ -419,7 +419,7 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     eventos_lines = extract_cleaned_lines(
     extract_experience_section_with_ocr(pdf_path, "EVENTOS ORGANIZADOS", "ASISTENCIA A EVENTOS ANEIAP")
     )
-    eventos_organizados_results = calculate_section_results(eventos_lines, position_indicators, functions_text, profile_text)
+    eventos_results = calculate_section_results(eventos_lines, position_indicators, functions_text, profile_text)
 
     asistencia_lines = extract_cleaned_lines(
     extract_experience_section_with_ocr(pdf_path, "ASISTENCIA A EVENTOS ANEIAP", "OTRO ENCABEZADO O FIN DEL DOCUMENTO")
