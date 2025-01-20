@@ -377,13 +377,23 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
 
     section_results = []
 
-    # Agregar resultados de cada sección
-    section_results.append({
-        "EXPERIENCIA EN ANEIAP": exp_results,
-        "EVENTOS ORGANIZADOS": eventos_organizados_results,
-        "ASISTENCIA A EVENTOS ANEIAP": asistencia_eventos_results
-    })
+    # Procesar cada sección
+    experiencia_lines = extract_cleaned_lines(extract_experience_section_with_ocr(pdf_path))
+    experiencia_results = calculate_section_results(experiencia_lines, position_indicators, functions_text, profile_text)
     
+    eventos_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "EVENTOS ORGANIZADOS"))
+    eventos_organizados_results = calculate_section_results(eventos_lines, position_indicators, functions_text, profile_text)
+    
+    asistencia_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "ASISTENCIA A EVENTOS ANEIAP"))
+    asistencia_eventos_results = calculate_section_results(asistencia_lines, position_indicators, functions_text, profile_text)
+    
+    # Crear el diccionario de resultados por sección
+    section_results = {
+        "EXPERIENCIA EN ANEIAP": experiencia_results,
+        "EVENTOS ORGANIZADOS": eventos_organizados_results,
+        "ASISTENCIA A EVENTOS ANEIAP": asistencia_eventos_results,
+    }
+
     # Convertir lista en diccionario si aplica
     if isinstance(section_results, list) and len(section_results) > 0:
         section_results = section_results[0]
@@ -434,14 +444,33 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     if total_presence > 0:
         for indicator in indicator_results:
             indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
-            
-    # Cálculo de concordancia global
-    if line_results:  # Evitar división por cero si no hay ítems válidos
-        global_func_match = sum([res[1] for res in line_results]) / len(line_results)
-        global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
-    else:
-        global_func_match = 0
-        global_profile_match = 0
+
+    # Procesar las secciones
+    experiencia_lines = extract_cleaned_lines(extract_experience_section_with_ocr(pdf_path))
+    experiencia_results = calculate_section_results(experiencia_lines, position_indicators, functions_text, profile_text)
+
+    eventos_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "EVENTOS ORGANIZADOS"))
+    eventos_organizados_results = calculate_section_results(eventos_lines, position_indicators, functions_text, profile_text)
+
+    asistencia_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "ASISTENCIA A EVENTOS ANEIAP"))
+    asistencia_eventos_results = calculate_section_results(asistencia_lines, position_indicators, functions_text, profile_text)
+
+    # Cálculos globales por sección
+    def calculate_global_scores(section_results):
+        if section_results:
+            global_func_match = sum(res[1] for res in section_results) / len(section_results)
+            global_profile_match = sum(res[2] for res in section_results) / len(section_results)
+        else:
+            global_func_match = 0
+            global_profile_match = 0
+        func_score = round((global_func_match * 5) / 100, 2)
+        profile_score = round((global_profile_match * 5) / 100, 2)
+        return global_func_match, global_profile_match, func_score, profile_score
+
+    # Calcular resultados globales para cada sección
+    experiencia_global = calculate_global_scores(experiencia_results)
+    eventos_global = calculate_global_scores(eventos_organizados_results)
+    asistencia_global = calculate_global_scores(asistencia_eventos_results)
 
     #Calculo puntajes
     func_score = round((global_func_match * 5) / 100, 2)
@@ -566,33 +595,36 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
 
     elements.append(Spacer(1, 0.1 * inch))
 
-    # Encabezados de la tabla global
-    global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
-    
-    # Agregar datos de global_results a la tabla
-    global_table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
-    global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
+    # Función para crear tablas de resultados globales
+    def create_global_table(section_name, global_scores):
+        global_func_match, global_profile_match, func_score, profile_score = global_scores
+        table_data = [
+            ["Criterio", "Funciones del Cargo (%)", "Perfil del Cargo (%)"],
+            ["Concordancia Global", f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"],
+            ["Puntaje Global", f"{func_score:.2f}", f"{profile_score:.2f}"],
+        ]
+        table = Table(table_data, colWidths=[3 * inch, 2.5 * inch, 2.5 * inch])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
+            ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        elements.append(Paragraph(f"<b>Resultados Globales - {section_name}:</b>", styles['CenturyGothicBold']))
+        elements.append(Spacer(1, 0.1 * inch))
+        elements.append(table)
+        elements.append(Spacer(1, 0.2 * inch))
 
-    # Crear la tabla con ancho de columnas ajustado
-    global_table = Table(global_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
-    
-    # Estilos de la tabla con ajuste de texto
-    global_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
-        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
-        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
-        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
-        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
-    ]))
-    
-    # Agregar tabla a los elementos
-    elements.append(global_table)
-    
+    # Crear tablas de resultados globales
+    create_global_table("EXPERIENCIA EN ANEIAP", experiencia_global)
+    create_global_table("EVENTOS ORGANIZADOS", eventos_global)
+    create_global_table("ASISTENCIA A EVENTOS ANEIAP", asistencia_global)
+
     elements.append(Spacer(1, 0.2 * inch))
 
     # Interpretación de resultados
