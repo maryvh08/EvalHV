@@ -678,11 +678,8 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     
     # Agregar datos de line_results a la tabla
     for indicator, data in indicator_results.items():
-        # Iterar sobre los indicadores y sus palabras clave
         relevant_lines = sum(
-            any(keyword.lower() in line.lower() for keyword in keywords)
-            for keywords in position_indicators.values()  # Extraer las palabras clave del indicador
-            for line in lines  # Iterar sobre las líneas
+            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
         )
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         if isinstance(percentage, (int, float)):  # Validar que sea un número
