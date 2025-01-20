@@ -425,19 +425,26 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
 
     # Cargar funciones y perfil del cargo
     try:
+        # Intentar cargar las funciones
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
             functions_text = func_doc[0].get_text()
+    except Exception as e:
+        st.error(f"Error al cargar el archivo de funciones para el cargo '{position}': {e}")
+        functions_text = ""  # Asignar valor predeterminado
+    
+    try:
+        # Intentar cargar el perfil
         with fitz.open(f"Perfiles//P{position}.pdf") as profile_doc:
             profile_text = profile_doc[0].get_text()
     except Exception as e:
-        st.error(f"Error al cargar funciones o perfil: {e}")
+        st.error(f"Error al cargar el archivo de perfil para el cargo '{position}': {e}")
+        profile_text = ""  # Asignar valor predeterminado
+    
+    # Verificar si functions_text o profile_text están vacíos
+    if not functions_text or not profile_text:
+        st.error("No se pudieron cargar las funciones o el perfil del cargo. Por favor verifica los archivos y vuelve a intentarlo.")
         return
 
-    # Filtrar indicadores correspondientes al cargo seleccionado
-    position_indicators = indicators.get(position, {})
-    if not position_indicators:
-        st.error("No se encontraron indicadores para el cargo seleccionado.")
-        return
 
     # Inicializar section_results
     section_results = {}
