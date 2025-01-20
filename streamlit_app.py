@@ -275,7 +275,12 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     """
     Genera un reporte con análisis de "EXPERIENCIA EN ANEIAP", "EVENTOS ORGANIZADOS" y "ASISTENCIA A EVENTOS ANEIAP".
     """
-    pdf_text = extract_text_with_ocr(pdf_path)
+    pdf_text = extract_text_with_ocr(pdf_path
+
+    # Dividir la experiencia en líneas
+        lines = extract_cleaned_lines(experience_text)
+        lines = experience_text.split("\n")
+        lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
 
     # Extraer secciones
     experience_text = extract_section_with_keywords(
