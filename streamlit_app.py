@@ -293,6 +293,7 @@ def extract_experience_section_with_ocr(pdf_path):
 
     # Filtrar y limpiar texto
     exclude_lines = [
+        "EXPERIENCIA EN ANEIAP",
         "a nivel capitular",
         "a nivel nacional",
         "a nivel seccional",
