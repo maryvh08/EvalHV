@@ -369,25 +369,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     # Extraer texto del PDF
     pdf_text = extract_text_with_ocr(pdf_path)
 
-    # Extraer secciones
-    experience_text = extract_section_with_keywords(
-        pdf_text,
-        section_keywords["EXPERIENCIA EN ANEIAP"]["start"],
-        section_keywords["EXPERIENCIA EN ANEIAP"]["end"]
-    )
-    
-    event_attendance_text = extract_section_with_keywords(
-        pdf_text,
-        section_keywords["ASISTENCIA A EVENTOS ANEIAP"]["start"],
-        section_keywords["ASISTENCIA A EVENTOS ANEIAP"]["end"]
-    )
-    
-    organized_events_text = extract_section_with_keywords(
-        pdf_text,
-        section_keywords["EVENTOS ORGANIZADOS"]["start"],
-        section_keywords["EVENTOS ORGANIZADOS"]["end"]
-    )
-
     # Obtener indicadores del cargo
     position_indicators = indicators.get(position)
     if not position_indicators:
