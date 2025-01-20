@@ -347,66 +347,57 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     }
       
     # Evaluación de renglones
-    for line in lines:
-        line = line.strip()
-        if not line:  # Ignorar líneas vacías
-            continue
+line_results = []  # Inicializar los resultados de líneas
 
-        # Dividir la experiencia en líneas
-        lines = extract_cleaned_lines(experience_text)
-        lines = experience_text.split("\n")
-        lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
-    
-        # Obtener los indicadores y palabras clave para el cargo seleccionado
-        position_indicators = indicators.get(position, {})
-        indicator_results = {}
+# Obtener los indicadores y palabras clave para el cargo seleccionado
+position_indicators = indicators.get(position, {})
+if not position_indicators:
+    st.error("No se encontraron indicadores para el cargo seleccionado.")
+    return
 
-        # Calcular el porcentaje por cada indicador
-        indicator_results = calculate_indicators_for_report(lines, position_indicators)
-        for indicator, keywords in position_indicators.items():
-            indicator_results = calculate_indicators_for_report(lines, position_indicators)
+indicator_results = calculate_indicators_for_report(lines, position_indicators)
 
-        # Calcular la presencia total (si es necesario)
-        total_presence = sum(result["percentage"] for result in indicator_results.values())
+# Evaluación de renglones
+line_results = []  # Inicializar los resultados de líneas
 
-        # Normalizar los porcentajes si es necesario
-        if total_presence > 0:
-            for indicator in indicator_results:
-                indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
+# Obtener los indicadores y palabras clave para el cargo seleccionado
+position_indicators = indicators.get(position, {})
+if not position_indicators:
+    st.error("No se encontraron indicadores para el cargo seleccionado.")
+    return
 
-        # Evaluación general de concordancia
-        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
-            func_match = 100.0
-            profile_match = 100.0
-        else:
-            # Calcular similitud 
-            func_match = calculate_similarity(line, functions_text)
-            profile_match = calculate_similarity(line, profile_text)
-        
-        # Solo agregar al reporte si no tiene 0% en ambas métricas
-        if func_match > 0 or profile_match > 0:
-            line_results.append((line, func_match, profile_match))
+indicator_results = calculate_indicators_for_report(lines, position_indicators)
 
-    # Normalización de los resultados de indicadores
-    total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
+# Evaluar cada línea
+for line in lines:
+    line = line.strip()
+    if not line:  # Ignorar líneas vacías
+        continue
+
+    # Evaluación general de concordancia
+    if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+        func_match = 100.0
+        profile_match = 100.0
+    else:
+        # Calcular similitud 
+        func_match = calculate_similarity(line, functions_text)
+        profile_match = calculate_similarity(line, profile_text)
+
+    # Solo agregar al reporte si no tiene 0% en ambas métricas
+    if func_match > 0 or profile_match > 0:
+        line_results.append((line, func_match, profile_match))
+
+# Normalización de los resultados de indicadores
+if indicator_results:
+    total_presence = sum(result["percentage"] for result in indicator_results.values())
     if total_presence > 0:
         for indicator in indicator_results:
             indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
 
+
     # Procesar las secciones
-    experiencia_lines = extract_cleaned_lines(
-    extract_experience_section_with_ocr(pdf_path, "EXPERIENCIA EN ANEIAP", "EVENTOS ORGANIZADOS")
-    )
     experiencia_results = calculate_section_results(experiencia_lines, position_indicators, functions_text, profile_text)
-
-    eventos_lines = extract_cleaned_lines(
-    extract_experience_section_with_ocr(pdf_path, "EVENTOS ORGANIZADOS", "ASISTENCIA A EVENTOS ANEIAP")
-    )
     eventos_results = calculate_section_results(eventos_lines, position_indicators, functions_text, profile_text)
-
-    asistencia_lines = extract_cleaned_lines(
-    extract_experience_section_with_ocr(pdf_path, "ASISTENCIA A EVENTOS ANEIAP", "OTRO ENCABEZADO O FIN DEL DOCUMENTO")
-    )
     asistencia_eventos_results = calculate_section_results(asistencia_lines, position_indicators, functions_text, profile_text)
 
     # Calcular concordancia global para EXPERIENCIA EN ANEIAP
