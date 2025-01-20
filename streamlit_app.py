@@ -413,7 +413,7 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     
 
     # Procesar las secciones
-    experiencia_results = calculate_section_results(experiencia_lines, position_indicators, functions_text, profile_text)
+    experiencia_results = calculate_section_results(experience_lines, position_indicators, functions_text, profile_text)
     eventos_results = calculate_section_results(eventos_lines, position_indicators, functions_text, profile_text)
     asistencia_eventos_results = calculate_section_results(asistencia_lines, position_indicators, functions_text, profile_text)
 
