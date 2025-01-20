@@ -312,7 +312,7 @@ def extract_experience_section_with_ocr(pdf_path):
     
     return "\n".join(cleaned_lines)
 
-def generate_report_with_events_analysis(pdf_path, position, candidate_name, background_path):
+def generate_report_with_background(pdf_path, position, candidate_name, background_path):
     """
     Genera un reporte con análisis de "Experiencia", "Asistencia a eventos ANEIAP" y "EVENTOS ORGANIZADOS".
     :param pdf_path: Ruta del PDF.
