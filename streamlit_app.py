@@ -252,72 +252,24 @@ def calculate_section_results(lines, position_indicators, functions_text, profil
     return line_results
     
 # FUNCIONES PARA PRIMARY
-def extract_experience_section_with_ocr(pdf_path):
+def extract_experience_section_with_ocr(pdf_path, start_keyword, end_keyword):
     """
-    Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF con soporte de OCR.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Texto de la sección 'EXPERIENCIA EN ANEIAP'.
+    Extrae una sección específica de un PDF utilizando palabras clave de inicio y fin.
+    :param pdf_path: Ruta del PDF.
+    :param start_keyword: Palabra clave que indica el inicio de la sección.
+    :param end_keyword: Palabra clave que indica el final de la sección.
+    :return: Texto de la sección especificada.
     """
     text = extract_text_with_ocr(pdf_path)
-
-    # Palabras clave para identificar inicio y fin de la sección
-    start_keyword = "EXPERIENCIA EN ANEIAP"
-    end_keywords = [
-        "EVENTOS ORGANIZADOS",
-        "Reconocimientos individuales",
-        "Reconocimientos grupales",
-        "Reconocimientos",
-    ]
-
-    # Encontrar índice de inicio
     start_idx = text.lower().find(start_keyword.lower())
     if start_idx == -1:
-        return None  # No se encontró la sección
+        return None  # No se encontró la palabra clave inicial
 
-    # Encontrar índice más cercano de fin basado en palabras clave
-    end_idx = len(text)  # Por defecto, tomar hasta el final
-    for keyword in end_keywords:
-        idx = text.lower().find(keyword.lower(), start_idx)
-        if idx != -1:
-            end_idx = min(end_idx, idx)
+    end_idx = text.lower().find(end_keyword.lower(), start_idx)
+    if end_idx == -1:
+        end_idx = len(text)  # Tomar hasta el final si no se encuentra la palabra clave final
 
-    # Extraer la sección entre inicio y fin
-    experience_text = text[start_idx:end_idx].strip()
-
-    # Filtrar y limpiar texto
-    exclude_lines = [
-        "a nivel capitular",
-        "a nivel nacional",
-        "a nivel seccional",
-        "reconocimientos individuales",
-        "reconocimientos grupales",
-        "trabajo capitular",
-        "trabajo nacional",
-        "nacional 2024",
-        "nacional 20212023",
-    ]
-    experience_lines = experience_text.split("\n")
-    cleaned_lines = []
-    for line in experience_lines:
-        line = line.strip()
-        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
-        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        if (
-            normalized_line
-            and normalized_line not in exclude_lines
-            and normalized_line != start_keyword.lower()
-            and normalized_line not in [kw.lower() for kw in end_keywords]
-        ):
-            cleaned_lines.append(line)
-
-    return "\n".join(cleaned_lines)
-    
-    # Debugging: Imprime líneas procesadas
-    print("Líneas procesadas:")
-    for line in cleaned_lines:
-        print(f"- {line}")
-    
-    return "\n".join(cleaned_lines)
+    return text[start_idx:end_idx].strip()
 
 def generate_report_with_background(pdf_path, position, candidate_name, background_path):
     """
@@ -385,13 +337,19 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     section_results = []
 
     # Procesar cada sección
-    experiencia_lines = extract_cleaned_lines(extract_experience_section_with_ocr(pdf_path,"EXPERIENCIA ANEIAP", "EVENTOS ORGANIZADOS"))
+   experiencia_lines = extract_cleaned_lines(
+    extract_experience_section_with_ocr(pdf_path, "EXPERIENCIA EN ANEIAP", "EVENTOS ORGANIZADOS")
+    )
     experiencia_results = calculate_section_results(experiencia_lines, position_indicators, functions_text, profile_text)
     
-    eventos_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "EVENTOS ORGANIZADOS","EXPERIENCIA LABORAL"))
+    eventos_lines = extract_cleaned_lines(
+    extract_experience_section_with_ocr(pdf_path, "EVENTOS ORGANIZADOS", "ASISTENCIA A EVENTOS ANEIAP")
+    )
     eventos_organizados_results = calculate_section_results(eventos_lines, position_indicators, functions_text, profile_text)
     
-    asistencia_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "ASISTENCIA A EVENTOS ANEIAP","Actualización Profesional"))
+    asistencia_lines = extract_cleaned_lines(
+    extract_experience_section_with_ocr(pdf_path, "ASISTENCIA A EVENTOS ANEIAP", "OTRO ENCABEZADO O FIN DEL DOCUMENTO")
+    )
     asistencia_eventos_results = calculate_section_results(asistencia_lines, position_indicators, functions_text, profile_text)
     
     # Crear el diccionario de resultados por sección
