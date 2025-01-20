@@ -406,23 +406,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         st.warning("No se encontró la sección 'EVENTOS ORGANIZADOS'.")
         organized_events_text = ""
 
-
-    # Dividir las líneas de cada sección
-    experience_lines = extract_cleaned_lines(experience_text)
-    event_attendance_lines = extract_cleaned_lines(event_attendance_text)
-    organized_events_lines = extract_cleaned_lines(organized_events_text)
-    
-    # Analizar secciones
-    exp_results, exp_func_global, exp_profile_global = analyze_section(
-        experience_lines, position_indicators, functions_text, profile_text
-    )
-    att_results, att_func_global, att_profile_global = analyze_section(
-        event_attendance_lines, position_indicators, functions_text, profile_text
-    )
-    org_results, org_func_global, org_profile_global = analyze_section(
-        organized_events_lines, position_indicators, functions_text, profile_text
-    )
-
     # Cargar funciones y perfil del cargo
     try:
         # Intentar cargar las funciones
@@ -445,6 +428,23 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         st.error("No se pudieron cargar las funciones o el perfil del cargo. Por favor verifica los archivos y vuelve a intentarlo.")
         return
 
+
+
+    # Dividir las líneas de cada sección
+    experience_lines = extract_cleaned_lines(experience_text)
+    event_attendance_lines = extract_cleaned_lines(event_attendance_text)
+    organized_events_lines = extract_cleaned_lines(organized_events_text)
+    
+    # Analizar secciones
+    exp_results, exp_func_global, exp_profile_global = analyze_section(
+        experience_lines, position_indicators, functions_text, profile_text
+    )
+    att_results, att_func_global, att_profile_global = analyze_section(
+        event_attendance_lines, position_indicators, functions_text, profile_text
+    )
+    org_results, org_func_global, org_profile_global = analyze_section(
+        organized_events_lines, position_indicators, functions_text, profile_text
+    )
 
     # Inicializar section_results
     section_results = {}
