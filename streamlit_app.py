@@ -277,10 +277,22 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     """
     pdf_text = extract_text_with_ocr(pdf_path)
 
-    # Dividir la experiencia en líneas
-    lines = extract_cleaned_lines(experience_text)
-    lines = experience_text.split("\n")
-    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+    # Extraer texto para "EXPERIENCIA EN ANEIAP"
+    experience_text = extract_section_with_keywords(
+        pdf_text, "EXPERIENCIA EN ANEIAP", ["ASISTENCIA A EVENTOS ANEIAP", "EVENTOS ORGANIZADOS"]
+    )
+    
+    if not experience_text:  # Verificar si el texto fue extraído correctamente
+        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
+        experience_text = ""  # Establecer un valor predeterminado vacío para evitar errores
+    
+    # Procesar el texto solo si está disponible
+    if experience_text:
+        lines = extract_cleaned_lines(experience_text)
+        lines = experience_text.split("\n")
+        lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+    else:
+        lines = []  # Evitar más errores al trabajar con una lista vacía
 
     # Extraer secciones
     experience_text = extract_section_with_keywords(
