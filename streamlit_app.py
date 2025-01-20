@@ -414,8 +414,8 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
 
     # Procesar las secciones
     experiencia_results = calculate_section_results(experience_lines, position_indicators, functions_text, profile_text)
-    eventos_results = calculate_section_results(eventos_lines, position_indicators, functions_text, profile_text)
-    asistencia_eventos_results = calculate_section_results(asistencia_lines, position_indicators, functions_text, profile_text)
+    eventos_results = calculate_section_results(organized_events_lines, position_indicators, functions_text, profile_text)
+    asistencia_eventos_results = calculate_section_results(event_attendance_lines, position_indicators, functions_text, profile_text)
 
     # Calcular concordancia global para EXPERIENCIA EN ANEIAP
     if experiencia_results:
