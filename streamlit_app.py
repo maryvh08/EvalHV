@@ -501,41 +501,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Procesar cada sección
-    for section_name, result in section_results.items():
-        elements.append(Paragraph(f"<b>{section_name}:</b>", styles['CenturyGothicBold']))
-        elements.append(Spacer(1, 0.2 * inch))
-
-        if isinstance(result, dict) and "lines" in result:
-            elements.append(Paragraph(f"<b>Resultados de {section_name}:</b>", styles['CenturyGothicBold']))
-            for line, func_match, profile_match in result["lines"]:
-                elements.append(Paragraph(f"• {line}: Funciones: {func_match:.2f}%, Perfil: {profile_match:.2f}%", styles['CenturyGothic']))
-        else:
-            st.error(f"La estructura de resultados para la sección {section_name} no es válida.")
-
-
-        # Tabla de ítems con Funciones y Perfil
-        table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
-        for line, func_match, profile_match in result["lines"]:
-            table_data.append([Paragraph(line, styles['CenturyGothic']), f"{func_match:.2f}%", f"{profile_match:.2f}%"])
-
-        item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
-        item_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
-            ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('WORDWRAP', (0, 0), (-1, -1)),
-        ]))
-
-        elements.append(item_table)
-        elements.append(Spacer(1, 0.2 * inch))
-    
     # Total de líneas analizadas
     total_lines = len(line_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
