@@ -189,6 +189,60 @@ def generate_donut_chart_for_report(percentage, color='green', background_color=
 
     return buffer
 
+def extract_section_with_keywords(pdf_text, start_keyword, end_keywords):
+    """
+    Extrae una sección del texto del PDF basado en palabras clave de inicio y final.
+    :param pdf_text: Texto completo del PDF.
+    :param start_keyword: Palabra clave que indica el inicio de la sección.
+    :param end_keywords: Lista de palabras clave que indican el final de la sección.
+    :return: Texto de la sección extraída o None si no se encuentra.
+    """
+    start_idx = pdf_text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None  # No se encontró la sección
+
+    end_idx = len(pdf_text)
+    for keyword in end_keywords:
+        idx = pdf_text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
+
+    return pdf_text[start_idx:end_idx].strip()
+
+def analyze_section(lines, position_indicators, functions_text, profile_text):
+    """
+    Analiza una sección para calcular porcentajes de concordancia con perfil y funciones.
+    :param lines: Líneas de texto de la sección.
+    :param position_indicators: Palabras clave de indicadores para el cargo seleccionado.
+    :param functions_text: Texto de las funciones del cargo.
+    :param profile_text: Texto del perfil del cargo.
+    :return: Resultados de análisis por línea y porcentajes globales.
+    """
+    section_results = []
+
+    for line in lines:
+        header_contains_keywords = any(
+            keyword.lower() in line.lower() for keywords in position_indicators.values() for keyword in keywords
+        )
+
+        if header_contains_keywords:
+            func_match = 100
+            profile_match = 100
+        else:
+            func_match = calculate_similarity(line, functions_text)
+            profile_match = calculate_similarity(line, profile_text)
+
+        section_results.append((line, func_match, profile_match))
+
+    if section_results:
+        global_func_match = sum(res[1] for res in section_results) / len(section_results)
+        global_profile_match = sum(res[2] for res in section_results) / len(section_results)
+    else:
+        global_func_match = 0
+        global_profile_match = 0
+
+    return section_results, global_func_match, global_profile_match
+
     
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
@@ -258,39 +312,62 @@ def extract_experience_section_with_ocr(pdf_path):
     
     return "\n".join(cleaned_lines)
 
-def generate_report_with_background(pdf_path, position, candidate_name,background_path):
+def generate_report_with_events_analysis(pdf_path, position, candidate_name, background_path):
     """
-    Genera un reporte con un fondo en cada página.
+    Genera un reporte con análisis de "Experiencia", "Asistencia a eventos ANEIAP" y "EVENTOS ORGANIZADOS".
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
     :param background_path: Ruta de la imagen de fondo.
     """
-    experience_text = extract_experience_section_with_ocr(pdf_path)
+    pdf_text = extract_text_with_ocr(pdf_path)
+
+    # Extraer secciones
+    experience_text = extract_section_with_keywords(
+        pdf_text, "EXPERIENCIA EN ANEIAP", ["ASISTENCIA A EVENTOS ANEIAP", "EVENTOS ORGANIZADOS"]
+    )
+    event_attendance_text = extract_section_with_keywords(
+        pdf_text, "ASISTENCIA A EVENTOS ANEIAP", ["EVENTOS ORGANIZADOS", "RECONOCIMIENTOS"]
+    )
+    organized_events_text = extract_section_with_keywords(
+        pdf_text, "EVENTOS ORGANIZADOS", ["RECONOCIMIENTOS"]
+    )
+
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
-    # Dividir la experiencia en líneas
-    lines = extract_cleaned_lines(experience_text)
-    lines= experience_text.split("\n")
-    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
-
-    # Obtener los indicadores y palabras clave para el cargo seleccionado
-    position_indicators = indicators.get(position, {})
-
-    indicator_results = calculate_all_indicators(lines, position_indicators)
-
-    # Cargar funciones y perfil
+    # Cargar funciones y perfil del cargo
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
             functions_text = func_doc[0].get_text()
-        with fitz.open(f"Perfiles/P{position}.pdf") as profile_doc:
+        with fitz.open(f"Perfiles//P{position}.pdf") as profile_doc:
             profile_text = profile_doc[0].get_text()
     except Exception as e:
         st.error(f"Error al cargar funciones o perfil: {e}")
         return
 
+    # Filtrar indicadores correspondientes al cargo seleccionado
+    position_indicators = indicators.get(position, {})
+    if not position_indicators:
+        st.error("No se encontraron indicadores para el cargo seleccionado.")
+        return
+
+    # Analizar secciones
+    experience_lines = extract_cleaned_lines(experience_text)
+    event_attendance_lines = extract_cleaned_lines(event_attendance_text) if event_attendance_text else []
+    organized_events_lines = extract_cleaned_lines(organized_events_text) if organized_events_text else []
+
+    exp_results, exp_func_global, exp_profile_global = analyze_section(
+        experience_lines, position_indicators, functions_text, profile_text
+    )
+    att_results, att_func_global, att_profile_global = analyze_section(
+        event_attendance_lines, position_indicators, functions_text, profile_text
+    )
+    org_results, org_func_global, org_profile_global = analyze_section(
+        organized_events_lines, position_indicators, functions_text, profile_text
+    )
+    
     line_results = []
 
     # Evaluación de renglones
@@ -383,34 +460,32 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
     
-    # Encabezados de la tabla
-    table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
-    
-    # Agregar datos de line_results a la tabla
-    for line, func_match, profile_match in line_results:
-        table_data.append([Paragraph(line, styles['CenturyGothic']), f"{func_match:.2f}%", f"{profile_match:.2f}%"])
+    # Procesar cada sección
+    for section_name, result in section_results.items():
+        elements.append(Paragraph(f"<b>{section_name}:</b>", styles['CenturyGothicBold']))
+        elements.append(Spacer(1, 0.2 * inch))
 
-    # Crear la tabla con ancho de columnas ajustado
-    item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
-    
-    # Estilos de la tabla con ajuste de texto
-    item_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
-        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
-        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
-        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
-        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
-    ]))
-    
-    # Agregar tabla a los elementos
-    elements.append(item_table)
-    
-    elements.append(Spacer(1, 0.2 * inch))
+        # Tabla de ítems con Funciones y Perfil
+        table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+        for line, func_match, profile_match in result["lines"]:
+            table_data.append([Paragraph(line, styles['CenturyGothic']), f"{func_match:.2f}%", f"{profile_match:.2f}%"])
+
+        item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+        item_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
+            ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('WORDWRAP', (0, 0), (-1, -1)),
+        ]))
+
+        elements.append(item_table)
+        elements.append(Spacer(1, 0.2 * inch))
     
     # Total de líneas analizadas
     total_lines = len(line_results)
