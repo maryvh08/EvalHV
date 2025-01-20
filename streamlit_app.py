@@ -330,6 +330,23 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     """
     Genera un reporte con análisis de "EXPERIENCIA EN ANEIAP", "EVENTOS ORGANIZADOS" y "ASISTENCIA A EVENTOS ANEIAP".
     """
+
+    # Definir las palabras clave para las secciones
+    section_keywords = {
+        "EXPERIENCIA EN ANEIAP": {
+            "start": "EXPERIENCIA EN ANEIAP",
+            "end": ["RECONOCIMIENTOS", "EVENTOS ORGANIZADOS"]
+        },
+        "ASISTENCIA A EVENTOS ANEIAP": {
+            "start": "ASISTENCIA A EVENTOS ANEIAP",
+            "end": ["EXPERIENCIA EN ANEIAP", "Estudios realizados"]
+        },
+        "EVENTOS ORGANIZADOS": {
+            "start": "EVENTOS ORGANIZADOS",
+            "end": ["EXPERIENCIA LABORAL", "FIRMA"]
+        }
+    }
+
     pdf_text = extract_text_with_ocr(pdf_path)
 
     # Extraer texto para "EXPERIENCIA EN ANEIAP"
