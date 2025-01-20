@@ -243,6 +243,23 @@ def analyze_section(lines, position_indicators, functions_text, profile_text):
 
     return section_results, global_func_match, global_profile_match
 
+def calculate_section_results(lines, position_indicators, functions_text, profile_text):
+    line_results = []
+    for line in lines:
+        func_match = calculate_similarity(line, functions_text)
+        profile_match = calculate_similarity(line, profile_text)
+        line_results.append((line, func_match, profile_match))
+    return line_results
+
+def extract_section_with_keywords(pdf_path, section_keyword):
+    # Implementa la lógica para extraer texto con base en palabras clave
+    text = extract_text_with_ocr(pdf_path)
+    start_idx = text.lower().find(section_keyword.lower())
+    if start_idx == -1:
+        return ""
+    end_idx = text.lower().find("siguiente_seccion", start_idx)  # Ajusta según el delimitador real
+    return text[start_idx:end_idx].strip()
+
     
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
