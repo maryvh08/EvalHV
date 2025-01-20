@@ -385,13 +385,13 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     section_results = []
 
     # Procesar cada sección
-    experiencia_lines = extract_cleaned_lines(extract_experience_section_with_ocr(pdf_path))
+    experiencia_lines = extract_cleaned_lines(extract_experience_section_with_ocr(pdf_path,"EXPERIENCIA ANEIAP", "EVENTOS ORGANIZADOS"))
     experiencia_results = calculate_section_results(experiencia_lines, position_indicators, functions_text, profile_text)
     
-    eventos_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "EVENTOS ORGANIZADOS"))
+    eventos_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "EVENTOS ORGANIZADOS","EXPERIENCIA LABORAL"))
     eventos_organizados_results = calculate_section_results(eventos_lines, position_indicators, functions_text, profile_text)
     
-    asistencia_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "ASISTENCIA A EVENTOS ANEIAP"))
+    asistencia_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "ASISTENCIA A EVENTOS ANEIAP","Actualización Profesional"))
     asistencia_eventos_results = calculate_section_results(asistencia_lines, position_indicators, functions_text, profile_text)
     
     # Crear el diccionario de resultados por sección
