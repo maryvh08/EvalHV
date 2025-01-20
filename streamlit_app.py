@@ -357,6 +357,25 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     if not experience_text:  # Verificar si el texto fue extraído correctamente
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         experience_text = ""  # Establecer un valor predeterminado vacío para evitar errores
+
+    # Extraer secciones
+    experience_text = extract_section_with_keywords(
+        pdf_text,
+        section_keywords["EXPERIENCIA EN ANEIAP"]["start"],
+        section_keywords["EXPERIENCIA EN ANEIAP"]["end"]
+    )
+
+    event_attendance_text = extract_section_with_keywords(
+        pdf_text,
+        section_keywords["ASISTENCIA A EVENTOS ANEIAP"]["start"],
+        section_keywords["ASISTENCIA A EVENTOS ANEIAP"]["end"]
+    )
+
+    organized_events_text = extract_section_with_keywords(
+        pdf_text,
+        section_keywords["EVENTOS ORGANIZADOS"]["start"],
+        section_keywords["EVENTOS ORGANIZADOS"]["end"]
+    )
     
     # Procesar el texto solo si está disponible
     if experience_text:
