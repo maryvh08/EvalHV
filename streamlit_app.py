@@ -540,6 +540,26 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         for indicator in indicator_results:
             indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
 
+    # Evaluación de indicadores en las líneas
+    for indicator in position_indicators:
+        # Obtener palabras clave para el indicador
+        keywords = position_indicators.get(indicator, [])
+        
+        # Calcular líneas relevantes
+        relevant_lines = sum(
+            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
+        )
+        
+        # Calcular el porcentaje basado en líneas relevantes
+        percentage = (relevant_lines / len(lines)) * 100 if len(lines) > 0 else 0
+    
+        # Agregar resultados al reporte
+        indicator_results[indicator] = {
+            "percentage": percentage,
+            "relevant_lines": relevant_lines,
+        }
+
+
      # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
             func_match = 100.0
