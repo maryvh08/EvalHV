@@ -428,39 +428,47 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     if experiencia_results:
         experiencia_parcial_funciones = sum(res[1] for res in experiencia_results) / len(experiencia_results)
         experiencia_parcial_perfil = sum(res[2] for res in experiencia_results) / len(experiencia_results)
-        experiencia_concordancia_global = (experiencia_parcial_funciones + experiencia_parcial_perfil) / 2
     else:
         experiencia_parcial_funciones = 0
         experiencia_parcial_perfil = 0
-        experiencia_concordancia_global = 0
     
     # Para EVENTOS ORGANIZADOS
     if eventos_results:
         eventos_parcial_funciones = sum(res[1] for res in eventos_results) / len(eventos_results)
         eventos_parcial_perfil = sum(res[2] for res in eventos_results) / len(eventos_results)
-        eventos_concordancia_global = (eventos_parcial_funciones + eventos_parcial_perfil) / 2
     else:
         eventos_parcial_funciones = 0
         eventos_parcial_perfil = 0
-        eventos_concordancia_global = 0
     
     # Para ASISTENCIA A EVENTOS ANEIAP
     if asistencia_eventos_results:
         asistencia_parcial_funciones = sum(res[1] for res in asistencia_eventos_results) / len(asistencia_eventos_results)
         asistencia_parcial_perfil = sum(res[2] for res in asistencia_eventos_results) / len(asistencia_eventos_results)
-        asistencia_concordancia_global = (asistencia_parcial_funciones + asistencia_parcial_perfil) / 2
     else:
         asistencia_parcial_funciones = 0
         asistencia_parcial_perfil = 0
-        asistencia_concordancia_global = 0
 
-    #Calculo puntajes
-    experiencia_func_score = round((experiencia_global_func_match * 5) / 100, 2)
-    experiencia_profile_score = round((experiencia_global_profile_match * 5) / 100, 2)
-    eventos_func_score = round((eventos_global_func_match * 5) / 100, 2)
-    eventos_profile_score = round((eventos_global_profile_match * 5) / 100, 2)
-    attendance_func_score = round((attendance_global_func_match * 5) / 100, 2)
-    attendance_profile_score = round((attendance_global_profile_match * 5) / 100, 2)
+    # Calcular puntajes parciales
+    experiencia_func_score = round((experiencia_parcial_funciones * 5) / 100, 2)
+    experiencia_profile_score = round((experiencia_parcial_perfil * 5) / 100, 2)
+    
+    eventos_func_score = round((eventos_parcial_funciones * 5) / 100, 2)
+    eventos_profile_score = round((eventos_parcial_perfil * 5) / 100, 2)
+    
+    asistencia_func_score = round((asistencia_parcial_funciones * 5) / 100, 2)
+    asistencia_profile_score = round((asistencia_parcial_perfil * 5) / 100, 2)
+
+    # Calcular concordancia global
+    concordancia_global_func = round(
+        (experiencia_parcial_funciones + eventos_parcial_funciones + asistencia_parcial_funciones) / 3, 2
+    )
+    concordancia_global_perfil = round(
+        (experiencia_parcial_perfil + eventos_parcial_perfil + asistencia_parcial_perfil) / 3, 2
+    )
+
+    # Calcular puntajes globales
+    global_func_score = round((concordancia_global_func * 5) / 100, 2)
+    global_profile_score = round((concordancia_global_perfil * 5) / 100, 2)
 
     # Registrar la fuente personalizada
     pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
@@ -592,14 +600,27 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
 
     elements.append(Spacer(1, 0.1 * inch))
 
-    # Función para crear tablas de resultados globales
-    def create_global_table(section_name, partial_scores, global_score):
+    # Crear función para tablas de resultados globales
+    def create_global_table(section_name, partial_scores, global_scores, scores):
+        """
+        Crea una tabla de resultados globales con concordancias parciales, globales y puntajes.
+        :param section_name: Nombre de la sección.
+        :param partial_scores: Concordancias parciales (funciones y perfil).
+        :param global_scores: Concordancias globales (funciones y perfil).
+        :param scores: Puntajes parciales (funciones y perfil).
+        """
         parcial_funciones, parcial_perfil = partial_scores
+        global_func, global_profile = global_scores
+        func_score, profile_score = scores
+    
+        # Datos de la tabla
         table_data = [
-            ["Criterio", "Concordancia Parcial de Funciones (%)", "Concordancia Parcial de Perfil (%)", "Concordancia Global (%)"],
-            ["Resultados", f"{parcial_funciones:.2f}%", f"{parcial_perfil:.2f}%", f"{global_score:.2f}%"],
+            ["Criterio", "Concordancia Parcial de Funciones (%)", "Concordancia Parcial de Perfil (%)", "Concordancia Global (%)", "Puntaje Parcial de Funciones", "Puntaje Parcial de Perfil"],
+            ["Resultados", f"{parcial_funciones:.2f}%", f"{parcial_perfil:.2f}%", f"{global_func:.2f}% / {global_profile:.2f}%", f"{func_score:.2f}", f"{profile_score:.2f}"],
         ]
-        table = Table(table_data, colWidths=[2.5 * inch, 2.5 * inch, 2.5 * inch, 2.5 * inch])
+    
+        # Crear tabla
+        table = Table(table_data, colWidths=[2.5 * inch, 1.8 * inch, 1.8 * inch, 2.5 * inch, 1.8 * inch, 1.8 * inch])
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
@@ -611,15 +632,33 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ]))
+    
         elements.append(Paragraph(f"<b>Resultados Globales - {section_name}:</b>", styles['CenturyGothicBold']))
         elements.append(Spacer(1, 0.1 * inch))
         elements.append(table)
         elements.append(Spacer(1, 0.2 * inch))
-
-    # Crear tablas de resultados globales
-    create_global_table("EXPERIENCIA EN ANEIAP", (experiencia_parcial_funciones, experiencia_parcial_perfil), experiencia_concordancia_global)
-    create_global_table("EVENTOS ORGANIZADOS", (eventos_parcial_funciones, eventos_parcial_perfil), eventos_concordancia_global)
-    create_global_table("ASISTENCIA A EVENTOS ANEIAP", (asistencia_parcial_funciones, asistencia_parcial_perfil), asistencia_concordancia_global)
+    
+    # Crear tablas de resultados globales con puntajes
+    create_global_table(
+        "EXPERIENCIA EN ANEIAP",
+        (experiencia_parcial_funciones, experiencia_parcial_perfil),
+        (concordancia_global_func, concordancia_global_perfil),
+        (experiencia_func_score, experiencia_profile_score)
+    )
+    
+    create_global_table(
+        "EVENTOS ORGANIZADOS",
+        (eventos_parcial_funciones, eventos_parcial_perfil),
+        (concordancia_global_func, concordancia_global_perfil),
+        (eventos_func_score, eventos_profile_score)
+    )
+    
+    create_global_table(
+        "ASISTENCIA A EVENTOS ANEIAP",
+        (asistencia_parcial_funciones, asistencia_parcial_perfil),
+        (concordancia_global_func, concordancia_global_perfil),
+        (asistencia_func_score, asistencia_profile_score)
+    )
 
     # Interpretación de resultados
     elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
