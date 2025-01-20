@@ -478,10 +478,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
 
-    else:
-        st.error("Error interno: `section_results` no es un diccionario.")
-
-    
     # Procesar cada sección
     for section_name, result in section_results.items():
         elements.append(Paragraph(f"<b>{section_name}:</b>", styles['CenturyGothicBold']))
