@@ -594,7 +594,7 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
             ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
             ('VALIGN', (0, 0), (-1, -1),
-
+             
         elements.append(Paragraph(f"<b>Resultados Globales - {section_name}:</b>", styles['CenturyGothicBold']))
         elements.append(Spacer(1, 0.1 * inch))
         elements.append(table)
