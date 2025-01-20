@@ -428,8 +428,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         st.error("No se pudieron cargar las funciones o el perfil del cargo. Por favor verifica los archivos y vuelve a intentarlo.")
         return
 
-
-
     # Dividir las líneas de cada sección
     experience_lines = extract_cleaned_lines(experience_text)
     event_attendance_lines = extract_cleaned_lines(event_attendance_text)
@@ -510,6 +508,11 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         # Obtener los indicadores y palabras clave para el cargo seleccionado
         position_indicators = indicators.get(position, {})
         indicator_results = calculate_indicators_for_report([line], position_indicators)
+
+        # Dividir la experiencia en líneas
+        lines = extract_cleaned_lines(experience_text)
+        lines = experience_text.split("\n")
+        lines = [line.strip() for line in lines if line.strip()]  # Eliminar líne
     
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for keywords in position_indicators.values() for keyword in keywords):
