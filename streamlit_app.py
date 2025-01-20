@@ -429,24 +429,24 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     # Calcular concordancia parcial y global
     # Para EXPERIENCIA EN ANEIAP
     if experiencia_results:
-        experiencia_parcial_funciones = sum(res[1] for res in experiencia_results) / len(experiencia_results)
-        experiencia_parcial_perfil = sum(res[2] for res in experiencia_results) / len(experiencia_results)
+        experiencia_parcial_funciones = sum(res[1] for res in experiencia_results) / len(experiencia_results) if experiencia_results else 0
+        experiencia_parcial_perfil = sum(res[2] for res in experiencia_results) / len(experiencia_results) if experiencia_results else 0
     else:
         experiencia_parcial_funciones = 0
         experiencia_parcial_perfil = 0
     
     # Para EVENTOS ORGANIZADOS
     if eventos_results:
-        eventos_parcial_funciones = sum(res[1] for res in eventos_results) / len(eventos_results)
-        eventos_parcial_perfil = sum(res[2] for res in eventos_results) / len(eventos_results)
+        eventos_parcial_funciones = sum(res[1] for res in eventos_results) / len(eventos_results) if eventos_results else 0
+        eventos_parcial_perfil = sum(res[2] for res in eventos_results) / len(eventos_results) if eventos_results else 0
     else:
         eventos_parcial_funciones = 0
         eventos_parcial_perfil = 0
     
     # Para ASISTENCIA A EVENTOS ANEIAP
     if asistencia_eventos_results:
-        asistencia_parcial_funciones = sum(res[1] for res in asistencia_eventos_results) / len(asistencia_eventos_results)
-        asistencia_parcial_perfil = sum(res[2] for res in asistencia_eventos_results) / len(asistencia_eventos_results)
+        asistencia_parcial_funciones = sum(res[1] for res in asistencia_eventos_results) / len(asistencia_eventos_results) if asistencia_eventos_results else 0
+        asistencia_parcial_perfil = sum(res[2] for res in asistencia_eventos_results) / len(asistencia_eventos_results) if asistencia_eventos_results else o
     else:
         asistencia_parcial_funciones = 0
         asistencia_parcial_perfil = 0
@@ -572,10 +572,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     def create_global_table(section_name, partial_scores, global_scores, scores):
         """
         Crea una tabla de resultados globales con concordancias parciales, globales y puntajes.
-        :param section_name: Nombre de la sección.
-        :param partial_scores: Concordancias parciales (funciones y perfil).
-        :param global_scores: Concordancias globales (funciones y perfil).
-        :param scores: Puntajes parciales (funciones y perfil).
         """
         parcial_funciones, parcial_perfil = partial_scores
         global_func, global_profile = global_scores
@@ -583,12 +579,11 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     
         # Datos de la tabla
         table_data = [
-            ["Criterio", "Concordancia Parcial de Funciones (%)", "Concordancia Parcial de Perfil (%)", "Concordancia Global (%)", "Puntaje Parcial de Funciones", "Puntaje Parcial de Perfil"],
-            ["Resultados", f"{parcial_funciones:.2f}%", f"{parcial_perfil:.2f}%", f"{global_func:.2f}% / {global_profile:.2f}%", f"{func_score:.2f}", f"{profile_score:.2f}"],
+            ["Criterio", "Parcial Funciones (%)", "Parcial Perfil (%)", "Global Funciones (%)", "Global Perfil (%)", "Puntaje Funciones", "Puntaje Perfil"],
+            ["Resultados", f"{parcial_funciones:.2f}%", f"{parcial_perfil:.2f}%", f"{global_func:.2f}%", f"{global_profile:.2f}%", f"{func_score:.2f}", f"{profile_score:.2f}"],
         ]
-    
         # Crear tabla
-        table = Table(table_data, colWidths=[2.5 * inch, 1.8 * inch, 1.8 * inch, 2.5 * inch, 1.8 * inch, 1.8 * inch])
+        table = Table(table_data, colWidths=[2 * inch] * 7)
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
@@ -598,9 +593,8 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
             ('FONTSIZE', (0, 0), (-1, -1), 10),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ]))
-    
+            ('VALIGN', (0, 0), (-1, -1),
+
         elements.append(Paragraph(f"<b>Resultados Globales - {section_name}:</b>", styles['CenturyGothicBold']))
         elements.append(Spacer(1, 0.1 * inch))
         elements.append(table)
@@ -682,7 +676,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
             file_name= report_path,
             mime="application/pdf"
         )
-
 
 # FUNCIONES PARA SECUNDARY
 def extract_experience_items_with_details(pdf_path):
