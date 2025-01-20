@@ -207,6 +207,7 @@ def extract_section_with_keywords(pdf_text, start_keyword, end_keywords):
     if start_idx == -1:
         return None  # No se encontró la sección
 
+    # Buscar el índice final más cercano a partir del inicio
     end_idx = len(pdf_text)
     for keyword in end_keywords:
         idx = pdf_text.lower().find(keyword.lower(), start_idx)
@@ -348,25 +349,57 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     else:
         lines = []  # Evitar más errores al trabajar con una lista vacía
 
+    # Extraer texto del PDF
+    pdf_text = extract_text_with_ocr(pdf_path)
+
     # Extraer secciones
     experience_text = extract_section_with_keywords(
-        pdf_text, "EXPERIENCIA EN ANEIAP", ["ASISTENCIA A EVENTOS ANEIAP", "EVENTOS ORGANIZADOS"]
+        pdf_text,
+        section_keywords["EXPERIENCIA EN ANEIAP"]["start"],
+        section_keywords["EXPERIENCIA EN ANEIAP"]["end"]
     )
+    
     event_attendance_text = extract_section_with_keywords(
-        pdf_text, "ASISTENCIA A EVENTOS ANEIAP", ["EVENTOS ORGANIZADOS", "RECONOCIMIENTOS"]
+        pdf_text,
+        section_keywords["ASISTENCIA A EVENTOS ANEIAP"]["start"],
+        section_keywords["ASISTENCIA A EVENTOS ANEIAP"]["end"]
     )
+    
     organized_events_text = extract_section_with_keywords(
-        pdf_text, "EVENTOS ORGANIZADOS", ["RECONOCIMIENTOS"]
+        pdf_text,
+        section_keywords["EVENTOS ORGANIZADOS"]["start"],
+        section_keywords["EVENTOS ORGANIZADOS"]["end"]
     )
 
+
     if not experience_text:
-        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
-        return
+        st.warning("No se encontró la sección 'EXPERIENCIA EN ANEIAP'.")
+        experience_text = ""
+
+    if not event_attendance_text:
+        st.warning("No se encontró la sección 'ASISTENCIA A EVENTOS ANEIAP'.")
+        event_attendance_text = ""
+    
+    if not organized_events_text:
+        st.warning("No se encontró la sección 'EVENTOS ORGANIZADOS'.")
+        organized_events_text = ""
+
 
     # Dividir las líneas de cada sección
     experience_lines = extract_cleaned_lines(experience_text)
-    event_attendance_lines = extract_cleaned_lines(event_attendance_text) if event_attendance_text else []
-    organized_events_lines = extract_cleaned_lines(organized_events_text) if organized_events_text else []
+    event_attendance_lines = extract_cleaned_lines(event_attendance_text)
+    organized_events_lines = extract_cleaned_lines(organized_events_text)
+    
+    # Analizar secciones
+    exp_results, exp_func_global, exp_profile_global = analyze_section(
+        experience_lines, position_indicators, functions_text, profile_text
+    )
+    att_results, att_func_global, att_profile_global = analyze_section(
+        event_attendance_lines, position_indicators, functions_text, profile_text
+    )
+    org_results, org_func_global, org_profile_global = analyze_section(
+        organized_events_lines, position_indicators, functions_text, profile_text
+    )
 
     # Cargar funciones y perfil del cargo
     try:
