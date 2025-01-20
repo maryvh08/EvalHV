@@ -411,13 +411,19 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
             indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
 
     # Procesar las secciones
-    experiencia_lines = extract_cleaned_lines(extract_experience_section_with_ocr(pdf_path))
+    experiencia_lines = extract_cleaned_lines(
+    extract_experience_section_with_ocr(pdf_path, "EXPERIENCIA EN ANEIAP", "EVENTOS ORGANIZADOS")
+    )
     experiencia_results = calculate_section_results(experiencia_lines, position_indicators, functions_text, profile_text)
 
-    eventos_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "EVENTOS ORGANIZADOS"))
+    eventos_lines = extract_cleaned_lines(
+    extract_experience_section_with_ocr(pdf_path, "EVENTOS ORGANIZADOS", "ASISTENCIA A EVENTOS ANEIAP")
+    )
     eventos_organizados_results = calculate_section_results(eventos_lines, position_indicators, functions_text, profile_text)
 
-    asistencia_lines = extract_cleaned_lines(extract_section_with_keywords(pdf_path, "ASISTENCIA A EVENTOS ANEIAP"))
+    asistencia_lines = extract_cleaned_lines(
+    extract_experience_section_with_ocr(pdf_path, "ASISTENCIA A EVENTOS ANEIAP", "OTRO ENCABEZADO O FIN DEL DOCUMENTO")
+    )
     asistencia_eventos_results = calculate_section_results(asistencia_lines, position_indicators, functions_text, profile_text)
 
     # Cálculos globales por sección
