@@ -389,45 +389,28 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         st.error("No se encontraron indicadores para el cargo seleccionado.")
         return
     
-    indicator_results = calculate_indicators_for_report(lines, position_indicators)
+   # Evaluación de renglones
+    line_results = []  # Almacena los resultados por línea
     
-    # Evaluación de renglones
     for line in lines:
         line = line.strip()
         if not line:  # Ignorar líneas vacías
             continue
-
-        # Dividir la experiencia en líneas
-        lines = extract_cleaned_lines(experience_text)
-        lines = experience_text.split("\n")
-        lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
     
         # Obtener los indicadores y palabras clave para el cargo seleccionado
         position_indicators = indicators.get(position, {})
-        indicator_results = {}
-
-        # Calcular el porcentaje por cada indicador
-        indicator_results = calculate_indicators_for_report(lines, position_indicators)
-        for indicator, keywords in position_indicators.items():
-            indicator_results = calculate_indicators_for_report(lines, position_indicators)
-
-        # Calcular la presencia total (si es necesario)
-        total_presence = sum(result["percentage"] for result in indicator_results.values())
-
-        # Normalizar los porcentajes si es necesario
-        if total_presence > 0:
-            for indicator in indicator_results:
-                indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
-
+        indicator_results = calculate_indicators_for_report([line], position_indicators)
+    
         # Evaluación general de concordancia
-        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+        if any(keyword.lower() in line.lower() for keywords in position_indicators.values() for keyword in keywords):
+            # Si la línea contiene palabras clave, asignar concordancia máxima
             func_match = 100.0
             profile_match = 100.0
         else:
-            # Calcular similitud 
+            # Calcular similitud con funciones y perfil
             func_match = calculate_similarity(line, functions_text)
             profile_match = calculate_similarity(line, profile_text)
-        
+    
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if func_match > 0 or profile_match > 0:
             line_results.append((line, func_match, profile_match))
