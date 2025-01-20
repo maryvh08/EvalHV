@@ -87,11 +87,8 @@ def calculate_all_indicators(lines, position_indicators):
 
     indicator_results = {}
     for indicator, keywords in position_indicators.items():
-        # Iterar sobre los indicadores y sus palabras clave
         relevant_lines = sum(
-            any(keyword.lower() in line.lower() for keyword in keywords)
-            for keywords in position_indicators.values()  # Extraer las palabras clave del indicador
-            for line in lines  # Iterar sobre las líneas
+            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
         )
         indicator_results[indicator] = (relevant_lines / total_lines) * 100  # Cálculo del porcentaje
     return indicator_results
@@ -109,11 +106,8 @@ def calculate_indicators_for_report(lines, position_indicators):
 
     indicator_results = {}
     for indicator, keywords in position_indicators.items():
-        # Iterar sobre los indicadores y sus palabras clave
         relevant_lines = sum(
-            any(keyword.lower() in line.lower() for keyword in keywords)
-            for keywords in position_indicators.values()  # Extraer las palabras clave del indicador
-            for line in lines  # Iterar sobre las líneas
+            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
         )
         percentage = (relevant_lines / total_lines) * 100
         indicator_results[indicator] = {"percentage": percentage, "relevant_lines": relevant_lines}
@@ -195,68 +189,6 @@ def generate_donut_chart_for_report(percentage, color='green', background_color=
 
     return buffer
 
-def extract_section_with_keywords(pdf_text, start_keyword, end_keywords):
-    """
-    Extrae una sección del texto del PDF basado en palabras clave de inicio y final.
-    :param pdf_text: Texto completo del PDF.
-    :param start_keyword: Palabra clave que indica el inicio de la sección.
-    :param end_keywords: Lista de palabras clave que indican el final de la sección.
-    :return: Texto de la sección extraída o None si no se encuentra.
-    """
-    start_idx = pdf_text.lower().find(start_keyword.lower())
-    if start_idx == -1:
-        return None  # No se encontró la sección
-
-    # Buscar el índice final más cercano a partir del inicio
-    end_idx = len(pdf_text)
-    for keyword in end_keywords:
-        idx = pdf_text.lower().find(keyword.lower(), start_idx)
-        if idx != -1:
-            end_idx = min(end_idx, idx)
-
-    return pdf_text[start_idx:end_idx].strip()
-    
-def analyze_section(lines, position_indicators, functions_text, profile_text):
-    """
-    Analiza una sección para calcular porcentajes de concordancia con perfil y funciones.
-    :param lines: Líneas de texto de la sección.
-    :param position_indicators: Palabras clave de indicadores para el cargo seleccionado.
-    :param functions_text: Texto de las funciones del cargo.
-    :param profile_text: Texto del perfil del cargo.
-    :return: Resultados de análisis por línea y porcentajes globales.
-    """
-    section_results = []
-
-    for line in lines:
-        header_contains_keywords = any(
-            keyword.lower() in line.lower() for keywords in position_indicators.values() for keyword in keywords
-        )
-
-        if header_contains_keywords:
-            func_match = 100
-            profile_match = 100
-        else:
-            func_match = calculate_similarity(line, functions_text)
-            profile_match = calculate_similarity(line, profile_text)
-
-        section_results.append((line, func_match, profile_match))
-
-    if section_results:
-        global_func_match = sum(res[1] for res in section_results) / len(section_results)
-        global_profile_match = sum(res[2] for res in section_results) / len(section_results)
-    else:
-        global_func_match = 0
-        global_profile_match = 0
-
-    return section_results, global_func_match, global_profile_match
-
-def calculate_section_results(lines, position_indicators, functions_text, profile_text):
-    line_results = []
-    for line in lines:
-        func_match = calculate_similarity(line, functions_text)
-        profile_match = calculate_similarity(line, profile_text)
-        line_results.append((line, func_match, profile_match))
-    return line_results
     
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
@@ -293,7 +225,6 @@ def extract_experience_section_with_ocr(pdf_path):
 
     # Filtrar y limpiar texto
     exclude_lines = [
-        "EXPERIENCIA EN ANEIAP",
         "a nivel capitular",
         "a nivel nacional",
         "a nivel seccional",
@@ -327,240 +258,70 @@ def extract_experience_section_with_ocr(pdf_path):
     
     return "\n".join(cleaned_lines)
 
-def generate_report_with_background(pdf_path, position, candidate_name, background_path):
+def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
-    Genera un reporte con análisis de "EXPERIENCIA EN ANEIAP", "EVENTOS ORGANIZADOS" y "ASISTENCIA A EVENTOS ANEIAP".
+    Genera un reporte con un fondo en cada página.
+    :param pdf_path: Ruta del PDF.
+    :param position: Cargo al que aspira.
+    :param candidate_name: Nombre del candidato.
+    :param background_path: Ruta de la imagen de fondo.
     """
-
-    # Definir las palabras clave para las secciones
-    section_keywords = {
-        "EXPERIENCIA EN ANEIAP": {
-            "start": "EXPERIENCIA EN ANEIAP",
-            "end": ["RECONOCIMIENTOS", "EVENTOS ORGANIZADOS"]
-        },
-        "ASISTENCIA A EVENTOS ANEIAP": {
-            "start": "ASISTENCIA A EVENTOS ANEIAP",
-            "end": ["EXPERIENCIA EN ANEIAP", "Estudios realizados"]
-        },
-        "EVENTOS ORGANIZADOS": {
-            "start": "EVENTOS ORGANIZADOS",
-            "end": ["EXPERIENCIA LABORAL", "FIRMA"]
-        }
-    }
-
-    pdf_text = extract_text_with_ocr(pdf_path)
-
-    # Extraer texto para "EXPERIENCIA EN ANEIAP"
-    experience_text = extract_section_with_keywords(
-        pdf_text, "EXPERIENCIA EN ANEIAP", ["ASISTENCIA A EVENTOS ANEIAP", "EVENTOS ORGANIZADOS"]
-    )
-    
-    if not experience_text:  # Verificar si el texto fue extraído correctamente
-        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
-        experience_text = ""  # Establecer un valor predeterminado vacío para evitar errores
-
-    # Extraer secciones
-    experience_text = extract_section_with_keywords(
-        pdf_text,
-        section_keywords["EXPERIENCIA EN ANEIAP"]["start"],
-        section_keywords["EXPERIENCIA EN ANEIAP"]["end"]
-    )
-
-    event_attendance_text = extract_section_with_keywords(
-        pdf_text,
-        section_keywords["ASISTENCIA A EVENTOS ANEIAP"]["start"],
-        section_keywords["ASISTENCIA A EVENTOS ANEIAP"]["end"]
-    )
-
-    organized_events_text = extract_section_with_keywords(
-        pdf_text,
-        section_keywords["EVENTOS ORGANIZADOS"]["start"],
-        section_keywords["EVENTOS ORGANIZADOS"]["end"]
-    )
-    
-    # Procesar el texto solo si está disponible
-    if experience_text:
-        lines = extract_cleaned_lines(experience_text)
-        lines = experience_text.split("\n")
-        lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
-    else:
-        lines = []  # Evitar más errores al trabajar con una lista vacía
-
-    # Extraer texto del PDF
-    pdf_text = extract_text_with_ocr(pdf_path)
-
-    # Obtener indicadores del cargo
-    position_indicators = indicators.get(position)
-    if not position_indicators:
-        st.error(f"No se encontraron indicadores para el cargo seleccionado: {position}")
-        return
-
+    experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
-        st.warning("No se encontró la sección 'EXPERIENCIA EN ANEIAP'.")
-        experience_text = ""
-
-    if not event_attendance_text:
-        st.warning("No se encontró la sección 'ASISTENCIA A EVENTOS ANEIAP'.")
-        event_attendance_text = ""
-    
-    if not organized_events_text:
-        st.warning("No se encontró la sección 'EVENTOS ORGANIZADOS'.")
-        organized_events_text = ""
-
-    # Cargar funciones y perfil del cargo
-    try:
-        # Intentar cargar las funciones
-        with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
-            functions_text = func_doc[0].get_text()
-    except Exception as e:
-        st.error(f"Error al cargar el archivo de funciones para el cargo '{position}': {e}")
-        functions_text = ""  # Asignar valor predeterminado
-    
-    try:
-        # Intentar cargar el perfil
-        with fitz.open(f"Perfiles//P{position}.pdf") as profile_doc:
-            profile_text = profile_doc[0].get_text()
-    except Exception as e:
-        st.error(f"Error al cargar el archivo de perfil para el cargo '{position}': {e}")
-        profile_text = ""  # Asignar valor predeterminado
-    
-    # Verificar si functions_text o profile_text están vacíos
-    if not functions_text or not profile_text:
-        st.error("No se pudieron cargar las funciones o el perfil del cargo. Por favor verifica los archivos y vuelve a intentarlo.")
+        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
-
-    # Dividir las líneas de cada sección
-    experience_lines = extract_cleaned_lines(experience_text)
-    event_attendance_lines = extract_cleaned_lines(event_attendance_text)
-    organized_events_lines = extract_cleaned_lines(organized_events_text)
-    
-    # Analizar secciones
-    exp_results, exp_func_global, exp_profile_global = analyze_section(
-        experience_lines, position_indicators, functions_text, profile_text
-    )
-    att_results, att_func_global, att_profile_global = analyze_section(
-        event_attendance_lines, position_indicators, functions_text, profile_text
-    )
-    org_results, org_func_global, org_profile_global = analyze_section(
-        organized_events_lines, position_indicators, functions_text, profile_text
-    )
-
-    # Inicializar section_results
-    section_results = {}
-
-    # Analizar secciones
-    exp_results, exp_func_global, exp_profile_global = analyze_section(
-        experience_lines, position_indicators, functions_text, profile_text
-    )
-    att_results, att_func_global, att_profile_global = analyze_section(
-        event_attendance_lines, position_indicators, functions_text, profile_text
-    )
-    org_results, org_func_global, org_profile_global = analyze_section(
-        organized_events_lines, position_indicators, functions_text, profile_text
-    )
-
-    # Agregar resultados a section_results
-    section_results = {
-        "EXPERIENCIA EN ANEIAP": {
-            "lines": exp_results,
-            "global_func_match": exp_func_global,
-            "global_profile_match": exp_profile_global,
-        },
-        "EVENTOS ORGANIZADOS": {
-            "lines": org_results,
-            "global_func_match": org_func_global,
-            "global_profile_match": org_profile_global,
-        },
-        "ASISTENCIA A EVENTOS ANEIAP": {
-            "lines": att_results,
-            "global_func_match": att_func_global,
-            "global_profile_match": att_profile_global,
-        },
-    }
-      
-    # Evaluación de renglones
-    line_results = []  # Inicializar los resultados de líneas
-    
-    # Obtener los indicadores y palabras clave para el cargo seleccionado
-    position_indicators = indicators.get(position, {})
-    if not position_indicators:
-        st.error("No se encontraron indicadores para el cargo seleccionado.")
-        return
-    
-    indicator_results = calculate_indicators_for_report(lines, position_indicators)
-    
-    # Evaluación de renglones
-    line_results = []  # Inicializar los resultados de líneas
-    
-    # Obtener los indicadores y palabras clave para el cargo seleccionado
-    position_indicators = indicators.get(position, {})
-    if not position_indicators:
-        st.error("No se encontraron indicadores para el cargo seleccionado.")
-        return
-    
-   # Evaluación de renglones
-    line_results = []  # Almacena los resultados por línea
 
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
-    lines = experience_text.split("\n")
-    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas
-    
+    lines= experience_text.split("\n")
+    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+
+    # Obtener los indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
+
+    indicator_results = calculate_all_indicators(lines, position_indicators)
+
+    # Cargar funciones y perfil
+    try:
+        with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
+            functions_text = func_doc[0].get_text()
+        with fitz.open(f"Perfiles/P{position}.pdf") as profile_doc:
+            profile_text = profile_doc[0].get_text()
+    except Exception as e:
+        st.error(f"Error al cargar funciones o perfil: {e}")
+        return
+
+    line_results = []
+
+    # Evaluación de renglones
     for line in lines:
         line = line.strip()
         if not line:  # Ignorar líneas vacías
             continue
-    
-        # Obtener los indicadores y palabras clave para el cargo seleccionado
-        position_indicators = indicators.get(position, {})
-        indicator_results = calculate_indicators_for_report([line], position_indicators)
 
         # Dividir la experiencia en líneas
         lines = extract_cleaned_lines(experience_text)
         lines = experience_text.split("\n")
-        lines = [line.strip() for line in lines if line.strip()]  # Eliminar líne
+        lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
     
+        # Obtener los indicadores y palabras clave para el cargo seleccionado
+        position_indicators = indicators.get(position, {})
+        indicator_results = {}
+
+        # Calcular el porcentaje por cada indicador
+        indicator_results = calculate_indicators_for_report(lines, position_indicators)
+        for indicator, keywords in position_indicators.items():
+            indicator_results = calculate_indicators_for_report(lines, position_indicators)
+
+        # Calcular la presencia total (si es necesario)
+        total_presence = sum(result["percentage"] for result in indicator_results.values())
+
+        # Normalizar los porcentajes si es necesario
+        if total_presence > 0:
+            for indicator in indicator_results:
+                indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
+
         # Evaluación general de concordancia
-        if any(keyword.lower() in line.lower() for keywords in position_indicators.values() for keyword in keywords):
-            # Si la línea contiene palabras clave, asignar concordancia máxima
-            func_match = 100.0
-            profile_match = 100.0
-        else:
-            # Calcular similitud con funciones y perfil
-            func_match = calculate_similarity(line, functions_text)
-            profile_match = calculate_similarity(line, profile_text)
-    
-        # Solo agregar al reporte si no tiene 0% en ambas métricas
-        if func_match > 0 or profile_match > 0:
-            line_results.append((line, func_match, profile_match))
-
-    # Normalización de los resultados de indicadores
-    total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
-    if total_presence > 0:
-        for indicator in indicator_results:
-            indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
-
-    # Evaluación de indicadores en las líneas
-    for indicator in position_indicators:
-        # Obtener palabras clave para el indicador
-        keywords = position_indicators.get(indicator, [])
-        
-        # Calcular líneas relevantes
-        relevant_lines = sum(
-            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
-        )
-        
-        # Calcular el porcentaje basado en líneas relevantes
-        percentage = (relevant_lines / len(lines)) * 100 if len(lines) > 0 else 0
-    
-        # Agregar resultados al reporte
-        indicator_results[indicator] = {
-            "percentage": percentage,
-            "relevant_lines": relevant_lines,
-        }
-
-
-     # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
             func_match = 100.0
             profile_match = 100.0
@@ -572,59 +333,25 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if func_match > 0 or profile_match > 0:
             line_results.append((line, func_match, profile_match))
-    
-    # Procesar las secciones
-    experiencia_results = calculate_section_results(experience_lines, position_indicators, functions_text, profile_text)
-    eventos_results = calculate_section_results(organized_events_lines, position_indicators, functions_text, profile_text)
-    asistencia_eventos_results = calculate_section_results(event_attendance_lines, position_indicators, functions_text, profile_text)
 
-    # Calcular concordancia parcial y global
-    # Para EXPERIENCIA EN ANEIAP
-    if experiencia_results:
-        experiencia_parcial_funciones = sum(res[1] for res in experiencia_results) / len(experiencia_results) if experiencia_results else 0
-        experiencia_parcial_perfil = sum(res[2] for res in experiencia_results) / len(experiencia_results) if experiencia_results else 0
+    # Normalización de los resultados de indicadores
+    total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
+    if total_presence > 0:
+        for indicator in indicator_results:
+            indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
+            
+    # Cálculo de concordancia global
+    if line_results:  # Evitar división por cero si no hay ítems válidos
+        global_func_match = sum([res[1] for res in line_results]) / len(line_results)
+        global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
     else:
-        experiencia_parcial_funciones = 0
-        experiencia_parcial_perfil = 0
-    
-    # Para EVENTOS ORGANIZADOS
-    if eventos_results:
-        eventos_parcial_funciones = sum(res[1] for res in eventos_results) / len(eventos_results) if eventos_results else 0
-        eventos_parcial_perfil = sum(res[2] for res in eventos_results) / len(eventos_results) if eventos_results else 0
-    else:
-        eventos_parcial_funciones = 0
-        eventos_parcial_perfil = 0
-    
-    # Para ASISTENCIA A EVENTOS ANEIAP
-    if asistencia_eventos_results:
-        asistencia_parcial_funciones = sum(res[1] for res in asistencia_eventos_results) / len(asistencia_eventos_results) if asistencia_eventos_results else 0
-        asistencia_parcial_perfil = sum(res[2] for res in asistencia_eventos_results) / len(asistencia_eventos_results) if asistencia_eventos_results else o
-    else:
-        asistencia_parcial_funciones = 0
-        asistencia_parcial_perfil = 0
+        global_func_match = 0
+        global_profile_match = 0
 
-    # Calcular puntajes parciales
-    experiencia_func_score = round((experiencia_parcial_funciones * 5) / 100, 2)
-    experiencia_profile_score = round((experiencia_parcial_perfil * 5) / 100, 2)
+    #Calculo puntajes
+    func_score = round((global_func_match * 5) / 100, 2)
+    profile_score = round((global_profile_match * 5) / 100, 2)
     
-    eventos_func_score = round((eventos_parcial_funciones * 5) / 100, 2)
-    eventos_profile_score = round((eventos_parcial_perfil * 5) / 100, 2)
-    
-    asistencia_func_score = round((asistencia_parcial_funciones * 5) / 100, 2)
-    asistencia_profile_score = round((asistencia_parcial_perfil * 5) / 100, 2)
-
-    # Calcular concordancia global
-    concordancia_global_func = round(
-        (experiencia_parcial_funciones + eventos_parcial_funciones + asistencia_parcial_funciones) / 3, 2
-    )
-    concordancia_global_perfil = round(
-        (experiencia_parcial_perfil + eventos_parcial_perfil + asistencia_parcial_perfil) / 3, 2
-    )
-
-    # Calcular puntajes globales
-    global_func_score = round((concordancia_global_func * 5) / 100, 2)
-    global_profile_score = round((concordancia_global_perfil * 5) / 100, 2)
-
     # Registrar la fuente personalizada
     pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
     pdfmetrics.registerFont(TTFont('CenturyGothicBold', 'Century_Gothic_Bold.ttf'))
@@ -746,70 +473,44 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
 
     elements.append(Spacer(1, 0.1 * inch))
 
-    # Crear función para tablas de resultados globales
-    def create_global_table(section_name, partial_scores, global_scores, scores):
-        """
-        Crea una tabla de resultados globales con concordancias parciales, globales y puntajes.
-        """
-        parcial_funciones, parcial_perfil = partial_scores
-        global_func, global_profile = global_scores
-        func_score, profile_score = scores
+    # Encabezados de la tabla global
+    global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
     
-        # Datos de la tabla
-        table_data = [
-            ["Criterio", "Parcial Funciones (%)", "Parcial Perfil (%)", "Global Funciones (%)", "Global Perfil (%)", "Puntaje Funciones", "Puntaje Perfil"],
-            ["Resultados", f"{parcial_funciones:.2f}%", f"{parcial_perfil:.2f}%", f"{global_func:.2f}%", f"{global_profile:.2f}%", f"{func_score:.2f}", f"{profile_score:.2f}"],
-        ]
-        # Crear tabla
-        table = Table(table_data, colWidths=[2 * inch] * 7)
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
-            ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ]))
-             
-        elements.append(Paragraph(f"<b>Resultados Globales - {section_name}:</b>", styles['CenturyGothicBold']))
-        elements.append(Spacer(1, 0.1 * inch))
-        elements.append(table)
-        elements.append(Spacer(1, 0.2 * inch))
+    # Agregar datos de global_results a la tabla
+    global_table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
+    global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
+
+    # Crear la tabla con ancho de columnas ajustado
+    global_table = Table(global_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
     
-    # Crear tablas de resultados globales con puntajes
-    create_global_table(
-        "EXPERIENCIA EN ANEIAP",
-        (experiencia_parcial_funciones, experiencia_parcial_perfil),
-        (concordancia_global_func, concordancia_global_perfil),
-        (experiencia_func_score, experiencia_profile_score)
-    )
+    # Estilos de la tabla con ajuste de texto
+    global_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
+        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
+        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
+    ]))
     
-    create_global_table(
-        "EVENTOS ORGANIZADOS",
-        (eventos_parcial_funciones, eventos_parcial_perfil),
-        (concordancia_global_func, concordancia_global_perfil),
-        (eventos_func_score, eventos_profile_score)
-    )
+    # Agregar tabla a los elementos
+    elements.append(global_table)
     
-    create_global_table(
-        "ASISTENCIA A EVENTOS ANEIAP",
-        (asistencia_parcial_funciones, asistencia_parcial_perfil),
-        (concordancia_global_func, concordancia_global_perfil),
-        (asistencia_func_score, asistencia_profile_score)
-    )
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Interpretación de resultados
     elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.1 * inch))
-    if concordancia_global_perfil > 75 and concordancia_global_func > 75:
+    if global_profile_match > 75 and global_func_match > 75:
         elements.append(Paragraph(
             f" Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.",
             styles['CenturyGothic']
         ))
-    elif 50 < concordancia_global_perfil <= 75 and 50 < concordancia_global_func <= 75:
+    elif 50 < global_profile_match <= 75 and 50 < global_func_match <= 75:
         elements.append(Paragraph(
             f" Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.",
             styles['CenturyGothic']
@@ -855,6 +556,7 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
             file_name= report_path,
             mime="application/pdf"
         )
+
 
 # FUNCIONES PARA SECUNDARY
 def extract_experience_items_with_details(pdf_path):
