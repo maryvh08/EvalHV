@@ -500,6 +500,11 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     
    # Evaluación de renglones
     line_results = []  # Almacena los resultados por línea
+
+    # Dividir la experiencia en líneas
+    lines = extract_cleaned_lines(experience_text)
+    lines = experience_text.split("\n")
+    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas
     
     for line in lines:
         line = line.strip()
