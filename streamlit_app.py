@@ -374,8 +374,20 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     )
     
     line_results = []
+
     section_results = []
 
+    # Agregar resultados de cada sección
+    section_results.append({
+        "EXPERIENCIA EN ANEIAP": experiencia_results,
+        "EVENTOS ORGANIZADOS": eventos_organizados_results,
+        "ASISTENCIA A EVENTOS ANEIAP": asistencia_eventos_results
+    })
+    
+    # Convertir lista en diccionario si aplica
+    if isinstance(section_results, list) and len(section_results) > 0:
+        section_results = section_results[0]
+      
     # Evaluación de renglones
     for line in lines:
         line = line.strip()
@@ -465,6 +477,10 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
+
+    else:
+        st.error("Error interno: `section_results` no es un diccionario.")
+
     
     # Procesar cada sección
     for section_name, result in section_results.items():
