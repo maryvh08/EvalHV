@@ -273,11 +273,7 @@ def extract_experience_section_with_ocr(pdf_path, start_keyword, end_keyword):
 
 def generate_report_with_background(pdf_path, position, candidate_name, background_path):
     """
-    Genera un reporte con análisis de "Experiencia", "Asistencia a eventos ANEIAP" y "EVENTOS ORGANIZADOS".
-    :param pdf_path: Ruta del PDF.
-    :param position: Cargo al que aspira.
-    :param candidate_name: Nombre del candidato.
-    :param background_path: Ruta de la imagen de fondo.
+    Genera un reporte con análisis de "EXPERIENCIA EN ANEIAP", "EVENTOS ORGANIZADOS" y "ASISTENCIA A EVENTOS ANEIAP".
     """
     pdf_text = extract_text_with_ocr(pdf_path)
 
@@ -296,10 +292,10 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
-    # Dividir la experiencia en líneas
-    lines = extract_cleaned_lines(experience_text)
-    lines= experience_text.split("\n")
-    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+    # Dividir las líneas de cada sección
+    experience_lines = extract_cleaned_lines(experience_text)
+    event_attendance_lines = extract_cleaned_lines(event_attendance_text) if event_attendance_text else []
+    organized_events_lines = extract_cleaned_lines(organized_events_text) if organized_events_text else []
 
     # Cargar funciones y perfil del cargo
     try:
@@ -318,10 +314,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         return
 
     # Analizar secciones
-    experience_lines = extract_cleaned_lines(experience_text)
-    event_attendance_lines = extract_cleaned_lines(event_attendance_text) if event_attendance_text else []
-    organized_events_lines = extract_cleaned_lines(organized_events_text) if organized_events_text else []
-
     exp_results, exp_func_global, exp_profile_global = analyze_section(
         experience_lines, position_indicators, functions_text, profile_text
     )
@@ -332,33 +324,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         organized_events_lines, position_indicators, functions_text, profile_text
     )
     
-    line_results = []
-
-    section_results = []
-
-    # Procesar cada sección
-    experiencia_lines = extract_cleaned_lines(
-    extract_experience_section_with_ocr(pdf_path, "EXPERIENCIA EN ANEIAP", "EVENTOS ORGANIZADOS")
-    )
-    experiencia_results = calculate_section_results(experiencia_lines, position_indicators, functions_text, profile_text)
-    
-    eventos_lines = extract_cleaned_lines(
-    extract_experience_section_with_ocr(pdf_path, "EVENTOS ORGANIZADOS", "ASISTENCIA A EVENTOS ANEIAP")
-    )
-    eventos_organizados_results = calculate_section_results(eventos_lines, position_indicators, functions_text, profile_text)
-    
-    asistencia_lines = extract_cleaned_lines(
-    extract_experience_section_with_ocr(pdf_path, "ASISTENCIA A EVENTOS ANEIAP", "OTRO ENCABEZADO O FIN DEL DOCUMENTO")
-    )
-    asistencia_eventos_results = calculate_section_results(asistencia_lines, position_indicators, functions_text, profile_text)
-    
-    # Crear el diccionario de resultados por sección
-    section_results = {
-        "EXPERIENCIA EN ANEIAP": experiencia_results,
-        "EVENTOS ORGANIZADOS": eventos_organizados_results,
-        "ASISTENCIA A EVENTOS ANEIAP": asistencia_eventos_results,
-    }
-
     # Convertir lista en diccionario si aplica
     if isinstance(section_results, list) and len(section_results) > 0:
         section_results = section_results[0]
@@ -585,13 +550,11 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
 
     elements.append(Spacer(1, 0.1 * inch))
 
-    # Función para crear tablas de resultados globales
-    def create_global_table(section_name, global_scores):
-        global_func_match, global_profile_match, func_score, profile_score = global_scores
+    # Función para agregar tablas globales
+    def add_global_results_table(section_name, func_global, profile_global):
         table_data = [
             ["Criterio", "Funciones del Cargo (%)", "Perfil del Cargo (%)"],
-            ["Concordancia Global", f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"],
-            ["Puntaje Global", f"{func_score:.2f}", f"{profile_score:.2f}"],
+            ["Concordancia Global", f"{func_global:.2f}%", f"{profile_global:.2f}%"],
         ]
         table = Table(table_data, colWidths=[3 * inch, 2.5 * inch, 2.5 * inch])
         table.setStyle(TableStyle([
@@ -606,14 +569,13 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ]))
         elements.append(Paragraph(f"<b>Resultados Globales - {section_name}:</b>", styles['CenturyGothicBold']))
-        elements.append(Spacer(1, 0.1 * inch))
         elements.append(table)
         elements.append(Spacer(1, 0.2 * inch))
 
-    # Crear tablas de resultados globales
-    create_global_table("EXPERIENCIA EN ANEIAP", experiencia_global)
-    create_global_table("EVENTOS ORGANIZADOS", eventos_global)
-    create_global_table("ASISTENCIA A EVENTOS ANEIAP", asistencia_global)
+    # Agregar resultados globales
+    add_global_results_table("EXPERIENCIA EN ANEIAP", exp_func_global, exp_profile_global)
+    add_global_results_table("EVENTOS ORGANIZADOS", org_func_global, org_profile_global)
+    add_global_results_table("ASISTENCIA A EVENTOS ANEIAP", att_func_global, att_profile_global)
 
     elements.append(Spacer(1, 0.2 * inch))
 
