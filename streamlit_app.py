@@ -337,7 +337,7 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     section_results = []
 
     # Procesar cada sección
-   experiencia_lines = extract_cleaned_lines(
+    experiencia_lines = extract_cleaned_lines(
     extract_experience_section_with_ocr(pdf_path, "EXPERIENCIA EN ANEIAP", "EVENTOS ORGANIZADOS")
     )
     experiencia_results = calculate_section_results(experiencia_lines, position_indicators, functions_text, profile_text)
