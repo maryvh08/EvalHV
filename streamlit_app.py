@@ -374,6 +374,7 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     )
     
     line_results = []
+    section_results = []
 
     # Evaluación de renglones
     for line in lines:
