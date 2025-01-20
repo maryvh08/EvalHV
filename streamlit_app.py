@@ -337,6 +337,11 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
+    # Dividir la experiencia en líneas
+    lines = extract_cleaned_lines(experience_text)
+    lines= experience_text.split("\n")
+    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+
     # Cargar funciones y perfil del cargo
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
