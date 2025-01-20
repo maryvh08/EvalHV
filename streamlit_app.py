@@ -347,53 +347,53 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     }
       
     # Evaluación de renglones
-line_results = []  # Inicializar los resultados de líneas
-
-# Obtener los indicadores y palabras clave para el cargo seleccionado
-position_indicators = indicators.get(position, {})
-if not position_indicators:
-    st.error("No se encontraron indicadores para el cargo seleccionado.")
-    return
-
-indicator_results = calculate_indicators_for_report(lines, position_indicators)
-
-# Evaluación de renglones
-line_results = []  # Inicializar los resultados de líneas
-
-# Obtener los indicadores y palabras clave para el cargo seleccionado
-position_indicators = indicators.get(position, {})
-if not position_indicators:
-    st.error("No se encontraron indicadores para el cargo seleccionado.")
-    return
-
-indicator_results = calculate_indicators_for_report(lines, position_indicators)
-
-# Evaluar cada línea
-for line in lines:
-    line = line.strip()
-    if not line:  # Ignorar líneas vacías
-        continue
-
-    # Evaluación general de concordancia
-    if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
-        func_match = 100.0
-        profile_match = 100.0
-    else:
-        # Calcular similitud 
-        func_match = calculate_similarity(line, functions_text)
-        profile_match = calculate_similarity(line, profile_text)
-
-    # Solo agregar al reporte si no tiene 0% en ambas métricas
-    if func_match > 0 or profile_match > 0:
-        line_results.append((line, func_match, profile_match))
-
-# Normalización de los resultados de indicadores
-if indicator_results:
-    total_presence = sum(result["percentage"] for result in indicator_results.values())
-    if total_presence > 0:
-        for indicator in indicator_results:
-            indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
-
+    line_results = []  # Inicializar los resultados de líneas
+    
+    # Obtener los indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
+    if not position_indicators:
+        st.error("No se encontraron indicadores para el cargo seleccionado.")
+        return
+    
+    indicator_results = calculate_indicators_for_report(lines, position_indicators)
+    
+    # Evaluación de renglones
+    line_results = []  # Inicializar los resultados de líneas
+    
+    # Obtener los indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
+    if not position_indicators:
+        st.error("No se encontraron indicadores para el cargo seleccionado.")
+        return
+    
+    indicator_results = calculate_indicators_for_report(lines, position_indicators)
+    
+    # Evaluar cada línea
+    for line in lines:
+        line = line.strip()
+        if not line:  # Ignorar líneas vacías
+            continue
+    
+        # Evaluación general de concordancia
+        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+            func_match = 100.0
+            profile_match = 100.0
+        else:
+            # Calcular similitud 
+            func_match = calculate_similarity(line, functions_text)
+            profile_match = calculate_similarity(line, profile_text)
+    
+        # Solo agregar al reporte si no tiene 0% en ambas métricas
+        if func_match > 0 or profile_match > 0:
+            line_results.append((line, func_match, profile_match))
+    
+    # Normalización de los resultados de indicadores
+    if indicator_results:
+        total_presence = sum(result["percentage"] for result in indicator_results.values())
+        if total_presence > 0:
+            for indicator in indicator_results:
+                indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
+    
 
     # Procesar las secciones
     experiencia_results = calculate_section_results(experiencia_lines, position_indicators, functions_text, profile_text)
