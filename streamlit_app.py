@@ -494,6 +494,14 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         elements.append(Paragraph(f"<b>{section_name}:</b>", styles['CenturyGothicBold']))
         elements.append(Spacer(1, 0.2 * inch))
 
+        if isinstance(result, dict) and "lines" in result:
+            elements.append(Paragraph(f"<b>Resultados de {section_name}:</b>", styles['CenturyGothicBold']))
+            for line, func_match, profile_match in result["lines"]:
+                elements.append(Paragraph(f"• {line}: Funciones: {func_match:.2f}%, Perfil: {profile_match:.2f}%", styles['CenturyGothic']))
+        else:
+            st.error(f"La estructura de resultados para la sección {section_name} no es válida.")
+
+
         # Tabla de ítems con Funciones y Perfil
         table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
         for line, func_match, profile_match in result["lines"]:
