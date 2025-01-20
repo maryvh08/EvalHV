@@ -388,6 +388,11 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         section_keywords["EVENTOS ORGANIZADOS"]["end"]
     )
 
+    # Obtener indicadores del cargo
+    position_indicators = indicators.get(position)
+    if not position_indicators:
+        st.error(f"No se encontraron indicadores para el cargo seleccionado: {position}")
+        return
 
     if not experience_text:
         st.warning("No se encontró la sección 'EXPERIENCIA EN ANEIAP'.")
