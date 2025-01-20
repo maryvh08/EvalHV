@@ -379,7 +379,7 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
 
     # Agregar resultados de cada sección
     section_results.append({
-        "EXPERIENCIA EN ANEIAP": experiencia_results,
+        "EXPERIENCIA EN ANEIAP": exp_results,
         "EVENTOS ORGANIZADOS": eventos_organizados_results,
         "ASISTENCIA A EVENTOS ANEIAP": asistencia_eventos_results
     })
