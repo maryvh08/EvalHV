@@ -39,10 +39,6 @@ def load_advice(filepath="advice.json"):
 indicators = load_indicators()
 advice = load_advice()
 
-# Colores
-blue= "#0D62AD"
-green= "#76C04E"
-
 # Uso del código
 background_path = "Fondo Comunicado.png"
 
@@ -155,41 +151,7 @@ def add_background(canvas, background_path):
     canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
     canvas.restoreState()
 
-def generate_donut_chart_for_report(percentage, color='green', background_color='white'):
-    """
-    Genera una gráfica de dona para representar un porcentaje.
-    :param percentage: Porcentaje que representa la parte "completa" de la dona.
-    :param color: Color principal de la dona (por defecto, verde).
-    :param background_color: Color de fondo de la gráfica (por defecto, blanco).
-    :return: Un buffer de la imagen en formato PNG.
-    """
-    # Crear figura y eje
-    fig, ax = plt.subplots(figsize=(2, 2), dpi=100, facecolor=background_color)
-    ax.pie(
-        [percentage, 100 - percentage],
-        colors=[color, 'lightgrey'],  # Color principal y color para la parte restante
-        startangle=90,
-        wedgeprops=dict(width=0.3),  # Dona con grosor
-    )
-    
-    # Agregar el texto del porcentaje en el centro con negrita
-    ax.text(
-        0, 0, f"{percentage:.1f}%", 
-        ha='center', va='center', fontsize=14, color='black', weight='bold'
-    )
-    
-    # Remover ejes
-    ax.axis('equal')
 
-    # Guardar la gráfica en un buffer
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png', bbox_inches='tight', facecolor=background_color)
-    buffer.seek(0)
-    plt.close(fig)
-
-    return buffer
-
-    
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
     """
@@ -323,16 +285,16 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
-            func_match = 100.0
-            profile_match = 100.0
+            exp_func_match = 100.0
+            exp_profile_match = 100.0
         else:
-            # Calcular similitud 
-            func_match = calculate_similarity(line, functions_text)
-            profile_match = calculate_similarity(line, profile_text)
+            # Calcular similitud
+            exp_func_match = calculate_similarity(line, functions_text)
+            exp_profile_match = calculate_similarity(line, profile_text)
         
         # Solo agregar al reporte si no tiene 0% en ambas métricas
-        if func_match > 0 or profile_match > 0:
-            line_results.append((line, func_match, profile_match))
+        if exp_func_match > 0 or exp_profile_match > 0:
+            line_results.append((line, exp_func_match, exp_profile_match))
 
     # Normalización de los resultados de indicadores
     total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
@@ -340,17 +302,18 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         for indicator in indicator_results:
             indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
             
-    # Cálculo de concordancia global
+    # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
-        global_func_match = sum([res[1] for res in line_results]) / len(line_results)
-        global_profile_match = sum([res[2] for res in line_results]) / len(line_results)
+        parcial_exp_func_match = sum([res[1] for res in line_results]) / len(line_results)
+        parcial_exp_profile_match = sum([res[2] for res in line_results]) / len(line_results)
     else:
-        global_func_match = 0
-        global_profile_match = 0
+        parcial_exp_func_match = 0
+        parcial_exp_profile_match = 0
 
-    #Calculo puntajes
-    func_score = round((global_func_match * 5) / 100, 2)
-    profile_score = round((global_profile_match * 5) / 100, 2)
+    # Calculo puntajes parciales
+    parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
+    parcial_exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
+
     
     # Registrar la fuente personalizada
     pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
@@ -388,7 +351,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     # Agregar datos de line_results a la tabla
     for line, func_match, profile_match in line_results:
-        table_data.append([Paragraph(line, styles['CenturyGothic']), f"{func_match:.2f}%", f"{profile_match:.2f}%"])
+        table_data.append([Paragraph(line, styles['CenturyGothic']), f"{exp_func_match:.2f}%", f"{exp_profile_match:.2f}%"])
+        table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_match:.2f}%", f"{parcial_exp_profile_match:.2f}%"])
+        table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_score:.2f}", f"{parcial_exp_profile_score:.2f}"])
 
     # Crear la tabla con ancho de columnas ajustado
     item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
@@ -466,40 +431,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
                 elements.append(Paragraph(f"  • {tip}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.2 * inch))
 
-    elements.append(Spacer(1, 0.2 * inch))
-
-    # Concordancia de items organizada en tabla global con ajuste de texto
-    elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
-
-    elements.append(Spacer(1, 0.1 * inch))
-
-    # Encabezados de la tabla global
-    global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
-    
-    # Agregar datos de global_results a la tabla
-    global_table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
-    global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
-
-    # Crear la tabla con ancho de columnas ajustado
-    global_table = Table(global_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
-    
-    # Estilos de la tabla con ajuste de texto
-    global_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
-        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
-        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
-        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
-        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
-    ]))
-    
-    # Agregar tabla a los elementos
-    elements.append(global_table)
-    
     elements.append(Spacer(1, 0.2 * inch))
 
     # Interpretación de resultados
