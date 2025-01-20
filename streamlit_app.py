@@ -426,27 +426,38 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     )
     asistencia_eventos_results = calculate_section_results(asistencia_lines, position_indicators, functions_text, profile_text)
 
-    # Cálculos globales por sección
-    def calculate_global_scores(section_results):
-        if section_results:
-            global_func_match = sum(res[1] for res in section_results) / len(section_results)
-            global_profile_match = sum(res[2] for res in section_results) / len(section_results)
-        else:
-            global_func_match = 0
-            global_profile_match = 0
-        func_score = round((global_func_match * 5) / 100, 2)
-        profile_score = round((global_profile_match * 5) / 100, 2)
-        return global_func_match, global_profile_match, func_score, profile_score
+    # Calcular concordancia global para EXPERIENCIA EN ANEIAP
+    if experiencia_results:
+        experiencia_global_func_match = sum(res[1] for res in experiencia_results) / len(experiencia_results)
+        experiencia_global_profile_match = sum(res[2] for res in experiencia_results) / len(experiencia_results)
+    else:
+        experiencia_global_func_match = 0
+        experiencia_global_profile_match = 0
+    
+    # Calcular concordancia global para EVENTOS ORGANIZADOS
+    if eventos_results:
+        eventos_global_func_match = sum(res[1] for res in eventos_results) / len(eventos_results)
+        eventos_global_profile_match = sum(res[2] for res in eventos_results) / len(eventos_results)
+    else:
+        eventos_global_func_match = 0
+        eventos_global_profile_match = 0
 
-    # Calcular resultados globales para cada sección
-    experiencia_global = calculate_global_scores(experiencia_results)
-    eventos_global = calculate_global_scores(eventos_organizados_results)
-    asistencia_global = calculate_global_scores(asistencia_eventos_results)
+    # Calcular concordancia global para ASISTENCIA A EVENTOS
+    if eventos_results:
+        attendance_global_func_match = sum(res[1] for res in eventos_results) / len(eventos_results)
+        attendance_global_profile_match = sum(res[2] for res in eventos_results) / len(eventos_results)
+    else:
+        eventos_global_func_match = 0
+        eventos_global_profile_match = 0
 
     #Calculo puntajes
-    func_score = round((global_func_match * 5) / 100, 2)
-    profile_score = round((global_profile_match * 5) / 100, 2)
-    
+    experiencia_func_score = round((experiencia_global_func_match * 5) / 100, 2)
+    experiencia_profile_score = round((experiencia_global_profile_match * 5) / 100, 2)
+    eventos_func_score = round((eventos_global_func_match * 5) / 100, 2)
+    eventos_profile_score = round((eventos_global_profile_match * 5) / 100, 2)
+    attendance_func_score = round((attendance_global_func_match * 5) / 100, 2)
+    attendance_profile_score = round((attendance_global_profile_match * 5) / 100, 2)
+
     # Registrar la fuente personalizada
     pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
     pdfmetrics.registerFont(TTFont('CenturyGothicBold', 'Century_Gothic_Bold.ttf'))
