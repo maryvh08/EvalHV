@@ -352,8 +352,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Agregar datos de line_results a la tabla
     for line, func_match, profile_match in line_results:
         table_data.append([Paragraph(line, styles['CenturyGothic']), f"{exp_func_match:.2f}%", f"{exp_profile_match:.2f}%"])
-        table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_match:.2f}%", f"{parcial_exp_profile_match:.2f}%"])
-        table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_score:.2f}", f"{parcial_exp_profile_score:.2f}"])
+
+    #Agregar resultados parciales
+    table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_match:.2f}%", f"{parcial_exp_profile_match:.2f}%"])
+    table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_score:.2f}", f"{parcial_exp_profile_score:.2f}"])   
 
     # Crear la tabla con ancho de columnas ajustado
     item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
