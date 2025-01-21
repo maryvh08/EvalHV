@@ -265,13 +265,6 @@ def analyze_sections(pdf_path, position, candidate_name, indicators, functions_t
             })
         return item_results
 
-    def calculate_section_results(item_results, func_key, profile_key):
-        if not item_results:
-            return 0, 0
-        avg_func = sum(item[func_key] for item in item_results) / len(item_results)
-        avg_profile = sum(item[profile_key] for item in item_results) / len(item_results)
-        return avg_func, avg_profile
-
     text = extract_text_with_ocr(pdf_path)
 
     # Encuentra el índice de inicio
