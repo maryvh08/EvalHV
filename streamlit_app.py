@@ -414,10 +414,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error(f"Error al cargar funciones o perfil: {e}")
         return
 
-    analysis_results = analyze_sections(
-        pdf_path, position, candidate_name, indicators, functions_text, profile_text
-    )
-
     def analyze_items(section_text, indicators, functions_text, profile_text, func_key, profile_key):
         lines = extract_cleaned_lines(section_text)
         item_results = []
