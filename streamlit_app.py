@@ -361,27 +361,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
         return text[start_idx:end_idx].strip()
 
-    def calculate_item_concordance(items, position_indicators, functions_text, profile_text):
-        item_results = {}
-        for item in items:
-            item_contains_keywords = any(
-                keyword.lower() in item.lower() for keywords in position_indicators.values() for keyword in keywords
-            )
-
-            if item_contains_keywords:
-                func_match = 100
-                profile_match = 100
-            else:
-                func_match = calculate_similarity(item, functions_text)
-                profile_match = calculate_similarity(item, profile_text)
-
-            item_results[item] = {
-                "Funciones del Cargo": func_match,
-                "Perfil del Cargo": profile_match,
-            }
-
-        return item_results
-
     #Extraer EXPERIENCIA EN ANEIAP
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
