@@ -228,47 +228,64 @@ def extract_experience_section_with_ocr(pdf_path):
     """
     text = extract_text_with_ocr(pdf_path)
 
-    sections = {
-        "EXPERIENCIA EN ANEIAP": {
-            "start": ["EXPERIENCIA EN ANEIAP"],
-            "end": ["RECONOCIMIENTOS", "EVENTOS ORGANIZADOS"],
-            "func_prefix": "exp"
-        },
-        "Asistencia a eventos ANEIAP": {
-            "start": ["ASISTENCIA A EVENTOS"],
-            "end": ["ACTUALIZACIÓN PROFESIONAL", "EXPERIENCIA EN ANEIAP"],
-            "func_prefix": "att"
-        },
-        "EVENTOS ORGANIZADOS": {
-            "start": ["EVENTOS ORGANIZADOS"],
-            "end": ["FIRMA", "EXPERIENCIA LABORAL"],
-            "func_prefix": "org"
-        }
-    }
+    # Palabras clave para identificar inicio y fin de la sección
+    start_keyword = "EXPERIENCIA EN ANEIAP"
+    end_keywords = [
+        "EVENTOS ORGANIZADOS",
+        "Reconocimientos individuales",
+        "Reconocimientos grupales",
+        "Reconocimientos",
+    ]
 
-    # Obtener los indicadores y palabras clave para el cargo seleccionado
-    position_indicators = indicators.get(position, {})
+    # Encontrar índice de inicio
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None  # No se encontró la sección
 
-    indicator_results = calculate_all_indicators(lines, position_indicators)
+    # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
 
-    elements = []
+    # Extraer la sección entre inicio y fin
+    experience_text = text[start_idx:end_idx].strip()
 
-    for section_name, config in sections.items():
-        section_text = extract_section_text(pdf_path, config['start'], config['end'])
-        if not section_text:
-            elements.append(Paragraph(f"<b>No se encontró la sección {section_name}.</b>", styles['CenturyGothicBold']))
-            elements.append(Spacer(1, 0.2 * inch))
-            continue
+    # Filtrar y limpiar texto
+    exclude_lines = [
+        "a nivel capitular",
+        "a nivel nacional",
+        "a nivel seccional",
+        "reconocimientos individuales",
+        "reconocimientos grupales",
+        "trabajo capitular",
+        "trabajo nacional",
+        "nacional 2024",
+        "nacional 20212023",
+    ]
+    experience_lines = experience_text.split("\n")
+    cleaned_lines = []
+    for line in experience_lines:
+        line = line.strip()
+        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
+        if (
+            normalized_line
+            and normalized_line not in exclude_lines
+            and normalized_line != start_keyword.lower()
+            and normalized_line not in [kw.lower() for kw in end_keywords]
+        ):
+            cleaned_lines.append(line)
 
-        item_results, partial_func_match, partial_profile_match = analyze_section_items(
-            section_text, position_indicators, functions_text, profile_text
-        )
-
-        elements.extend(generate_event_tables(
-            section_name, item_results, partial_func_match, partial_profile_match, styles
-        ))
-
-    return elements
+    return "\n".join(cleaned_lines)
+    
+    # Debugging: Imprime líneas procesadas
+    print("Líneas procesadas:")
+    for line in cleaned_lines:
+        print(f"- {line}")
+    
+    return "\n".join(cleaned_lines)
 
 
     # Encontrar índice de inicio
@@ -329,10 +346,45 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     :param candidate_name: Nombre del candidato.
     :param background_path: Ruta de la imagen de fondo.
     """
+    def extract_section(text, start_keyword, end_keywords):
+        start_idx = text.lower().find(start_keyword.lower())
+        if start_idx == -1:
+            return None
+
+        end_idx = len(text)
+        for keyword in end_keywords:
+            idx = text.lower().find(keyword.lower(), start_idx)
+            if idx != -1:
+                end_idx = min(end_idx, idx)
+
+        return text[start_idx:end_idx].strip()
+
+    def calculate_item_concordance(items, position_indicators, functions_text, profile_text):
+        item_results = {}
+        for item in items:
+            item_contains_keywords = any(
+                keyword.lower() in item.lower() for keywords in position_indicators.values() for keyword in keywords
+            )
+
+            if item_contains_keywords:
+                func_match = 100
+                profile_match = 100
+            else:
+                func_match = calculate_similarity(item, functions_text)
+                profile_match = calculate_similarity(item, profile_text)
+
+            item_results[item] = {
+                "Funciones del Cargo": func_match,
+                "Perfil del Cargo": profile_match,
+            }
+
+        return item_results
+
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
+
 
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
@@ -348,6 +400,21 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     indicator_results = calculate_all_indicators(lines, position_indicators)
 
+    # Extract Asistencia a eventos ANEIAP
+    attendance_text = extract_section(
+        experience_text, "Asistencia a eventos", ["Actualización profesional", "EXPERIENCIA EN ANEIAP"]
+    )
+    attendance_items = extract_cleaned_lines(attendance_text) if attendance_text else []
+
+    # Extract EVENTOS ORGANIZADOS
+    organized_text = extract_section(
+        experience_text, "EVENTOS ORGANIZADOS", ["FIRMA", "EXPERIENCIA LABORAL"]
+    )
+    organized_items = extract_cleaned_lines(organized_text) if organized_text else []
+
+    # Obtener los indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
+
     # Cargar funciones y perfil
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
@@ -358,11 +425,37 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error(f"Error al cargar funciones o perfil: {e}")
         return
 
-    full_text = extract_text_with_ocr(pdf_path)
+    # Análisis de Asistencia a eventos ANEIAP
+    att_results = calculate_item_concordance(attendance_items, position_indicators, functions_text, profile_text)
+    parcial_att_func_match = (
+        sum(res["Funciones del Cargo"] for res in att_results.values()) / len(att_results)
+        if att_results
+        else 0
+    )
+    parcial_att_profile_match = (
+        sum(res["Perfil del Cargo"] for res in att_results.values()) / len(att_results)
+        if att_results
+        else 0
+    )
+    parcial_att_func_score = round((parcial_att_func_match * 5) / 100, 2)
+    parcial_att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
 
-    # Extraer las secciones
-    assistance_text = extract_section(full_text, "Asistencia a eventos ANEIAP", ["EVENTOS ORGANIZADOS", "Reconocimientos"])
-    organized_text = extract_section(full_text, "EVENTOS ORGANIZADOS", ["Reconocimientos", "FIN"])
+    # Análisis de EVENTOS ORGANIZADOS
+    org_results = calculate_item_concordance(organized_items, position_indicators, functions_text, profile_text)
+    parcial_org_func_match = (
+        sum(res["Funciones del Cargo"] for res in org_results.values()) / len(org_results)
+        if org_results
+        else 0
+    )
+    parcial_org_profile_match = (
+        sum(res["Perfil del Cargo"] for res in org_results.values()) / len(org_results)
+        if org_results
+        else 0
+    )
+    parcial_org_func_score = round((parcial_org_func_match * 5) / 100, 2)
+    parcial_org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
+
+    full_text = extract_text_with_ocr(pdf_path)
 
     line_results = []
 
@@ -525,7 +618,40 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ('WORDWRAP', (0, 0), (-1, -1)),
     ]))
 
-    return [Paragraph("<b>Análisis de EVENTOS ORGANIZADOS:</b>", styles['CenturyGothicBold']), table, Spacer(1, 0.2 * inch)]
+    return [Paragraph("<b>Análisis de EVENTOS ORGANIZADOS:</b>", styles['CenturyGothicBold']), org_table, Spacer(1, 0.2 * inch)]
+
+    # Tablas para cada sección
+    def generate_section_table(section_title, items, results, parcial_func, parcial_profile, parcial_func_score, parcial_profile_score):
+        elements.append(Paragraph(f"<b>{section_title}:</b>", styles['CenturyGothicBold']))
+        elements.append(Spacer(1, 0.2 * inch))
+
+        table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+        for item, res in results.items():
+            table_data.append([Paragraph(item, styles['CenturyGothic']), f"{res['Funciones del Cargo']:.2f}%", f"{res['Perfil del Cargo']:.2f}%"])
+
+        table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_func:.2f}%", f"{parcial_profile:.2f}%"])
+        table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_func_score:.2f}", f"{parcial_profile_score:.2f}"])
+
+        section_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+        section_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
+            ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('WORDWRAP', (0, 0), (-1, -1)),
+        ]))
+
+        elements.append(section_table)
+        elements.append(Spacer(1, 0.2 * inch))
+
+    # Generar tablas para cada sección
+    generate_section_table("Asistencia a eventos ANEIAP", attendance_items, att_results, parcial_att_func_match, parcial_att_profile_match, parcial_att_func_score, parcial_att_profile_score)
+    generate_section_table("EVENTOS ORGANIZADOS", organized_items, org_results, parcial_org_func_match, parcial_org_profile_match, parcial_org_func_score, parcial_org_profile_score)
     
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
