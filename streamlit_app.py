@@ -274,18 +274,10 @@ def analyze_sections(pdf_path, position, candidate_name, indicators, functions_t
 
     text = extract_text_with_ocr(pdf_path)
 
-    def extract_section(text, start_keyword, end_keywords):
-        start_idx = text.lower().find(start_keyword.lower())
-        if start_idx == -1:
-            return None
-
-        end_idx = len(text)
-        for keyword in end_keywords:
-            idx = text.lower().find(keyword.lower(), start_idx)
-            if idx != -1:
-                end_idx = min(end_idx, idx)
-
-        return text[start_idx:end_idx].strip()
+    # Encuentra el índice de inicio
+    start_idx = text.find(start_keyword)
+    if start_idx == -1:
+        return None  # No se encontró la sección de experiencia
 
     # Extraer la sección entre inicio y fin
     experience_text = text[start_idx:end_idx].strip()
