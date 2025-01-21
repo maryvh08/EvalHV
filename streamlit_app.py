@@ -272,6 +272,18 @@ def analyze_sections(pdf_path, position, candidate_name, indicators, functions_t
         avg_profile = sum(item[profile_key] for item in item_results) / len(item_results)
         return avg_func, avg_profile
 
+    # Extract Asistencia a eventos ANEIAP
+    attendance_text = extract_section(
+        experience_text, "Asistencia a eventos", ["Actualización profesional", "EXPERIENCIA EN ANEIAP"]
+    )
+    attendance_items = extract_cleaned_lines(attendance_text) if attendance_text else []
+
+    # Extract EVENTOS ORGANIZADOS
+    organized_text = extract_section(
+        experience_text, "EVENTOS ORGANIZADOS", ["FIRMA", "EXPERIENCIA LABORAL"]
+    )
+    organized_items = extract_cleaned_lines(organized_text) if organized_text else []
+
     # Analizar "Asistencia a eventos ANEIAP"
     asistencia_items = analyze_items(
         attendance_text, indicators, functions_text, profile_text, "att_func_match", "att_profile_match"
@@ -465,18 +477,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
-
-    # Extract Asistencia a eventos ANEIAP
-    attendance_text = extract_section(
-        experience_text, "Asistencia a eventos", ["Actualización profesional", "EXPERIENCIA EN ANEIAP"]
-    )
-    attendance_items = extract_cleaned_lines(attendance_text) if attendance_text else []
-
-    # Extract EVENTOS ORGANIZADOS
-    organized_text = extract_section(
-        experience_text, "EVENTOS ORGANIZADOS", ["FIRMA", "EXPERIENCIA LABORAL"]
-    )
-    organized_items = extract_cleaned_lines(organized_text) if organized_text else []
 
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
