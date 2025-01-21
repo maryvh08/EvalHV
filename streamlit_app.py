@@ -272,6 +272,8 @@ def analyze_sections(pdf_path, position, candidate_name, indicators, functions_t
         avg_profile = sum(item[profile_key] for item in item_results) / len(item_results)
         return avg_func, avg_profile
 
+    text = extract_text_with_ocr(pdf_path)
+
     # Extraer la sección entre inicio y fin
     experience_text = text[start_idx:end_idx].strip()
 
