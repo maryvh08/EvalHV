@@ -140,6 +140,94 @@ def calculate_presence(texts, keywords):
     matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
     return (matches / total_keywords) * 100
 
+def extract_section(text, start_keyword, end_keywords):
+    """
+    Extrae una sección del texto entre las palabras clave especificadas.
+    :param text: Texto completo del PDF.
+    :param start_keyword: Palabra clave que indica el inicio de la sección.
+    :param end_keywords: Lista de palabras clave que indican el final de la sección.
+    :return: Texto de la sección extraída.
+    """
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None
+
+    end_idx = len(text)
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
+
+    return text[start_idx:end_idx].strip()
+
+def extract_section(text, start_keyword, end_keywords):
+    """
+    Extrae una sección del texto entre las palabras clave especificadas.
+    :param text: Texto completo del PDF.
+    :param start_keyword: Palabra clave que indica el inicio de la sección.
+    :param end_keywords: Lista de palabras clave que indican el final de la sección.
+    :return: Texto de la sección extraída.
+    """
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None
+
+    end_idx = len(text)
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
+
+    return text[start_idx:end_idx].strip()
+
+def analyze_section(section_text, position_indicators, functions_text, profile_text, prefix):
+    """
+    Analiza una sección y calcula porcentajes de concordancia por ítem.
+    :param section_text: Texto de la sección a analizar.
+    :param position_indicators: Indicadores y palabras clave para el cargo.
+    :param functions_text: Texto de las funciones del cargo.
+    :param profile_text: Texto del perfil del cargo.
+    :param prefix: Prefijo para los nombres de las métricas (att_ u org_).
+    :return: Resultados de los ítems y porcentajes parciales.
+    """
+    lines = extract_cleaned_lines(section_text)
+    item_results = []
+    total_func_match, total_profile_match = 0, 0
+
+    for line in lines:
+        func_match = calculate_similarity(line, functions_text)
+        profile_match = calculate_similarity(line, profile_text)
+
+        item_results.append((line, func_match, profile_match))
+        total_func_match += func_match
+        total_profile_match += profile_match
+
+    num_items = len(item_results)
+    partial_func_match = total_func_match / num_items if num_items > 0 else 0
+    partial_profile_match = total_profile_match / num_items if num_items > 0 else 0
+
+    return item_results, partial_func_match, partial_profile_match
+
+def generate_section_table(section_results, partial_func_match, partial_profile_match, prefix, styles):
+    """
+    Genera una tabla para una sección específica.
+    :param section_results: Resultados de los ítems de la sección.
+    :param partial_func_match: Porcentaje parcial de funciones.
+    :param partial_profile_match: Porcentaje parcial de perfil.
+    :param prefix: Prefijo para identificar la sección.
+    :param styles: Estilos definidos para el reporte.
+    :return: Tabla de la sección.
+    """
+    table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+
+    for line, func_match, profile_match in section_results:
+        table_data.append([Paragraph(line, styles['CenturyGothic']), f"{func_match:.2f}%", f"{profile_match:.2f}%"])
+
+    table_data.append([Paragraph(f"<b>Concordancia Parcial {prefix.upper()}</b>", styles['CenturyGothicBold']),
+                       f"{partial_func_match:.2f}%", f"{partial_profile_match:.2f}%"])
+
+    return Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+
 # Definir función para añadir fondo
 def add_background(canvas, background_path):
     """
@@ -232,6 +320,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if not experience_text:
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
+
+    full_text = extract_text_with_ocr(pdf_path)
+
+    # Extraer las secciones
+    assistance_text = extract_section(full_text, "Asistencia a eventos ANEIAP", ["EVENTOS ORGANIZADOS", "Reconocimientos"])
+    organized_text = extract_section(full_text, "EVENTOS ORGANIZADOS", ["Reconocimientos", "FIN"])
 
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
@@ -382,6 +476,26 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Total de líneas analizadas
     total_lines = len(line_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
+
+    # Analizar secciones
+    att_results, att_partial_func_match, att_partial_profile_match = analyze_section(
+        assistance_text, position_indicators, functions_text, profile_text, "att")
+
+    org_results, org_partial_func_match, org_partial_profile_match = analyze_section(
+        organized_text, position_indicators, functions_text, profile_text, "org")
+
+    # Generar tablas
+    att_table = generate_section_table(att_results, att_partial_func_match, att_partial_profile_match, "Asistencia", styles)
+    org_table = generate_section_table(org_results, org_partial_func_match, org_partial_profile_match, "Organizados", styles)
+
+    # Crear PDF con tablas y gráficos
+    elements = []
+    elements.append(Paragraph("<b>Análisis de Asistencia a Eventos:</b>", styles['CenturyGothicBold']))
+    elements.append(att_table)
+    elements.append(Spacer(1, 0.2 * inch))
+
+    elements.append(Paragraph("<b>Análisis de Eventos Organizados:</b>", styles['CenturyGothicBold']))
+    elements.append(org_table)
     
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
