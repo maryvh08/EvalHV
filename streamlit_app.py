@@ -22,6 +22,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+from collections import Counter
 from PIL import Image as PILImage
 from PIL import Image
 
