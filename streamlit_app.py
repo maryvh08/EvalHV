@@ -604,8 +604,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Agregar resultados parciales
     org_table_data.append([
         Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']),
-        f"{org_partial_func_match:.2f}%",
-        f"{org_partial_profile_match:.2f}%"
+        f"{parcial_org_func_match:.2f}%",
+        f"{parcial_org_profile_match:.2f}%"
     ])
 
     org_table = Table(org_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
