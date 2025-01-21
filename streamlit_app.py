@@ -392,6 +392,21 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     lines= experience_text.split("\n")
     lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
 
+    # Extract Asistencia a eventos ANEIAP
+    attendance_text = extract_section(
+        experience_text, "Asistencia a eventos", ["Actualización profesional", "EXPERIENCIA EN ANEIAP"]
+    )
+    attendance_items = extract_cleaned_lines(attendance_text) if attendance_text else []
+
+    # Extract EVENTOS ORGANIZADOS
+    organized_text = extract_section(
+        experience_text, "EVENTOS ORGANIZADOS", ["FIRMA", "EXPERIENCIA LABORAL"]
+    )
+    organized_items = extract_cleaned_lines(organized_text) if organized_text else []
+
+    # Obtener los indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
+
     position_indicators = indicators.get(position, {})
     indicator_results = Counter()
     lines = experience_text.split("\n")
