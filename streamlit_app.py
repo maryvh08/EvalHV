@@ -347,6 +347,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     :param candidate_name: Nombre del candidato.
     :param background_path: Ruta de la imagen de fondo.
     """
+    
     def extract_section(text, start_keyword, end_keywords):
         start_idx = text.lower().find(start_keyword.lower())
         if start_idx == -1:
@@ -381,10 +382,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
         return item_results
 
-    experience_text = extract_experience_section_with_ocr(pdf_path)
-    if not experience_text:
-        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
-        return
 
 
     # Dividir la experiencia en líneas
@@ -400,6 +397,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     position_indicators = indicators.get(position, {})
 
     indicator_results = calculate_all_indicators(lines, position_indicators)
+
+    #Extraer EXPERIENCIA EN ANEIAP
+    experience_text = extract_experience_section_with_ocr(pdf_path)
+    if not experience_text:
+        st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
+        return
 
     # Extract Asistencia a eventos ANEIAP
     attendance_text = extract_section(
@@ -597,8 +600,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     for result in item_results:
         org_table_data.append([
             Paragraph(result["item"], styles['CenturyGothic']),
-            f"{result['func_match']:.2f}%",
-            f"{result['profile_match']:.2f}%"
+            f"{result['org_func_match']:.2f}%",
+            f"{result['org_profile_match']:.2f}%"
         ])
 
     # Agregar resultados parciales
