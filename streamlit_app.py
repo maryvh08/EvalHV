@@ -219,6 +219,94 @@ def add_background(canvas, background_path):
     canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
     canvas.restoreState()
 
+def analyze_sections(pdf_path, position, candidate_name, indicators, functions_text, profile_text):
+    """
+    Analiza las secciones "Asistencia a eventos ANEIAP" y "EVENTOS ORGANIZADOS",
+    calcula las concordancias item por item y genera resultados parciales.
+    """
+    # Extraer texto completo del PDF
+    full_text = extract_text_with_ocr(pdf_path)
+
+    def extract_section(text, start_keyword, end_keywords):
+        start_idx = text.lower().find(start_keyword.lower())
+        if start_idx == -1:
+            return ""
+
+        end_idx = len(text)
+        for end_keyword in end_keywords:
+            idx = text.lower().find(end_keyword.lower(), start_idx)
+            if idx != -1:
+                end_idx = min(end_idx, idx)
+        return text[start_idx:end_idx].strip()
+
+    # Extraer secciones
+    asistencia_text = extract_section(
+        full_text, "Asistencia a eventos", ["Actualización profesional", "EXPERIENCIA ANEIAP"]
+    )
+    eventos_organizados_text = extract_section(
+        full_text, "EVENTOS ORGANIZADOS", ["FIRMA", "EXPERIENCIA LABORAL"]
+    )
+
+    def analyze_items(section_text, indicators, functions_text, profile_text, func_key, profile_key):
+        lines = extract_cleaned_lines(section_text)
+        item_results = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            contains_keywords = any(
+                keyword.lower() in line.lower()
+                for keywords in indicators.values()
+                for keyword in keywords
+            )
+
+            if contains_keywords:
+                func_match = 100
+                profile_match = 100
+            else:
+                func_match = calculate_similarity(line, functions_text)
+                profile_match = calculate_similarity(line, profile_text)
+
+            item_results.append({
+                "item": line,
+                func_key: func_match,
+                profile_key: profile_match,
+            })
+        return item_results
+
+    def calculate_section_results(item_results, func_key, profile_key):
+        if not item_results:
+            return 0, 0
+        avg_func = sum(item[func_key] for item in item_results) / len(item_results)
+        avg_profile = sum(item[profile_key] for item in item_results) / len(item_results)
+        return avg_func, avg_profile
+
+    # Analizar "Asistencia a eventos ANEIAP"
+    asistencia_items = analyze_items(
+        asistencia_text, indicators, functions_text, profile_text, "att_func_match", "att_profile_match"
+    )
+    parcial_att_func_match, parcial_att_profile_match = calculate_section_results(
+        asistencia_items, "att_func_match", "att_profile_match"
+    )
+
+    # Analizar "EVENTOS ORGANIZADOS"
+    eventos_items = analyze_items(
+        eventos_organizados_text, indicators, functions_text, profile_text, "org_func_match", "org_profile_match"
+    )
+    parcial_org_func_match, parcial_org_profile_match = calculate_section_results(
+        eventos_items, "org_func_match", "org_profile_match"
+    )
+
+    return {
+        "asistencia_items": asistencia_items,
+        "parcial_att_func_match": parcial_att_func_match,
+        "parcial_att_profile_match": parcial_att_profile_match,
+        "eventos_items": eventos_items,
+        "parcial_org_func_match": parcial_org_func_match,
+        "parcial_org_profile_match": parcial_org_profile_match,
+    }
+
 
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
@@ -405,6 +493,18 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     except Exception as e:
         st.error(f"Error al cargar funciones o perfil: {e}")
         return
+
+    analysis_results = analyze_sections(
+        pdf_path, position, candidate_name, indicators, functions_text, profile_text
+    )
+
+    asistencia_items = analysis_results["asistencia_items"]
+    parcial_att_func_match = analysis_results["parcial_att_func_match"]
+    parcial_att_profile_match = analysis_results["parcial_att_profile_match"]
+    eventos_items = analysis_results["eventos_items"]
+    parcial_org_func_match = analysis_results["parcial_org_func_match"]
+    parcial_org_profile_match = analysis_results["parcial_org_profile_match"]
+
 
     # Análisis de Asistencia a eventos ANEIAP
     att_results = calculate_item_concordance(attendance_items, position_indicators, functions_text, profile_text)
