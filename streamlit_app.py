@@ -246,6 +246,11 @@ def extract_experience_section_with_ocr(pdf_path):
         }
     }
 
+    # Obtener los indicadores y palabras clave para el cargo seleccionado
+    position_indicators = indicators.get(position, {})
+
+    indicator_results = calculate_all_indicators(lines, position_indicators)
+
     elements = []
 
     for section_name, config in sections.items():
@@ -329,16 +334,14 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
-    full_text = extract_text_with_ocr(pdf_path)
-
-    # Extraer las secciones
-    assistance_text = extract_section(full_text, "Asistencia a eventos ANEIAP", ["EVENTOS ORGANIZADOS", "Reconocimientos"])
-    organized_text = extract_section(full_text, "EVENTOS ORGANIZADOS", ["Reconocimientos", "FIN"])
-
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
     lines= experience_text.split("\n")
     lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+
+    position_indicators = indicators.get(position, {})
+    indicator_results = Counter()
+    lines = experience_text.split("\n")
 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
@@ -354,6 +357,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     except Exception as e:
         st.error(f"Error al cargar funciones o perfil: {e}")
         return
+
+    full_text = extract_text_with_ocr(pdf_path)
+
+    # Extraer las secciones
+    assistance_text = extract_section(full_text, "Asistencia a eventos ANEIAP", ["EVENTOS ORGANIZADOS", "Reconocimientos"])
+    organized_text = extract_section(full_text, "EVENTOS ORGANIZADOS", ["Reconocimientos", "FIN"])
 
     line_results = []
 
