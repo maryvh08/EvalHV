@@ -274,7 +274,7 @@ def analyze_sections(pdf_path, position, candidate_name, indicators, functions_t
 
     # Analizar "Asistencia a eventos ANEIAP"
     asistencia_items = analyze_items(
-        asistencia_text, indicators, functions_text, profile_text, "att_func_match", "att_profile_match"
+        attendance_text, indicators, functions_text, profile_text, "att_func_match", "att_profile_match"
     )
     parcial_att_func_match, parcial_att_profile_match = calculate_section_results(
         asistencia_items, "att_func_match", "att_profile_match"
@@ -509,14 +509,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         pdf_path, position, candidate_name, indicators, functions_text, profile_text
     )
 
-    # Extraer secciones
-    asistencia_text = extract_section(
-        text, "Asistencia a eventos", ["Actualización profesional", "EXPERIENCIA ANEIAP"]
-    )
-    eventos_organizados_text = extract_section(
-        text, "EVENTOS ORGANIZADOS", ["FIRMA", "EXPERIENCIA LABORAL"]
-    )
-
     def analyze_items(section_text, indicators, functions_text, profile_text, func_key, profile_key):
         lines = extract_cleaned_lines(section_text)
         item_results = []
@@ -554,7 +546,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Analizar "Asistencia a eventos ANEIAP"
     asistencia_items = analyze_items(
-        asistencia_text, indicators, functions_text, profile_text, "att_func_match", "att_profile_match"
+        attendance_text, indicators, functions_text, profile_text, "att_func_match", "att_profile_match"
     )
     parcial_att_func_match, parcial_att_profile_match = calculate_section_results(
         asistencia_items, "att_func_match", "att_profile_match"
