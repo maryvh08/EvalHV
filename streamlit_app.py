@@ -224,8 +224,6 @@ def analyze_sections(pdf_path, position, candidate_name, indicators, functions_t
     Analiza las secciones "Asistencia a eventos ANEIAP" y "EVENTOS ORGANIZADOS",
     calcula las concordancias item por item y genera resultados parciales.
     """
-    # Extraer texto completo del PDF
-    full_text = extract_text_with_ocr(pdf_path)
 
     def extract_section(text, start_keyword, end_keywords):
         start_idx = text.lower().find(start_keyword.lower())
@@ -238,14 +236,6 @@ def analyze_sections(pdf_path, position, candidate_name, indicators, functions_t
             if idx != -1:
                 end_idx = min(end_idx, idx)
         return text[start_idx:end_idx].strip()
-
-    # Extraer secciones
-    asistencia_text = extract_section(
-        full_text, "Asistencia a eventos", ["Actualización profesional", "EXPERIENCIA ANEIAP"]
-    )
-    eventos_organizados_text = extract_section(
-        full_text, "EVENTOS ORGANIZADOS", ["FIRMA", "EXPERIENCIA LABORAL"]
-    )
 
     def analyze_items(section_text, indicators, functions_text, profile_text, func_key, profile_key):
         lines = extract_cleaned_lines(section_text)
@@ -521,10 +511,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Extraer secciones
     asistencia_text = extract_section(
-        full_text, "Asistencia a eventos", ["Actualización profesional", "EXPERIENCIA ANEIAP"]
+        text, "Asistencia a eventos", ["Actualización profesional", "EXPERIENCIA ANEIAP"]
     )
     eventos_organizados_text = extract_section(
-        full_text, "EVENTOS ORGANIZADOS", ["FIRMA", "EXPERIENCIA LABORAL"]
+        text, "EVENTOS ORGANIZADOS", ["FIRMA", "EXPERIENCIA LABORAL"]
     )
 
     def analyze_items(section_text, indicators, functions_text, profile_text, func_key, profile_key):
@@ -586,8 +576,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         "parcial_org_func_match": parcial_org_func_match,
         "parcial_org_profile_match": parcial_org_profile_match,
     }
-
-    full_text = extract_text_with_ocr(pdf_path)
 
     line_results = []
 
