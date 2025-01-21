@@ -140,93 +140,72 @@ def calculate_presence(texts, keywords):
     matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
     return (matches / total_keywords) * 100
 
-def extract_section(text, start_keyword, end_keywords):
+def extract_section_text(pdf_path, start_keywords, end_keywords):
     """
-    Extrae una sección del texto entre las palabras clave especificadas.
-    :param text: Texto completo del PDF.
-    :param start_keyword: Palabra clave que indica el inicio de la sección.
-    :param end_keywords: Lista de palabras clave que indican el final de la sección.
+    Extrae texto delimitado por palabras clave de inicio y fin desde un archivo PDF.
+    :param pdf_path: Ruta al archivo PDF.
+    :param start_keywords: Lista de palabras clave para identificar el inicio de la sección.
+    :param end_keywords: Lista de palabras clave para identificar el final de la sección.
     :return: Texto de la sección extraída.
     """
-    start_idx = text.lower().find(start_keyword.lower())
-    if start_idx == -1:
-        return None
+    text = extract_text_with_ocr(pdf_path)
+    start_idx, end_idx = -1, len(text)
 
-    end_idx = len(text)
+    for keyword in start_keywords:
+        idx = text.lower().find(keyword.lower())
+        if idx != -1:
+            start_idx = idx
+            break
+
     for keyword in end_keywords:
         idx = text.lower().find(keyword.lower(), start_idx)
         if idx != -1:
             end_idx = min(end_idx, idx)
 
-    return text[start_idx:end_idx].strip()
+    return text[start_idx:end_idx].strip() if start_idx != -1 else None
 
-def extract_section(text, start_keyword, end_keywords):
+def analyze_section_items(section_text, position_indicators, functions_text, profile_text):
     """
-    Extrae una sección del texto entre las palabras clave especificadas.
-    :param text: Texto completo del PDF.
-    :param start_keyword: Palabra clave que indica el inicio de la sección.
-    :param end_keywords: Lista de palabras clave que indican el final de la sección.
-    :return: Texto de la sección extraída.
-    """
-    start_idx = text.lower().find(start_keyword.lower())
-    if start_idx == -1:
-        return None
-
-    end_idx = len(text)
-    for keyword in end_keywords:
-        idx = text.lower().find(keyword.lower(), start_idx)
-        if idx != -1:
-            end_idx = min(end_idx, idx)
-
-    return text[start_idx:end_idx].strip()
-
-def analyze_section(section_text, position_indicators, functions_text, profile_text, prefix):
-    """
-    Analiza una sección y calcula porcentajes de concordancia por ítem.
-    :param section_text: Texto de la sección a analizar.
-    :param position_indicators: Indicadores y palabras clave para el cargo.
+    Analiza los ítems de una sección respecto a funciones y perfil de cargo.
+    :param section_text: Texto de la sección.
+    :param position_indicators: Palabras clave para evaluar.
     :param functions_text: Texto de las funciones del cargo.
     :param profile_text: Texto del perfil del cargo.
-    :param prefix: Prefijo para los nombres de las métricas (att_ u org_).
-    :return: Resultados de los ítems y porcentajes parciales.
+    :return: Resultados por ítem y promedios parciales.
     """
-    lines = extract_cleaned_lines(section_text)
+    items = section_text.split("\n")
+    items = [item.strip() for item in items if item.strip()]
     item_results = []
     total_func_match, total_profile_match = 0, 0
 
-    for line in lines:
-        func_match = calculate_similarity(line, functions_text)
-        profile_match = calculate_similarity(line, profile_text)
+    for item in items:
+        # Revisar palabras clave en el ítem
+        item_contains_keywords = any(
+            keyword.lower() in item.lower() for keywords in position_indicators.values() for keyword in keywords
+        )
 
-        item_results.append((line, func_match, profile_match))
+        # Determinar concordancia
+        if item_contains_keywords:
+            func_match = 100
+            profile_match = 100
+        else:
+            func_match = calculate_similarity(item, functions_text)
+            profile_match = calculate_similarity(item, profile_text)
+
         total_func_match += func_match
         total_profile_match += profile_match
+
+        item_results.append({
+            "item": item,
+            "func_match": func_match,
+            "profile_match": profile_match
+        })
 
     num_items = len(item_results)
     partial_func_match = total_func_match / num_items if num_items > 0 else 0
     partial_profile_match = total_profile_match / num_items if num_items > 0 else 0
 
     return item_results, partial_func_match, partial_profile_match
-
-def generate_section_table(section_results, partial_func_match, partial_profile_match, prefix, styles):
-    """
-    Genera una tabla para una sección específica.
-    :param section_results: Resultados de los ítems de la sección.
-    :param partial_func_match: Porcentaje parcial de funciones.
-    :param partial_profile_match: Porcentaje parcial de perfil.
-    :param prefix: Prefijo para identificar la sección.
-    :param styles: Estilos definidos para el reporte.
-    :return: Tabla de la sección.
-    """
-    table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
-
-    for line, func_match, profile_match in section_results:
-        table_data.append([Paragraph(line, styles['CenturyGothic']), f"{func_match:.2f}%", f"{profile_match:.2f}%"])
-
-    table_data.append([Paragraph(f"<b>Concordancia Parcial {prefix.upper()}</b>", styles['CenturyGothicBold']),
-                       f"{partial_func_match:.2f}%", f"{partial_profile_match:.2f}%"])
-
-    return Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
 
 # Definir función para añadir fondo
 def add_background(canvas, background_path):
@@ -249,14 +228,43 @@ def extract_experience_section_with_ocr(pdf_path):
     """
     text = extract_text_with_ocr(pdf_path)
 
-    # Palabras clave para identificar inicio y fin de la sección
-    start_keyword = "EXPERIENCIA EN ANEIAP"
-    end_keywords = [
-        "EVENTOS ORGANIZADOS",
-        "Reconocimientos individuales",
-        "Reconocimientos grupales",
-        "Reconocimientos",
-    ]
+    sections = {
+        "EXPERIENCIA EN ANEIAP": {
+            "start": ["EXPERIENCIA EN ANEIAP"],
+            "end": ["RECONOCIMIENTOS", "EVENTOS ORGANIZADOS"],
+            "func_prefix": "exp"
+        },
+        "Asistencia a eventos ANEIAP": {
+            "start": ["ASISTENCIA A EVENTOS"],
+            "end": ["ACTUALIZACIÓN PROFESIONAL", "EXPERIENCIA EN ANEIAP"],
+            "func_prefix": "att"
+        },
+        "EVENTOS ORGANIZADOS": {
+            "start": ["EVENTOS ORGANIZADOS"],
+            "end": ["FIRMA", "EXPERIENCIA LABORAL"],
+            "func_prefix": "org"
+        }
+    }
+
+    elements = []
+
+    for section_name, config in sections.items():
+        section_text = extract_section_text(pdf_path, config['start'], config['end'])
+        if not section_text:
+            elements.append(Paragraph(f"<b>No se encontró la sección {section_name}.</b>", styles['CenturyGothicBold']))
+            elements.append(Spacer(1, 0.2 * inch))
+            continue
+
+        item_results, partial_func_match, partial_profile_match = analyze_section_items(
+            section_text, position_indicators, functions_text, profile_text
+        )
+
+        elements.extend(generate_event_tables(
+            section_name, item_results, partial_func_match, partial_profile_match, styles
+        ))
+
+    return elements
+
 
     # Encontrar índice de inicio
     start_idx = text.lower().find(start_keyword.lower())
@@ -437,7 +445,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla con ajuste de texto
-    elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
+    elements.append(Paragraph("<b>Análisis de EXPERIENCIA EN ANEIAP:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
     
     # Encabezados de la tabla
@@ -477,25 +485,38 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     total_lines = len(line_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
 
-    # Analizar secciones
-    att_results, att_partial_func_match, att_partial_profile_match = analyze_section(
-        assistance_text, position_indicators, functions_text, profile_text, "att")
+    #Generar tabla de eventos organizados
+    org_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
 
-    org_results, org_partial_func_match, org_partial_profile_match = analyze_section(
-        organized_text, position_indicators, functions_text, profile_text, "org")
+    for result in item_results:
+        org_table_data.append([
+            Paragraph(result["item"], styles['CenturyGothic']),
+            f"{result['func_match']:.2f}%",
+            f"{result['profile_match']:.2f}%"
+        ])
 
-    # Generar tablas
-    att_table = generate_section_table(att_results, att_partial_func_match, att_partial_profile_match, "Asistencia", styles)
-    org_table = generate_section_table(org_results, org_partial_func_match, org_partial_profile_match, "Organizados", styles)
+    # Agregar resultados parciales
+    org_table_data.append([
+        Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']),
+        f"{partial_func_match:.2f}%",
+        f"{partial_profile_match:.2f}%"
+    ])
 
-    # Crear PDF con tablas y gráficos
-    elements = []
-    elements.append(Paragraph("<b>Análisis de Asistencia a Eventos:</b>", styles['CenturyGothicBold']))
-    elements.append(att_table)
-    elements.append(Spacer(1, 0.2 * inch))
+    org_table = Table(org_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    org_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('WORDWRAP', (0, 0), (-1, -1)),
+    ]))
 
-    elements.append(Paragraph("<b>Análisis de Eventos Organizados:</b>", styles['CenturyGothicBold']))
-    elements.append(org_table)
+    return [Paragraph("<b>Análisis de EVENTOS ORGANIZADOS:</b>", styles['CenturyGothicBold']), table, Spacer(1, 0.2 * inch)]
     
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
