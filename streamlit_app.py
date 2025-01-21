@@ -519,43 +519,73 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         pdf_path, position, candidate_name, indicators, functions_text, profile_text
     )
 
-    asistencia_items = analysis_results["asistencia_items"]
-    parcial_att_func_match = analysis_results["parcial_att_func_match"]
-    parcial_att_profile_match = analysis_results["parcial_att_profile_match"]
-    eventos_items = analysis_results["eventos_items"]
-    parcial_org_func_match = analysis_results["parcial_org_func_match"]
-    parcial_org_profile_match = analysis_results["parcial_org_profile_match"]
+    # Extraer secciones
+    asistencia_text = extract_section(
+        full_text, "Asistencia a eventos", ["Actualización profesional", "EXPERIENCIA ANEIAP"]
+    )
+    eventos_organizados_text = extract_section(
+        full_text, "EVENTOS ORGANIZADOS", ["FIRMA", "EXPERIENCIA LABORAL"]
+    )
 
+    def analyze_items(section_text, indicators, functions_text, profile_text, func_key, profile_key):
+        lines = extract_cleaned_lines(section_text)
+        item_results = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
 
-    # Análisis de Asistencia a eventos ANEIAP
-    att_results = calculate_item_concordance(attendance_items, position_indicators, functions_text, profile_text)
-    parcial_att_func_match = (
-        sum(res["Funciones del Cargo"] for res in att_results.values()) / len(att_results)
-        if att_results
-        else 0
-    )
-    parcial_att_profile_match = (
-        sum(res["Perfil del Cargo"] for res in att_results.values()) / len(att_results)
-        if att_results
-        else 0
-    )
-    parcial_att_func_score = round((parcial_att_func_match * 5) / 100, 2)
-    parcial_att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
+            contains_keywords = any(
+                keyword.lower() in line.lower()
+                for keywords in indicators.values()
+                for keyword in keywords
+            )
 
-    # Análisis de EVENTOS ORGANIZADOS
-    org_results = calculate_item_concordance(organized_items, position_indicators, functions_text, profile_text)
-    parcial_org_func_match = (
-        sum(res["Funciones del Cargo"] for res in org_results.values()) / len(org_results)
-        if org_results
-        else 0
+            if contains_keywords:
+                func_match = 100
+                profile_match = 100
+            else:
+                func_match = calculate_similarity(line, functions_text)
+                profile_match = calculate_similarity(line, profile_text)
+
+            item_results.append({
+                "item": line,
+                func_key: func_match,
+                profile_key: profile_match,
+            })
+        return item_results
+
+    def calculate_section_results(item_results, func_key, profile_key):
+        if not item_results:
+            return 0, 0
+        avg_func = sum(item[func_key] for item in item_results) / len(item_results)
+        avg_profile = sum(item[profile_key] for item in item_results) / len(item_results)
+        return avg_func, avg_profile
+
+    # Analizar "Asistencia a eventos ANEIAP"
+    asistencia_items = analyze_items(
+        asistencia_text, indicators, functions_text, profile_text, "att_func_match", "att_profile_match"
     )
-    parcial_org_profile_match = (
-        sum(res["Perfil del Cargo"] for res in org_results.values()) / len(org_results)
-        if org_results
-        else 0
+    parcial_att_func_match, parcial_att_profile_match = calculate_section_results(
+        asistencia_items, "att_func_match", "att_profile_match"
     )
-    parcial_org_func_score = round((parcial_org_func_match * 5) / 100, 2)
-    parcial_org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
+
+    # Analizar "EVENTOS ORGANIZADOS"
+    eventos_items = analyze_items(
+        eventos_organizados_text, indicators, functions_text, profile_text, "org_func_match", "org_profile_match"
+    )
+    parcial_org_func_match, parcial_org_profile_match = calculate_section_results(
+        eventos_items, "org_func_match", "org_profile_match"
+    )
+
+    return {
+        "asistencia_items": asistencia_items,
+        "parcial_att_func_match": parcial_att_func_match,
+        "parcial_att_profile_match": parcial_att_profile_match,
+        "eventos_items": eventos_items,
+        "parcial_org_func_match": parcial_org_func_match,
+        "parcial_org_profile_match": parcial_org_profile_match,
+    }
 
     full_text = extract_text_with_ocr(pdf_path)
 
@@ -619,6 +649,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
     parcial_exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
+    parcial_att_func_score = round((parcial_att_func_match * 5) / 100, 2)
+    parcial_att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
+    parcial_org_func_score = round((parcial_org_func_match * 5) / 100, 2)
+    parcial_org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
 
     
     # Registrar la fuente personalizada
