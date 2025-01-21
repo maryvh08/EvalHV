@@ -426,6 +426,27 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error(f"Error al cargar funciones o perfil: {e}")
         return
 
+        def calculate_item_concordance(items, position_indicators, functions_text, profile_text):
+        item_results = {}
+        for item in items:
+            item_contains_keywords = any(
+                keyword.lower() in item.lower() for keywords in position_indicators.values() for keyword in keywords
+            )
+
+            if item_contains_keywords:
+                func_match = 100
+                profile_match = 100
+            else:
+                func_match = calculate_similarity(item, functions_text)
+                profile_match = calculate_similarity(item, profile_text)
+
+            item_results[item] = {
+                "Funciones del Cargo": func_match,
+                "Perfil del Cargo": profile_match,
+            }
+
+        return item_results
+
     # Análisis de Asistencia a eventos ANEIAP
     att_results = calculate_item_concordance(attendance_items, position_indicators, functions_text, profile_text)
     parcial_att_func_match = (
