@@ -426,7 +426,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error(f"Error al cargar funciones o perfil: {e}")
         return
 
-        def calculate_item_concordance(items, position_indicators, functions_text, profile_text):
+    def calculate_item_concordance(items, position_indicators, functions_text, profile_text):
         item_results = {}
         for item in items:
             item_contains_keywords = any(
