@@ -992,6 +992,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         st.error("No se encontraron encabezados y detalles para analizar.")
         return
 
+    # Extraer texto de la sección EVENTOS ORGANIZADOS
+    org_items = extract_event_items_with_details(pdf_path)
+    if not org_items:
+        st.error("No se encontraron encabezados y detalles para analizar.")
+        return
+
     # Cargar funciones y perfil del cargo
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
@@ -1010,10 +1016,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Analizar encabezados y detalles
     item_results = {}
+    org_item_results = {}
 
     # Calcular la cantidad de ítems relacionados para cada indicador
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
+    #EXPERIENCIA EN ANEIAP
     for header, details in items.items():
         header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
 
@@ -1029,14 +1037,14 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
         # Determinar concordancia en funciones y perfil
         if header_contains_keywords or details_contains_keywords:
-            func_match = 100
-            profile_match = 100
+            exp_func_match = 100
+            exp_profile_match = 100
         else:
-            func_match = calculate_similarity(header_and_details, functions_text)
-            profile_match = calculate_similarity(header_and_details, profile_text)
+            exp_func_match = calculate_similarity(header_and_details, functions_text)
+            exp_profile_match = calculate_similarity(header_and_details, profile_text)
 
         # Ignorar ítems con 0% en funciones y perfil
-        if func_match == 0 and profile_match == 0:
+        if exp_func_match == 0 and exp_profile_match == 0:
             continue
 
         # Evaluar indicadores únicamente para el cargo seleccionado
@@ -1046,8 +1054,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 related_items_count[indicator] += 1
 
         item_results[header] = {
-            "Funciones del Cargo": func_match,
-            "Perfil del Cargo": profile_match,
+            "Funciones del Cargo": exp_func_match,
+            "Perfil del Cargo": exp_profile_match,
         }
 
     # Calcular porcentajes de indicadores
@@ -1061,6 +1069,49 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         indicator: advice.get(position, {}).get(indicator, ["No hay consejos disponibles para este indicador."])
         for indicator, percentage in indicator_percentages.items() if percentage < 50
     }
+
+    #EVENTOS ORGANIZADOS
+    for header, details in org_items.items():
+        header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
+
+        # Revisar palabras clave en el encabezado
+        header_contains_keywords = any(
+            keyword.lower() in header.lower() for keywords in position_indicators.values() for keyword in keywords
+        )
+
+        # Revisar palabras clave en los detalles
+        details_contains_keywords = any(
+            keyword.lower() in detail.lower() for detail in details for keywords in position_indicators.values() for keyword in keywords
+        )
+
+        # Determinar concordancia en funciones y perfil
+        if header_contains_keywords or details_contains_keywords:
+            org_func_match = 100
+            org_profile_match = 100
+        else:
+            org_func_match = calculate_similarity(header_and_details, functions_text)
+            org_profile_match = calculate_similarity(header_and_details, profile_text)
+
+        # Ignorar ítems con 0% en funciones y perfil
+        if org_func_match == 0 and org_profile_match == 0:
+            continue
+
+        item_results[header] = {
+                "Funciones del Cargo": func_match,
+                "Perfil del Cargo": profile_match,
+            }
+
+    #Calcular concordancia parcial para Experiencia ANEIAP
+    if item_results:
+        parcial_exp_func_match = sum(res["Funciones del Cargo"] for res in item_results.values()) / len(item_results)
+        parcial_exp_profile_match = sum(res["Perfil del Cargo"] for res in item_results.values()) / len(item_results)
+    else:
+        parcial_exp_func_match = 0
+        parcial_exp_profile_match = 0
+
+    # Calculo puntajes parciales
+    exp_func_score = round((global_func_match * 5) / 100, 2)
+    exp_profile_score = round((global_profile_match * 5) / 100, 2)
 
     # Calcular concordancia global para funciones y perfil
     if item_results:
@@ -1119,6 +1170,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             f"{func_match:.2f}%",    # Funciones del Cargo
             f"{profile_match:.2f}%"  # Perfil del Cargo
         ])
+
+    #Agregar resultados parciales
+    table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_match:.2f}%", f"{parcial_exp_profile_match:.2f}%"])
+    table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_score:.2f}", f"{parcial_exp_profile_score:.2f}"])
         
     # Crear la tabla
     item_table = Table(item_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
