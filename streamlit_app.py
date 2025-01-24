@@ -890,7 +890,7 @@ def extract_event_items_with_details(pdf_path):
                 if "lines" not in block:
                     continue
 
-                for line in block["org_lines"]:
+                for line in block["lines"]:
                     for span in line["spans"]:
                         org_text = span["text"].strip()
                         if not text:
