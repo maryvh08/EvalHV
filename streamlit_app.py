@@ -875,6 +875,47 @@ def extract_experience_items_with_details(pdf_path):
 
     return items
 
+def extract_event_items_with_details(pdf_path):
+    """
+    Extrae encabezados (en negrita) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
+    """
+    org_items = {}
+    current_item = None
+    in_event_section = False
+
+    with fitz.open(pdf_path) as doc:
+        for page in doc:
+            blocks = page.get_text("dict")["blocks"]
+            for block in blocks:
+                if "org_lines" not in block:
+                    continue
+
+                for line in block["org_lines"]:
+                    for span in line["spans"]:
+                        org_text = span["text"].strip()
+                        if not text:
+                            continue
+
+                        # Detectar inicio y fin de la sección
+                        if "eventos organizados" in org_text.lower():
+                            in_org_section = True
+                            continue
+                        elif any(key in text.lower() for key in ["firma", "experiencia laboral"]):
+                            in_org_section = False
+                            break
+
+                        if not in_org_section:
+                            continue
+
+                        # Detectar encabezados (negrita) y detalles
+                        if "bold" in span["font"].lower() and not text.startswith("-"):
+                            current_item = text
+                            items[current_item] = []
+                        elif current_item:
+                            org_items[current_item].append(text)
+
+    return org_items
+
 def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
     """
     Analiza encabezados y detalles según indicadores, funciones y perfil del cargo.
