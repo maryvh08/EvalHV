@@ -881,7 +881,7 @@ def extract_event_items_with_details(pdf_path):
     """
     org_items = {}
     current_item = None
-    in_event_section = False
+    in_org_section = False
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
