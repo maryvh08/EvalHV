@@ -6,7 +6,6 @@ from io import BytesIO
 import re
 import json
 import os
-import io
 import pytesseract
 from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageTemplate, Frame, Image, Table, TableStyle
@@ -25,7 +24,6 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from PIL import Image as PILImage
 from PIL import Image
-from PIL import Image, ImageFilter, ImageOps
 
 #Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app/
 
@@ -43,23 +41,6 @@ advice = load_advice()
 
 # Uso del código
 background_path = "Fondo Comunicado.png"
-
-def preprocess_image(img):
-    """
-    Preprocesa la imagen para mejorar la precisión de OCR.
-    :param img: Imagen PIL a procesar.
-    :return: Imagen PIL preprocesada.
-    """
-    # Convertir a escala de grises
-    img = img.convert("L")
-
-    # Aumentar el contraste
-    img = ImageOps.autocontrast(img)
-
-    # Aplicar un filtro de suavizado (opcional)
-    img = img.filter(ImageFilter.SHARPEN)
-
-    return img
 
 def extract_text_with_ocr(pdf_path):
     """
