@@ -456,8 +456,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
     
     # Agregar datos de line_results a la tabla
-    for line, func_match, profile_match in line_results:
-        table_data.append([Paragraph(line, styles['CenturyGothic']), f"{exp_func_match:.2f}%", f"{exp_profile_match:.2f}%"])
+    for line, exp_func_match, exp_profile_match in line_results:
+        elements.append([Paragraph(line, styles['CenturyGothic']), f"{exp_func_match:.2f}%", f"{exp_profile_match:.2f}%"])
 
     #Agregar resultados parciales
     table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_match:.2f}%", f"{parcial_exp_profile_match:.2f}%"])
@@ -488,10 +488,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Total de líneas analizadas
     total_lines = len(line_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
-
-    # Agregar datos de line_results a la tabla
-    for line, func_match, profile_match in line_results:
-        elements.append([Paragraph(line, styles['CenturyGothic']), f"{exp_func_match:.2f}%", f"{exp_profile_match:.2f}%"])
 
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Análisis de ítems de eventos organizados:</b>", styles['CenturyGothicBold']))
