@@ -1038,7 +1038,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         if org_func_match == 0 and org_profile_match == 0:
             continue
 
-        item_results[header] = {
+        org_item_results[header] = {
                 "Funciones del Cargo": org_func_match,
                 "Perfil del Cargo": org_profile_match,
             }
@@ -1051,10 +1051,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_exp_func_match = 0
         parcial_exp_profile_match = 0
 
-    #Calcular concordancia parcial para Experiencia ANEIAP
+    #Calcular concordancia parcial para Eventos Organizados
     if item_results:
-        parcial_org_func_match = sum(res["Funciones del Cargo"] for res in org_item_results.values()) / len(item_results)
-        parcial_org_profile_match = sum(res["Perfil del Cargo"] for res in org_item_results.values()) / len(item_results)
+        parcial_org_func_match = sum(res["Funciones del Cargo"] for res in org_item_results.values()) / len(org_item_results)
+        parcial_org_profile_match = sum(res["Perfil del Cargo"] for res in org_item_results.values()) / len(org_item_results)
     else:
         parcial_org_func_match = 0
         parcial_org_profile_match = 0
@@ -1062,8 +1062,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
     exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
-    org_func_score = round((parcial_exp_func_match * 5) / 100, 2)
-    org_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
+    org_func_score = round((parcial_org_func_match * 5) / 100, 2)
+    org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
 
     # Calcular concordancia global para funciones y perfil
     if item_results:
