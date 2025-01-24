@@ -916,64 +916,6 @@ def extract_event_items_with_details(pdf_path):
 
     return org_items
 
-def analyze_items_and_details(items, position_indicators, functions_text, profile_text):
-    """
-    Analiza encabezados y detalles según indicadores, funciones y perfil del cargo.
-    """
-    results = {}
-    for header, details in items.items():
-        # Buscar palabras clave en encabezado y detalles
-        header_contains_keywords = any(
-            keyword.lower() in header.lower() for keywords in position_indicators.values() for keyword in keywords
-        )
-        details_contains_keywords = any(
-            keyword.lower() in detail.lower() for detail in details for keywords in position_indicators.values() for keyword in keywords
-        )
-
-        # Determinar concordancia en funciones y perfil
-        if header_contains_keywords or details_contains_keywords:
-            func_match = 100
-            profile_match = 100
-        else:
-            func_match = calculate_similarity(header + " ".join(details), functions_text)
-            profile_match = calculate_similarity(header + " ".join(details), profile_text)
-
-        # Evaluar indicadores: contar detalles relacionados para cada indicador
-        indicator_matches = {
-            indicator: sum(
-                1 for detail in details if any(keyword.lower() in detail.lower() for keyword in keywords)
-            )
-            for indicator, keywords in position_indicators.items()
-        }
-
-        # Consolidar resultados
-        results[header] = {
-            "Funciones del Cargo": func_match,
-            "Perfil del Cargo": profile_match,
-            "Indicadores": indicator_matches,
-            "Detalles": details,
-        }
-
-    return results
-
-def get_critical_advice(critical_indicators, position):
-    """
-    Genera una lista de consejos basados en indicadores críticos.
-    :param critical_indicators: Diccionario con los indicadores críticos y sus porcentajes.
-    :param position: Cargo al que aspira el candidato.
-    :return: Diccionario con los indicadores críticos y sus respectivos consejos.
-    """
-    critical_advice = {}
-
-    for indicator in critical_indicators:
-        # Obtener los consejos para el indicador crítico
-        if position in advice and indicator in advice[position]:
-            critical_advice[indicator] = advice[position][indicator]
-        else:
-            critical_advice[indicator] = ["No hay consejos disponibles para este indicador."]
-
-    return critical_advice
-
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
     """
