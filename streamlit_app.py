@@ -350,11 +350,11 @@ def extract_profile_section_with_ocr(pdf_path):
     """
     Extrae la sección 'Perfil' de un archivo PDF con soporte de OCR.
     :param pdf_path: Ruta del archivo PDF.
-    :return: Texto de la sección 'EVENTOS ORGANIZADOS'.
+    :return: Texto de la sección 'Perfil'.
     """
-    text = extract_text_with_ocr(pdf_path)
+    text = extract_text_with_ocr(pdf_path)  # Extraer texto completo del PDF utilizando OCR
 
-    # Palabras clave para identificar inicio y fin de la sección
+    # Palabras clave para identificar el inicio y fin de la sección
     start_keyword = "Perfil"
     end_keywords = [
         "Asistencia a eventos",
@@ -364,7 +364,7 @@ def extract_profile_section_with_ocr(pdf_path):
     # Encontrar índice de inicio
     start_idx = text.lower().find(start_keyword.lower())
     if start_idx == -1:
-        return None  # No se encontró la sección
+        return None  # No se encontró la sección "Perfil"
 
     # Encontrar índice más cercano de fin basado en palabras clave
     end_idx = len(text)  # Por defecto, tomar hasta el final
@@ -374,19 +374,13 @@ def extract_profile_section_with_ocr(pdf_path):
             end_idx = min(end_idx, idx)
 
     # Extraer la sección entre inicio y fin
-    prof_text = text[start_idx:end_idx].strip()
+    profile_text = text[start_idx:end_idx].strip()
 
-    prof_cleaned_text = []
-    text = re.sub(r"[^\w\s]", "", text)  # Eliminar caracteres no alfanuméricos excepto espacios
-    normalized_prof_text = re.sub(r"\s+", " ", text).lower()  # Normalizar espacios y convertir a minúsculas
-    if (
-        normalized_prof_text
-        and normalized_prof_text != start_keyword.lower()
-        and normalized_prof_text not in [kw.lower() for kw in end_keywords]
-    ):
-        prof_cleaned_text.append(text)
+    # Limpieza adicional del texto
+    cleaned_profile_text = re.sub(r"[^\w\s.,;:]", "", profile_text)  # Eliminar caracteres no deseados
+    cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normalizar espacios
 
-    return "\n".join(prof_cleaned_text)
+    return cleaned_profile_text
     
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
