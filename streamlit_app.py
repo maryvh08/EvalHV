@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from PIL import Image as PILImage
 from PIL import Image
+from PIL import Image, ImageFilter, ImageOps
 
 #Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app/
 
