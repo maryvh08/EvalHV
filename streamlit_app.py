@@ -542,15 +542,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Calcular concordancia de funciones y perfil del cargo
     profile_func_match = calculate_similarity(profile_text, functions_text)
     profile_profile_match = calculate_similarity(profile_text, profile_text)
-
-    # Retornar los resultados en un diccionario
-    return {
-        "profile_text": profile_text,
-        "profile_func_match": profile_func_match,
-        "profile_profile_match": profile_profile_match,
-        "profile_func_score": round((profile_func_match * 5) / 100, 2),
-        "profile_profile_score": round((profile_profile_match * 5) / 100, 2),
-    }
     
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
@@ -583,6 +574,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     parcial_org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
     parcial_att_func_score = round((parcial_att_func_match * 5) / 100, 2)
     parcial_att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
+    profile_func_score= round((profile_func_match * 5) / 100, 2)
+    profile_profile_score= round((profile_profile_match * 5) / 100, 2)
 
     #Calcular resultados globales
     global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match+ profile_func_match) / 4
