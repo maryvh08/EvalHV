@@ -385,7 +385,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         # Dividir los eventos en líneas
         org_lines = extract_cleaned_lines(org_text)
         org_lines= org_text.split("\n")
-        org_lines = [line.strip() for line in org_lines if line.strip
+        org_lines = [line.strip() for line in org_lines if line.strip]
 
         # Evaluación general de concordancia
         if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
