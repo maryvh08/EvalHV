@@ -730,7 +730,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
     
     # Consejos para mejorar indicadores con baja presencia
-    low_performance_indicators = {k: v for k, v in indicator_results.items() if (v["relevant_lines"] / total_lines) * 100 < 50.0}
+    low_performance_indicators = {k: v for k, v in indicator_results.items() if (relevant_lines/ total_lines) * 100 < 50.0}
     if low_performance_indicators:
         elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
         for indicator, result in low_performance_indicators.items():
