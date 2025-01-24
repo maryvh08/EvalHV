@@ -344,7 +344,7 @@ def extract_attendance_section_with_ocr(pdf_path):
     for line in att_cleaned_lines:
         print(f"- {line}")
     
-    return "\n".join(att_cleaned_lines
+    return "\n".join(att_cleaned_lines)
 
 def analyze_profile_section(pdf_path, position, functions_text, profile_text):
     """
