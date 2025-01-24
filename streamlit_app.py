@@ -1052,8 +1052,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_exp_profile_match = 0
 
     # Calculo puntajes parciales
-    exp_func_score = round((global_func_match * 5) / 100, 2)
-    exp_profile_score = round((global_profile_match * 5) / 100, 2)
+    exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
+    exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
 
     # Calcular concordancia global para funciones y perfil
     if item_results:
