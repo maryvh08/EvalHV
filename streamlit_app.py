@@ -875,15 +875,13 @@ def extract_experience_items_with_details(pdf_path):
 
     return items
 
-def extract_event_items_with_details(pdf_path):
+def extract_eventos_organizados_items_with_details(pdf_path):
     """
     Extrae encabezados (en negrita) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
-    :param pdf_path: Ruta del PDF.
-    :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
-    org_items = {}
-    org_current_item = None
-    in_org_section = False
+    items = {}
+    current_item = None
+    in_eventos_section = False
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -894,30 +892,29 @@ def extract_event_items_with_details(pdf_path):
 
                 for line in block["lines"]:
                     for span in line["spans"]:
-                        org_text = span["text"].strip()
-                        if not org_text:
+                        text = span["text"].strip()
+                        if not text:
                             continue
 
                         # Detectar inicio y fin de la sección
-                        if "eventos organizados" in org_text.lower():
-                            in_org_section = True
+                        if "eventos organizados" in text.lower():
+                            in_eventos_section = True
                             continue
-                        elif any(key in org_text.lower() for key in ["firma", "experiencia laboral"]):
-                            in_org_section = False
+                        elif any(key in text.lower() for key in ["firma", "experiencia laboral"]):
+                            in_eventos_section = False
                             break
 
-                        if not in_org_section:
+                        if not in_eventos_section:
                             continue
 
                         # Detectar encabezados (negrita) y detalles
-                        if "bold" in span.get("font", "").lower() and not org_text.startswith("-"):
-                            org_current_item = org_text
-                            org_items[org_current_item] = []
-                        elif org_current_item:
-                            org_items[org_current_item].append(org_text)
+                        if "bold" in span["font"].lower() and not text.startswith("-"):
+                            current_item = text
+                            items[current_item] = []
+                        elif current_item:
+                            items[current_item].append(text)
 
-    return org_items
-
+    return items
 
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
