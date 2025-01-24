@@ -981,6 +981,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         st.error("No se encontraron encabezados y detalles de eventos para analizar.")
         return
 
+    # Extraer texto de la sección EVENTOS ORGANIZADOS
+    att_items = extract_asistencia_items_with_details(pdf_path)
+    if not att_items:
+        st.error("No se encontraron encabezados y detalles de asistencias para analizar.")
+        return
+
     # Cargar funciones y perfil del cargo
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
