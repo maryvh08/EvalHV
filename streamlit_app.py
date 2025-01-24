@@ -1144,7 +1144,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     total_items = len(item_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
 
-        elements.append(Spacer(1, 0.2 * inch))
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Encabezados de la tabla
     org_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]  # Encabezados
