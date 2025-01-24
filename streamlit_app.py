@@ -612,7 +612,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             mime="application/pdf"
         )
 
-
 # FUNCIONES PARA SECUNDARY
 def extract_experience_items_with_details(pdf_path):
     """
