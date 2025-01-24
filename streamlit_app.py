@@ -348,29 +348,35 @@ def extract_attendance_section_with_ocr(pdf_path):
 
 def extract_profile_section_with_ocr(pdf_path):
     """
-    Extrae la sección delimitada entre start_keyword y end_keywords.
+    Extrae la sección 'Perfil' de un archivo PDF con soporte de OCR.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto de la sección 'EVENTOS ORGANIZADOS'.
     """
+    text = extract_text_with_ocr(pdf_path)
+
+    # Palabras clave para identificar inicio y fin de la sección
+    start_keyword = "Perfil"
+    end_keywords = [
+        "Asistencia a eventos",
+        "Actualización profesional",
+    ]
+
+    # Encontrar índice de inicio
     start_idx = text.lower().find(start_keyword.lower())
     if start_idx == -1:
         return None  # No se encontró la sección
 
-    end_idx = len(text)
+    # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
     for keyword in end_keywords:
         idx = text.lower().find(keyword.lower(), start_idx)
         if idx != -1:
             end_idx = min(end_idx, idx)
 
-    return text[start_idx:end_idx].strip()
+    # Extraer la sección entre inicio y fin
+    org_text = text[start_idx:end_idx].strip()
 
-    # Extraer texto completo del PDF
-    full_text = extract_text_with_ocr(pdf_path)
-    
-    # Delimitar la sección de 'Perfil'
-    profile_text_extracted = extract_section(
-        full_text, 
-        "Perfil", 
-        ["Estudios realizados", "Asistencia a eventos ANEIAP"]
-    )
+    return "\n".join(prof_cleaned_lines)
 
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
