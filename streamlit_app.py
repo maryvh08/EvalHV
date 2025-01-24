@@ -1039,8 +1039,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             continue
 
         item_results[header] = {
-                "Funciones del Cargo": func_match,
-                "Perfil del Cargo": profile_match,
+                "Funciones del Cargo": org_func_match,
+                "Perfil del Cargo": org_profile_match,
             }
 
     #Calcular concordancia parcial para Experiencia ANEIAP
