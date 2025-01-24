@@ -539,7 +539,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         if att_func_match > 0 or att_profile_match > 0:
             att_line_results.append((line, att_func_match, att_profile_match))
 
-    # Calcular concordancia de funciones y perfil del cargo
+    # Calcular concordancia de funciones y perfil del cargo con perfil de aspirante
     profile_func_match = calculate_similarity(profile_text, functions_text)
     profile_profile_match = calculate_similarity(profile_text, profile_text)
     
