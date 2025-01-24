@@ -293,9 +293,10 @@ def extract_attendance_section_with_ocr(pdf_path):
     # Palabras clave para identificar inicio y fin de la sección
     start_keyword = "ASISTENCIA A EVENTOS ANEIAP"
     end_keywords = [
-        "Actualización Profesional",
-        "EXPERIENCIA ANEIAP",
+        "ACTUALIZACIÓN PROFESIONAL",
+        "EXPERIENCIA EN ANEIAP",
         "EVENTOS ORGANIZADOS",
+        "RECONOCIMIENTOS",
     ]
 
     # Encontrar índice de inicio
