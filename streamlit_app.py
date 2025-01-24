@@ -887,7 +887,7 @@ def extract_event_items_with_details(pdf_path):
         for page in doc:
             blocks = page.get_text("dict")["blocks"]
             for block in blocks:
-                if "org_lines" not in block:
+                if "lines" not in block:
                     continue
 
                 for line in block["org_lines"]:
