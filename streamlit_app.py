@@ -1160,7 +1160,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     org_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]  # Encabezados
     
     # Iterar sobre los resultados por ítem y construir las filas de la tabla
-    for header, result in item_results.items():
+    for header, result in org_item_results.items():
         org_func_match = result.get("Funciones del Cargo", 0)
         org_profile_match = result.get("Perfil del Cargo", 0)
         
