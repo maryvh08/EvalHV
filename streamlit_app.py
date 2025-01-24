@@ -878,6 +878,8 @@ def extract_experience_items_with_details(pdf_path):
 def extract_event_items_with_details(pdf_path):
     """
     Extrae encabezados (en negrita) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
+    :param pdf_path: Ruta del PDF.
+    :return: Diccionario donde las claves son los encabezados y los valores son listas de detalles.
     """
     org_items = {}
     org_current_item = None
@@ -897,7 +899,7 @@ def extract_event_items_with_details(pdf_path):
                             continue
 
                         # Detectar inicio y fin de la sección
-                        if "EXPERIENCIA EN ANEIAP" in org_text.lower():
+                        if "eventos organizados" in org_text.lower():
                             in_org_section = True
                             continue
                         elif any(key in org_text.lower() for key in ["firma", "experiencia laboral"]):
@@ -908,13 +910,14 @@ def extract_event_items_with_details(pdf_path):
                             continue
 
                         # Detectar encabezados (negrita) y detalles
-                        if "bold" in span["font"].lower() and not org_text.startswith("-"):
+                        if "bold" in span.get("font", "").lower() and not org_text.startswith("-"):
                             org_current_item = org_text
-                            org_items[current_item] = []
+                            org_items[org_current_item] = []
                         elif org_current_item:
-                            org_items[current_item].append(org_text)
+                            org_items[org_current_item].append(org_text)
 
     return org_items
+
 
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
