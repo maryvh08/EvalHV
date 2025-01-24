@@ -1168,7 +1168,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         header_paragraph = Paragraph(header, styles['CenturyGothic'])
     
         # Agregar una fila a la tabla
-        item_table_data.append([
+        org_table_data.append([
             header_paragraph,         # Ítem
             f"{org_func_match:.2f}%",    # Funciones del Cargo
             f"{org_profile_match:.2f}%"  # Perfil del Cargo
