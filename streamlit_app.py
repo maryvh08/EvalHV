@@ -61,23 +61,6 @@ def extract_text_with_ocr(pdf_path):
                 page_text = pytesseract.image_to_string(img, config="--psm 6")  # Configuración personalizada
             text += page_text
     return text
-
-def preprocess_image(img):
-    """
-    Preprocesa la imagen para mejorar la precisión de OCR.
-    :param img: Imagen PIL a procesar.
-    :return: Imagen PIL preprocesada.
-    """
-    # Convertir a escala de grises
-    img = img.convert("L")
-
-    # Aumentar el contraste
-    img = ImageOps.autocontrast(img)
-
-    # Aplicar un filtro de suavizado (opcional)
-    img = img.filter(ImageFilter.SHARPEN)
-
-    return img
     
 def extract_cleaned_lines(text):
     """
