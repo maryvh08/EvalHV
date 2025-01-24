@@ -1100,8 +1100,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
     # Iterar sobre los resultados por ítem y construir las filas de la tabla
     for header, result in item_results.items():
-        func_match = result.get("Funciones del Cargo", 0)
-        profile_match = result.get("Perfil del Cargo", 0)
+        exp_func_match = result.get("Funciones del Cargo", 0)
+        exp_profile_match = result.get("Perfil del Cargo", 0)
         
         # Ajustar texto del encabezado para que no desborde
         header_paragraph = Paragraph(header, styles['CenturyGothic'])
@@ -1109,8 +1109,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         # Agregar una fila a la tabla
         item_table_data.append([
             header_paragraph,         # Ítem
-            f"{func_match:.2f}%",    # Funciones del Cargo
-            f"{profile_match:.2f}%"  # Perfil del Cargo
+            f"{exp_func_match:.2f}%",    # Funciones del Cargo
+            f"{exp_profile_match:.2f}%"  # Perfil del Cargo
         ])
 
     #Agregar resultados parciales
@@ -1144,8 +1144,59 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     total_items = len(item_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_items}", styles['CenturyGothicBold']))
 
-    elements.append(Spacer(1, 0.2 * inch))
+        elements.append(Spacer(1, 0.2 * inch))
 
+    # Encabezados de la tabla
+    org_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]  # Encabezados
+    
+    # Iterar sobre los resultados por ítem y construir las filas de la tabla
+    for header, result in item_results.items():
+        org_func_match = result.get("Funciones del Cargo", 0)
+        org_profile_match = result.get("Perfil del Cargo", 0)
+        
+        # Ajustar texto del encabezado para que no desborde
+        header_paragraph = Paragraph(header, styles['CenturyGothic'])
+    
+        # Agregar una fila a la tabla
+        item_table_data.append([
+            header_paragraph,         # Ítem
+            f"{org_func_match:.2f}%",    # Funciones del Cargo
+            f"{org_profile_match:.2f}%"  # Perfil del Cargo
+        ])
+
+    #Agregar resultados parciales
+    org_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_org_func_match:.2f}%", f"{parcial_org_profile_match:.2f}%"])
+    org_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{org_func_score:.2f}", f"{org_profile_score:.2f}"])
+        
+    # Crear la tabla
+    org_table = Table(org_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Aplicar estilos a la tabla
+    org_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo de encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),                 # Color de texto de encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),                        # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),           # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),              # Fuente para celdas
+        ('FONTSIZE', (0, 0), (-1, -1), 10),                           # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),                        # Padding inferior de encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),                 # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),                       # Alinear texto verticalmente
+        ('WORDWRAP', (0, 0), (-1, -1))                                # Ajustar texto dentro de celdas
+    ]))
+    
+    # Agregar la tabla al reporte
+    elements.append(Paragraph("<b>Análisis de eventos organizados:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(org_table)
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Total de líneas analizadas
+    org_total_items = len(org_item_results)
+    elements.append(Paragraph(f"• Total de líneas analizadas: {org_total_items}", styles['CenturyGothicBold']))
+
+    elements.append(Spacer(1, 0.2 * inch))
+    
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
