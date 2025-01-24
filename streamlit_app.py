@@ -126,6 +126,31 @@ def calculate_similarity(text1, text2):
     similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
     return similarity * 100
 
+def calculate_presence(texts, keywords):
+    """
+    Calcula el porcentaje de palabras clave presentes en los textos.
+    :param texts: Lista de textos (e.g., detalles).
+    :param keywords: Lista de palabras clave a buscar.
+    :return: Porcentaje de coincidencia.
+    """
+    total_keywords = len(keywords)
+    if total_keywords == 0:  # Evitar división por cero
+        return 0
+
+    matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
+    return (matches / total_keywords) * 100
+
+# Definir función para añadir fondo
+def add_background(canvas, background_path):
+    """
+    Dibuja una imagen de fondo en cada página del PDF.
+    :param canvas: Lienzo de ReportLab.
+    :param background_path: Ruta a la imagen de fondo.
+    """
+    canvas.saveState()
+    canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
+    canvas.restoreState()
+
 def extract_profile_section_with_ocr(pdf_path):
     """
     Extrae la sección 'Perfil' de un archivo PDF con soporte de OCR.
@@ -161,32 +186,6 @@ def extract_profile_section_with_ocr(pdf_path):
     cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normalizar espacios
 
     return cleaned_profile_text
-
-def calculate_presence(texts, keywords):
-    """
-    Calcula el porcentaje de palabras clave presentes en los textos.
-    :param texts: Lista de textos (e.g., detalles).
-    :param keywords: Lista de palabras clave a buscar.
-    :return: Porcentaje de coincidencia.
-    """
-    total_keywords = len(keywords)
-    if total_keywords == 0:  # Evitar división por cero
-        return 0
-
-    matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
-    return (matches / total_keywords) * 100
-
-# Definir función para añadir fondo
-def add_background(canvas, background_path):
-    """
-    Dibuja una imagen de fondo en cada página del PDF.
-    :param canvas: Lienzo de ReportLab.
-    :param background_path: Ruta a la imagen de fondo.
-    """
-    canvas.saveState()
-    canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
-    canvas.restoreState()
-
 
 # FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
