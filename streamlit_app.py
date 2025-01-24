@@ -377,8 +377,7 @@ def extract_profile_section_with_ocr(pdf_path):
     prof_text = text[start_idx:end_idx].strip()
 
     prof_cleaned_text = []
-    line = line.strip()
-    line = re.sub(r"[^\w\s]", "", text)  # Eliminar caracteres no alfanuméricos excepto espacios
+    text = re.sub(r"[^\w\s]", "", text)  # Eliminar caracteres no alfanuméricos excepto espacios
     normalized_att_line = re.sub(r"\s+", " ", text).lower()  # Normalizar espacios y convertir a minúsculas
     if (
         normalized_att_line
