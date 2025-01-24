@@ -456,7 +456,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
     
     # Agregar datos de line_results a la tabla
-    for line, func_match, profile_match in line_results:
+    for line, exp_func_match, exp_profile_match in line_results:
         table_data.append([Paragraph(line, styles['CenturyGothic']), f"{exp_func_match:.2f}%", f"{exp_profile_match:.2f}%"])
 
     #Agregar resultados parciales
