@@ -374,10 +374,21 @@ def extract_profile_section_with_ocr(pdf_path):
             end_idx = min(end_idx, idx)
 
     # Extraer la sección entre inicio y fin
-    org_text = text[start_idx:end_idx].strip()
+    prof_text = text[start_idx:end_idx].strip()
 
-    return "\n".join(prof_cleaned_lines)
+    prof_cleaned_text = []
+    line = line.strip()
+    line = re.sub(r"[^\w\s]", "", text)  # Eliminar caracteres no alfanuméricos excepto espacios
+    normalized_att_line = re.sub(r"\s+", " ", text).lower()  # Normalizar espacios y convertir a minúsculas
+    if (
+        normalized_att_line
+        and normalized_att_line not in att_exclude_lines
+        and normalized_att_line != start_keyword.lower()
+        and normalized_att_line not in [kw.lower() for kw in end_keywords]
+    ):
+        att_cleaned_lines.append(line)
 
+    return "\n".join(att_cleaned_text)
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
     Genera un reporte con un fondo en cada página.
