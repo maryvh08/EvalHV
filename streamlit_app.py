@@ -908,11 +908,11 @@ def extract_event_items_with_details(pdf_path):
                             continue
 
                         # Detectar encabezados (negrita) y detalles
-                        if "bold" in span["font"].lower() and not text.startswith("-"):
-                            current_item = text
+                        if "bold" in span["font"].lower() and not org_text.startswith("-"):
+                            current_item = org_text
                             org_items[current_item] = []
                         elif current_item:
-                            org_items[current_item].append(text)
+                            org_items[current_item].append(org_text)
 
     return org_items
 
