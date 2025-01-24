@@ -540,12 +540,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             att_line_results.append((line, att_func_match, att_profile_match))
 
     # Calcular concordancia de funciones y perfil del cargo
-    profile_func_match = calculate_similarity(profile_text_extracted, functions_text)
-    profile_profile_match = calculate_similarity(profile_text_extracted, profile_text)
+    profile_func_match = calculate_similarity(profile_text, functions_text)
+    profile_profile_match = calculate_similarity(profile_text, profile_text)
 
     # Retornar los resultados en un diccionario
     return {
-        "profile_text": profile_text_extracted,
+        "profile_text": profile_text,
         "profile_func_match": profile_func_match,
         "profile_profile_match": profile_profile_match,
         "profile_func_score": round((profile_func_match * 5) / 100, 2),
