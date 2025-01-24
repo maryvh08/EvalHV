@@ -261,7 +261,7 @@ def extract_event_section_with_ocr(pdf_path):
     ]
     org_lines = org_text.split("\n")
     org_cleaned_lines = []
-    for line in events_lines:
+    for line in org_lines:
         line = line.strip()
         line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
         normalized_org_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
