@@ -1054,7 +1054,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     #Calcular concordancia parcial para Experiencia ANEIAP
     if item_results:
         parcial_org_func_match = sum(res["Funciones del Cargo"] for res in org_item_results.values()) / len(item_results)
-        parcial_otg_profile_match = sum(res["Perfil del Cargo"] for res in org_item_results.values()) / len(item_results)
+        parcial_org_profile_match = sum(res["Perfil del Cargo"] for res in org_item_results.values()) / len(item_results)
     else:
         parcial_org_func_match = 0
         parcial_org_profile_match = 0
