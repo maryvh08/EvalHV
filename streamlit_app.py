@@ -344,7 +344,44 @@ def extract_attendance_section_with_ocr(pdf_path):
     for line in att_cleaned_lines:
         print(f"- {line}")
     
-    return "\n".join(att_cleaned_lines)
+    return "\n".join(att_cleaned_lines
+
+def analyze_profile_section(pdf_path, position, functions_text, profile_text):
+    """
+    Analiza la sección de 'Perfil' dentro de la hoja de vida y calcula la concordancia con
+    funciones y perfil del cargo.
+
+    :param pdf_path: Ruta del PDF.
+    :param position: Cargo al que aspira.
+    :param functions_text: Texto de las funciones del cargo.
+    :param profile_text: Texto del perfil del cargo.
+    :return: Diccionario con la concordancia de funciones y perfil del cargo para la sección de 'Perfil'.
+    """
+    def extract_section(text, start_keyword, end_keywords):
+        """
+        Extrae la sección delimitada entre start_keyword y end_keywords.
+        """
+        start_idx = text.lower().find(start_keyword.lower())
+        if start_idx == -1:
+            return None  # No se encontró la sección
+
+        end_idx = len(text)
+        for keyword in end_keywords:
+            idx = text.lower().find(keyword.lower(), start_idx)
+            if idx != -1:
+                end_idx = min(end_idx, idx)
+
+        return text[start_idx:end_idx].strip()
+
+    # Extraer texto completo del PDF
+    full_text = extract_text_with_ocr(pdf_path)
+
+    # Delimitar la sección de 'Perfil'
+    profile_text_extracted = extract_section(
+        full_text, 
+        "Perfil", 
+        ["Estudios realizados", "Asistencia a eventos ANEIAP"]
+    )
 
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
@@ -368,6 +405,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if not att_text:
         st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
         return
+
+    if not profile_text_extracted:
+        st.warning("No se encontró la sección 'Perfil' en el PDF.")
+        return None
 
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
@@ -497,6 +538,19 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if att_func_match > 0 or att_profile_match > 0:
             att_line_results.append((line, att_func_match, att_profile_match))
+
+    # Calcular concordancia de funciones y perfil del cargo
+    profile_func_match = calculate_similarity(profile_text_extracted, functions_text)
+    profile_profile_match = calculate_similarity(profile_text_extracted, profile_text)
+
+    # Retornar los resultados en un diccionario
+    return {
+        "profile_text": profile_text_extracted,
+        "profile_func_match": profile_func_match,
+        "profile_profile_match": profile_profile_match,
+        "profile_func_score": round((profile_func_match * 5) / 100, 2),
+        "profile_profile_score": round((profile_profile_match * 5) / 100, 2),
+    }
     
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
@@ -531,8 +585,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     parcial_att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
 
     #Calcular resultados globales
-    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match) / 3
-    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match) / 3
+    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match+ profile_func_match) / 4
+    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match + profile_profile_match) / 4
     global_func_score = round((global_func_match * 5) / 100, 2)
     global_profile_score = round((global_profile_match * 5) / 100, 2)
     
@@ -563,7 +617,40 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
-     # Concordancia de items organizada en tabla con ajuste de texto
+    # Concordancia de items organizada en tabla con ajuste de texto
+    elements.append(Paragraph("<b>Análisis de perfil:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Encabezados de la tabla
+    prof_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+    
+    #Agregar resultados parciales
+    prof_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{profile_func_match:.2f}%", f"{profile_profile_match:.2f}%"])
+    prof_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{profile_func_score:.2f}", f"{profile_profile_score:.2f}"])   
+
+    # Crear la tabla con ancho de columnas ajustado
+    prof_item_table = Table(prof_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    prof_item_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
+        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
+        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(prof_item_table)
+
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
     
