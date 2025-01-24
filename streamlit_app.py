@@ -893,11 +893,11 @@ def extract_event_items_with_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         org_text = span["text"].strip()
-                        if not text:
+                        if not org_text:
                             continue
 
                         # Detectar inicio y fin de la sección
-                        if "eventos organizados" in text.lower():
+                        if "eventos organizados" in org_text.lower():
                             in_org_section = True
                             continue
                         elif any(key in text.lower() for key in ["firma", "experiencia laboral"]):
