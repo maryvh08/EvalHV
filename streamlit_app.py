@@ -328,8 +328,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     line_results = []
     org_line_results = []
 
-
-    # Evaluación de renglones experiencia
+    # Evaluación de renglones
     for line in lines:
         line = line.strip()
         if not line:  # Ignorar líneas vacías
@@ -376,7 +375,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         for indicator in indicator_results:
             indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
 
-    # Evaluación de renglones experiencia
+    # Evaluación de renglones eventos organizados
     for line in org_lines:
         line = line.strip()
         if not line:  # Ignorar líneas vacías
