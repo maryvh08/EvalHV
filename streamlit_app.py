@@ -295,7 +295,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
-    org_text = extract_events_section_with_ocr(pdf_path)
+    org_text = extract_event_section_with_ocr(pdf_path)
     if not org_text:
         st.error("No se encontró la sección 'EVENTOS ORGANIZADOS' en el PDF.")
         return
