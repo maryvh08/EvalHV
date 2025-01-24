@@ -170,6 +170,7 @@ def add_background(canvas, background_path):
     canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
     canvas.restoreState()
 
+# FUNCIONES PARA PRIMARY
 def extract_profile_section_with_ocr(pdf_path):
     """
     Extrae la sección 'Perfil' de un archivo PDF con soporte de OCR.
@@ -206,7 +207,6 @@ def extract_profile_section_with_ocr(pdf_path):
 
     return cleaned_profile_text
 
-# FUNCIONES PARA PRIMARY
 def extract_experience_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF con soporte de OCR.
