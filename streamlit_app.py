@@ -695,7 +695,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
 
     # Encabezados de la tabla
-    table_indicator = [["Indicador", "Concordancia (%)","Lineas Relacionadas"]]
+    table_indicator = [["Indicador", "Concordancia (%)"]]
     
     # Agregar datos de line_results a la tabla
     for indicator, data in indicator_results.items():
