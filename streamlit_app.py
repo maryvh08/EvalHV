@@ -875,7 +875,7 @@ def extract_experience_items_with_details(pdf_path):
 
     return items
 
-def extract_eventos_organizados_items_with_details(pdf_path):
+def extract_event_items_with_details(pdf_path):
     """
     Extrae encabezados (en negrita) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
     """
