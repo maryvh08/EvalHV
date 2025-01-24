@@ -220,6 +220,68 @@ def extract_experience_section_with_ocr(pdf_path):
     
     return "\n".join(cleaned_lines)
 
+def extract_event_section_with_ocr(pdf_path):
+    """
+    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con soporte de OCR.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto de la sección 'EXPERIENCIA EN ANEIAP'.
+    """
+    text = extract_text_with_ocr(pdf_path)
+
+    # Palabras clave para identificar inicio y fin de la sección
+    start_keyword = "EVENTOS ORGANIZADOS"
+    end_keywords = [
+        "EXPERIENCIA LABORAL",
+        "FIRMA",
+    ]
+
+    # Encontrar índice de inicio
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None  # No se encontró la sección
+
+    # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
+
+    # Extraer la sección entre inicio y fin
+    org_text = text[start_idx:end_idx].strip()
+
+    # Filtrar y limpiar texto
+    org_exclude_lines = [
+        "a nivel capitular",
+        "a nivel nacional",
+        "a nivel seccional",
+        "capitular",
+        "seccional",
+        "nacional",
+    ]
+    org_lines = events_text.split("\n")
+    org_cleaned_lines = []
+    for line in events_lines:
+        line = line.strip()
+        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
+        normalized_org_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
+        if (
+            normalized_org_line
+            and normalized_org_line not in org_exclude_lines
+            and normalized_org_line != start_keyword.lower()
+            and normalized_org_line not in [kw.lower() for kw in end_keywords]
+        ):
+            org_cleaned_lines.append(line)
+
+    return "\n".join(org_cleaned_lines)
+    
+    # Debugging: Imprime líneas procesadas
+    print("Líneas procesadas:")
+    for line in org_cleaned_lines:
+        print(f"- {line}")
+    
+    return "\n".join(org_cleaned_lines)
+
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
     Genera un reporte con un fondo en cada página.
@@ -233,10 +295,20 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
         return
 
+    org_text = extract_events_section_with_ocr(pdf_path)
+    if not org_text:
+        st.error("No se encontró la sección 'EVENTOS ORGANIZADOS' en el PDF.")
+        return
+
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
     lines= experience_text.split("\n")
     lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+
+    # Dividir los eventos en líneas
+    org_lines = extract_cleaned_lines(org_text)
+    org_lines= org_text.split("\n")
+    org_lines = [line.strip() for line in org_lines if line.strip()]  # Eliminar líneas vacías
 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
@@ -254,8 +326,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         return
 
     line_results = []
+    org_line_results = []
 
-    # Evaluación de renglones
+
+    # Evaluación de renglones experiencia
     for line in lines:
         line = line.strip()
         if not line:  # Ignorar líneas vacías
@@ -301,7 +375,31 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if total_presence > 0:
         for indicator in indicator_results:
             indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
-            
+
+    # Evaluación de renglones experiencia
+    for line in org_lines:
+        line = line.strip()
+        if not line:  # Ignorar líneas vacías
+            continue
+
+        # Dividir los eventos en líneas
+        org_lines = extract_cleaned_lines(org_text)
+        org_lines= org_text.split("\n")
+        org_lines = [line.strip() for line in org_lines if line.strip
+
+        # Evaluación general de concordancia
+        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+            org_func_match = 100.0
+            org_profile_match = 100.0
+        else:
+            # Calcular similitud
+            org_func_match = calculate_similarity(line, functions_text)
+            org_profile_match = calculate_similarity(line, profile_text)
+        
+        # Solo agregar al reporte si no tiene 0% en ambas métricas
+        if org_func_match > 0 or org_profile_match > 0:
+            org_line_results.append((line, org_func_match, org_profile_match))
+    
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
         parcial_exp_func_match = sum([res[1] for res in line_results]) / len(line_results)
@@ -309,11 +407,20 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     else:
         parcial_exp_func_match = 0
         parcial_exp_profile_match = 0
+  
+    # Calcular porcentajes parciales respecto a los Eventos ANEIAP
+    if org_line_results:  # Evitar división por cero si no hay ítems válidos
+        parcial_org_func_match = sum([res[1] for res in org_line_results]) / len(org_line_results)
+        parcial_org_profile_match = sum([res[2] for res in org_line_results]) / len(org_line_results)
+    else:
+        parcial_org_func_match = 0
+        parcial_org_profile_match = 0
 
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
     parcial_exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
-
+    parcial_org_func_score = round((parcial_org_func_match * 5) / 100, 2)
+    parcial_org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
     
     # Registrar la fuente personalizada
     pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
@@ -343,7 +450,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla con ajuste de texto
-    elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
+    elements.append(Paragraph("<b>Análisis de ítems de experiencia:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
     
     # Encabezados de la tabla
@@ -382,6 +489,43 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Total de líneas analizadas
     total_lines = len(line_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
+
+    # Concordancia de items organizada en tabla con ajuste de texto
+    elements.append(Paragraph("<b>Análisis de ítems de eventos organizados:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Encabezados de la tabla
+    org_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+    
+    # Agregar datos de line_results a la tabla
+    for line, func_match, profile_match in line_results:
+        org_table_data.append([Paragraph(line, styles['CenturyGothic']), f"{org_func_match:.2f}%", f"{org_profile_match:.2f}%"])
+
+    #Agregar resultados parciales
+    org_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_org_func_match:.2f}%", f"{parcial_org_profile_match:.2f}%"])
+    org_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_org_func_score:.2f}", f"{parcial_org_profile_score:.2f}"])   
+
+    # Crear la tabla con ancho de columnas ajustado
+    org_item_table = Table(org_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    org_item_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
+        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
+        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(org_item_table)
+    
+    elements.append(Spacer(1, 0.2 * inch))
     
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
