@@ -897,7 +897,7 @@ def extract_event_items_with_details(pdf_path):
                             continue
 
                         # Detectar inicio y fin de la sección
-                        if "eventos organizados" in org_text.lower():
+                        if "eventos organizados" in text.lower():
                             in_org_section = True
                             continue
                         elif any(key in text.lower() for key in ["firma", "experiencia laboral"]):
@@ -910,7 +910,7 @@ def extract_event_items_with_details(pdf_path):
                         # Detectar encabezados (negrita) y detalles
                         if "bold" in span["font"].lower() and not text.startswith("-"):
                             current_item = text
-                            items[current_item] = []
+                            org_items[current_item] = []
                         elif current_item:
                             org_items[current_item].append(text)
 
