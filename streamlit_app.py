@@ -291,7 +291,7 @@ def extract_attendance_section_with_ocr(pdf_path):
     text = extract_text_with_ocr(pdf_path)
 
     # Palabras clave para identificar inicio y fin de la sección
-    start_keyword = "Asistencia a Eventos ANEIAP"
+    start_keyword = "ASISTENCIA A EVENTOS ANEIAP"
     end_keywords = [
         "Actualización Profesional",
         "EXPERIENCIA ANEIAP",
