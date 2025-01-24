@@ -60,7 +60,7 @@ def extract_text_with_ocr(pdf_path):
                 page_text = pytesseract.image_to_string(img, config="--psm 6")  # Configuración personalizada
             text += page_text
     return text
-
+    
 def extract_cleaned_lines(text):
     """
     Limpia y filtra las líneas de un texto.
