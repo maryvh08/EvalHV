@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from io import BytesIO
+import io
 import re
 import json
 import os
@@ -23,7 +24,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from PIL import Image as PILImage
-from PIL import Image
+from PIL import Image, ImageFilter, ImageOps
 
 #Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app/
 
@@ -60,7 +61,7 @@ def extract_text_with_ocr(pdf_path):
                 page_text = pytesseract.image_to_string(img, config="--psm 6")  # Configuración personalizada
             text += page_text
     return text
-
+    
 def extract_cleaned_lines(text):
     """
     Limpia y filtra las líneas de un texto.
@@ -151,8 +152,43 @@ def add_background(canvas, background_path):
     canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
     canvas.restoreState()
 
-
 # FUNCIONES PARA PRIMARY
+def extract_profile_section_with_ocr(pdf_path):
+    """
+    Extrae la sección 'Perfil' de un archivo PDF con soporte de OCR.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto de la sección 'Perfil'.
+    """
+    text = extract_text_with_ocr(pdf_path)  # Extraer texto completo del PDF utilizando OCR
+
+    # Palabras clave para identificar el inicio y fin de la sección
+    start_keyword = "Perfil"
+    end_keywords = [
+        "Asistencia a eventos",
+        "Actualización profesional",
+    ]
+
+    # Encontrar índice de inicio
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None  # No se encontró la sección "Perfil"
+
+    # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
+
+    # Extraer la sección entre inicio y fin
+    profile_text = text[start_idx:end_idx].strip()
+
+    # Limpieza adicional del texto
+    cleaned_profile_text = re.sub(r"[^\w\s.,;:]", "", profile_text)  # Eliminar caracteres no deseados
+    cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normalizar espacios
+
+    return cleaned_profile_text
+
 def extract_experience_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF con soporte de OCR.
@@ -369,13 +405,19 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
         return
 
+    
+
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
     lines= experience_text.split("\n")
     lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
 
     # Dividir los eventos en líneas
-    org_lines = extract_cleaned_lines(org_text)
+    org_lines = extract_cleaned_lines(org_text)#Extraer texto del perfil
+    profile_text = extract_profile_section_with_ocr(pdf_path)
+    if not profile_text:
+        st.warning("No se encontró la sección 'Perfil' en el PDF.")
+        return None
     org_lines= org_text.split("\n")
     org_lines = [line.strip() for line in org_lines if line.strip()]  # Eliminar líneas vacías
 
@@ -497,6 +539,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if att_func_match > 0 or att_profile_match > 0:
             att_line_results.append((line, att_func_match, att_profile_match))
+
+    # Calcular concordancia de funciones y perfil del cargo con perfil de aspirante
+    profile_func_match = calculate_similarity(profile_text, functions_text)
+    profile_profile_match = calculate_similarity(profile_text, profile_text)
     
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
@@ -529,10 +575,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     parcial_org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
     parcial_att_func_score = round((parcial_att_func_match * 5) / 100, 2)
     parcial_att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
+    profile_func_score= round((profile_func_match * 5) / 100, 2)
+    profile_profile_score= round((profile_profile_match * 5) / 100, 2)
 
     #Calcular resultados globales
-    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match) / 3
-    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match) / 3
+    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match+ profile_func_match) / 4
+    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match + profile_profile_match) / 4
     global_func_score = round((global_func_match * 5) / 100, 2)
     global_profile_score = round((global_profile_match * 5) / 100, 2)
     
@@ -563,26 +611,22 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
-     # Concordancia de items organizada en tabla con ajuste de texto
-    elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
+    # Concordancia de items organizada en tabla con ajuste de texto
+    elements.append(Paragraph("<b>Análisis de perfil de aspirante:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
     
     # Encabezados de la tabla
-    table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+    prof_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
     
-    # Agregar datos de line_results a la tabla
-    for line, exp_func_match, exp_profile_match in line_results:
-        table_data.append([Paragraph(line, styles['CenturyGothic']), f"{exp_func_match:.2f}%", f"{exp_profile_match:.2f}%"])
-
     #Agregar resultados parciales
-    table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_match:.2f}%", f"{parcial_exp_profile_match:.2f}%"])
-    table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_score:.2f}", f"{parcial_exp_profile_score:.2f}"])   
+    prof_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{profile_func_match:.2f}%", f"{profile_profile_match:.2f}%"])
+    prof_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{profile_func_score:.2f}", f"{profile_profile_score:.2f}"])   
 
     # Crear la tabla con ancho de columnas ajustado
-    item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    prof_item_table = Table(prof_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
     
     # Estilos de la tabla con ajuste de texto
-    item_table.setStyle(TableStyle([
+    prof_item_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
@@ -596,13 +640,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     ]))
     
     # Agregar tabla a los elementos
-    elements.append(item_table)
-    
-    elements.append(Spacer(1, 0.2 * inch))
-    
-    # Total de líneas analizadas en EXPERIENCIA EN ANEIAP
-    total_lines = len(line_results)
-    elements.append(Paragraph(f"• Total de experiencias analizadas: {total_lines}", styles['CenturyGothicBold']))
+    elements.append(prof_item_table)
 
     elements.append(Spacer(1, 0.2 * inch))
 
@@ -689,6 +727,51 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Total de líneas analizadas en ASISTENCIA A EVENTOS ANEIAP
     org_total_lines = len(org_line_results)
     elements.append(Paragraph(f"• Total de eventos analizados: {org_total_lines}", styles['CenturyGothicBold']))
+
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Concordancia de items organizada en tabla con ajuste de texto
+    elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Encabezados de la tabla
+    table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+    
+    # Agregar datos de line_results a la tabla
+    for line, exp_func_match, exp_profile_match in line_results:
+        table_data.append([Paragraph(line, styles['CenturyGothic']), f"{exp_func_match:.2f}%", f"{exp_profile_match:.2f}%"])
+
+    #Agregar resultados parciales
+    table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_match:.2f}%", f"{parcial_exp_profile_match:.2f}%"])
+    table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_score:.2f}", f"{parcial_exp_profile_score:.2f}"])   
+
+    # Crear la tabla con ancho de columnas ajustado
+    item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    item_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
+        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
+        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(item_table)
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Total de líneas analizadas en EXPERIENCIA EN ANEIAP
+    total_lines = len(line_results)
+    elements.append(Paragraph(f"• Total de experiencias analizadas: {total_lines}", styles['CenturyGothicBold']))
+
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
@@ -956,6 +1039,42 @@ def extract_asistencia_items_with_details(pdf_path):
                             items[current_item].append(text)
 
     return items
+
+def extract_profile_section_with_ocr(pdf_path):
+    """
+    Extrae la sección 'Perfil' de un archivo PDF con soporte de OCR.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto de la sección 'Perfil'.
+    """
+    text = extract_text_with_ocr(pdf_path)  # Extraer texto completo del PDF utilizando OCR
+
+    # Palabras clave para identificar el inicio y fin de la sección
+    start_keyword = "Perfil"
+    end_keywords = [
+        "Asistencia a eventos",
+        "Actualización profesional",
+    ]
+
+    # Encontrar índice de inicio
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None  # No se encontró la sección "Perfil"
+
+    # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
+
+    # Extraer la sección entre inicio y fin
+    profile_text = text[start_idx:end_idx].strip()
+
+    # Limpieza adicional del texto
+    cleaned_profile_text = re.sub(r"[^\w\s.,;:]", "", profile_text)  # Eliminar caracteres no deseados
+    cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normalizar espacios
+
+    return cleaned_profile_text
 
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
