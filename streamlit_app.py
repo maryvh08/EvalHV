@@ -259,7 +259,7 @@ def extract_event_section_with_ocr(pdf_path):
         "seccional",
         "nacional",
     ]
-    org_lines = events_text.split("\n")
+    org_lines = org_text.split("\n")
     org_cleaned_lines = []
     for line in events_lines:
         line = line.strip()
