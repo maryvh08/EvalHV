@@ -1150,7 +1150,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
     exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
     org_func_score = round((parcial_org_func_match * 5) / 100, 2)
-    org_profile_score = round((parcial_org_profile_match * 5) / 100, 2
+    org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
     att_func_score = round((parcial_att_func_match * 5) / 100, 2)
     att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
 
