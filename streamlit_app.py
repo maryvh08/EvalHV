@@ -362,15 +362,15 @@ def extract_profile_section_with_ocr(pdf_path):
 
     return text[start_idx:end_idx].strip()
 
-# Extraer texto completo del PDF
-full_text = extract_text_with_ocr(pdf_path)
-
-# Delimitar la sección de 'Perfil'
-profile_text_extracted = extract_section(
-    full_text, 
-    "Perfil", 
-    ["Estudios realizados", "Asistencia a eventos ANEIAP"]
-)
+    # Extraer texto completo del PDF
+    full_text = extract_text_with_ocr(pdf_path)
+    
+    # Delimitar la sección de 'Perfil'
+    profile_text_extracted = extract_section(
+        full_text, 
+        "Perfil", 
+        ["Estudios realizados", "Asistencia a eventos ANEIAP"]
+    )
 
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
