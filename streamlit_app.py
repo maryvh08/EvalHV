@@ -1105,13 +1105,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     if not att_items:
         st.error("No se encontraron encabezados y detalles de asistencias para analizar.")
         return
-    
-#Extraer texto del perfil
-    profile_text = extract_profile_section_with_ocr(pdf_path)
-    if not profile_text:
-        st.warning("No se encontró la sección 'Perfil' en el PDF.")
-        return None
-        
+
     # Cargar funciones y perfil del cargo
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
@@ -1247,10 +1241,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 "Perfil del Cargo": att_profile_match,
             }
 
-    # Calcular concordancia de funciones y perfil del cargo con perfil de aspirante
-    profile_func_match = calculate_similarity(profile_text, functions_text)
-    profile_profile_match = calculate_similarity(profile_text, profile_text)
-
     #Calcular concordancia parcial para Experiencia ANEIAP
     if item_results:
         parcial_exp_func_match = sum(res["Funciones del Cargo"] for res in item_results.values()) / len(item_results)
@@ -1282,12 +1272,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
     att_func_score = round((parcial_att_func_match * 5) / 100, 2)
     att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
-    profile_func_score= round((profile_func_match * 5) / 100, 2)
-    profile_profile_score= round((profile_profile_match * 5) / 100, 2)
 
     # Calcular concordancia global para funciones y perfil
-    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match + profile_func_score) / 4
-    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match + profile_profile_score) / 4
+    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match) / 3
+    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match) / 3
 
     # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
@@ -1318,39 +1306,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     title_position = position.upper()
 
     elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position}", title_style))
-
-    elements.append(Spacer(1, 0.2 * inch))
-
-        # Concordancia de items organizada en tabla con ajuste de texto
-    elements.append(Paragraph("<b>Análisis de perfil de aspirante:</b>", styles['CenturyGothicBold']))
-    elements.append(Spacer(1, 0.2 * inch))
-    
-    # Encabezados de la tabla
-    prof_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
-    
-    #Agregar resultados parciales
-    prof_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{profile_func_match:.2f}%", f"{profile_profile_match:.2f}%"])
-    prof_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{profile_func_score:.2f}", f"{profile_profile_score:.2f}"])   
-
-    # Crear la tabla con ancho de columnas ajustado
-    prof_item_table = Table(prof_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
-    
-    # Estilos de la tabla con ajuste de texto
-    prof_item_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
-        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
-        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
-        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
-        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
-    ]))
-    
-    # Agregar tabla a los elementos
-    elements.append(prof_item_table)
 
     elements.append(Spacer(1, 0.2 * inch))
 
