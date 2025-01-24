@@ -384,9 +384,10 @@ def extract_profile_section_with_ocr(pdf_path):
         and normalized_prof_text != start_keyword.lower()
         and normalized_prof_text not in [kw.lower() for kw in end_keywords]
     ):
-        prof_cleaned_text
+        prof_cleaned_text.append(text)
 
     return "\n".join(prof_cleaned_text)
+    
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
     Genera un reporte con un fondo en cada página.
@@ -409,6 +410,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if not att_text:
         st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
         return
+        
     profile_text_extracted= extract_profile_section_with_ocr(pdf_path)
     if not profile_text_extracted:
         st.warning("No se encontró la sección 'Perfil' en el PDF.")
