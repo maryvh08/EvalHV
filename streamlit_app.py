@@ -346,42 +346,31 @@ def extract_attendance_section_with_ocr(pdf_path):
     
     return "\n".join(att_cleaned_lines)
 
-def analyze_profile_section(pdf_path, position, functions_text, profile_text):
+def extract_profile_section_with_ocr(pdf_path):
     """
-    Analiza la sección de 'Perfil' dentro de la hoja de vida y calcula la concordancia con
-    funciones y perfil del cargo.
-
-    :param pdf_path: Ruta del PDF.
-    :param position: Cargo al que aspira.
-    :param functions_text: Texto de las funciones del cargo.
-    :param profile_text: Texto del perfil del cargo.
-    :return: Diccionario con la concordancia de funciones y perfil del cargo para la sección de 'Perfil'.
+    Extrae la sección delimitada entre start_keyword y end_keywords.
     """
-    def extract_section(text, start_keyword, end_keywords):
-        """
-        Extrae la sección delimitada entre start_keyword y end_keywords.
-        """
-        start_idx = text.lower().find(start_keyword.lower())
-        if start_idx == -1:
-            return None  # No se encontró la sección
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None  # No se encontró la sección
 
-        end_idx = len(text)
-        for keyword in end_keywords:
-            idx = text.lower().find(keyword.lower(), start_idx)
-            if idx != -1:
-                end_idx = min(end_idx, idx)
+    end_idx = len(text)
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
 
-        return text[start_idx:end_idx].strip()
+    return text[start_idx:end_idx].strip()
 
-    # Extraer texto completo del PDF
-    full_text = extract_text_with_ocr(pdf_path)
+# Extraer texto completo del PDF
+full_text = extract_text_with_ocr(pdf_path)
 
-    # Delimitar la sección de 'Perfil'
-    profile_text_extracted = extract_section(
-        full_text, 
-        "Perfil", 
-        ["Estudios realizados", "Asistencia a eventos ANEIAP"]
-    )
+# Delimitar la sección de 'Perfil'
+profile_text_extracted = extract_section(
+    full_text, 
+    "Perfil", 
+    ["Estudios realizados", "Asistencia a eventos ANEIAP"]
+)
 
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
@@ -405,7 +394,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if not att_text:
         st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
         return
-
+    profile_text_extracted= extract_profile_section_with_ocr(pdf_path)
     if not profile_text_extracted:
         st.warning("No se encontró la sección 'Perfil' en el PDF.")
         return None
