@@ -295,6 +295,7 @@ def extract_attendance_section_with_ocr(pdf_path):
     end_keywords = [
         "Actualización Profesional",
         "EXPERIENCIA ANEIAP",
+        "EVENTOS ORGANIZADOS",
     ]
 
     # Encontrar índice de inicio
