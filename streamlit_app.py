@@ -1006,6 +1006,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Analizar encabezados y detalles
     item_results = {}
     org_item_results = {}
+    att_item_results = {}
 
     # Calcular la cantidad de ítems relacionados para cada indicador
     related_items_count = {indicator: 0 for indicator in position_indicators}
@@ -1090,6 +1091,37 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 "Perfil del Cargo": org_profile_match,
             }
 
+    #ASISTENCIA A EVENTOS
+    for header, details in att_items.items():
+        header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
+
+        # Revisar palabras clave en el encabezado
+        header_contains_keywords = any(
+            keyword.lower() in header.lower() for keywords in position_indicators.values() for keyword in keywords
+        )
+
+        # Revisar palabras clave en los detalles
+        details_contains_keywords = any(
+            keyword.lower() in detail.lower() for detail in details for keywords in position_indicators.values() for keyword in keywords
+        )
+
+        # Determinar concordancia en funciones y perfil
+        if header_contains_keywords or details_contains_keywords:
+            att_func_match = 100
+            att_profile_match = 100
+        else:
+            att_func_match = calculate_similarity(header_and_details, functions_text)
+            att_profile_match = calculate_similarity(header_and_details, profile_text)
+
+        # Ignorar ítems con 0% en funciones y perfil
+        if att_func_match == 0 and att_profile_match == 0:
+            continue
+
+        att_item_results[header] = {
+                "Funciones del Cargo": att_func_match,
+                "Perfil del Cargo": att_profile_match,
+            }
+
     #Calcular concordancia parcial para Experiencia ANEIAP
     if item_results:
         parcial_exp_func_match = sum(res["Funciones del Cargo"] for res in item_results.values()) / len(item_results)
@@ -1106,19 +1138,25 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_org_func_match = 0
         parcial_org_profile_match = 0
 
+    #Calcular concordancia parcial para Asistencia a eventos
+    if item_results:
+        parcial_att_func_match = sum(res["Funciones del Cargo"] for res in att_item_results.values()) / len(att_item_results)
+        parcial_att_profile_match = sum(res["Perfil del Cargo"] for res in att_item_results.values()) / len(att_item_results)
+    else:
+        parcial_att_func_match = 0
+        parcial_att_profile_match = 0
+
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
     exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
     org_func_score = round((parcial_org_func_match * 5) / 100, 2)
-    org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
+    org_profile_score = round((parcial_org_profile_match * 5) / 100, 2
+    att_func_score = round((parcial_att_func_match * 5) / 100, 2)
+    att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
 
     # Calcular concordancia global para funciones y perfil
-    if item_results:
-        global_func_match = sum(res["Funciones del Cargo"] for res in item_results.values()) / len(item_results)
-        global_profile_match = sum(res["Perfil del Cargo"] for res in item_results.values()) / len(item_results)
-    else:
-        global_func_match = 0
-        global_profile_match = 0
+    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match) / 3
+    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match) / 3
 
     # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
@@ -1251,6 +1289,57 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Total de líneas analizadas
     org_total_items = len(org_item_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {org_total_items}", styles['CenturyGothicBold']))
+
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Encabezados de la tabla
+    att_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]  # Encabezados
+    
+    # Iterar sobre los resultados por ítem y construir las filas de la tabla
+    for header, result in att_item_results.items():
+        att_func_match = result.get("Funciones del Cargo", 0)
+        att_profile_match = result.get("Perfil del Cargo", 0)
+        
+        # Ajustar texto del encabezado para que no desborde
+        header_paragraph = Paragraph(header, styles['CenturyGothic'])
+    
+        # Agregar una fila a la tabla
+        att_table_data.append([
+            header_paragraph,         # Ítem
+            f"{att_func_match:.2f}%",    # Funciones del Cargo
+            f"{att_profile_match:.2f}%"  # Perfil del Cargo
+        ])
+
+    #Agregar resultados parciales
+    att_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_att_func_match:.2f}%", f"{parcial_att_profile_match:.2f}%"])
+    att_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{att_func_score:.2f}", f"{att_profile_score:.2f}"])
+        
+    # Crear la tabla
+    att_table = Table(att_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Aplicar estilos a la tabla
+    att_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo de encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),                 # Color de texto de encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),                        # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),           # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),              # Fuente para celdas
+        ('FONTSIZE', (0, 0), (-1, -1), 10),                           # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),                        # Padding inferior de encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),                 # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),                       # Alinear texto verticalmente
+        ('WORDWRAP', (0, 0), (-1, -1))                                # Ajustar texto dentro de celdas
+    ]))
+    
+    # Agregar la tabla al reporte
+    elements.append(Paragraph("<b>Análisis de eventos asistidos:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(att_table)
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Total de líneas analizadas
+    att_total_items = len(att_item_results)
+    elements.append(Paragraph(f"• Total de líneas analizadas: {att_total_items}", styles['CenturyGothicBold']))
 
     elements.append(Spacer(1, 0.2 * inch))
     
