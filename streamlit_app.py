@@ -897,7 +897,7 @@ def extract_event_items_with_details(pdf_path):
                             continue
 
                         # Detectar inicio y fin de la sección
-                        if "eventos organizados" in org_text.lower():
+                        if "EXPERIENCIA EN ANEIAP" in org_text.lower():
                             in_org_section = True
                             continue
                         elif any(key in org_text.lower() for key in ["firma", "experiencia laboral"]):
