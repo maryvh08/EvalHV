@@ -405,8 +405,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
         return
         
-    profile_text_extracted= extract_profile_section_with_ocr(pdf_path)
-    if not profile_text_extracted:
+    profile_text = extract_profile_section_with_ocr(pdf_path)
+    if not profile_text
         st.warning("No se encontró la sección 'Perfil' en el PDF.")
         return None
 
