@@ -695,7 +695,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
 
     # Encabezados de la tabla
-    table_indicator = [["Indicador", "Concordancia (%)"]]
+    table_indicator = [["Indicador", "Concordancia (%)","Lineas Relacionadas"]]
     
     # Agregar datos de line_results a la tabla
     for indicator, data in indicator_results.items():
@@ -705,7 +705,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         total_lines = len(line_results)
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         if isinstance(percentage, (int, float)):  # Validar que sea un número
-            table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%"])
+            table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%",f"{relevant_lines:.2f}"])
 
     # Crear la tabla con ancho de columnas ajustado
     indicator_table = Table(table_indicator, colWidths=[3 * inch, 2 * inch, 2 * inch])
