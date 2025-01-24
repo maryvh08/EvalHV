@@ -916,6 +916,47 @@ def extract_event_items_with_details(pdf_path):
 
     return items
 
+def extract_asistencia_items_with_details(pdf_path):
+    """
+    Extrae encabezados (en negrita) y sus detalles de la sección 'Asistencia a eventos ANEIAP'.
+    """
+    items = {}
+    current_item = None
+    in_asistencia_section = False
+
+    with fitz.open(pdf_path) as doc:
+        for page in doc:
+            blocks = page.get_text("dict")["blocks"]
+            for block in blocks:
+                if "lines" not in block:
+                    continue
+
+                for line in block["lines"]:
+                    for span in line["spans"]:
+                        text = span["text"].strip()
+                        if not text:
+                            continue
+
+                        # Detectar inicio y fin de la sección
+                        if "asistencia a eventos aneiap" in text.lower():
+                            in_asistencia_section = True
+                            continue
+                        elif any(key in text.lower() for key in ["actualización profesional", "firma"]):
+                            in_asistencia_section = False
+                            break
+
+                        if not in_asistencia_section:
+                            continue
+
+                        # Detectar encabezados (negrita) y detalles
+                        if "bold" in span["font"].lower() and not text.startswith("-"):
+                            current_item = text
+                            items[current_item] = []
+                        elif current_item:
+                            items[current_item].append(text)
+
+    return items
+
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
     """
