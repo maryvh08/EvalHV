@@ -606,8 +606,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
-        elements.append(Spacer(1, 0.2 * inch))
-
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Análisis de ítems de asistencia a eventos:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
