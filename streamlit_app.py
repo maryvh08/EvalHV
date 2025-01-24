@@ -989,13 +989,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Extraer texto de la sección EXPERIENCIA EN ANEIAP
     items = extract_experience_items_with_details(pdf_path)
     if not items:
-        st.error("No se encontraron encabezados y detalles para analizar.")
+        st.error("No se encontraron encabezados y detalles de experiencia para analizar.")
         return
 
     # Extraer texto de la sección EVENTOS ORGANIZADOS
     org_items = extract_event_items_with_details(pdf_path)
     if not org_items:
-        st.error("No se encontraron encabezados y detalles para analizar.")
+        st.error("No se encontraron encabezados y detalles de eventos para analizar.")
         return
 
     # Cargar funciones y perfil del cargo
