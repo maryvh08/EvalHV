@@ -403,11 +403,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if not att_text:
         st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
         return
-        
-    profile_text = extract_profile_section_with_ocr(pdf_path)
-    if not profile_text:
-        st.warning("No se encontró la sección 'Perfil' en el PDF.")
-        return None
+
+    
 
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
@@ -415,7 +412,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
 
     # Dividir los eventos en líneas
-    org_lines = extract_cleaned_lines(org_text)
+    org_lines = extract_cleaned_lines(org_text)#Extraer texto del perfil
+    profile_text = extract_profile_section_with_ocr(pdf_path)
+    if not profile_text:
+        st.warning("No se encontró la sección 'Perfil' en el PDF.")
+        return None
     org_lines= org_text.split("\n")
     org_lines = [line.strip() for line in org_lines if line.strip()]  # Eliminar líneas vacías
 
@@ -1068,12 +1069,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         st.error("No se encontraron encabezados y detalles de asistencias para analizar.")
         return
     
-    # Extraer texto de la sección de Perfil
+#Extraer texto del perfil
     profile_text = extract_profile_section_with_ocr(pdf_path)
     if not profile_text:
         st.warning("No se encontró la sección 'Perfil' en el PDF.")
         return None
-
+        
     # Cargar funciones y perfil del cargo
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
