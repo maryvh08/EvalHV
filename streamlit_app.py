@@ -489,6 +489,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     total_lines = len(line_results)
     elements.append(Paragraph(f"• Total de líneas analizadas: {total_lines}", styles['CenturyGothicBold']))
 
+    # Agregar datos de line_results a la tabla
+    for line, func_match, profile_match in line_results:
+        elements.append([Paragraph(line, styles['CenturyGothic']), f"{exp_func_match:.2f}%", f"{exp_profile_match:.2f}%"])
+
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Análisis de ítems de eventos organizados:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
