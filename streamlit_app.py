@@ -1114,8 +1114,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         ])
 
     #Agregar resultados parciales
-    table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_match:.2f}%", f"{parcial_exp_profile_match:.2f}%"])
-    table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_score:.2f}", f"{parcial_exp_profile_score:.2f}"])
+    item_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_match:.2f}%", f"{parcial_exp_profile_match:.2f}%"])
+    item_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_score:.2f}", f"{parcial_exp_profile_score:.2f}"])
         
     # Crear la tabla
     item_table = Table(item_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
