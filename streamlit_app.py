@@ -406,7 +406,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         return
         
     profile_text = extract_profile_section_with_ocr(pdf_path)
-    if not profile_text
+    if not profile_text:
         st.warning("No se encontró la sección 'Perfil' en el PDF.")
         return None
 
