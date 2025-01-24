@@ -6,6 +6,7 @@ from io import BytesIO
 import re
 import json
 import os
+import io
 import pytesseract
 from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageTemplate, Frame, Image, Table, TableStyle
