@@ -880,7 +880,7 @@ def extract_event_items_with_details(pdf_path):
     Extrae encabezados (en negrita) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
     """
     org_items = {}
-    current_item = None
+    org_current_item = None
     in_org_section = False
 
     with fitz.open(pdf_path) as doc:
@@ -909,9 +909,9 @@ def extract_event_items_with_details(pdf_path):
 
                         # Detectar encabezados (negrita) y detalles
                         if "bold" in span["font"].lower() and not org_text.startswith("-"):
-                            current_item = org_text
+                            org_current_item = org_text
                             org_items[current_item] = []
-                        elif current_item:
+                        elif org_current_item:
                             org_items[current_item].append(org_text)
 
     return org_items
