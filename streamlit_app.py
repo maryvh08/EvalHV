@@ -529,6 +529,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     parcial_org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
     parcial_att_func_score = round((parcial_att_func_match * 5) / 100, 2)
     parcial_att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
+
+    #Calcular resultados globales
+    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match) / 3
+    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match) / 3
+    global_func_score = round((global_func_match * 5) / 100, 2)
+    global_profile_score = round((global_profile_match * 5) / 100, 2)
     
     # Registrar la fuente personalizada
     pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
@@ -729,6 +735,61 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             for tip in advice[position].get(indicator, []):
                 elements.append(Paragraph(f"  • {tip}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.2 * inch))
+
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Concordancia de items organizada en tabla global con ajuste de texto
+    elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
+
+    elements.append(Spacer(1, 0.1 * inch))
+
+    # Encabezados de la tabla global
+    global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
+    
+    # Agregar datos de global_results a la tabla
+    global_table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
+    global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
+
+    # Crear la tabla con ancho de columnas ajustado
+    global_table = Table(global_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    global_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
+        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
+        ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(global_table)
+    
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Interpretación de resultados
+    elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.1 * inch))
+    if global_profile_match > 75 and global_func_match > 75:
+        elements.append(Paragraph(
+            f" Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.",
+            styles['CenturyGothic']
+        ))
+    elif 50 < global_profile_match <= 75 and 50 < global_func_match <= 75:
+        elements.append(Paragraph(
+            f" Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.",
+            styles['CenturyGothic']
+        ))
+    else:
+        elements.append(Paragraph(
+            f" Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.",
+            styles['CenturyGothic']
+        ))
 
     elements.append(Spacer(1, 0.2 * inch))
 
