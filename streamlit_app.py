@@ -43,6 +43,26 @@ advice = load_advice()
 # Uso del código
 background_path = "Fondo Comunicado.png"
 
+from PIL import Image, ImageEnhance, ImageOps
+
+def preprocess_image(image):
+    """
+    Preprocesa una imagen antes de aplicar OCR.
+    :param image: Imagen a preprocesar.
+    :return: Imagen preprocesada.
+    """
+    # Convertir la imagen a escala de grises
+    image = image.convert("L")
+
+    # Mejorar el contraste
+    enhancer = ImageEnhance.Contrast(image)
+    image = enhancer.enhance(2.0)
+
+    # Aplicar umbral para binarización
+    image = ImageOps.autocontrast(image)
+
+    return image
+
 def extract_text_with_ocr(pdf_path):
     """
     Extrae texto de un PDF utilizando OCR con preprocesamiento.
