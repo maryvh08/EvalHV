@@ -479,8 +479,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
         return
 
+    # Evaluar la presentación de la hoja de vida
+    presentation_results = evaluate_cv_presentation(pdf_path)
     
-
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
     lines= experience_text.split("\n")
@@ -1579,6 +1580,40 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Total de líneas analizadas
     total_items = len(item_results)
     elements.append(Paragraph(f"• Total de experiencias analizadas: {total_items}", styles['CenturyGothicBold']))
+
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Añadir resultados al reporte
+    elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Crear tabla de evaluación de presentación
+    presentation_table = Table(
+        [
+            ["Criterio", "Puntaje (%)"],
+            ["Calidad de Redacción", f"{presentation_results['Calidad de Redacción']}%"],
+            ["Ortografía", f"{presentation_results['Ortografía']}%"],
+            ["Coherencia y Fluidez", f"{presentation_results['Coherencia y Fluidez']}%"],
+            ["Estilo y Formato", f"{presentation_results['Estilo y Formato']}%"],
+            ["Puntaje Total", f"{presentation_results['Puntaje Total']}%"]
+        ],
+        colWidths=[3 * inch, 2 * inch]
+    )
+    
+    # Estilo de la tabla
+    presentation_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+    
+    elements.append(presentation_table)
 
     elements.append(Spacer(1, 0.2 * inch))
     
