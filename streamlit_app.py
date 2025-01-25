@@ -1787,6 +1787,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             styles['CenturyGothic']
         ))
     elif 50 < global_profile_match and 50 < global_func_match:
+        elements.append(Paragraph(
             f" Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.",
             styles['CenturyGothic']
         ))
