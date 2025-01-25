@@ -11,3 +11,4 @@ matplotlib
 tesseract
 textblob
 language_tool_python
+java 
