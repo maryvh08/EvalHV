@@ -828,8 +828,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
-        elements.append(Spacer(1, 0.2 * inch))
-
     # Añadir resultados al reporte
     elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
