@@ -639,18 +639,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular métricas de evaluación
     total_errors = spelling_errors + grammar_errors
-    presentation_score = max(0, 100 - total_errors * 2)
-    spelling_score = max(0, 100 - spelling_errors * 2)
-    grammar_score = max(0, 100 - grammar_errors * 2)
-
-    analysis_summary = {
-        "Total de líneas analizadas": total_lines,
-        "Errores ortográficos": spelling_errors,
-        "Errores gramaticales": grammar_errors,
-        "Calificación general de presentación": presentation_score,
-        "Calificación de ortografía": spelling_score,
-        "Calificación de gramática": grammar_score,
-    }
+    resume_lines= len(cleaned_lines)
+    total_score = round((1-(total_errors/cleaned_lines))*5, 2)
+    spelling_score = round((1-(spelling_errors/cleaned_lines))*5, 2)
+    grammar_score = round((1-(grammar_errors/cleaned_lines))*5, 2)
 
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
@@ -661,7 +653,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     parcial_att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
     profile_func_score= round((profile_func_match * 5) / 100, 2)
     profile_profile_score= round((profile_profile_match * 5) / 100, 2)
-    presentation_score = round((ortografia_score + redaccion_score + coherencia_score) / 3, 2)
 
     #Calcular resultados globales
     global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match+ profile_func_match) / 4
@@ -866,11 +857,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     presentation_table = Table(
         [
             ["Criterio", "Puntaje (%)"],
-            ["Calidad de Redacción", f"{redaccion_score:.2f}%"],
-            ["Ortografía", f"{ortografia_score:.2f}%"],
-            ["Coherencia y Fluidez", f"{coherencia_score:.2f}%"],
-            ["Estilo y Formato", f"{estilo_score:.2f}%"],
-            ["Puntaje Total", f"{presentation_score:.2f}%"]
+            ["Gramática", f"{grammar_score:.2f}%"],
+            ["Ortografía", f"{spelling_score:.2f}%"],
+            ["Puntaje Total", f"{total_score:.2f}%"]
         ],
         colWidths=[3 * inch, 2 * inch]
     )
