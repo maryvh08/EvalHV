@@ -1062,10 +1062,11 @@ def extract_asistencia_items_with_details(pdf_path):
 
 def extract_profile_section_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita) y sus detalles de la sección 'Perfil'.
+    Extrae el texto de la sección 'Perfil' de un archivo PDF, incluyendo encabezados y detalles.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto completo de la sección 'Perfil'.
     """
-    items = {}
-    current_item = None
+    profile_text = ""
     in_profile_section = False
 
     with fitz.open(pdf_path) as doc:
@@ -1082,24 +1083,17 @@ def extract_profile_section_with_details(pdf_path):
                             continue
 
                         # Detectar inicio y fin de la sección
-                        if "asistencia a eventos aneiap" in text.lower():
+                        if "perfil" in text.lower():
                             in_profile_section = True
                             continue
-                        elif any(key in text.lower() for key in ["Asistencia a eventos aneiap", "actualización profesional"]):
+                        elif any(key in text.lower() for key in ["asistencia a eventos aneiap", "actualización profesional"]):
                             in_profile_section = False
                             break
 
-                        if not in_profile_section:
-                            continue
+                        if in_profile_section:
+                            profile_text += text + " "
 
-                        # Detectar encabezados (negrita) y detalles
-                        if "bold" in span["font"].lower() and not text.startswith("-"):
-                            current_item = profile_text
-                            items[current_item] = []
-                        elif current_item:
-                            items[current_item].append(text)
-
-    return profile_text
+    return profile_text.strip()
 
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
