@@ -25,7 +25,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
-import language_tool_python
+from spellchecker import SpellChecker
+import re
 from PIL import Image as PILImage
 from PIL import Image, ImageFilter, ImageOps, ImageEnhance
 
@@ -339,17 +340,14 @@ def extract_event_section_with_ocr(pdf_path):
     
     return "\n".join(org_cleaned_lines)
 
-from spellchecker import SpellChecker
-import language_tool_python
-import re
-
 def evaluate_cv_presentation(pdf_path):
     """
-    Evalúa la presentación de la hoja de vida en términos de redacción, ortografía, coherencia, etc.
-    Analiza todo el texto de la hoja de vida.
+    Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
+    coherencia básica, y claridad.
     :param pdf_path: Ruta del archivo PDF.
-    :return: Texto limpio y análisis de la presentación.
+    :return: Texto limpio y análisis detallado de la presentación.
     """
+    # Extraer texto completo de la hoja de vida
     text = extract_text_with_ocr(pdf_path)
 
     if not text:
@@ -360,17 +358,16 @@ def evaluate_cv_presentation(pdf_path):
     lines = text.split("\n")
     for line in lines:
         line = line.strip()
-        line = re.sub(r"[^\w\s.,;:!?-]", "", line)  # Eliminar caracteres no alfanuméricos excepto signos de puntuación básicos
+        line = re.sub(r"[^\w\s.,;:!?-]", "", line)  # Eliminar caracteres no alfanuméricos excepto signos básicos
         line = re.sub(r"\s+", " ", line)  # Normalizar espacios
         if line:
             cleaned_lines.append(line)
 
-    # Evaluación de la calidad de presentación
+    # Evaluación de calidad de presentación
     total_lines = len(cleaned_lines)
     if total_lines == 0:
         return None, "El documento está vacío o no contiene texto procesable."
-        
-    return "\n".join(cleaned_lines)
+    return "\n".join(pres_cleaned_lines)
 
 def extract_attendance_section_with_ocr(pdf_path):
     """
@@ -620,29 +617,42 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
-    # Inicializar herramientas
-    spell = SpellChecker()
-    tool = language_tool_python.LanguageTool("es")  # Analiza gramática para español
+    # Inicializar corrector ortográfico
+    spell = SpellChecker(language='es')
 
-    # Evaluar ortografía
+    # Métricas
     spelling_errors = 0
+    total_words = 0
+    missing_capitalization = 0
+    incomplete_sentences = 0
+    punctuation_marks = 0
+
     for line in cleaned_lines:
         words = line.split()
+        total_words += len(words)
+
+        # Ortografía
         misspelled = spell.unknown(words)
         spelling_errors += len(misspelled)
 
-    # Evaluar gramática
-    grammar_errors = 0
-    for line in cleaned_lines:
-        matches = tool.check(line)
-        grammar_errors += len(matches)
+        # Inicio en mayúscula
+        if line and not line[0].isupper():
+            missing_capitalization += 1
 
-    # Calcular métricas de evaluación
-    total_errors = spelling_errors + grammar_errors
-    resume_lines= len(cleaned_lines)
-    total_score = round((1-(total_errors/cleaned_lines))*5, 2)
-    spelling_score = round((1-(spelling_errors/cleaned_lines))*5, 2)
-    grammar_score = round((1-(grammar_errors/cleaned_lines))*5, 2)
+        # Verificar que termine en punto o signo válido
+        if not line.endswith((".", "!", "?", ":", ";")):
+            incomplete_sentences += 1
+
+        # Contar signos de puntuación
+        punctuation_marks += sum(line.count(p) for p in [".", ",", ";", ":", "!"])
+
+    # Calcular métricas
+    spelling_score = round(((spelling_errors / total_words)*5), 2)
+    capitalization_score = round(((missing_capitalization / total_lines) * 5), 2)
+    sentence_completion_score = round(((incomplete_sentences / total_lines) * 5),2)
+
+    # Calificación general ponderada
+    overall_score = round(((spelling_score) +(capitalization_score) + (sentence_completion_score))/3,2)
 
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
@@ -857,9 +867,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     presentation_table = Table(
         [
             ["Criterio", "Puntaje (%)"],
-            ["Gramática", f"{grammar_score:.2f}%"],
-            ["Ortografía", f"{spelling_score:.2f}%"],
-            ["Puntaje Total", f"{total_score:.2f}%"]
+            ["Coherencia", f"{sentence_completion_score :.2f}"],
+            ["Ortografía", f"{spelling_score:.2f}"],
+            ["Gramática", f"{capitalization_score :.2f}"],
+            ["Puntaje Total", f"{overall_score:.2f}"]
         ],
         colWidths=[3 * inch, 2 * inch]
     )
