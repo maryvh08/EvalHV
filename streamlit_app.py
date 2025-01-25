@@ -402,6 +402,60 @@ def extract_attendance_section_with_ocr(pdf_path):
     
     return "\n".join(att_cleaned_lines)
 
+def evaluate_cv_presentation(pdf_path):
+    """
+    Evalúa la calidad de la presentación de la hoja de vida.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Diccionario con resultados de la evaluación.
+    """
+    from textblob import TextBlob
+    import language_tool_python
+
+    # Extraer texto completo del PDF
+    text = extract_text_with_ocr(pdf_path)
+    if not text.strip():
+        return {
+            "Calidad de Redacción": 0,
+            "Ortografía": 0,
+            "Coherencia y Fluidez": 0,
+            "Estilo y Formato": 0,
+            "Puntaje Total": 0
+        }
+
+    # Herramienta de corrección ortográfica y gramatical
+    tool = language_tool_python.LanguageTool("es")
+
+    # 1. Evaluación de Ortografía
+    matches = tool.check(text)
+    errors = len(matches)
+    total_words = len(text.split())
+    ortografia_score = max(0, 100 - (errors / total_words * 100))  # Restar porcentaje de errores
+
+    # 2. Calidad de Redacción (Polaridad promedio del texto)
+    blob = TextBlob(text)
+    sentences = blob.sentences
+    avg_polarity = sum([sentence.sentiment.polarity for sentence in sentences]) / len(sentences) if sentences else 0
+    redaccion_score = max(0, 100 + avg_polarity * 50)  # Ajustar polaridad a un rango de 0-100
+
+    # 3. Coherencia y Fluidez (Longitud promedio de las oraciones)
+    avg_sentence_length = sum([len(sentence.split()) for sentence in sentences]) / len(sentences) if sentences else 0
+    coherencia_score = min(100, avg_sentence_length * 5)  # Escalar longitud promedio
+
+    # 4. Estilo y Formato (Simulación basada en detección de líneas vacías y desorden)
+    style_issues = text.count("\n\n")  # Conteo de saltos de línea excesivos
+    estilo_score = max(0, 100 - style_issues * 2)
+
+    # Puntaje Total
+    presentation_score = round((ortografia_score + redaccion_score + coherencia_score + estilo_score) / 4, 2)
+
+    return {
+        "Calidad de Redacción": round(redaccion_score, 2),
+        "Ortografía": round(ortografia_score, 2),
+        "Coherencia y Fluidez": round(coherencia_score, 2),
+        "Estilo y Formato": round(estilo_score, 2),
+        "Puntaje Total": presentation_score
+    }
+
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
     Genera un reporte con un fondo en cada página.
