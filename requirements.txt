@@ -11,4 +11,3 @@ matplotlib
 tesseract
 textblob
 spellchecker 
-indexer
