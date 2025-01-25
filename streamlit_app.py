@@ -422,14 +422,12 @@ def evaluate_cv_presentation(pdf_path):
             "Puntaje Total": 0
         }
 
-    # Herramienta de corrección ortográfica y gramatical
-    tool = language_tool_python.LanguageTool("es")
-
     # 1. Evaluación de Ortografía
-    matches = tool.check(text)
-    errors = len(matches)
-    total_words = len(text.split())
-    ortografia_score = max(0, 100 - (errors / total_words * 100))  # Restar porcentaje de errores
+    spell = SpellChecker(language="es")
+    words = text.split()
+    misspelled = spell.unknown(words)
+    total_words = len(words)
+    ortografia_score = max(0, 100 - (len(misspelled) / total_words * 100))  # Porcentaje de palabras correctas
 
     # 2. Calidad de Redacción (Polaridad promedio del texto)
     blob = TextBlob(text)
@@ -441,19 +439,14 @@ def evaluate_cv_presentation(pdf_path):
     avg_sentence_length = sum([len(sentence.split()) for sentence in sentences]) / len(sentences) if sentences else 0
     coherencia_score = min(100, avg_sentence_length * 5)  # Escalar longitud promedio
 
-    # 4. Estilo y Formato (Simulación basada en detección de líneas vacías y desorden)
-    style_issues = text.count("\n\n")  # Conteo de saltos de línea excesivos
-    estilo_score = max(0, 100 - style_issues * 2)
-
     # Puntaje Total
-    presentation_score = round((ortografia_score + redaccion_score + coherencia_score + estilo_score) / 4, 2)
+    total_score = round((ortografia_score + redaccion_score + coherencia_score) / 3, 2)
 
     return {
         "Calidad de Redacción": round(redaccion_score, 2),
         "Ortografía": round(ortografia_score, 2),
         "Coherencia y Fluidez": round(coherencia_score, 2),
-        "Estilo y Formato": round(estilo_score, 2),
-        "Puntaje Total": presentation_score
+        "Puntaje Total": total_score
     }
 
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
