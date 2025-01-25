@@ -417,7 +417,6 @@ def evaluate_cv_presentation(pdf_path):
     :return: Diccionario con resultados de la evaluación.
     """
     from textblob import TextBlob
-    import language_tool_python
 
     # Extraer texto completo del PDF
     text = extract_text_with_ocr(pdf_path)
