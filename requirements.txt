@@ -11,3 +11,4 @@ matplotlib
 tesseract
 textblob
 pyspellchecker
+textblob.download_corpora
