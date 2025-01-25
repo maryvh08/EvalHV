@@ -998,7 +998,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             styles['CenturyGothic']
         ))
     elif 50 <= global_profile_match <= 75 and 50 <= global_func_match <= 75:
-    elements.append(Paragraph(
+        elements.append(Paragraph(
             f" Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.",
             styles['CenturyGothic']
         ))
