@@ -25,6 +25,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+import language_tool_python
 from PIL import Image as PILImage
 from PIL import Image, ImageFilter, ImageOps, ImageEnhance
 
@@ -338,6 +339,39 @@ def extract_event_section_with_ocr(pdf_path):
     
     return "\n".join(org_cleaned_lines)
 
+from spellchecker import SpellChecker
+import language_tool_python
+import re
+
+def evaluate_cv_presentation(pdf_path):
+    """
+    Evalúa la presentación de la hoja de vida en términos de redacción, ortografía, coherencia, etc.
+    Analiza todo el texto de la hoja de vida.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto limpio y análisis de la presentación.
+    """
+    text = extract_text_with_ocr(pdf_path)
+
+    if not text:
+        return None, "No se pudo extraer el texto de la hoja de vida."
+
+    # Limpiar y filtrar texto
+    cleaned_lines = []
+    lines = text.split("\n")
+    for line in lines:
+        line = line.strip()
+        line = re.sub(r"[^\w\s.,;:!?-]", "", line)  # Eliminar caracteres no alfanuméricos excepto signos de puntuación básicos
+        line = re.sub(r"\s+", " ", line)  # Normalizar espacios
+        if line:
+            cleaned_lines.append(line)
+
+    # Evaluación de la calidad de presentación
+    total_lines = len(cleaned_lines)
+    if total_lines == 0:
+        return None, "El documento está vacío o no contiene texto procesable."
+        
+    return "\n".join(cleaned_lines)
+
 def extract_attendance_section_with_ocr(pdf_path):
     """
     Extrae la sección 'Asistencia Eventos ANEIAP' de un archivo PDF con soporte de OCR.
@@ -586,25 +620,37 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
-    # Extraer texto completo del PDF
-    text = extract_text_with_ocr(pdf_path)
-    
-    # 1. Evaluación de Ortografía
-    spell = SpellChecker(language="es")
-    words = text.split()
-    misspelled = spell.unknown(words)
-    total_words = len(words)
-    ortografia_score = max(0, 100 - (len(misspelled) / total_words * 100))  # Porcentaje de palabras correctas
+    # Inicializar herramientas
+    spell = SpellChecker()
+    tool = language_tool_python.LanguageTool("es")  # Analiza gramática para español
 
-    # 2. Calidad de Redacción (Polaridad promedio del texto)
-    blob = TextBlob(text)
-    sentences = blob.sentences
-    avg_polarity = sum([sentence.sentiment.polarity for sentence in sentences]) / len(sentences) if sentences else 0
-    redaccion_score = max(0, 100 + avg_polarity * 50)  # Ajustar polaridad a un rango de 0-100
+    # Evaluar ortografía
+    spelling_errors = 0
+    for line in cleaned_lines:
+        words = line.split()
+        misspelled = spell.unknown(words)
+        spelling_errors += len(misspelled)
 
-    # 3. Coherencia y Fluidez (Longitud promedio de las oraciones)
-    avg_sentence_length = sum([len(sentence.split()) for sentence in sentences]) / len(sentences) if sentences else 0
-    coherencia_score = min(100, avg_sentence_length * 5)  # Escalar longitud promedio
+    # Evaluar gramática
+    grammar_errors = 0
+    for line in cleaned_lines:
+        matches = tool.check(line)
+        grammar_errors += len(matches)
+
+    # Calcular métricas de evaluación
+    total_errors = spelling_errors + grammar_errors
+    presentation_score = max(0, 100 - total_errors * 2)
+    spelling_score = max(0, 100 - spelling_errors * 2)
+    grammar_score = max(0, 100 - grammar_errors * 2)
+
+    analysis_summary = {
+        "Total de líneas analizadas": total_lines,
+        "Errores ortográficos": spelling_errors,
+        "Errores gramaticales": grammar_errors,
+        "Calificación general de presentación": presentation_score,
+        "Calificación de ortografía": spelling_score,
+        "Calificación de gramática": grammar_score,
+    }
 
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
