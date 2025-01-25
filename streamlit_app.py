@@ -588,15 +588,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Extraer texto completo del PDF
     text = extract_text_with_ocr(pdf_path)
-    if not text.strip():
-        return {
-            "Calidad de Redacción": 0,
-            "Ortografía": 0,
-            "Coherencia y Fluidez": 0,
-            "Estilo y Formato": 0,
-            "Puntaje Total": 0
-        }
-
+    
     # 1. Evaluación de Ortografía
     spell = SpellChecker(language="es")
     words = text.split()
