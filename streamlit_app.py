@@ -38,6 +38,12 @@ def load_advice(filepath="advice.json"):
     with open(filepath, "r", encoding="utf-8") as file:
         return json.load(file)
 
+#NLTK downloader 
+import nltk
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+
+
 # Cargar indicadores y consejos al inicio del script
 indicators = load_indicators()
 advice = load_advice()
