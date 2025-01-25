@@ -26,7 +26,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from PIL import Image as PILImage
-from PIL import Image, ImageFilter, ImageOps
+from PIL import Image, ImageFilter, ImageOps, ImageEnhance
 
 #Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app/
 
@@ -38,20 +38,12 @@ def load_advice(filepath="advice.json"):
     with open(filepath, "r", encoding="utf-8") as file:
         return json.load(file)
 
-#NLTK downloader 
-import nltk
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-
-
 # Cargar indicadores y consejos al inicio del script
 indicators = load_indicators()
 advice = load_advice()
 
 # Uso del código
 background_path = "Fondo Comunicado.png"
-
-from PIL import Image, ImageEnhance, ImageOps
 
 def preprocess_image(image):
     """
