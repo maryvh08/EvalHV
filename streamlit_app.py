@@ -902,6 +902,35 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
+    elements.append(Paragraph("<b>Consejos para Mejorar tu Hoja de Vida:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Consejos para ortografía
+    if spelling_score < 50:
+        tips.append("Revisa cuidadosamente la ortografía de tu hoja de vida. Considera utilizar herramientas automáticas para detectar errores de escritura.")
+    elif 50 <= spelling_score <= 75:
+        tips.append("Tu ortografía es buena, pero aún puede mejorar. Lee tu hoja de vida en voz alta para identificar errores menores.")
+    else:
+        tips.append("Tu ortografía es excelente. Continúa manteniendo este nivel de detalle en tus documentos.")
+    elements.append(Spacer(1, 0.1 * inch))
+    # Consejos para uso de mayúsculas
+    if capitalization_score < 50:
+        tips.append("Corrige el uso de mayúsculas. Asegúrate de que nombres propios, títulos y principios de frases estén correctamente capitalizados.")
+    elif 50 <= capitalization_score <= 75:
+        tips.append("Tu uso de mayúsculas es aceptable, pero puede perfeccionarse. Revisa los encabezados y títulos para asegurarte de que estén bien escritos.")
+    else:
+        tips.append("El uso de mayúsculas en tu hoja de vida es excelente. Continúa aplicando este estándar.")
+    elements.append(Spacer(1, 0.1 * inch))
+    # Consejos para coherencia de frases
+    if sentence_completion_score < 50:
+        tips.append("Mejora la redacción de las frases en tu hoja de vida. Asegúrate de que sean completas, coherentes y claras.")
+    elif 50 <= sentence_completion_score <= 75:
+        tips.append("La redacción de tus frases es adecuada, pero revisa la fluidez entre oraciones para mejorar la coherencia general.")
+    else:
+        tips.append("La redacción de las frases en tu hoja de vida es clara y coherente. Excelente trabajo.")
+
+    elements.append(Spacer(1, 0.2 * inch))
+
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
@@ -990,7 +1019,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
     
     # Interpretación de resultados
-    elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
+    elements.append(Paragraph("<b>Interpretación de Resultados globales:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.1 * inch))
     if global_profile_match > 75 and global_func_match > 75:
         elements.append(Paragraph(
