@@ -677,8 +677,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     #Calcular resultados globales
     global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match+ profile_func_match) / 4
     global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match + profile_profile_match) / 4
-    global_func_score = round((global_func_match * 5) / 100, 2)
-    global_profile_score = round((global_profile_match * 5) / 100, 2)
+    func_score = round((global_func_match * 5) / 100, 2)
+    profile_score = round((global_profile_match * 5) / 100, 2)
     
     # Registrar la fuente personalizada
     pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
@@ -958,14 +958,14 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
    # Concordancia de items organizada en tabla global con ajuste de texto
     elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
 
-    elements.append(Spacer(1, 0.1 * inch))
+    elements.append(Spacer(1, 0.2 * inch))
 
     # Encabezados de la tabla global
     global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
     
     # Agregar datos de global_results a la tabla
     global_table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
-    global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{global_func_score:.2f}", f"{global_profile_score:.2f}"])
+    global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
 
     # Crear la tabla con ancho de columnas ajustado
     global_table = Table(global_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
@@ -988,7 +988,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(global_table)
     
     elements.append(Spacer(1, 0.2 * inch))
-
+    
     # Interpretación de resultados
     elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.1 * inch))
