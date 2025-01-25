@@ -1091,9 +1091,9 @@ def extract_profile_section_with_details(pdf_path):
                             break
 
                         if in_profile_section:
-                            prof_text += text + " "
+                            profile_text += text + " "
 
-    return prof_text.strip()
+    return profile_text.strip()
 
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
@@ -1108,8 +1108,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     """
 
     # Extraer la sección 'Perfil'
-    prof_text = extract_profile_section_with_details(pdf_path)
-    if not proF_text:
+    profile_text = extract_profile_section_with_details(pdf_path)
+    if not profile_text:
         st.error("No se encontró la sección 'Perfil' en el PDF.")
         return
 
@@ -1156,8 +1156,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
     # Análisis de la sección de perfil
-    profile_func_match = calculate_similarity(prof_text, functions_text)
-    profile_profile_match = calculate_similarity(prof_text, profile_text)
+    profile_func_match = calculate_similarity(profile_text, functions_text)
+    profile_profile_match = calculate_similarity(profile_text, profile_text)
 
     # Calcular puntajes parciales para la sección de perfil
     profile_func_score = round((profile_func_match * 5) / 100, 2)
