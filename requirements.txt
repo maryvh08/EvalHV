@@ -10,4 +10,4 @@ pandas
 matplotlib 
 tesseract
 textblob
-spellchecker 
+pyspellchecker
