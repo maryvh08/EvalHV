@@ -364,9 +364,10 @@ def evaluate_cv_presentation(pdf_path):
             pres_cleaned_lines.append(line)
 
     # Evaluación de calidad de presentación
-    total_lines = len(cleaned_lines)
+    total_lines = len(pres_cleaned_lines)
     if total_lines == 0:
         return None, "El documento está vacío o no contiene texto procesable."
+        
     return "\n".join(pres_cleaned_lines)
 
 def extract_attendance_section_with_ocr(pdf_path):
