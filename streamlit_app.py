@@ -410,52 +410,6 @@ def extract_attendance_section_with_ocr(pdf_path):
     
     return "\n".join(att_cleaned_lines)
 
-def evaluate_cv_presentation(pdf_path):
-    """
-    Evalúa la calidad de la presentación de la hoja de vida.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Diccionario con resultados de la evaluación.
-    """
-    from textblob import TextBlob
-
-    # Extraer texto completo del PDF
-    text = extract_text_with_ocr(pdf_path)
-    if not text.strip():
-        return {
-            "Calidad de Redacción": 0,
-            "Ortografía": 0,
-            "Coherencia y Fluidez": 0,
-            "Estilo y Formato": 0,
-            "Puntaje Total": 0
-        }
-
-    # 1. Evaluación de Ortografía
-    spell = SpellChecker(language="es")
-    words = text.split()
-    misspelled = spell.unknown(words)
-    total_words = len(words)
-    ortografia_score = max(0, 100 - (len(misspelled) / total_words * 100))  # Porcentaje de palabras correctas
-
-    # 2. Calidad de Redacción (Polaridad promedio del texto)
-    blob = TextBlob(text)
-    sentences = blob.sentences
-    avg_polarity = sum([sentence.sentiment.polarity for sentence in sentences]) / len(sentences) if sentences else 0
-    redaccion_score = max(0, 100 + avg_polarity * 50)  # Ajustar polaridad a un rango de 0-100
-
-    # 3. Coherencia y Fluidez (Longitud promedio de las oraciones)
-    avg_sentence_length = sum([len(sentence.split()) for sentence in sentences]) / len(sentences) if sentences else 0
-    coherencia_score = min(100, avg_sentence_length * 5)  # Escalar longitud promedio
-
-    # Puntaje Total
-    total_score = round((ortografia_score + redaccion_score + coherencia_score) / 3, 2)
-
-    return {
-        "Calidad de Redacción": round(redaccion_score, 2),
-        "Ortografía": round(ortografia_score, 2),
-        "Coherencia y Fluidez": round(coherencia_score, 2),
-        "Puntaje Total": total_score
-    }
-
 def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
     Genera un reporte con un fondo en cada página.
@@ -478,9 +432,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if not att_text:
         st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
         return
-
-    # Evaluar la presentación de la hoja de vida
-    presentation_results = evaluate_cv_presentation(pdf_path)
     
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
@@ -643,6 +594,34 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
+    # Extraer texto completo del PDF
+    text = extract_text_with_ocr(pdf_path)
+    if not text.strip():
+        return {
+            "Calidad de Redacción": 0,
+            "Ortografía": 0,
+            "Coherencia y Fluidez": 0,
+            "Estilo y Formato": 0,
+            "Puntaje Total": 0
+        }
+
+    # 1. Evaluación de Ortografía
+    spell = SpellChecker(language="es")
+    words = text.split()
+    misspelled = spell.unknown(words)
+    total_words = len(words)
+    ortografia_score = max(0, 100 - (len(misspelled) / total_words * 100))  # Porcentaje de palabras correctas
+
+    # 2. Calidad de Redacción (Polaridad promedio del texto)
+    blob = TextBlob(text)
+    sentences = blob.sentences
+    avg_polarity = sum([sentence.sentiment.polarity for sentence in sentences]) / len(sentences) if sentences else 0
+    redaccion_score = max(0, 100 + avg_polarity * 50)  # Ajustar polaridad a un rango de 0-100
+
+    # 3. Coherencia y Fluidez (Longitud promedio de las oraciones)
+    avg_sentence_length = sum([len(sentence.split()) for sentence in sentences]) / len(sentences) if sentences else 0
+    coherencia_score = min(100, avg_sentence_length * 5)  # Escalar longitud promedio
+
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
     parcial_exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
@@ -652,6 +631,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     parcial_att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
     profile_func_score= round((profile_func_match * 5) / 100, 2)
     profile_profile_score= round((profile_profile_match * 5) / 100, 2)
+    presentation_score = round((ortografia_score + redaccion_score + coherencia_score) / 3, 2)
 
     #Calcular resultados globales
     global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match+ profile_func_match) / 4
@@ -845,6 +825,42 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Total de líneas analizadas en EXPERIENCIA EN ANEIAP
     total_lines = len(line_results)
     elements.append(Paragraph(f"• Total de experiencias analizadas: {total_lines}", styles['CenturyGothicBold']))
+
+    elements.append(Spacer(1, 0.2 * inch))
+
+        elements.append(Spacer(1, 0.2 * inch))
+
+    # Añadir resultados al reporte
+    elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Crear tabla de evaluación de presentación
+    presentation_table = Table(
+        [
+            ["Criterio", "Puntaje (%)"],
+            ["Calidad de Redacción", f"{redaccion_score:.2f}%"],
+            ["Ortografía", f"{ortografia_score:.2f}%"],
+            ["Coherencia y Fluidez", f"{coherencia_score:.2f}%"],
+            ["Estilo y Formato", f"{estilo_score:.2f}%"],
+            ["Puntaje Total", f"{presentation_score:.2f}%"]
+        ],
+        colWidths=[3 * inch, 2 * inch]
+    )
+    
+    # Estilo de la tabla
+    presentation_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+    
+    elements.append(presentation_table)
 
     elements.append(Spacer(1, 0.2 * inch))
 
@@ -1583,40 +1599,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Añadir resultados al reporte
-    elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
-    elements.append(Spacer(1, 0.2 * inch))
-    
-    # Crear tabla de evaluación de presentación
-    presentation_table = Table(
-        [
-            ["Criterio", "Puntaje (%)"],
-            ["Calidad de Redacción", f"{presentation_results['Calidad de Redacción']}%"],
-            ["Ortografía", f"{presentation_results['Ortografía']}%"],
-            ["Coherencia y Fluidez", f"{presentation_results['Coherencia y Fluidez']}%"],
-            ["Estilo y Formato", f"{presentation_results['Estilo y Formato']}%"],
-            ["Puntaje Total", f"{presentation_results['Puntaje Total']}%"]
-        ],
-        colWidths=[3 * inch, 2 * inch]
-    )
-    
-    # Estilo de la tabla
-    presentation_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
-        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ]))
-    
-    elements.append(presentation_table)
-
-    elements.append(Spacer(1, 0.2 * inch))
-    
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
