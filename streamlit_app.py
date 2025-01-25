@@ -908,17 +908,17 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Consejos para ortografía
     if spelling_score < 50:
         elements.append(Paragraph(
-            "Revisa cuidadosamente la ortografía de tu hoja de vida. Considera utilizar herramientas automáticas para detectar errores de escritura.",
+            "• Revisa cuidadosamente la ortografía de tu hoja de vida. Considera utilizar herramientas automáticas para detectar errores de escritura.",
             styles['CenturyGothic']
         ))
     elif 50 <= spelling_score <= 75:
         elements.append(Paragraph(
-            "Tu ortografía es buena, pero aún puede mejorar. Lee tu hoja de vida en voz alta para identificar errores menores.",
+            "• Tu ortografía es buena, pero aún puede mejorar. Lee tu hoja de vida en voz alta para identificar errores menores.",
             styles['CenturyGothic']
         ))
     else:
         elements.append(Paragraph(
-            "Tu ortografía es excelente. Continúa manteniendo este nivel de detalle en tus documentos.",
+            "• Tu ortografía es excelente. Continúa manteniendo este nivel de detalle en tus documentos.",
             styles['CenturyGothic']
         ))
     elements.append(Spacer(1, 0.1 * inch))
@@ -926,17 +926,17 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Consejos para uso de mayúsculas
     if capitalization_score < 50:
         elements.append(Paragraph(
-            "Corrige el uso de mayúsculas. Asegúrate de que nombres propios, títulos y principios de frases estén correctamente capitalizados.",
+            "• Corrige el uso de mayúsculas. Asegúrate de que nombres propios, títulos y principios de frases estén correctamente capitalizados.",
             styles['CenturyGothic']
         ))
     elif 50 <= capitalization_score <= 75:
         elements.append(Paragraph(
-            "Tu uso de mayúsculas es aceptable, pero puede perfeccionarse. Revisa los encabezados y títulos para asegurarte de que estén bien escritos.",
+            "• Tu uso de mayúsculas es aceptable, pero puede perfeccionarse. Revisa los encabezados y títulos para asegurarte de que estén bien escritos.",
             styles['CenturyGothic']
         ))
     else:
         elements.append(Paragraph(
-            "El uso de mayúsculas en tu hoja de vida es excelente. Continúa aplicando este estándar.",
+            "• El uso de mayúsculas en tu hoja de vida es excelente. Continúa aplicando este estándar.",
             styles['CenturyGothic']
         ))
     elements.append(Spacer(1, 0.1 * inch))
@@ -944,17 +944,17 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Consejos para coherencia de frases
     if sentence_completion_score < 50:
         elements.append(Paragraph(
-            "Mejora la redacción de las frases en tu hoja de vida. Asegúrate de que sean completas, coherentes y claras.",
+            "• Mejora la redacción de las frases en tu hoja de vida. Asegúrate de que sean completas, coherentes y claras.",
             styles['CenturyGothic']
         ))
     elif 50 <= sentence_completion_score <= 75:
         elements.append(Paragraph(
-            "La redacción de tus frases es adecuada, pero revisa la fluidez entre oraciones para mejorar la coherencia general.",
+            "• La redacción de tus frases es adecuada, pero revisa la fluidez entre oraciones para mejorar la coherencia general.",
             styles['CenturyGothic']
         ))
     else:
         elements.append(Paragraph(
-            "La redacción de las frases en tu hoja de vida es clara y coherente. Excelente trabajo.",
+            "• La redacción de las frases en tu hoja de vida es clara y coherente. Excelente trabajo.",
             styles['CenturyGothic']
         ))
     
