@@ -635,6 +635,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     pres_cleaned_lines= extract_cleaned_lines(resume_text)
 
+    total_lines= len(pres_cleaned_lines)
+
     for line in pres_cleaned_lines:
         words = line.split()
         total_words += len(words)
