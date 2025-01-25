@@ -9,6 +9,6 @@ numpy
 pandas
 matplotlib 
 tesseract
-textblob
+textblob>=0.17.1
 pyspellchecker
-nltk
+nltk>=3.8.1
