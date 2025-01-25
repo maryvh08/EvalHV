@@ -354,14 +354,14 @@ def evaluate_cv_presentation(pdf_path):
         return None, "No se pudo extraer el texto de la hoja de vida."
 
     # Limpiar y filtrar texto
-    cleaned_lines = []
+    pres_cleaned_lines = []
     lines = text.split("\n")
     for line in lines:
         line = line.strip()
         line = re.sub(r"[^\w\s.,;:!?-]", "", line)  # Eliminar caracteres no alfanuméricos excepto signos básicos
         line = re.sub(r"\s+", " ", line)  # Normalizar espacios
         if line:
-            cleaned_lines.append(line)
+            pres_cleaned_lines.append(line)
 
     # Evaluación de calidad de presentación
     total_lines = len(cleaned_lines)
