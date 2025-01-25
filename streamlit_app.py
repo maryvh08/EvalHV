@@ -348,14 +348,14 @@ def evaluate_cv_presentation(pdf_path):
     :return: Texto limpio y análisis detallado de la presentación.
     """
     # Extraer texto completo de la hoja de vida
-    text = extract_text_with_ocr(pdf_path)
+    resume_text = extract_text_with_ocr(pdf_path)
 
-    if not text:
+    if not resume_text:
         return None, "No se pudo extraer el texto de la hoja de vida."
 
     # Limpiar y filtrar texto
     pres_cleaned_lines = []
-    lines = text.split("\n")
+    lines = resume_text.split("\n")
     for line in lines:
         line = line.strip()
         line = re.sub(r"[^\w\s.,;:!?-]", "", line)  # Eliminar caracteres no alfanuméricos excepto signos básicos
@@ -455,6 +455,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     att_text = extract_attendance_section_with_ocr(pdf_path)
     if not att_text:
         st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
+        return
+
+    resume_text= extract_text_with_ocr(pdf_path)
+    if not resume_text:
+        st.error("No se encontró el texto de la hoja de vida")
         return
     
     # Dividir la experiencia en líneas
@@ -628,7 +633,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     incomplete_sentences = 0
     punctuation_marks = 0
 
-    pres_cleaned_lines= extract_cleaned_lines(text)
+    pres_cleaned_lines= extract_cleaned_lines(resume_text)
 
     for line in pres_cleaned_lines:
         words = line.split()
