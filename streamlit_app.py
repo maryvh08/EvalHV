@@ -1060,41 +1060,6 @@ def extract_asistencia_items_with_details(pdf_path):
 
     return items
 
-def extract_profile_section_with_ocr(pdf_path):
-    """
-    Extrae la sección 'Perfil' de un archivo PDF con soporte de OCR.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Texto de la sección 'Perfil'.
-    """
-    text = extract_text_with_ocr(pdf_path)  # Extraer texto completo del PDF utilizando OCR
-
-    # Palabras clave para identificar el inicio y fin de la sección
-    start_keyword = "Perfil"
-    end_keywords = [
-        "Asistencia a eventos",
-        "Actualización profesional",
-    ]
-
-    # Encontrar índice de inicio
-    start_idx = text.lower().find(start_keyword.lower())
-    if start_idx == -1:
-        return None  # No se encontró la sección "Perfil"
-
-    # Encontrar índice más cercano de fin basado en palabras clave
-    end_idx = len(text)  # Por defecto, tomar hasta el final
-    for keyword in end_keywords:
-        idx = text.lower().find(keyword.lower(), start_idx)
-        if idx != -1:
-            end_idx = min(end_idx, idx)
-
-    # Extraer la sección entre inicio y fin
-    profile_text = text[start_idx:end_idx].strip()
-
-    # Limpieza adicional del texto
-    cleaned_profile_text = re.sub(r"[^\w\s.,;:]", "", profile_text)  # Eliminar caracteres no deseados
-    cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normalizar espacios
-
-    return cleaned_profile_text
 
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
