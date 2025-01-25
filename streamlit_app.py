@@ -1060,7 +1060,7 @@ def extract_asistencia_items_with_details(pdf_path):
 
     return items
 
-def extract_profile_items_with_details(pdf_path):
+def extract_profile_section_with_details(pdf_path):
     """
     Extrae encabezados (en negrita) y sus detalles de la sección 'Perfil'.
     """
