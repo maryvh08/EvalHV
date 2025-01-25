@@ -965,7 +965,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     # Agregar datos de global_results a la tabla
     global_table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
-    global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
+    global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{global_func_score:.2f}", f"{global_profile_score:.2f}"])
 
     # Crear la tabla con ancho de columnas ajustado
     global_table = Table(global_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
