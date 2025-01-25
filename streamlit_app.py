@@ -628,6 +628,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     incomplete_sentences = 0
     punctuation_marks = 0
 
+    pres_cleaned_lines= extract_cleaned_lines(text)
+
     for line in pres_cleaned_lines:
         words = line.split()
         total_words += len(words)
