@@ -10,3 +10,4 @@ pandas
 matplotlib 
 tesseract
 textblob
+language_tool_python
