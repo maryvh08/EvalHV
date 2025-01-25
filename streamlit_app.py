@@ -1094,7 +1094,7 @@ def extract_profile_section_with_details(pdf_path):
 
                         # Detectar encabezados (negrita) y detalles
                         if "bold" in span["font"].lower() and not text.startswith("-"):
-                            current_item = text
+                            current_item = profile_text
                             items[current_item] = []
                         elif current_item:
                             items[current_item].append(text)
