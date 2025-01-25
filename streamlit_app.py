@@ -1088,6 +1088,27 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     :param background_path: Ruta de la imagen de fondo.
     """
 
+    def extract_profile_section_with_ocr(pdf_path):
+        """Extrae la sección 'Perfil' del archivo PDF."""
+        text = extract_text_with_ocr(pdf_path)
+        start_keyword = "Perfil"
+        end_keywords = ["Asistencia a eventos", "Actualización profesional"]
+        start_idx = text.lower().find(start_keyword.lower())
+        if start_idx == -1:
+            return None
+        end_idx = len(text)
+        for keyword in end_keywords:
+            idx = text.lower().find(keyword.lower(), start_idx)
+            if idx != -1:
+                end_idx = min(end_idx, idx)
+        return text[start_idx:end_idx].strip()
+
+    # Extraer la sección 'Perfil'
+    profile_text = extract_profile_section_with_ocr(pdf_path)
+    if not profile_text:
+        st.error("No se encontró la sección 'Perfil' en el PDF.")
+        return
+
     # Extraer texto de la sección EXPERIENCIA EN ANEIAP
     items = extract_experience_items_with_details(pdf_path)
     if not items:
@@ -1129,6 +1150,14 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Calcular la cantidad de ítems relacionados para cada indicador
     related_items_count = {indicator: 0 for indicator in position_indicators}
+
+    # Análisis de la sección de perfil
+    profile_func_match = calculate_similarity(profile_text, functions_text)
+    profile_profile_match = calculate_similarity(profile_text, profile_text_cargo)
+
+    # Calcular puntajes parciales para la sección de perfil
+    profile_func_score = round((profile_func_match * 5) / 100, 2)
+    profile_profile_score = round((profile_profile_match * 5) / 100, 2)
 
     #EXPERIENCIA EN ANEIAP
     for header, details in items.items():
@@ -1274,9 +1303,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
 
     # Calcular concordancia global para funciones y perfil
-    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match) / 3
-    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match) / 3
-
+    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match + profile_func_match) / 4
+    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match + profile_profile_match) / 4
+    
     # Calcular puntaje global
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
