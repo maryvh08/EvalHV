@@ -1073,23 +1073,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     :param background_path: Ruta de la imagen de fondo.
     """
 
-    def extract_dprofile_section_with_ocr(pdf_path):
-        """Extrae la sección 'Perfil' del archivo PDF."""
-        text = extract_text_with_ocr(pdf_path)
-        start_keyword = "Perfil"
-        end_keywords = ["Asistencia a eventos", "Actualización profesional"]
-        start_idx = text.lower().find(start_keyword.lower())
-        if start_idx == -1:
-            return None
-        end_idx = len(text)
-        for keyword in end_keywords:
-            idx = text.lower().find(keyword.lower(), start_idx)
-            if idx != -1:
-                end_idx = min(end_idx, idx)
-        return text[start_idx:end_idx].strip()
-
     # Extraer la sección 'Perfil'
-    profile_text = extract_dprofile_section_with_ocr(pdf_path)
+    profile_text = extract_profile_section_with_details(pdf_path)
     if not profile_text:
         st.error("No se encontró la sección 'Perfil' en el PDF.")
         return
