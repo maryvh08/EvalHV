@@ -682,10 +682,17 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     profile_profile_score= round((profile_profile_match * 5) / 100, 2)
 
     #Calcular resultados globales
-    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match+ profile_func_match+ overall_score) / 5
-    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match + profile_profile_match+ overall_score) / 5
+    global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match+ profile_func_match) / 4
+    global_profile_match = (parcial_exp_profile_match + parcial_att_profile_match + parcial_org_profile_match + profile_profile_match) / 4
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
+
+    #Calculo puntajes totales
+    exp_score= (parcial_exp_func_score+ parcial_exp_profile_score)/2
+    org_score= (parcial_org_func_score+ parcial_org_profile_score)/2
+    att_score= (parcial_exp_att_score+ parcial_att_profile_score)/2
+    profile_score= (profile_func_score+ profile_profile_score)/2
+    total_score= (overall_score+ exp_score+ org_score+ att_score+ profile_score)/5
     
     # Registrar la fuente personalizada
     pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
@@ -1051,9 +1058,43 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(global_table)
     
     elements.append(Spacer(1, 0.2 * inch))
+
+    # Añadir resultados al reporte
+    elements.append(Paragraph("<b>Puntajes totales:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Crear tabla de evaluación de presentación
+    total_table = Table(
+        [
+            ["Criterio", "Puntaje"],
+            ["Experiencia en ANEIAP", f"{exp_score:.2f}"],
+            ["Asistencia a eventos", f"{att_score:.2f}"],
+            ["Eventos organizados", f"{org_score:.2f}"],
+            ["Presentación", f"{overall_score:.2f}"],
+            ["Puntaje Total", f"{total_score:.2f}"]
+        ],
+        colWidths=[3 * inch, 2 * inch]
+    )
+    
+    # Estilo de la tabla
+    total_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+    
+    elements.append(total_table)
+
+    elements.append(Spacer(1, 0.2 * inch))
     
     # Interpretación de resultados
-    elements.append(Paragraph("<b>Interpretación de Resultados globales:</b>", styles['CenturyGothicBold']))
+    elements.append(Paragraph("<b>Interpretación de Resultados:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.1 * inch))
     if global_profile_match > 75 and global_func_match > 75:
         elements.append(Paragraph(
