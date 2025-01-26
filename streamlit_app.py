@@ -1533,6 +1533,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Evaluación de encabezados y detalles
     presentation_results = {}
+    resume_text= {}
     for header, details in resume_text.items():
         header_text = header
         details_text = " ".join(details)
