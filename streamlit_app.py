@@ -1268,17 +1268,28 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     :param pdf_path: Ruta del archivo PDF.
     :return: Resultados del análisis de presentación por encabezados y detalles.
     """
-    # Cargar modelos necesarios
+    # Cargar texto del PDF
+    text_data = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
+
+    if not text_data:
+        return None, "No se pudo extraer texto del archivo PDF."
+
+    # Cargar modelo NLP y corrector ortográfico
     nlp = spacy.load("en_core_web_sm")
     spell = SpellChecker()
 
-    # Evaluación de cada encabezado y detalles
+    # Evaluación de encabezados y detalles
     presentation_results = {}
-    for header, details in items.items():
-        header_text = header
-        details_text = " ".join(details)
-            
-    return header_text, details_text
+    for header, details in text_data.items():
+        header_score = evaluate_text_quality(header, nlp, spell)  # Evaluar encabezado
+        details_score = evaluate_text_quality(" ".join(details), nlp, spell)  # Evaluar detalles combinados
+
+        # Guardar resultados en un diccionario
+        presentation_results[header] = {
+            "header_score": header_score,
+            "details_score": details_score,
+        }
+    return presentation_results
 
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
@@ -1769,19 +1780,25 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
    # Añadir resultados al reporte
     elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
-    
-    # Inicializar las variables con valores predeterminados
-    spelling_score = result.get("spelling_score", 0)
-    capitalization_score = result.get("capitalization_score", 0)
-    coherence_score = result.get("coherence_score", 0)
-    overall_score = result.get("overall_score", 0)
-    
-    # Crear tabla de evaluación de presentación
+
+    # Evaluación de cada encabezado y detalles
     presentation_table_data = [["Criterio", "Puntaje (%)"]]
-    presentation_table_data.append(["Ortografía", f"{spelling_score:.2f}"])
-    presentation_table_data.append(["Mayúsculas", f"{capitalization_score:.2f}"])
-    presentation_table_data.append(["Coherencia de Frases", f"{coherence_score:.2f}"])
-    presentation_table_data.append(["Puntaje Total", f"{overall_score:.2f}"])
+    resume_text = {}
+    for header, details in resume_text.items():
+        header_text = header
+        details_text = " ".join(details)
+
+        # Inicializar las variables con valores predeterminados
+        spelling_score = result.get("spelling_score", 0)
+        capitalization_score = result.get("capitalization_score", 0)
+        coherence_score = result.get("coherence_score", 0)
+        overall_score = result.get("overall_score", 0)
+        
+        # Crear tabla de evaluación de presentación
+        presentation_table_data.append(["Ortografía", f"{spelling_score:.2f}"])
+        presentation_table_data.append(["Mayúsculas", f"{capitalization_score:.2f}"])
+        presentation_table_data.append(["Coherencia de Frases", f"{coherence_score:.2f}"])
+        presentation_table_data.append(["Puntaje Total", f"{overall_score:.2f}"])
     
     # Crear la tabla
     presentation_table = Table(presentation_table_data, colWidths=[3 * inch, 2 * inch])
