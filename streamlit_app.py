@@ -48,6 +48,10 @@ advice = load_advice()
 # Uso del código
 background_path = "Fondo Comunicado.png"
 
+# Descargar y cargar el modelo en tiempo de ejecución
+nlp = spacy.load("https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.2.0/en_core_web_sm-3.2.0.tar.gz")
+
+
 def preprocess_image(image):
     """
     Preprocesa una imagen antes de aplicar OCR.
