@@ -1273,10 +1273,10 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     spell = SpellChecker()
 
     # Evaluación de cada encabezado y detalles
-        presentation_results = {}
-        for header, details in items.items():
-            header_text = header
-            details_text = " ".join(details)
+    presentation_results = {}
+    for header, details in items.items():
+        header_text = header
+        details_text = " ".join(details)
             
     return header_text, details_text
 
