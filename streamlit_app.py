@@ -1940,12 +1940,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Spacer(1, 0.2 * inch))
     
     # Consejos para coherencia
-    if average_coherence_score < 2.5:
+    if round_coherence_score < 2.5:
         elements.append(Paragraph(
             "• La coherencia de las frases necesita atención. Asegúrate de conectar las ideas claramente y evitar frases fragmentadas.",
             styles['CenturyGothic']
         ))
-    elif 2.5 <= average_coherence_score <= 3.75:
+    elif 2.5 <= round_coherence_score <= 3.75:
         elements.append(Paragraph(
             "• La coherencia es aceptable, pero hay margen de mejora. Revisa las transiciones entre ideas para lograr un flujo más natural.",
             styles['CenturyGothic']
@@ -1957,12 +1957,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         ))
     
     # Consejos para ortografía
-    if average_spelling_score < 2.5:
+    if round_spelling_score < 2.5:
         elements.append(Paragraph(
             "• Revisa cuidadosamente la ortografía. Utiliza herramientas como correctores automáticos para identificar y corregir errores.",
             styles['CenturyGothic']
         ))
-    elif 2.5 <= average_spelling_score <= 3.75:
+    elif 2.5 <= round_spelling_score <= 3.75:
         elements.append(Paragraph(
             "• La ortografía es buena, pero se pueden corregir errores menores. Dedica tiempo a revisar cada palabra detenidamente.",
             styles['CenturyGothic']
@@ -1974,12 +1974,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         ))
     
     # Consejos para gramática
-    if average_capitalization_score < 2.5:
+    if round_capitalization_score < 2.5:
         elements.append(Paragraph(
             "• El uso de mayúsculas y la gramática necesitan mejoras. Asegúrate de que los nombres propios y los títulos estén correctamente capitalizados.",
             styles['CenturyGothic']
         ))
-    elif 2.5 <= average_capitalization_score <= 3.75:
+    elif 2.5 <= round_capitalization_score <= 3.75:
         elements.append(Paragraph(
             "• El uso de mayúsculas es correcto, pero puede perfeccionarse. Revisa los títulos y encabezados para asegurarte de que sean consistentes.",
             styles['CenturyGothic']
