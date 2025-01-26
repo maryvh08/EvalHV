@@ -1503,6 +1503,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
+    resume_text= extract_text_with_headers_and_details(pdf_path) 
+    
     # Cargar corrector ortográfico y modelo NLP
     spell = SpellChecker()
 
@@ -1533,7 +1535,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Evaluación de encabezados y detalles
     presentation_results = {}
-    resume_text= {}
     for header, details in resume_text.items():
         header_text = header
         details_text = " ".join(details)
