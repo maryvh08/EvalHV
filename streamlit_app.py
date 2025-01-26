@@ -1876,49 +1876,59 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Añadir evaluación de presentación al reporte
-    elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
-    elements.append(Spacer(1, 0.2 * inch))
-    # Crear tabla de evaluación de presentación
-    presentation_table_data = [["Encabezado/Detalle", "Ortografía", "Capitalización", "Coherencia", "Puntaje General"]]
+    # Crear tabla con la estructura deseada
+    presentation_table_data = [["Criterio", "Puntaje"]]
+    
+    # Inicializar variables para combinar encabezados y detalles
+    total_spelling_score = 0
+    total_capitalization_score = 0
+    total_coherence_score = 0
+    total_overall_score = 0
+    total_sections = 0
+    
+    # Combinar puntajes de encabezados y detalles
     for header, scores in presentation_results.items():
         header_scores = scores["header_score"]
         details_scores = scores["details_score"]
     
-        # Agregar resultados del encabezado
-        presentation_table_data.append([
-            Paragraph(header, styles['CenturyGothic']),
-            f"{header_scores['spelling_score']:.2f}",
-            f"{header_scores['capitalization_score']:.2f}",
-            f"{header_scores['coherence_score']:.2f}",
-            f"{header_scores['overall_score']:.2f}"
-        ])
+        total_spelling_score += (header_scores["spelling_score"] + details_scores["spelling_score"])
+        total_capitalization_score += (header_scores["capitalization_score"] + details_scores["capitalization_score"])
+        total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"])
+        total_overall_score += (header_scores["overall_score"] + details_scores["overall_score"])
+        total_sections += 2  # Sumar encabezado y detalle como secciones separadas
     
-        # Agregar resultados de los detalles
-        presentation_table_data.append([
-            Paragraph("Detalles", styles['CenturyGothic']),
-            f"{details_scores['spelling_score']:.2f}",
-            f"{details_scores['capitalization_score']:.2f}",
-            f"{details_scores['coherence_score']:.2f}",
-            f"{details_scores['overall_score']:.2f}"
-        ])
+    # Calcular promedios generales
+    average_spelling_score = total_spelling_score / total_sections if total_sections > 0 else 0
+    average_capitalization_score = total_capitalization_score / total_sections if total_sections > 0 else 0
+    average_coherence_score = total_coherence_score / total_sections if total_sections > 0 else 0
+    average_overall_score = total_overall_score / total_sections if total_sections > 0 else 0
     
-    # Crear tabla en el PDF
-    presentation_table = Table(presentation_table_data, colWidths=[3 * inch, 1.5 * inch, 1.5 * inch, 1.5 * inch, 1.5 * inch])
+    # Agregar los puntajes combinados a la tabla
+    presentation_table_data.append(["Coherencia", f"{average_coherence_score:.2f}"])
+    presentation_table_data.append(["Ortografía", f"{average_spelling_score:.2f}"])
+    presentation_table_data.append(["Gramática", f"{average_capitalization_score:.2f}"])
+    presentation_table_data.append(["Puntaje Total", f"{average_overall_score:.2f}"])
+    
+    # Crear la tabla con ancho ajustado para las columnas
+    presentation_table = Table(presentation_table_data, colWidths=[4 * inch, 2 * inch])
+    
+    # Estilo de la tabla
     presentation_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
-        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Centrar texto
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente en encabezados
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente en datos
+        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Espaciado inferior en encabezados
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Centrar texto verticalmente
     ]))
     
+    # Agregar la tabla a los elementos
     elements.append(presentation_table)
     elements.append(Spacer(1, 0.2 * inch))
+
 
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
