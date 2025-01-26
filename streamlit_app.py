@@ -1317,11 +1317,15 @@ def evaluate_cv_presentation_with_headers(pdf_path):
 
     # Función para evaluar ortografía
     def evaluate_spelling(text):
+        """Evalúa la ortografía del texto y retorna un puntaje."""
+        if not text or not isinstance(text, str):
+            return 0  # Devuelve un puntaje de 0 si el texto no es válido
         words = text.split()
         misspelled = spell.unknown(words)
         if not words:
-            return 100  # Si no hay palabras, asumimos puntaje perfecto
+            return 100
         return ((len(words) - len(misspelled)) / len(words)) * 100
+
 
     # Función para evaluar capitalización
     def evaluate_capitalization(text):
