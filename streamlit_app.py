@@ -1114,6 +1114,60 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
+    # Generar comentarios para los resultados
+    comments = []
+    
+    if exp_score >= 4:
+        comments.append("Tu experiencia en ANEIAP refleja un nivel destacado, lo que demuestra un conocimiento sólido de la organización y tus contribuciones en actividades clave. Continúa fortaleciendo tu participación para mantener este nivel y destacar aún más.")
+    elif exp_score >= 3:
+        comments.append("Tu experiencia en ANEIAP es buena, pero podrías enfocarte en profundizar tus contribuciones y participación en actividades clave.")
+    else:
+        comments.append("Es importante fortalecer tu experiencia en ANEIAP. Considera involucrarte en más actividades y proyectos para adquirir una mayor comprensión y relevancia.")
+    
+    if att_score >= 4:
+        comments.append("Tu puntuación en asistencia a eventos es excelente. Esto muestra tu compromiso con el aprendizaje y el desarrollo profesional. Mantén esta consistencia participando en eventos relevantes que sigan ampliando tu red de contactos y conocimientos.")
+    elif att_score >= 3:
+        comments.append("Tu asistencia a eventos es adecuada, pero hay margen para participar más en actividades que refuercen tu aprendizaje y crecimiento profesional.")
+    else:
+        comments.append("Debes trabajar en tu participación en eventos. La asistencia regular a actividades puede ayudarte a desarrollar habilidades clave y expandir tu red de contactos.")
+    
+    if org_score >= 4:
+        comments.append("¡Perfecto! Tu desempeño en la organización de eventos es ejemplar. Esto indica habilidades destacadas de planificación, liderazgo y ejecución. Considera compartir tus experiencias con otros miembros para fortalecer el impacto organizacional.")
+    elif org_score >= 3:
+        comments.append("Tu desempeño en la organización de eventos es bueno, pero podrías centrarte en mejorar la planificación y la ejecución para alcanzar un nivel más destacado.")
+    else:
+        comments.append("Es importante trabajar en tus habilidades de organización de eventos. Considera involucrarte en proyectos donde puedas asumir un rol de liderazgo y planificación.")
+    
+    if prof_score >= 4:
+        comments.append("Tu perfil presenta una buena alineación con las expectativas del cargo, destacando competencias clave. Mantén este nivel y continúa fortaleciendo áreas relevantes.")
+    elif prof_score >= 3:
+        comments.append("El perfil presenta una buena alineación con las expectativas del cargo, aunque hay margen de mejora. Podrías enfocar tus esfuerzos en reforzar áreas específicas relacionadas con las competencias clave del puesto.")
+    else:
+        comments.append("Tu perfil necesita mejoras para alinearse mejor con las expectativas del cargo. Trabaja en desarrollar habilidades y competencias clave.")
+    
+    if overall_score >= 4:
+        comments.append("La presentación de tu hoja de vida es excelente. Refleja profesionalismo y claridad. Continúa aplicando este enfoque para mantener un alto estándar.")
+    elif overall_score >= 3:
+        comments.append("La presentación de tu hoja de vida es buena, pero puede mejorar en aspectos como coherencia, ortografía o formato general. Dedica tiempo a revisar estos detalles.")
+    else:
+        comments.append("La presentación de tu hoja de vida necesita mejoras significativas. Asegúrate de revisar la ortografía, la gramática y la coherencia para proyectar una imagen más profesional.")
+    
+    if total_score >= 4:
+        comments.append("Tu puntaje total indica un desempeño destacado en la mayoría de las áreas. Estás bien posicionado para asumir el rol. Mantén este nivel y busca perfeccionar tus fortalezas.")
+    elif total_score >= 3:
+        comments.append("Tu puntaje total es sólido, pero hay aspectos que podrían mejorarse. Enfócate en perfeccionar la presentación y el perfil para complementar tus fortalezas en experiencia, eventos y asistencia.")
+    else:
+        comments.append("El puntaje total muestra áreas importantes por mejorar. Trabaja en fortalecer cada criterio para presentar un perfil más competitivo y completo.")
+    
+    # Añadir comentarios al reporte
+    elements.append(Paragraph("<b>Comentarios sobre los Resultados:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    for comment in comments:
+        elements.append(Paragraph(comment, styles['CenturyGothic']))
+        elements.append(Spacer(1, 0.1 * inch))
+
+    elements.append(Spacer(1, 0.2 * inch))
+
     # Conclusión
     elements.append(Paragraph(
         f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.",
@@ -2198,9 +2252,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     else:
         comments.append("Es importante trabajar en tus habilidades de organización de eventos. Considera involucrarte en proyectos donde puedas asumir un rol de liderazgo y planificación.")
     
-    if profile_score >= 4:
+    if prof_score >= 4:
         comments.append("Tu perfil presenta una buena alineación con las expectativas del cargo, destacando competencias clave. Mantén este nivel y continúa fortaleciendo áreas relevantes.")
-    elif profile_score >= 3:
+    elif prof_score >= 3:
         comments.append("El perfil presenta una buena alineación con las expectativas del cargo, aunque hay margen de mejora. Podrías enfocar tus esfuerzos en reforzar áreas específicas relacionadas con las competencias clave del puesto.")
     else:
         comments.append("Tu perfil necesita mejoras para alinearse mejor con las expectativas del cargo. Trabaja en desarrollar habilidades y competencias clave.")
