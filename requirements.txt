@@ -13,3 +13,4 @@ textblob>=0.17.1
 pyspellchecker
 language_tool_python
 nltk>=3.8.1
+spacy
