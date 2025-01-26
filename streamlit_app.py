@@ -690,7 +690,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     exp_score= (parcial_exp_func_score+ parcial_exp_profile_score)/2
     org_score= (parcial_org_func_score+ parcial_org_profile_score)/2
     att_score= (parcial_att_func_score+ parcial_att_profile_score)/2
-    profile_score= (profile_func_score+ profile_profile_score)/2
+    prof_score= (profile_func_score+ profile_profile_score)/2
     total_score= (overall_score+ exp_score+ org_score+ att_score+ profile_score)/5
     
     # Registrar la fuente personalizada
@@ -1090,7 +1090,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             ["Experiencia en ANEIAP", f"{exp_score:.2f}"],
             ["Asistencia a eventos", f"{att_score:.2f}"],
             ["Eventos organizados", f"{org_score:.2f}"],
-            ["Perfil", f"{profile_score:.2f}"],
+            ["Perfil", f"{prof_score:.2f}"],
             ["Presentación", f"{overall_score:.2f}"],
             ["Puntaje Total", f"{total_score:.2f}"]
         ],
@@ -1704,7 +1704,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     exp_score= (exp_func_score+ exp_profile_score)/2
     org_score= (org_func_score+ org_profile_score)/2
     att_score= (att_func_score+ att_profile_score)/2
-    profile_score= (profile_func_score+ profile_profile_score)/2
+    prof_score= (profile_func_score+ profile_profile_score)/2
     
     # Registrar la fuente personalizada
     pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
@@ -2150,7 +2150,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             ["Experiencia en ANEIAP", f"{exp_score:.2f}"],
             ["Asistencia a eventos", f"{att_score:.2f}"],
             ["Eventos organizados", f"{org_score:.2f}"],
-            ["Perfil", f"{profile_score:.2f}"],
+            ["Perfil", f"{prof_score:.2f}"],
             ["Presentación", f"{round_overall_score:.2f}"],
             ["Puntaje Total", f"{total_score:.2f}"]
         ],
