@@ -1494,6 +1494,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
+    # Cargar corrector ortográfico y modelo NLP
+    spell = SpellChecker()
+    nlp = spacy.load("en_core_web_sm")
+
     # Funciones para evaluación avanzada
     def evaluate_spelling(text):
         """Evalúa la ortografía del texto y retorna un puntaje."""
@@ -1514,38 +1518,42 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     def evaluate_sentence_coherence(text):
         """Evalúa la coherencia y legibilidad del texto."""
         try:
-            return 100 - textstat.flesch_kincaid_grade(text) * 10
+            score = 100 - textstat.flesch_kincaid_grade(text) * 10
+            return max(0, min(score, 100))  # Asegurarse de que esté entre 0 y 100
         except:
             return 50  # Retornar un puntaje intermedio en caso de error
 
-    # Evaluación de cada encabezado y detalles
-    resume_text = {}
+    # Evaluación de encabezados y detalles
+    presentation_results = {}
     for header, details in resume_text.items():
         header_text = header
         details_text = " ".join(details)
 
         # Evaluar encabezado
-        header_spelling= evaluate_spelling(header_text)
-        header_capitalization= evaluate_capitalization(header_text)
-        header_coherence= evaluate_sentence_coherence(header_text)
+        header_spelling = evaluate_spelling(header_text)
+        header_capitalization = evaluate_capitalization(header_text)
+        header_coherence = evaluate_sentence_coherence(header_text)
 
         # Evaluar detalles
-        detail_spelling= evaluate_spelling(details_text)
-        detail_capitalization= evaluate_capitalization(details_text)
-        detail_coherence= evaluate_sentence_coherence(details_text)
+        detail_spelling = evaluate_spelling(details_text)
+        detail_capitalization = evaluate_capitalization(details_text)
+        detail_coherence = evaluate_sentence_coherence(details_text)
 
-        # Calcular promedio para encabezado y detalles
-        spelling_score= ((header_spelling + detail_spelling) / 2)*5
-        capitalization_score= ((header_capitalization + detail_capitalization) / 2)*5
-        coherence_score= ((header_coherence + detail_coherence) / 2)*5
-        overall_score= (spelling_score+ capitalization_score+ coherence_score)/3
+        # Calcular promedios para encabezado y detalles
+        spelling_score = (header_spelling + detail_spelling) / 2
+        capitalization_score = (header_capitalization + detail_capitalization) / 2
+        coherence_score = (header_coherence + detail_coherence) / 2
 
-        presentation_results[resume_text]={
-            "spelling_score": spelling_score, 
-            "capitalization_score": capitalization_score,
-            "coherence_score": coherence_score,
-            "overall_score": overall_score,
-            }
+        # Calcular puntaje general
+        overall_score = (spelling_score + capitalization_score + coherence_score) / 3
+
+        # Guardar resultados
+        presentation_results[header] = {
+            "spelling_score": round(spelling_score, 2),
+            "capitalization_score": round(capitalization_score, 2),
+            "coherence_score": round(coherence_score, 2),
+            "overall_score": round(overall_score, 2),
+        }
 
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
