@@ -1545,14 +1545,18 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Funciones para evaluación avanzada
     def evaluate_spelling(text):
         """Evalúa la ortografía del texto y retorna un puntaje."""
+        if not text.strip():
+            return 0  # Si el texto está vacío, retorna 0
         words = text.split()
         misspelled = spell.unknown(words)
-        if not words:
+        if not words:  # Maneja el caso de que no haya palabras
             return 100
         return ((len(words) - len(misspelled)) / len(words)) * 100
 
     def evaluate_capitalization(text):
         """Evalúa si las frases comienzan con mayúscula utilizando expresiones regulares."""
+        if not text.strip():
+            return 0  # Si el texto está vacío, retorna 0
         # Dividir el texto en oraciones utilizando signos de puntuación comunes
         sentences = re.split(r'[.!?]\s*', text.strip())
         sentences = [sentence for sentence in sentences if sentence]  # Eliminar oraciones vacías
@@ -1566,18 +1570,20 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
         # Calcular el porcentaje de oraciones correctamente capitalizadas
         return (correct_caps / len(sentences)) * 100
-
+        
     def evaluate_sentence_coherence(text):
         """Evalúa la coherencia y legibilidad del texto."""
+        if not text.strip():
+            return 0  # Si el texto está vacío, retorna 0
         try:
-            score = 100 - textstat.flesch_kincaid_grade(text) * 10
-            return max(0, min(score, 100))  # Asegurarse de que esté entre 0 y 100
-        except:
+            return max(0, min(100, 100 - textstat.flesch_kincaid_grade(text) * 10))  # Asegura que el rango esté entre 0 y 100
+        except Exception as e:
+            print(f"Error en coherence_score: {e}")
             return 50  # Retornar un puntaje intermedio en caso de error
 
     # Evaluación de encabezados y detalles
     presentation_results = {}
-    for header, details in resume_text.items():
+    for header, details in headers_and_details.items():
         header_text = header
         details_text = " ".join(details)
 
@@ -1591,21 +1597,20 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         detail_capitalization = evaluate_capitalization(details_text)
         detail_coherence = evaluate_sentence_coherence(details_text)
 
-        # Calcular promedios para encabezado y detalles
+        # Calcular promedios
         spelling_score = (header_spelling + detail_spelling) / 2
         capitalization_score = (header_capitalization + detail_capitalization) / 2
         coherence_score = (header_coherence + detail_coherence) / 2
-
-        # Calcular puntaje general
         overall_score = (spelling_score + capitalization_score + coherence_score) / 3
 
         # Guardar resultados
-        presentation_results[header] = {
-            "spelling_score": round(spelling_score, 2),
-            "capitalization_score": round(capitalization_score, 2),
-            "coherence_score": round(coherence_score, 2),
-            "overall_score": round(overall_score, 2),
-        }
+        presentation_results.append({
+            "header": header,
+            "spelling_score": spelling_score,
+            "capitalization_score": capitalization_score,
+            "coherence_score": coherence_score,
+            "overall_score": overall_score,
+        })
 
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
