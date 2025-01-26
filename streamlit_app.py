@@ -1529,6 +1529,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         coherence_score= ((header_coherence + detail_coherence) / 2)*5
         overall_score= (spelling_score+ capitalization_score+ coherence_score)/3
 
+        presentation_results[resume_text]={
+            "spelling_score": spelling_score 
+            "capitalization_score": capitalization_score
+            "coherence_score": coherence_score
+            "overall_score": overall_score
+            }
+
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
     exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
@@ -1767,14 +1774,16 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     resume_text = {}
     presentation_table_data= ["Criterio", "Puntaje"]
     for header, details in resume_text.items():
-        presentation_table_data.append(
-            [ 
+        spelling_score= ("spelling_score", 0) 
+        capitalization_score= result.get("capitalization_score", 0)
+        coherence_score= result.get("coherence_score", 0)
+        overall_score= result.get("overall_score", 0)
+        presentation_table_data.append([ 
                 ["Coherencia", f"{coherence_score:.2f}"],
                 ["Ortografía", f"{spelling_score:.2f}"],
                 ["Gramática", f"{capitalization_score:.2f}"],
                 ["Puntaje Total", f"{overall_score:.2f}"]
-            ]
-        )
+        ])
     # Crear la tabla
     presentation_table = Table(presentation_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
     
