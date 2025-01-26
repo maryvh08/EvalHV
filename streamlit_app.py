@@ -1600,18 +1600,17 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         except Exception:
             return 50  # Puntaje intermedio en caso de error
 
-    def evaluate_text_quality(text):
-        """Evalúa la calidad del texto."""
-        spelling_score = evaluate_spelling(text)
-        capitalization_score = evaluate_capitalization(text)
-        coherence_score = evaluate_sentence_coherence(text)
-        overall_score = (spelling_score + capitalization_score + coherence_score) / 3
-        return {
-            "spelling_score": spelling_score,
-            "capitalization_score": capitalization_score,
-            "coherence_score": coherence_score,
-            "overall_score": overall_score,
-        }
+    presentation_results= {}
+    spelling_score = evaluate_spelling(text)
+    capitalization_score = evaluate_capitalization(text)
+    coherence_score = evaluate_sentence_coherence(text)
+    overall_score = (spelling_score + capitalization_score + coherence_score) / 3
+    return {
+        "spelling_score": spelling_score,
+        "capitalization_score": capitalization_score,
+        "coherence_score": coherence_score,
+        "overall_score": overall_score,
+    }
 
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
