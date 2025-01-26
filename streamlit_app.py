@@ -1530,10 +1530,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         overall_score= (spelling_score+ capitalization_score+ coherence_score)/3
 
         presentation_results[resume_text]={
-            "spelling_score": spelling_score 
-            "capitalization_score": capitalization_score
-            "coherence_score": coherence_score
-            "overall_score": overall_score
+            "spelling_score": spelling_score, 
+            "capitalization_score": capitalization_score,
+            "coherence_score": coherence_score,
+            "overall_score": overall_score,
             }
 
     # Calculo puntajes parciales
