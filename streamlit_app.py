@@ -1541,12 +1541,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
     # Cargar corrector ortográfico y modelo NLP
     spell = SpellChecker()
-    try:
-        nlp = spacy.load("en_core_web_sm")
-    except OSError:
-        # Instalar el modelo si no está disponible
-        os.system("python -m spacy download en_core_web_sm")
-        nlp = spacy.load("en_core_web_sm")
     
     # Funciones para evaluación avanzada
     def evaluate_spelling(text):
