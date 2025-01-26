@@ -1340,20 +1340,20 @@ def evaluate_cv_presentation_with_headers(pdf_path):
             return 50  # Puntaje intermedio en caso de error
 
     # Función para evaluar la calidad del texto
-    def evaluate_text_quality(text):
-        spelling_score = evaluate_spelling(text)
-        capitalization_score = evaluate_capitalization(text)
-        coherence_score = evaluate_sentence_coherence(text)
-        overall_score = (spelling_score + capitalization_score + coherence_score) / 3
-        return {
-            "spelling_score": spelling_score,
-            "capitalization_score": capitalization_score,
-            "coherence_score": coherence_score,
-            "overall_score": overall_score,
-        }
+    spelling_score = evaluate_spelling(text)
+    capitalization_score = evaluate_capitalization(text)
+    coherence_score = evaluate_sentence_coherence(text)
+    overall_score = (spelling_score + capitalization_score + coherence_score) / 3
+    return {
+        "spelling_score": spelling_score,
+        "capitalization_score": capitalization_score,
+        "coherence_score": coherence_score,
+        "overall_score": overall_score,
+    }
 
     # Evaluación de encabezados y detalles
     presentation_results = {}
+    presentation_results= []
     for header, details in text_data.items():
         header_score = evaluate_text_quality(header)  # Evaluar encabezado
         details_score = evaluate_text_quality(" ".join(details))  # Evaluar detalles combinados
@@ -1363,8 +1363,6 @@ def evaluate_cv_presentation_with_headers(pdf_path):
             "header_score": header_score,
             "details_score": details_score,
         }
-
-    return presentation_results
 
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
