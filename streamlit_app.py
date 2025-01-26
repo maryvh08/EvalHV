@@ -689,7 +689,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     #Calculo puntajes totales
     exp_score= (parcial_exp_func_score+ parcial_exp_profile_score)/2
     org_score= (parcial_org_func_score+ parcial_org_profile_score)/2
-    att_score= (parcial_exp_att_score+ parcial_att_profile_score)/2
+    att_score= (parcial_att_score+ parcial_att_profile_score)/2
     profile_score= (profile_func_score+ profile_profile_score)/2
     total_score= (overall_score+ exp_score+ org_score+ att_score+ profile_score)/5
     
