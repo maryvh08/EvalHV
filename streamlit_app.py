@@ -1463,6 +1463,58 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
+    # Extraer encabezados y detalles de la hoja de vida
+    resume_text = extract_text_with_ocr(pdf_path)
+
+    if not resume_text:
+        return None, "No se encontraron encabezados y detalles para analizar."
+
+    # Funciones para evaluación avanzada
+    def evaluate_spelling(text):
+        """Evalúa la ortografía del texto y retorna un puntaje."""
+        words = text.split()
+        misspelled = spell.unknown(words)
+        if not words:
+            return 100
+        return ((len(words) - len(misspelled)) / len(words)) * 100
+
+    def evaluate_capitalization(text):
+        """Evalúa si las frases comienzan con mayúscula."""
+        sentences = [sent.text.strip() for sent in nlp(text).sents]
+        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
+        if not sentences:
+            return 100
+        return (correct_caps / len(sentences)) * 100
+
+    def evaluate_sentence_coherence(text):
+        """Evalúa la coherencia y legibilidad del texto."""
+        try:
+            return 100 - textstat.flesch_kincaid_grade(text) * 10
+        except:
+            return 50  # Retornar un puntaje intermedio en caso de error
+
+    # Evaluación de cada encabezado y detalles
+    presentation_results = {}
+    for header, details in resume_text.items():
+        header_text = header
+        details_text = " ".join(details)
+
+        # Evaluar encabezado
+        header_spelling= evaluate_spelling(header_text)
+        header_capitalization= evaluate_capitalization(header_text)
+        header_coherence= evaluate_sentence_coherence(header_text)
+
+        # Evaluar detalles
+        detail_spelling= evaluate_spelling(details_text)
+        detail_capitalization= evaluate_capitalization(details_text)
+        detail_coherence= evaluate_sentence_coherence(details_text)
+
+        # Calcular promedio para encabezado y detalles
+        spelling_score= ((header_spelling + detail_spelling) / 2)*5
+        capitalization_score= ((header_capitalization + detail_capitalization) / 2)*5
+        coherence_score= ((header_coherence + detail_coherence) / 2)*5
+        overall_score= (spelling_score+ capitalization_score+ coherence_score)/3
+
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
     exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
@@ -1690,6 +1742,39 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Total de líneas analizadas
     total_items = len(item_results)
     elements.append(Paragraph(f"• Total de experiencias analizadas: {total_items}", styles['CenturyGothicBold']))
+
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Añadir resultados al reporte
+    elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Crear tabla de evaluación de presentación
+    presentation_table = Table(
+        [
+            ["Criterio", "Puntaje"],
+            ["Coherencia", f"{coherence_score:.2f}"],
+            ["Ortografía", f"{spelling_score:.2f}"],
+            ["Gramática", f"{capitalization_score:.2f}"],
+            ["Puntaje Total", f"{overall_score:.2f}"]
+        ],
+        colWidths=[3 * inch, 2 * inch]
+    )
+    
+    # Estilo de la tabla
+    presentation_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+    
+    elements.append(presentation_table)
 
     elements.append(Spacer(1, 0.2 * inch))
 
