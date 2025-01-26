@@ -9,6 +9,7 @@ import re
 import json
 import os
 import pytesseract
+from spacy import en_core_web_sm
 from spellchecker import SpellChecker
 from textblob import TextBlob
 from reportlab.pdfgen import canvas
