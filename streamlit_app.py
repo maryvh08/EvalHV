@@ -1601,9 +1601,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             return 50  # Puntaje intermedio en caso de error
 
     presentation_results= {}
-    spelling_score = evaluate_spelling(text_data)
-    capitalization_score = evaluate_capitalization(text_data)
-    coherence_score = evaluate_sentence_coherence(text_data)
+    spelling_score = evaluate_spelling(text)
+    capitalization_score = evaluate_capitalization(text)
+    coherence_score = evaluate_sentence_coherence(text)
     overall_score = (spelling_score + capitalization_score + coherence_score) / 3
     return {
         "spelling_score": spelling_score,
