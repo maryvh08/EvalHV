@@ -1278,8 +1278,13 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     if not text_data:
         return None, "No se pudo extraer texto del archivo PDF."
 
-    # Cargar modelo NLP y corrector ortográfico
-    nlp = spacy.load("en_core_web_sm")
+    # Verificar si el modelo está instalado, si no, instalarlo
+    try:
+        nlp = spacy.load("en_core_web_sm")
+    except OSError:
+        # Instalar el modelo si no está disponible
+        os.system("python -m spacy download en_core_web_sm")
+        nlp = spacy.load("en_core_web_sm")
     spell = SpellChecker()
 
     # Evaluación de encabezados y detalles
@@ -1500,7 +1505,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     # Cargar corrector ortográfico y modelo NLP
     spell = SpellChecker()
-    nlp = spacy.load("en_core_web_sm")
 
     # Funciones para evaluación avanzada
     def evaluate_spelling(text):
