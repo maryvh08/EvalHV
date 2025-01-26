@@ -4,6 +4,8 @@ import spacy
 import pandas as pd
 import streamlit as st
 from io import BytesIO
+import requests
+import tarfile
 import io
 import re
 import json
@@ -48,8 +50,26 @@ advice = load_advice()
 # Uso del código
 background_path = "Fondo Comunicado.png"
 
-# Descargar y cargar el modelo en tiempo de ejecución
-nlp = spacy.load("https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.2.0/en_core_web_sm-3.2.0.tar.gz")
+# Ruta donde descargar y extraer el modelo
+model_url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.2.0/en_core_web_sm-3.2.0.tar.gz"
+model_path = "en_core_web_sm-3.2.0"
+
+# Descargar el modelo
+if not os.path.exists(model_path):
+    print("Descargando el modelo...")
+    response = requests.get(model_url, stream=True)
+    with open("model.tar.gz", "wb") as f:
+        f.write(response.content)
+    
+    # Extraer el modelo
+    print("Extrayendo el modelo...")
+    with tarfile.open("model.tar.gz", "r:gz") as tar:
+        tar.extractall()
+
+# Cargar el modelo
+print("Cargando el modelo...")
+nlp = spacy.load(model_path)
+print("Modelo cargado correctamente.")
 
 
 def preprocess_image(image):
