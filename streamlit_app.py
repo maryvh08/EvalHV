@@ -1766,49 +1766,41 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Añadir resultados al reporte
+   # Añadir resultados al reporte
     elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
     
+    # Inicializar las variables con valores predeterminados
+    spelling_score = result.get("spelling_score", 0)
+    capitalization_score = result.get("capitalization_score", 0)
+    coherence_score = result.get("coherence_score", 0)
+    overall_score = result.get("overall_score", 0)
+    
     # Crear tabla de evaluación de presentación
     presentation_table_data = [["Criterio", "Puntaje (%)"]]
-    
-    # Evaluar criterios para cada encabezado y detalles en el CV
-    for header, details in resume_text.items():
-        # Aquí debes implementar las evaluaciones reales de spelling, capitalization y coherence
-        spelling_score = result.get("spelling_score", 0)
-        capitalization_score = result.get("capitalization_score", 0)
-        coherence_score = result.get("coherence_score", 0)
-        overall_score = result.get("overall_score", 0)
-    
-    # Añadir datos a la tabla
     presentation_table_data.append(["Ortografía", f"{spelling_score:.2f}"])
     presentation_table_data.append(["Mayúsculas", f"{capitalization_score:.2f}"])
     presentation_table_data.append(["Coherencia de Frases", f"{coherence_score:.2f}"])
     presentation_table_data.append(["Puntaje Total", f"{overall_score:.2f}"])
     
-    # Crear la tabla con datos
+    # Crear la tabla
     presentation_table = Table(presentation_table_data, colWidths=[3 * inch, 2 * inch])
     
-    # Aplicar estilo a la tabla
+    # Estilo de la tabla
     presentation_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo encabezados
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color texto encabezados
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Centrar texto
-        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente encabezados
-        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente celdas
-        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior encabezados
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Bordes de tabla
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear verticalmente
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ]))
     
-    # Añadir la tabla a los elementos del PDF
+    # Añadir tabla al reporte
     elements.append(presentation_table)
-    
-    elements.append(Spacer(1, 0.2 * inch))
-
-
     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla con ajuste de texto
