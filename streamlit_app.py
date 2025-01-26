@@ -624,6 +624,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
+    # Cargar corrector ortográfico y modelo NLP
+    spell = SpellChecker()
+    nlp = spacy.load("en_core_web_sm")
+
     # Inicializar corrector ortográfico
     spell = SpellChecker(language='es')
 
