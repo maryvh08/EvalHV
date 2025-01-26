@@ -1569,80 +1569,52 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
-    resume_text= extract_text_with_headers_and_details(pdf_path) 
-    
-    # Cargar corrector ortográfico y modelo NLP
+    # Extraer texto del PDF con encabezados y detalles
+    text_data = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
+
+    if not text_data:
+        st.error("No se pudo extraer texto del archivo PDF.")
+        return
+
+    # Funciones para evaluación avanzada de presentación
     spell = SpellChecker()
-    
-    # Funciones para evaluación avanzada
+
     def evaluate_spelling(text):
         """Evalúa la ortografía del texto y retorna un puntaje."""
-        if not text.strip():
-            return 0  # Si el texto está vacío, retorna 0
         words = text.split()
         misspelled = spell.unknown(words)
-        if not words:  # Maneja el caso de que no haya palabras
-            return 100
+        if not words:
+            return 100  # Si no hay palabras, asumimos puntaje perfecto
         return ((len(words) - len(misspelled)) / len(words)) * 100
 
     def evaluate_capitalization(text):
-        """Evalúa si las frases comienzan con mayúscula utilizando expresiones regulares."""
-        if not text.strip():
-            return 0  # Si el texto está vacío, retorna 0
-        # Dividir el texto en oraciones utilizando signos de puntuación comunes
-        sentences = re.split(r'[.!?]\s*', text.strip())
-        sentences = [sentence for sentence in sentences if sentence]  # Eliminar oraciones vacías
-    
-        # Contar cuántas oraciones comienzan con una mayúscula
+        """Evalúa si las frases comienzan con mayúscula."""
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
+        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
         correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
-    
-        # Si no hay oraciones, devuelve 100 como puntaje perfecto
         if not sentences:
-            return 100
-    
-        # Calcular el porcentaje de oraciones correctamente capitalizadas
+            return 100  # Si no hay oraciones, asumimos puntaje perfecto
         return (correct_caps / len(sentences)) * 100
-        
+
     def evaluate_sentence_coherence(text):
         """Evalúa la coherencia y legibilidad del texto."""
-        if not text.strip():
-            return 0  # Si el texto está vacío, retorna 0
         try:
-            return max(0, min(100, 100 - textstat.flesch_kincaid_grade(text) * 10))  # Asegura que el rango esté entre 0 y 100
-        except Exception as e:
-            print(f"Error en coherence_score: {e}")
-            return 50  # Retornar un puntaje intermedio en caso de error
+            return max(0, min(100, 100 - textstat.flesch_kincaid_grade(text) * 10))  # Normalizar entre 0 y 100
+        except Exception:
+            return 50  # Puntaje intermedio en caso de error
 
-    # Evaluación de encabezados y detalles
-    presentation_results = []
-    for header, details in resume_text.items():
-        header_text = header
-        details_text = " ".join(details)
-
-        # Evaluar encabezado
-        header_spelling = evaluate_spelling(header_text)
-        header_capitalization = evaluate_capitalization(header_text)
-        header_coherence = evaluate_sentence_coherence(header_text)
-
-        # Evaluar detalles
-        detail_spelling = evaluate_spelling(details_text)
-        detail_capitalization = evaluate_capitalization(details_text)
-        detail_coherence = evaluate_sentence_coherence(details_text)
-
-        # Calcular promedios
-        spelling_score = (header_spelling + detail_spelling) / 2
-        capitalization_score = (header_capitalization + detail_capitalization) / 2
-        coherence_score = (header_coherence + detail_coherence) / 2
+    def evaluate_text_quality(text):
+        """Evalúa la calidad del texto."""
+        spelling_score = evaluate_spelling(text)
+        capitalization_score = evaluate_capitalization(text)
+        coherence_score = evaluate_sentence_coherence(text)
         overall_score = (spelling_score + capitalization_score + coherence_score) / 3
-
-        # Guardar resultados
-        presentation_results.append({
-            "header": header,
+        return {
             "spelling_score": spelling_score,
             "capitalization_score": capitalization_score,
             "coherence_score": coherence_score,
             "overall_score": overall_score,
-        })
+        }
 
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
