@@ -1272,12 +1272,6 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     nlp = spacy.load("en_core_web_sm")
     spell = SpellChecker()
 
-    # Extraer encabezados y detalles de la hoja de vida
-    text = extract_text_with_ocr(pdf_path)
-
-    if not items:
-        return None, "No se encontraron encabezados y detalles para analizar."
-
     # Evaluación de cada encabezado y detalles
         presentation_results = {}
         for header, details in items.items():
