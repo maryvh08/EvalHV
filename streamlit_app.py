@@ -1307,7 +1307,7 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     :return: Resultados del análisis de presentación por encabezados y detalles.
     """
     # Cargar texto del PDF
-    text_data = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
+    text = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
 
     if not text_data:
         return None, "No se pudo extraer texto del archivo PDF."
@@ -1578,7 +1578,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     def evaluate_spelling(text):
         """Evalúa la ortografía del texto y retorna un puntaje."""
-        words = text_data.split()
+        words = text.split()
         misspelled = spell.unknown(words)
         if not words:
             return 100  # Si no hay palabras, asumimos puntaje perfecto
