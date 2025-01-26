@@ -1353,7 +1353,6 @@ def evaluate_cv_presentation_with_headers(pdf_path):
 
     # Evaluación de encabezados y detalles
     presentation_results = {}
-    presentation_results= []
     for header, details in text_data.items():
         header_score = evaluate_text_quality(header)  # Evaluar encabezado
         details_score = evaluate_text_quality(" ".join(details))  # Evaluar detalles combinados
@@ -1848,6 +1847,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
 
+    presentation_results= []
+    
     # Crear tabla de evaluación de presentación
     presentation_table_data = [["Encabezado/Detalle", "Ortografía", "Capitalización", "Coherencia", "Puntaje General"]]
     for header, scores in presentation_results.items():
