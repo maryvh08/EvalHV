@@ -1523,11 +1523,11 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         detail_capitalization= evaluate_capitalization(details_text)
         detail_coherence= evaluate_sentence_coherence(details_text)
 
-        # Calcular promedio para encabezado y detalles
-        spelling_score= ((header_spelling + detail_spelling) / 2)*5
-        capitalization_score= ((header_capitalization + detail_capitalization) / 2)*5
-        coherence_score= ((header_coherence + detail_coherence) / 2)*5
-        overall_score= (spelling_score+ capitalization_score+ coherence_score)/3
+    # Calcular promedio para encabezado y detalles
+    spelling_score= ((header_spelling + detail_spelling) / 2)*5
+    capitalization_score= ((header_capitalization + detail_capitalization) / 2)*5
+    coherence_score= ((header_coherence + detail_coherence) / 2)*5
+    overall_score= (spelling_score+ capitalization_score+ coherence_score)/3
 
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
