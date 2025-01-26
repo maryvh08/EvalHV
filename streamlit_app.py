@@ -1902,12 +1902,18 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     average_capitalization_score = total_capitalization_score / total_sections if total_sections > 0 else 0
     average_coherence_score = total_coherence_score / total_sections if total_sections > 0 else 0
     average_overall_score = total_overall_score / total_sections if total_sections > 0 else 0
+
+    # Calcular puntajes ajustados
+    round_spelling_score = round((average_spelling_score / 100) * 5, 2) 
+    round_capitalization_score = round((average_capitalization_score / 100) * 5, 2) 
+    round_coherence_score = round((average_coherence_score / 100) * 5, 2) 
+    round_overall_score = round((average_overall_score / 100) * 5, 2) 
     
     # Agregar los puntajes combinados a la tabla
-    presentation_table_data.append(["Coherencia", f"{average_coherence_score:.2f}%"])
-    presentation_table_data.append(["Ortografía", f"{average_spelling_score:.2f}%"])
-    presentation_table_data.append(["Gramática", f"{average_capitalization_score:.2f}%"])
-    presentation_table_data.append(["Puntaje Total", f"{average_overall_score:.2f}%"])
+    presentation_table_data.append(["Coherencia", f"{round_spelling_score:.2f}"])
+    presentation_table_data.append(["Ortografía", f"{round_capitalization_score:.2f}"])
+    presentation_table_data.append(["Gramática", f"{round_coherence_score:.2f}"])
+    presentation_table_data.append(["Puntaje Total", f"{round_overall_score:.2f}"])
     
     # Crear la tabla con ancho ajustado para las columnas
     presentation_table = Table(presentation_table_data, colWidths=[4 * inch, 2 * inch])
@@ -1934,12 +1940,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Spacer(1, 0.2 * inch))
     
     # Consejos para coherencia
-    if average_coherence_score < 50:
+    if average_coherence_score < 2.5:
         elements.append(Paragraph(
             "• La coherencia de las frases necesita atención. Asegúrate de conectar las ideas claramente y evitar frases fragmentadas.",
             styles['CenturyGothic']
         ))
-    elif 50 <= average_coherence_score <= 75:
+    elif 2.5 <= average_coherence_score <= 3.75:
         elements.append(Paragraph(
             "• La coherencia es aceptable, pero hay margen de mejora. Revisa las transiciones entre ideas para lograr un flujo más natural.",
             styles['CenturyGothic']
@@ -1951,12 +1957,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         ))
     
     # Consejos para ortografía
-    if average_spelling_score < 50:
+    if average_spelling_score < 2.5:
         elements.append(Paragraph(
             "• Revisa cuidadosamente la ortografía. Utiliza herramientas como correctores automáticos para identificar y corregir errores.",
             styles['CenturyGothic']
         ))
-    elif 50 <= average_spelling_score <= 75:
+    elif 2.5 <= average_spelling_score <= 3.75:
         elements.append(Paragraph(
             "• La ortografía es buena, pero se pueden corregir errores menores. Dedica tiempo a revisar cada palabra detenidamente.",
             styles['CenturyGothic']
@@ -1968,12 +1974,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         ))
     
     # Consejos para gramática
-    if average_capitalization_score < 50:
+    if average_capitalization_score < 2.5:
         elements.append(Paragraph(
             "• El uso de mayúsculas y la gramática necesitan mejoras. Asegúrate de que los nombres propios y los títulos estén correctamente capitalizados.",
             styles['CenturyGothic']
         ))
-    elif 50 <= average_capitalization_score <= 75:
+    elif 2.5 <= average_capitalization_score <= 3.75:
         elements.append(Paragraph(
             "• El uso de mayúsculas es correcto, pero puede perfeccionarse. Revisa los títulos y encabezados para asegurarte de que sean consistentes.",
             styles['CenturyGothic']
