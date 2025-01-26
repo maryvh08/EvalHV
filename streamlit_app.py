@@ -1312,26 +1312,58 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     if not text_data:
         return None, "No se pudo extraer texto del archivo PDF."
 
-    # Verificar si el modelo está instalado, si no, instalarlo
-    try:
-        nlp = spacy.load("en_core_web_sm")
-    except OSError:
-        # Instalar el modelo si no está disponible
-        os.system("python -m spacy download en_core_web_sm")
-        nlp = spacy.load("en_core_web_sm")
+    # Instanciar SpellChecker
     spell = SpellChecker()
+
+    # Función para evaluar ortografía
+    def evaluate_spelling(text):
+        words = text.split()
+        misspelled = spell.unknown(words)
+        if not words:
+            return 100  # Si no hay palabras, asumimos puntaje perfecto
+        return ((len(words) - len(misspelled)) / len(words)) * 100
+
+    # Función para evaluar capitalización
+    def evaluate_capitalization(text):
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
+        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
+        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
+        if not sentences:
+            return 100  # Si no hay oraciones, asumimos puntaje perfecto
+        return (correct_caps / len(sentences)) * 100
+
+    # Función para evaluar coherencia de las frases
+    def evaluate_sentence_coherence(text):
+        try:
+            return max(0, min(100, 100 - textstat.flesch_kincaid_grade(text) * 10))  # Normalizar entre 0 y 100
+        except Exception:
+            return 50  # Puntaje intermedio en caso de error
+
+    # Función para evaluar la calidad del texto
+    def evaluate_text_quality(text):
+        spelling_score = evaluate_spelling(text)
+        capitalization_score = evaluate_capitalization(text)
+        coherence_score = evaluate_sentence_coherence(text)
+        overall_score = (spelling_score + capitalization_score + coherence_score) / 3
+        return {
+            "spelling_score": spelling_score,
+            "capitalization_score": capitalization_score,
+            "coherence_score": coherence_score,
+            "overall_score": overall_score,
+        }
 
     # Evaluación de encabezados y detalles
     presentation_results = {}
     for header, details in text_data.items():
-        header_score = evaluate_text_quality(header, nlp, spell)  # Evaluar encabezado
-        details_score = evaluate_text_quality(" ".join(details), nlp, spell)  # Evaluar detalles combinados
+        header_score = evaluate_text_quality(header)  # Evaluar encabezado
+        details_score = evaluate_text_quality(" ".join(details))  # Evaluar detalles combinados
 
         # Guardar resultados en un diccionario
         presentation_results[header] = {
             "header_score": header_score,
             "details_score": details_score,
         }
+
     return presentation_results
 
 # Función principal para generar el reporte descriptivo
