@@ -1552,11 +1552,19 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         return ((len(words) - len(misspelled)) / len(words)) * 100
 
     def evaluate_capitalization(text):
-        """Evalúa si las frases comienzan con mayúscula."""
-        sentences = [sent.text.strip() for sent in nlp(text).sents]
+    """Evalúa si las frases comienzan con mayúscula utilizando expresiones regulares."""
+        # Dividir el texto en oraciones utilizando signos de puntuación comunes
+        sentences = re.split(r'[.!?]\s*', text.strip())
+        sentences = [sentence for sentence in sentences if sentence]  # Eliminar oraciones vacías
+    
+        # Contar cuántas oraciones comienzan con una mayúscula
         correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
+    
+        # Si no hay oraciones, devuelve 100 como puntaje perfecto
         if not sentences:
             return 100
+    
+        # Calcular el porcentaje de oraciones correctamente capitalizadas
         return (correct_caps / len(sentences)) * 100
 
     def evaluate_sentence_coherence(text):
