@@ -1552,7 +1552,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         return ((len(words) - len(misspelled)) / len(words)) * 100
 
     def evaluate_capitalization(text):
-    """Evalúa si las frases comienzan con mayúscula utilizando expresiones regulares."""
+        """Evalúa si las frases comienzan con mayúscula utilizando expresiones regulares."""
         # Dividir el texto en oraciones utilizando signos de puntuación comunes
         sentences = re.split(r'[.!?]\s*', text.strip())
         sentences = [sentence for sentence in sentences if sentence]  # Eliminar oraciones vacías
