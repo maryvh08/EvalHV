@@ -1801,21 +1801,20 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Evaluación de cada encabezado y detalles
     presentation_table_data = [["Criterio", "Puntaje (%)"]]
     resume_text = {}
-    for header, details in resume_text.items():
-        header_text = header
-        details_text = " ".join(details)
-
-        # Inicializar las variables con valores predeterminados
-        spelling_score = result.get("spelling_score", 0)
-        capitalization_score = result.get("capitalization_score", 0)
-        coherence_score = result.get("coherence_score", 0)
-        overall_score = result.get("overall_score", 0)
-        
-        # Crear tabla de evaluación de presentación
-        presentation_table_data.append(["Ortografía", f"{spelling_score:.2f}"])
-        presentation_table_data.append(["Mayúsculas", f"{capitalization_score:.2f}"])
-        presentation_table_data.append(["Coherencia de Frases", f"{coherence_score:.2f}"])
-        presentation_table_data.append(["Puntaje Total", f"{overall_score:.2f}"])
+    header_text = header
+    details_text = " ".join(details)
+    
+    # Inicializar las variables con valores predeterminados
+    spelling_score = result.get("spelling_score", 0)
+    capitalization_score = result.get("capitalization_score", 0)
+    coherence_score = result.get("coherence_score", 0)
+    overall_score = result.get("overall_score", 0)
+    
+    # Crear tabla de evaluación de presentación
+    presentation_table_data.append(["Ortografía", f"{spelling_score:.2f}"])
+    presentation_table_data.append(["Mayúsculas", f"{capitalization_score:.2f}"])
+    presentation_table_data.append(["Coherencia de Frases", f"{coherence_score:.2f}"])
+    presentation_table_data.append(["Puntaje Total", f"{overall_score:.2f}"])
     
     # Crear la tabla
     presentation_table = Table(presentation_table_data, colWidths=[3 * inch, 2 * inch])
