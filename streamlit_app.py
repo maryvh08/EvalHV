@@ -1090,7 +1090,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             ["Experiencia en ANEIAP", f"{exp_score:.2f}"],
             ["Asistencia a eventos", f"{att_score:.2f}"],
             ["Eventos organizados", f"{org_score:.2f}"],
-            ["Presentación", f"{profile_score:.2f}"],
+            ["Perfil", f"{profile_score:.2f}"],
             ["Presentación", f"{overall_score:.2f}"],
             ["Puntaje Total", f"{total_score:.2f}"]
         ],
@@ -2150,8 +2150,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             ["Experiencia en ANEIAP", f"{exp_score:.2f}"],
             ["Asistencia a eventos", f"{att_score:.2f}"],
             ["Eventos organizados", f"{org_score:.2f}"],
+            ["Perfil", f"{profile_score:.2f}"],
             ["Presentación", f"{round_overall_score:.2f}"],
-            ["Presentación", f"{profile_score:.2f}"],
             ["Puntaje Total", f"{total_score:.2f}"]
         ],
         colWidths=[3 * inch, 2 * inch]
