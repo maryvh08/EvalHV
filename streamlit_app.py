@@ -1090,6 +1090,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             ["Experiencia en ANEIAP", f"{exp_score:.2f}"],
             ["Asistencia a eventos", f"{att_score:.2f}"],
             ["Eventos organizados", f"{org_score:.2f}"],
+            ["Presentación", f"{profile_score:.2f}"],
             ["Presentación", f"{overall_score:.2f}"],
             ["Puntaje Total", f"{total_score:.2f}"]
         ],
@@ -1470,10 +1471,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     profile_func_match = calculate_similarity(profile_text, functions_text)
     profile_profile_match = calculate_similarity(profile_text, profile_text)
 
-    # Calcular puntajes parciales para la sección de perfil
-    profile_func_score = round((profile_func_match * 5) / 100, 2)
-    profile_profile_score = round((profile_profile_match * 5) / 100, 2)
-
     #EXPERIENCIA EN ANEIAP
     for header, details in items.items():
         header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
@@ -1691,7 +1688,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     org_func_score = round((parcial_org_func_match * 5) / 100, 2)
     org_profile_score = round((parcial_org_profile_match * 5) / 100, 2)
     att_func_score = round((parcial_att_func_match * 5) / 100, 2)
-    att_profile_score = round((parcial_att_profile_match * 5) / 100, 2)
+    att_profile_score = round((parcial_att_profile_match * 5) / 100, 2
+    profile_func_score = round((profile_func_match * 5) / 100, 2)
+    profile_profile_score = round((profile_profile_match * 5) / 100, 2)
 
     # Calcular concordancia global para funciones y perfil
     global_func_match = (parcial_exp_func_match + parcial_att_func_match + parcial_org_func_match + profile_func_match) / 4
@@ -1701,6 +1700,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     func_score = round((global_func_match * 5) / 100, 2)
     profile_score = round((global_profile_match * 5) / 100, 2)
 
+    #Calculo de puntajes totales
+    exp_score= (exp_func_score+ exp_profile_score)/2
+    org_score= (org_func_score+ org_profile_score)/2
+    att_score= (att_func_score+ att_profile_score)/2
+    profile_score= (profile_func_score+ profile_profile_score)/2
+    
     # Registrar la fuente personalizada
     pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
     pdfmetrics.registerFont(TTFont('CenturyGothicBold', 'Century_Gothic_Bold.ttf'))
@@ -2129,6 +2134,43 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             f" Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.",
             styles['CenturyGothic']
         ))
+
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Añadir resultados al reporte
+    elements.append(Paragraph("<b>Puntajes totales:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+
+    total_score= (exp_score+ att_score+ org_score+ round_overall_score+ profile_score)/5
+    
+    # Crear tabla de evaluación de presentación
+    total_table = Table(
+        [
+            ["Criterio", "Puntaje"],
+            ["Experiencia en ANEIAP", f"{exp_score:.2f}"],
+            ["Asistencia a eventos", f"{att_score:.2f}"],
+            ["Eventos organizados", f"{org_score:.2f}"],
+            ["Presentación", f"{round_overall_score:.2f}"],
+            ["Presentación", f"{profile_score:.2f}"],
+            ["Puntaje Total", f"{total_score:.2f}"]
+        ],
+        colWidths=[3 * inch, 2 * inch]
+    )
+    
+    # Estilo de la tabla
+    total_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+    
+    elements.append(total_table)
 
     elements.append(Spacer(1, 0.2 * inch))
     
