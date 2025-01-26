@@ -1582,7 +1582,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             return 50  # Retornar un puntaje intermedio en caso de error
 
     # Evaluación de encabezados y detalles
-    presentation_results = {}
+    results = {}
     for header, details in resume_text.items():
         header_text = header
         details_text = " ".join(details)
@@ -1604,7 +1604,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         overall_score = (spelling_score + capitalization_score + coherence_score) / 3
 
         # Guardar resultados
-        presentation_results.append({
+        results.append({
             "header": header,
             "spelling_score": spelling_score,
             "capitalization_score": capitalization_score,
