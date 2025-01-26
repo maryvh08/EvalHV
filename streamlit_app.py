@@ -1843,14 +1843,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     elements.append(Spacer(1, 0.2 * inch))
 
-       # Añadir evaluación de presentación al reporte
+    # Añadir evaluación de presentación al reporte
     elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
-
-    presentation_results= []
     
     # Crear tabla de evaluación de presentación
     presentation_table_data = [["Encabezado/Detalle", "Ortografía", "Capitalización", "Coherencia", "Puntaje General"]]
+    presentation_results= []
     for header, scores in presentation_results.items():
         header_scores = scores["header_score"]
         details_scores = scores["details_score"]
