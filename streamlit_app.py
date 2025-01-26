@@ -1578,7 +1578,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     def evaluate_spelling(text):
         """Evalúa la ortografía del texto y retorna un puntaje."""
-        words = text.split()
+        words = text_data.split()
         misspelled = spell.unknown(words)
         if not words:
             return 100  # Si no hay palabras, asumimos puntaje perfecto
