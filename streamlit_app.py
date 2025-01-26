@@ -1571,17 +1571,20 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_att_profile_match = 0
 
     # Extraer texto del PDF con encabezados y detalles
-    text = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
+    text_data = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
 
-    if not text:
+    if not text_data:
         st.error("No se pudo extraer texto del archivo PDF.")
-        return
+        return None
 
-    # Funciones para evaluación avanzada de presentación
+    # Instanciar el corrector ortográfico
     spell = SpellChecker()
 
+    # Definir funciones para evaluación avanzada de presentación
     def evaluate_spelling(text):
         """Evalúa la ortografía del texto y retorna un puntaje."""
+        if not text or not isinstance(text, str):
+            return 0  # Texto inválido devuelve 0
         words = text.split()
         misspelled = spell.unknown(words)
         if not words:
@@ -1590,6 +1593,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     def evaluate_capitalization(text):
         """Evalúa si las frases comienzan con mayúscula."""
+        if not text or not isinstance(text, str):
+            return 0  # Texto inválido devuelve 0
         sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
         sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
         correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
@@ -1599,22 +1604,47 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     def evaluate_sentence_coherence(text):
         """Evalúa la coherencia y legibilidad del texto."""
+        if not text or not isinstance(text, str):
+            return 0  # Texto inválido devuelve 0
         try:
-            return max(0, min(100, 100 - textstat.flesch_kincaid_grade(text) * 10))  # Normalizar entre 0 y 100
+            # Normalizar entre 0 y 100 usando Flesch-Kincaid Grade
+            return max(0, min(100, 100 - textstat.flesch_kincaid_grade(text) * 10))
         except Exception:
             return 50  # Puntaje intermedio en caso de error
 
-    presentation_results= {}
-    spelling_score = evaluate_spelling(text)
-    capitalization_score = evaluate_capitalization(text)
-    coherence_score = evaluate_sentence_coherence(text)
-    overall_score = (spelling_score + capitalization_score + coherence_score) / 3
-    return {
-        "spelling_score": spelling_score,
-        "capitalization_score": capitalization_score,
-        "coherence_score": coherence_score,
-        "overall_score": overall_score,
-    }
+    # Evaluación por encabezado y detalles
+    presentation_results = {}
+    for header, details in text_data.items():
+        # Convertir detalles en texto completo
+        details_text = " ".join(details)
+
+        # Evaluar encabezado
+        header_spelling = evaluate_spelling(header)
+        header_capitalization = evaluate_capitalization(header)
+        header_coherence = evaluate_sentence_coherence(header)
+        header_overall = (header_spelling + header_capitalization + header_coherence) / 3
+
+        # Evaluar detalles
+        details_spelling = evaluate_spelling(details_text)
+        details_capitalization = evaluate_capitalization(details_text)
+        details_coherence = evaluate_sentence_coherence(details_text)
+        details_overall = (details_spelling + details_capitalization + details_coherence) / 3
+
+        # Guardar resultados para cada encabezado y sus detalles
+        presentation_results[header] = {
+            "header_score": {
+                "spelling_score": header_spelling,
+                "capitalization_score": header_capitalization,
+                "coherence_score": header_coherence,
+                "overall_score": header_overall,
+            },
+            "details_score": {
+                "spelling_score": details_spelling,
+                "capitalization_score": details_capitalization,
+                "coherence_score": details_coherence,
+                "overall_score": details_overall,
+            },
+        }
 
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
@@ -1849,14 +1879,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Añadir evaluación de presentación al reporte
     elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
-    
     # Crear tabla de evaluación de presentación
     presentation_table_data = [["Encabezado/Detalle", "Ortografía", "Capitalización", "Coherencia", "Puntaje General"]]
-    presentation_results= []
     for header, scores in presentation_results.items():
         header_scores = scores["header_score"]
         details_scores = scores["details_score"]
-
+    
+        # Agregar resultados del encabezado
         presentation_table_data.append([
             Paragraph(header, styles['CenturyGothic']),
             f"{header_scores['spelling_score']:.2f}",
@@ -1864,6 +1893,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             f"{header_scores['coherence_score']:.2f}",
             f"{header_scores['overall_score']:.2f}"
         ])
+    
+        # Agregar resultados de los detalles
         presentation_table_data.append([
             Paragraph("Detalles", styles['CenturyGothic']),
             f"{details_scores['spelling_score']:.2f}",
@@ -1871,9 +1902,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             f"{details_scores['coherence_score']:.2f}",
             f"{details_scores['overall_score']:.2f}"
         ])
-
+    
+    # Crear tabla en el PDF
     presentation_table = Table(presentation_table_data, colWidths=[3 * inch, 1.5 * inch, 1.5 * inch, 1.5 * inch, 1.5 * inch])
-
     presentation_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
@@ -1885,7 +1916,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ]))
-
+    
     elements.append(presentation_table)
     elements.append(Spacer(1, 0.2 * inch))
 
