@@ -1309,7 +1309,7 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     # Cargar texto del PDF
     text = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
 
-    if not text_data:
+    if not text:
         return None, "No se pudo extraer texto del archivo PDF."
 
     # Instanciar SpellChecker
@@ -1353,7 +1353,7 @@ def evaluate_cv_presentation_with_headers(pdf_path):
 
     # Evaluación de encabezados y detalles
     presentation_results = {}
-    for header, details in text_data.items():
+    for header, details in text.items():
         header_score = evaluate_text_quality(header)  # Evaluar encabezado
         details_score = evaluate_text_quality(" ".join(details))  # Evaluar detalles combinados
 
@@ -1567,9 +1567,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_att_profile_match = 0
 
     # Extraer texto del PDF con encabezados y detalles
-    text_data = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
+    text = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
 
-    if not text_data:
+    if not text:
         st.error("No se pudo extraer texto del archivo PDF.")
         return
 
