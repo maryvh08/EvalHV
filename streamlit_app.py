@@ -1765,17 +1765,15 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
     # Crear tabla de evaluación de presentación
     resume_text = {}
+    presentation_table_data= ["Criterio", "Puntaje"]
     for header, details in resume_text.items():
-        presentation_table_data = Table(
-            [
-                ["Criterio", "Puntaje"],
+        presentation_table_data.append =
+            [ 
                 ["Coherencia", f"{coherence_score:.2f}"],
                 ["Ortografía", f"{spelling_score:.2f}"],
                 ["Gramática", f"{capitalization_score:.2f}"],
                 ["Puntaje Total", f"{overall_score:.2f}"]
-            ],
-            colWidths=[3 * inch, 2 * inch]
-        )
+            ]
 
     # Crear la tabla
     presentation_table = Table(presentation_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
