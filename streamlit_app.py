@@ -1483,12 +1483,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
-    # Extraer encabezados y detalles de la hoja de vida
-    resume_text = extract_text_with_ocr(pdf_path)
-
-    if not resume_text:
-        return None, "No se encontraron encabezados y detalles para analizar."
-
     # Funciones para evaluación avanzada
     def evaluate_spelling(text):
         """Evalúa la ortografía del texto y retorna un puntaje."""
