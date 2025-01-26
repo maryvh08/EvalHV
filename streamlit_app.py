@@ -1284,7 +1284,7 @@ def evaluate_cv_presentation_with_headers(pdf_path):
             header_text = header
             details_text = " ".join(details)
             
-return header_text, details_text
+    return header_text, details_text
 
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
