@@ -1,5 +1,6 @@
 import fitz
 import numpy as np
+import spacy
 import pandas as pd
 import streamlit as st
 from io import BytesIO
@@ -1258,7 +1259,32 @@ def extract_profile_section_with_details(pdf_path):
                         if in_profile_section:
                             profile_text += text + " "
 
-    return profile_text.strip()
+    return profile_text.strip
+
+def evaluate_cv_presentation_with_headers(pdf_path):
+    """
+    Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
+    coherencia básica, y claridad, considerando encabezados y detalles.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Resultados del análisis de presentación por encabezados y detalles.
+    """
+    # Cargar modelos necesarios
+    nlp = spacy.load("en_core_web_sm")
+    spell = SpellChecker()
+
+    # Extraer encabezados y detalles de la hoja de vida
+    text = extract_text_with_ocr(pdf_path)
+
+    if not items:
+        return None, "No se encontraron encabezados y detalles para analizar."
+
+    # Evaluación de cada encabezado y detalles
+        presentation_results = {}
+        for header, details in items.items():
+            header_text = header
+            details_text = " ".join(details)
+            
+return header_text, details_text
 
 # Función principal para generar el reporte descriptivo
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
@@ -1494,7 +1520,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             return 50  # Retornar un puntaje intermedio en caso de error
 
     # Evaluación de cada encabezado y detalles
-    presentation_results = {}
+    resume_text = {}
     for header, details in resume_text.items():
         header_text = header
         details_text = " ".join(details)
