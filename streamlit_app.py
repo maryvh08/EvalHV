@@ -705,36 +705,53 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # 2. Fluidez entre oraciones
     def calculate_sentence_fluency(pres_cleaned_lines):
+        """
+        Calcula el puntaje de fluidez de las oraciones basándose en conectores lógicos, puntuación,
+        y variabilidad en la longitud de las oraciones.
+        :param pres_cleaned_lines: Lista de líneas limpias del texto.
+        :return: Puntaje de fluidez de las oraciones entre 0 y 1.
+        """
+        # Lista de conectores lógicos comunes
         logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque"]
         connector_count = 0
         total_lines = len(pres_cleaned_lines)
     
-        # Analizar conectores lógicos y puntuación
+        # Validación para evitar divisiones por cero
+        if total_lines == 0:
+            return 0  # Sin líneas, no se puede calcular fluidez
+    
+        # Inicialización de métricas
         punctuation_errors = 0
         sentence_lengths = []
+    
         for line in pres_cleaned_lines:
+            # Verificar errores de puntuación (oraciones sin punto final)
             if not line.endswith((".", "!", "?")):
                 punctuation_errors += 1
     
+            # Almacenar la longitud de cada oración
             sentence_lengths.append(len(line.split()))
     
+            # Contar conectores lógicos en la línea
             for connector in logical_connectors:
                 if connector in line.lower():
                     connector_count += 1
     
-        # Variabilidad de longitudes entre oraciones
-        avg_length = sum(sentence_lengths) / total_lines if total_lines > 0 else 0
+        # Calcular métricas individuales
+        avg_length = sum(sentence_lengths) / total_lines
         length_variance = sum(
             (len(line.split()) - avg_length) ** 2 for line in pres_cleaned_lines
         ) / total_lines if total_lines > 1 else 0
     
-        # Puntaje de fluidez
-        punctuation_score = 1 - (punctuation_errors / total_lines)
-        connector_score = (connector_count / total_lines) if total_lines > 0 else 0
-        variance_penalty = 1 - length_variance
+        # Normalizar métricas entre 0 y 1
+        punctuation_score = max(0, 1 - (punctuation_errors / total_lines))  # 1 si no hay errores
+        connector_score = min(1, connector_count / total_lines)  # Máximo 1, basado en conectores
+        variance_penalty = max(0, 1 - length_variance / avg_length) if avg_length > 0 else 0
     
+        # Calcular puntaje final de fluidez
         fluency_score = (punctuation_score + connector_score + variance_penalty) / 3
-        return fluency_score
+        return round(fluency_score * 100, 2)  # Escalar a un rango de 0 a 100 y redondear
+
         
     # Calcular métricas individuales
     repetition_score, repeated_words = calculate_word_repetition(pres_cleaned_lines)
