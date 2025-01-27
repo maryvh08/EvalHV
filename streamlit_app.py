@@ -626,50 +626,63 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
-    # Cargar corrector ortográfico y modelo NLP
-    spell = SpellChecker()
-
-    # Inicializar corrector ortográfico
+     # Cargar modelo NLP de spaCy
+    nlp = spacy.load("es_core_news_sm")
     spell = SpellChecker(language='es')
 
-    # Métricas
+    # Métricas iniciales
     spelling_errors = 0
     total_words = 0
     missing_capitalization = 0
     incomplete_sentences = 0
     punctuation_marks = 0
 
-    pres_cleaned_lines= extract_cleaned_lines(resume_text)
-
-    total_lines= len(pres_cleaned_lines)
+    # Dividir en líneas procesadas
+    pres_cleaned_lines = extract_cleaned_lines(resume_text)
+    total_lines = len(pres_cleaned_lines)
 
     for line in pres_cleaned_lines:
-        words = line.split()
-        total_words += len(words)
+        # Procesar línea con spaCy
+        doc = nlp(line)
 
-        # Ortografía
+        # Evaluar palabras y ortografía
+        words = [token.text for token in doc if token.is_alpha]
+        total_words += len(words)
         misspelled = spell.unknown(words)
         spelling_errors += len(misspelled)
 
-        # Inicio en mayúscula
+        # Evaluar capitalización
         if line and not line[0].isupper():
             missing_capitalization += 1
 
-        # Verificar que termine en punto o signo válido
+        # Evaluar finalización de la oración
         if not line.endswith((".", "!", "?", ":", ";")):
             incomplete_sentences += 1
 
         # Contar signos de puntuación
         punctuation_marks += sum(line.count(p) for p in [".", ",", ";", ":", "!"])
 
-    # Calcular métricas
-    spelling_score = round(((spelling_errors / total_words)*5), 2)
-    capitalization_score = round(((missing_capitalization / total_lines) * 5), 2)
-    sentence_completion_score = round(((incomplete_sentences / total_lines) * 5),2)
+    # Calcular puntuaciones
+    spelling_score = round(100 - ((spelling_errors / total_words) * 100), 2) if total_words > 0 else 100
+    capitalization_score = round(100 - ((missing_capitalization / total_lines) * 100), 2) if total_lines > 0 else 100
+    sentence_completion_score = round(100 - ((incomplete_sentences / total_lines) * 100), 2) if total_lines > 0 else 100
 
-    # Calificación general ponderada
-    overall_score = round(((spelling_score) +(capitalization_score) + (sentence_completion_score))/3,2)
+    # Coherencia (usando spaCy y textstat)
+    coherence_score = 100 - textstat.flesch_kincaid_grade(resume_text) * 10 if total_lines > 0 else 50
+    coherence_score = max(0, min(coherence_score, 100))  # Normalizar entre 0 y 100
 
+    # Puntaje general ponderado
+    overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score) / 4, 2)
+
+    # Retornar métricas
+    return {
+        "spelling_score": spelling_score,
+        "capitalization_score": capitalization_score,
+        "sentence_completion_score": sentence_completion_score,
+        "coherence_score": coherence_score,
+        "overall_score": overall_score
+    }
+    
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
     parcial_exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
