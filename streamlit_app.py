@@ -750,7 +750,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
         # Calcular puntaje final de fluidez
         fluency_score = (punctuation_score + connector_score + variance_penalty) / 3
-        return round(fluency_score * 100, 2)  # Escalar a un rango de 0 a 100 y redondear
+        return round(fluency_score, 2)  # Escalar a un rango de 0 a 100 y redondear
 
         
     # Calcular métricas individuales
