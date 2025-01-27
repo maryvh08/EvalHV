@@ -713,19 +713,19 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         punctuation_errors = 0
         sentence_lengths = []
         for line in pres_cleaned_lines:
-            if not sentence.endswith((".", "!", "?")):
+            if not line.endswith((".", "!", "?")):
                 punctuation_errors += 1
     
-            sentence_lengths.append(len(sentence.split()))
+            sentence_lengths.append(len(line.split()))
     
             for connector in logical_connectors:
-                if connector in sentence.lower():
+                if connector in line.lower():
                     connector_count += 1
     
         # Variabilidad de longitudes entre oraciones
         avg_length = sum(sentence_lengths) / total_lines if total_lines > 0 else 0
         length_variance = sum(
-            (len(sentence.split()) - avg_length) ** 2 for line in pres_cleaned_lines
+            (len(line.split()) - avg_length) ** 2 for line in pres_cleaned_lines
         ) / total_lines if total_lines > 1 else 0
     
         # Puntaje de fluidez
