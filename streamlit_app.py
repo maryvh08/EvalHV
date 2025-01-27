@@ -686,10 +686,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     transition_words = 0
 
     for i, sentence in enumerate(lines):
-        # Verificar si la oración termina con puntuación válida
-        if not sentence.endswith((".", "!", "?")):
-            punctuation_errors += 1
-
         # Evaluar fluidez entre oraciones
         if i > 0:  # Comparar con la oración anterior
             previous_words = set(lines[i - 1].split())
@@ -698,18 +694,15 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
                 transition_words += 1
 
     # Calcular métricas    
-    # 1. Errores de puntuación
-    punctuation_error_rate = 1- (punctuation_errors / total_lines) 
-    
-    # 2. Repetición de palabras
+    # 1. Repetición de palabras
     most_common_word_count = repeated_words.most_common(1)[0][1] if repeated_words else 0
     repetition_penalty = (most_common_word_count / total_lines)
 
-    # 3. Fluidez entre oraciones
+    # 2. Fluidez entre oraciones
     transition_score = (transition_words / (total_lines - 1)) 
 
     # Calcular coherencia como promedio de las métricas
-    coherence_score = round(((punctuation_error_rate + transition_score- repetition_penalty) / 3)*5, 2)
+    coherence_score = round(((punctuation_error_rate + transition_score- repetition_penalty) / 2)*5, 2)
      
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
