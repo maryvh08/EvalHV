@@ -699,7 +699,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular métricas 
     #1. Errores de puntuación
-    punctuation_error_rate = 1- (punctuation_errors / total_sentences)
+    punctuation_error_rate = 1- (punctuation_errors / total_lines)
     
     # 2. Repetición de palabras
     most_common_word_count = repeated_words.most_common(1)[0][1] if repeated_words else 0
