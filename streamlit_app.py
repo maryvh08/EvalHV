@@ -667,11 +667,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Calcular métricas
     spelling_score = max(0, 100 - ((spelling_errors / total_words) * 100)) if total_words > 0 else 100
     capitalization_score = max(0, 100 - ((missing_capitalization / total_lines) * 100)) if total_lines > 0 else 100
-    sentence_completion_score = max(0, 100 - ((incomplete_sentences / total_lines) * 100)) if total_lines > 0 else 100
+    coherence_score = max(0, 100 - ((incomplete_sentences / total_lines) * 100)) if total_lines > 0 else 100
     grammar_score = max(0, 100 - ((grammar_errors / total_lines) * 100)) if total_lines > 0 else 100
-    coherence_score = max(0, min(100, 100 - textstat.flesch_kincaid_grade(resume_text) * 10))
-
-
+     
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
 
