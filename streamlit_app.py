@@ -1015,7 +1015,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if low_performance_indicators:
         elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
         for indicator, result in low_performance_indicators.items():
-            percentage = relevant_lines/ total_lines
+            percentage = (relevant_lines/ total_lines)*100
             elements.append(Paragraph(f" {indicator}: ({percentage:.2f}%)", styles['CenturyGothicBold']))
             elements.append(Spacer(1, 0.05 * inch))
             for tip in advice[position].get(indicator, []):
