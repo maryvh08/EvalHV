@@ -708,8 +708,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # 3. Variabilidad léxica (Type-Token Ratio)
     total_words = len(all_words)
     unique_words = len(set(all_words))
-    lexical_diversity = (unique_words / total_words) * 100 if total_words > 0 else 100
-    lexical_diversity_score = min(100, lexical_diversity)
+    lexical_diversity_score = (unique_words / total_words) 
 
 
     # Calcular coherencia como promedio de las métricas
