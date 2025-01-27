@@ -896,7 +896,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     presentation_table = Table(
         [
             ["Criterio", "Puntaje"],
-            ["Coherencia", f"{sentence_completion_score:.2f}"],
+            ["Coherencia", f"{coherence_score:.2f}"],
             ["Ortografía", f"{spelling_score:.2f}"],
             ["Gramática", f"{capitalization_score:.2f}"],
             ["Puntaje Total", f"{overall_score:.2f}"]
@@ -925,12 +925,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
     
     # Consejos para coherencia de frases
-    if sentence_completion_score < 3:
+    if coherence_score < 3:
         elements.append(Paragraph(
             "• Mejora la redacción de las frases en tu hoja de vida. Asegúrate de que sean completas, coherentes y claras.",
             styles['CenturyGothic']
         ))
-    elif 3 <= sentence_completion_score <= 4:
+    elif 3 <= coherence_score <= 4:
         elements.append(Paragraph(
             "• La redacción de tus frases es adecuada, pero revisa la fluidez entre oraciones para mejorar la coherencia general.",
             styles['CenturyGothic']
