@@ -686,29 +686,61 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if total_lines == 0:
         return 100  # Si no hay oraciones, asumimos coherencia perfecta.
 
-    # Variables para análisis
-    sentence_lengths = []
-    all_words = []
-    repeated_words = Counter()
-    transition_words = 0
-
-    for i, line in enumerate(lines):
-        if i > 0:  # Comparar con la oración anterior
-            previous_words = set(lines[i - 1].split())
-            current_words = set(words)
-            if previous_words & current_words:  # Si comparten palabras de transición
-                transition_words += 1
-
-    # Calcular métricas 
+    # Calcular métricas coherencia
     # 1. Repetición de palabras
-    most_common_word_count = repeated_words.most_common(1)[0][1] if repeated_words else 0
-    repetition_penalty = (most_common_word_count / total_lines)
+    def calculate_word_repetition(pres_cleaned_lines):
+        repeated_words = Counter()
+        for line in pres_cleaned_lines:
+            words = line.split()
+            repeated_words.update([word.lower() for word in words])
+    
+        total_words = sum(repeated_words.values())
+        unique_words = len(repeated_words)
+        most_common_word_count = repeated_words.most_common(1)[0][1] if repeated_words else 0
+        repeated_word_ratio = (most_common_word_count / total_words) if total_words > 0 else 0
+    
+        # Una menor repetición indica mayor calidad
+        repetition_score = max(0, 100 - repeated_word_ratio)
+        return repetition_score, repeated_words
 
     # 2. Fluidez entre oraciones
-    transition_score = (transition_words / (total_lines - 1)) 
-
+    def calculate_sentence_fluency(pres_cleaned_lines):
+        logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque"]
+        connector_count = 0
+        total_lines = len(pres_cleaned_lines)
+    
+        # Analizar conectores lógicos y puntuación
+        punctuation_errors = 0
+        sentence_lengths = []
+        for line in pres_cleaned_lines:
+            if not sentence.endswith((".", "!", "?")):
+                punctuation_errors += 1
+    
+            sentence_lengths.append(len(sentence.split()))
+    
+            for connector in logical_connectors:
+                if connector in sentence.lower():
+                    connector_count += 1
+    
+        # Variabilidad de longitudes entre oraciones
+        avg_length = sum(sentence_lengths) / total_lines if total_lines > 0 else 0
+        length_variance = sum(
+            (len(sentence.split()) - avg_length) ** 2 for line in pres_cleaned_lines
+        ) / total_lines if total_lines > 1 else 0
+    
+        # Puntaje de fluidez
+        punctuation_score = max(0, 100 - (punctuation_errors / total_lines) * 100)
+        connector_score = (connector_count / total_lines) * 100 if total_lines > 0 else 0
+        variance_penalty = max(0, 100 - length_variance)
+    
+        fluency_score = (punctuation_score + connector_score + variance_penalty) / 3
+        return fluency_score
+    # Calcular métricas individuales
+    repetition_score, repeated_words = calculate_word_repetition(pres_cleaned_lines)
+    fluency_score = calculate_sentence_fluency(pres_cleaned_lines)
+    
     # Calcular coherencia como promedio de las métricas
-    coherence_score = round(((transition_score- repetition_penalty) / 2)*5, 2)
+    coherence_score = round(((repetition_score+ fluency_score) / 2)*5, 2)
      
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
