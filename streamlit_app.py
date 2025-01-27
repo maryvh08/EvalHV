@@ -693,7 +693,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular métricas    
     # 1. Errores de puntuación
-    punctuation_error_rate = (punctuation_errors / total_lines) * 100 if total_sentences > 0 else 0
+    punctuation_error_rate = (punctuation_errors / total_lines) * 100 if total_lines > 0 else 0
     
     # 2. Longitud de las oraciones
     if sentence_lengths:
