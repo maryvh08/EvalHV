@@ -4,6 +4,7 @@ import spacy
 import pandas as pd
 import streamlit as st
 from io import BytesIO
+from textstat import textstat
 import requests
 import tarfile
 import io
