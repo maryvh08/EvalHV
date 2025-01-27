@@ -2128,8 +2128,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Paragraph("<b>Consejos para Indicadores Críticos:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.05 * inch))
     for indicator, percentage in indicator_percentages.items():
-        if percentage < 60:
-            percentage= 
+        if percentage < 60: 
             elements.append(Paragraph(f"  Indicador: {indicator} ({percentage:.2f}%)", styles['CenturyGothicBold']))
             for tip in critical_advice.get(indicator, ["No hay consejos disponibles para este indicador."]):
                 elements.append(Paragraph(f"    • {tip}", styles['CenturyGothic']))
