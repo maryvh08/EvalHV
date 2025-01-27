@@ -714,7 +714,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular coherencia como promedio de las métricas
     coherence_score = 100 - (connector_score + punctuation_error_rate + length_deviation_score) / 3
-    return max(0, min(round(coherence_score, 2), 100)) 
      
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
