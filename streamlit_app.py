@@ -693,18 +693,18 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular métricas    
     # 1. Errores de puntuación
-    punctuation_error_rate = (punctuation_errors / total_lines) * 100 if total_lines > 0 else 0
+    punctuation_error_rate = (punctuation_errors / total_lines) 
     
     # 2. Longitud de las oraciones
     if sentence_lengths:
         length_std_dev = np.std(sentence_lengths)
         max_expected_length = 20  # Longitud promedio esperada de una oración
-        length_deviation_score = min(100, (length_std_dev / max_expected_length) * 100)
+        length_deviation_score = length_std_dev / max_expected_length
     else:
         length_deviation_score = 0
 
     # Calcular coherencia como promedio de las métricas
-    coherence_score = 100 - (punctuation_error_rate + length_deviation_score) / 2
+    coherence_score = round((punctuation_error_rate + length_deviation_score) / 2, 2)
      
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
