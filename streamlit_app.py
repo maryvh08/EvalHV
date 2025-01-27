@@ -680,6 +680,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Variables para análisis
     punctuation_errors = 0
     sentence_lengths = []
+    all_words = []
+
 
     for line in pres_cleaned_lines:
         # Verificar si la oración termina con puntuación válida
@@ -703,8 +705,15 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     else:
         length_deviation_score = 0
 
+    # 3. Variabilidad léxica (Type-Token Ratio)
+    total_words = len(all_words)
+    unique_words = len(set(all_words))
+    lexical_diversity = (unique_words / total_words) * 100 if total_words > 0 else 100
+    lexical_diversity_score = min(100, lexical_diversity)
+
+
     # Calcular coherencia como promedio de las métricas
-    coherence_score = round(((punctuation_error_rate + length_deviation_score) / 2)*5, 2)
+    coherence_score = round(((punctuation_error_rate + length_deviation_score+ lexical_diversity_score) / 3)*5, 2)
      
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
