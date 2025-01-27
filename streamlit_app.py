@@ -664,11 +664,15 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         # Gramática básica: verificar patrones comunes (ejemplo)
         grammar_errors += len(re.findall(r'\b(?:es|está|son)\b [^\w\s]', line))  # Ejemplo: "es" sin continuación válida
 
-    # Calcular métricas
-    spelling_score = max(0, 100 - ((spelling_errors / total_words) * 100)) if total_words > 0 else 100
-    capitalization_score = max(0, 100 - ((missing_capitalization / total_lines) * 100)) if total_lines > 0 else 100
-    sentence_completion_score  = max(0, 100 - ((incomplete_sentences / total_lines) * 100)) if total_lines > 0 else 100
-    grammar_score = max(0, 100 - ((grammar_errors / total_lines) * 100)) if total_lines > 0 else 100
+    # Calcular métricas secundarias
+    spelling= max(0, 1 - (spelling_errors / total_words)) if total_words > 0 else 100
+    capitalization_score = max(0, 1- ((missing_capitalization / total_lines))) if total_lines > 0 else 100
+    sentence_completion_score  = max(0, 1 - ((incomplete_sentences / total_lines))) if total_lines > 0 else 100
+    grammar = max(0, 1 - ((grammar_errors / total_lines))) if total_lines > 0 else 100
+
+    #Calcular métricas principales
+    grammar_score = round((grammar+ sentence_completion_score)/2)*5
+    spelling_score= round((spelling+ capitalization_score)/2)*5
 
     if total_lines == 0:
         return 100  # Si no hay oraciones, asumimos coherencia perfecta.
@@ -689,18 +693,18 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular métricas    
     # 1. Errores de puntuación
-    punctuation_error_rate = (punctuation_errors / total_lines) * 100 if total_lines > 0 else 0
+    punctuation_error_rate = (punctuation_errors / total_lines) * 1 if total_lines > 0 else 0
     
     # 2. Longitud de las oraciones
     if sentence_lengths:
         length_std_dev = np.std(sentence_lengths)
         max_expected_length = 20  # Longitud promedio esperada de una oración
-        length_deviation_score = min(100, (length_std_dev / max_expected_length) * 100)
+        length_deviation_score = min(100, (length_std_dev / max_expected_length) * 1)
     else:
         length_deviation_score = 0
 
     # Calcular coherencia como promedio de las métricas
-    coherence_score = 100 - (punctuation_error_rate + length_deviation_score) / 2
+    coherence_score = round(1 - (punctuation_error_rate + length_deviation_score) / 2)*5
      
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
