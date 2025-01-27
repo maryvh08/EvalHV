@@ -700,7 +700,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         repeated_word_ratio = (most_common_word_count / total_words) if total_words > 0 else 0
     
         # Una menor repetición indica mayor calidad
-        repetition_score = max(0, 100 - repeated_word_ratio)
+        repetition_score = max(0, 1 - repeated_word_ratio)
         return repetition_score, repeated_words
 
     # 2. Fluidez entre oraciones
@@ -729,9 +729,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ) / total_lines if total_lines > 1 else 0
     
         # Puntaje de fluidez
-        punctuation_score = max(0, 100 - (punctuation_errors / total_lines) * 100)
-        connector_score = (connector_count / total_lines) * 100 if total_lines > 0 else 0
-        variance_penalty = max(0, 100 - length_variance)
+        punctuation_score = max(0, 1 - (punctuation_errors / total_lines))
+        connector_score = (connector_count / total_lines) if total_lines > 0 else 0
+        variance_penalty = max(0, 1 - length_variance)
     
         fluency_score = (punctuation_score + connector_score + variance_penalty) / 3
         return fluency_score
