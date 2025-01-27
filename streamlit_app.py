@@ -628,7 +628,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     resume_text= evaluate_cv_presentation(pdf_path)
 
-      # Inicializar corrector ortográfico
+    # Inicializar corrector ortográfico
     spell = SpellChecker(language='es')
 
     # Limpiar y dividir el texto en líneas
@@ -677,15 +677,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
-
-    return {
-        "spelling_score": round(spelling_score, 2),
-        "capitalization_score": round(capitalization_score, 2),
-        "sentence_completion_score": round(sentence_completion_score, 2),
-        "coherence_score": round(coherence_score, 2),
-        "grammar_score": round(grammar_score, 2),
-        "overall_score": overall_score,
-    }
 
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
