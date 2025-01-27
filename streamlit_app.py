@@ -460,7 +460,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
         return
 
-    resume_text= extract_text_with_ocr(pdf_path)
+    resume_text= evaluate_cv_presentation(pdf_path)
     if not resume_text:
         st.error("No se encontró el texto de la hoja de vida")
         return
@@ -625,6 +625,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     else:
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
+
+    reaume_text= extract_text_with_ocr(text)
 
      # Inicializar corrector ortográfico
     spell = SpellChecker(language='es')
