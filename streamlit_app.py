@@ -761,7 +761,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     coherence_score = round(((repetition_score+fluency_score))*5, 2)
      
     # Puntaje general ponderado
-    overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
+    overall_score = round((spelling_score  + coherence_score + grammar_score) / 3, 2)
 
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
