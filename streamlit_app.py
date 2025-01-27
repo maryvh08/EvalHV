@@ -626,7 +626,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
-    # Inicializar corrector ortográfico
+     # Inicializar corrector ortográfico
     spell = SpellChecker(language='es')
 
     # Limpiar y dividir el texto en líneas
@@ -638,6 +638,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     spelling_errors = 0
     missing_capitalization = 0
     incomplete_sentences = 0
+    punctuation_marks = 0
     grammar_errors = 0
 
     for line in pres_cleaned_lines:
@@ -649,32 +650,31 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         misspelled = spell.unknown(words)
         spelling_errors += len(misspelled)
 
-        # Gramática básica: Uso de mayúsculas y signos de puntuación
+        # Verificar capitalización
         if line and not line[0].isupper():
             missing_capitalization += 1
+
+        # Verificar que termine en signo de puntuación
         if not line.endswith((".", "!", "?", ":", ";")):
             incomplete_sentences += 1
 
-        # Análisis de gramática con TextBlob
-        blob = TextBlob(line)
-        grammar_errors += len(blob.correct().sentences) - len(blob.sentences)
+        # Gramática básica: verificar patrones comunes (ejemplo)
+        grammar_errors += len(re.findall(r'\b(?:es|está|son)\b [^\w\s]', line))  # Ejemplo: "es" sin continuación válida
 
     # Calcular métricas
     spelling_score = max(0, 100 - ((spelling_errors / total_words) * 100)) if total_words > 0 else 100
     capitalization_score = max(0, 100 - ((missing_capitalization / total_lines) * 100)) if total_lines > 0 else 100
     sentence_completion_score = max(0, 100 - ((incomplete_sentences / total_lines) * 100)) if total_lines > 0 else 100
+    grammar_score = max(0, 100 - ((grammar_errors / total_lines) * 100)) if total_lines > 0 else 100
 
     # Métrica de coherencia usando textstat
     try:
         coherence_score = max(0, min(100, 100 - textstat.flesch_kincaid_grade(resume_text) * 10))
     except Exception:
-        coherence_score = 50  # Valor intermedio en caso de error
-
-    # Métrica de gramática (basada en errores detectados)
-    grammar_score = max(0, 100 - ((grammar_errors / total_lines) * 100)) if total_lines > 0 else 100
+        coherence_score = 50  # Puntaje intermedio en caso de error
 
     # Puntaje general ponderado
-    overall_score = round((spelling_score + coherence_score + grammar_score) / 3, 2)
+    overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
 
     return {
         "spelling_score": round(spelling_score, 2),
