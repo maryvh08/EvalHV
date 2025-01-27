@@ -626,27 +626,22 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
-     # Cargar modelo NLP de spaCy
-    nlp = spacy.load("es_core_news_sm")
+     # Inicializar corrector ortográfico
     spell = SpellChecker(language='es')
 
-    # Métricas iniciales
+    # Variables para métricas
     spelling_errors = 0
     total_words = 0
     missing_capitalization = 0
     incomplete_sentences = 0
-    punctuation_marks = 0
 
-    # Dividir en líneas procesadas
-    pres_cleaned_lines = extract_cleaned_lines(resume_text)
+    # Dividir el texto en líneas y limpiar
+    pres_cleaned_lines = [line.strip() for line in resume_text.split("\n") if line.strip()]
     total_lines = len(pres_cleaned_lines)
 
     for line in pres_cleaned_lines:
-        # Procesar línea con spaCy
-        doc = nlp(line)
-
         # Evaluar palabras y ortografía
-        words = [token.text for token in doc if token.is_alpha]
+        words = re.findall(r'\b\w+\b', line)
         total_words += len(words)
         misspelled = spell.unknown(words)
         spelling_errors += len(misspelled)
@@ -659,22 +654,20 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         if not line.endswith((".", "!", "?", ":", ";")):
             incomplete_sentences += 1
 
-        # Contar signos de puntuación
-        punctuation_marks += sum(line.count(p) for p in [".", ",", ";", ":", "!"])
-
     # Calcular puntuaciones
     spelling_score = round(100 - ((spelling_errors / total_words) * 100), 2) if total_words > 0 else 100
     capitalization_score = round(100 - ((missing_capitalization / total_lines) * 100), 2) if total_lines > 0 else 100
     sentence_completion_score = round(100 - ((incomplete_sentences / total_lines) * 100), 2) if total_lines > 0 else 100
 
-    # Coherencia (usando spaCy y textstat)
-    coherence_score = 100 - textstat.flesch_kincaid_grade(resume_text) * 10 if total_lines > 0 else 50
-    coherence_score = max(0, min(coherence_score, 100))  # Normalizar entre 0 y 100
+    # Coherencia (usando textstat)
+    try:
+        coherence_score = max(0, min(100, 100 - textstat.flesch_kincaid_grade(resume_text) * 10))
+    except Exception:
+        coherence_score = 50  # Valor por defecto en caso de error
 
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score) / 4, 2)
 
-    # Retornar métricas
     return {
         "spelling_score": spelling_score,
         "capitalization_score": capitalization_score,
