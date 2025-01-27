@@ -3,7 +3,9 @@ import numpy as np
 import spacy
 import pandas as pd
 import streamlit as st
+from collections import Counter
 from io import BytesIO
+from textstat import textstat
 import requests
 import tarfile
 import io
@@ -460,7 +462,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
         return
 
-    resume_text= extract_text_with_ocr(pdf_path)
+    resume_text= evaluate_cv_presentation(pdf_path)
     if not resume_text:
         st.error("No se encontró el texto de la hoja de vida")
         return
@@ -626,49 +628,140 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
-    # Cargar corrector ortográfico y modelo NLP
-    spell = SpellChecker()
+    resume_text= evaluate_cv_presentation(pdf_path)
 
     # Inicializar corrector ortográfico
     spell = SpellChecker(language='es')
 
+    punctuation_errors = 0
+    
+    for i, line in enumerate(lines):
+        # Verificar si la oración termina con puntuación válida
+        if not line.endswith((".", "!", "?")):
+            punctuation_errors += 1
+
+    # Limpiar y dividir el texto en líneas
+    pres_cleaned_lines = [line.strip() for line in resume_text.split("\n") if line.strip()]
+    total_lines = len(pres_cleaned_lines)
+
     # Métricas
-    spelling_errors = 0
     total_words = 0
+    spelling_errors = 0
     missing_capitalization = 0
     incomplete_sentences = 0
     punctuation_marks = 0
-
-    pres_cleaned_lines= extract_cleaned_lines(resume_text)
-
-    total_lines= len(pres_cleaned_lines)
+    grammar_errors = 0
 
     for line in pres_cleaned_lines:
-        words = line.split()
+        # Dividir en palabras y contar
+        words = re.findall(r'\b\w+\b', line)
         total_words += len(words)
 
         # Ortografía
         misspelled = spell.unknown(words)
         spelling_errors += len(misspelled)
 
-        # Inicio en mayúscula
+        # Verificar capitalización
         if line and not line[0].isupper():
             missing_capitalization += 1
 
-        # Verificar que termine en punto o signo válido
+        # Verificar que termine en signo de puntuación
         if not line.endswith((".", "!", "?", ":", ";")):
             incomplete_sentences += 1
 
-        # Contar signos de puntuación
-        punctuation_marks += sum(line.count(p) for p in [".", ",", ";", ":", "!"])
+        # Gramática básica: verificar patrones comunes (ejemplo)
+        grammar_errors += len(re.findall(r'\b(?:es|está|son)\b [^\w\s]', line))  # Ejemplo: "es" sin continuación válida
 
-    # Calcular métricas
-    spelling_score = round(((spelling_errors / total_words)*5), 2)
-    capitalization_score = round(((missing_capitalization / total_lines) * 5), 2)
-    sentence_completion_score = round(((incomplete_sentences / total_lines) * 5),2)
+    # Calcular métricas secundarias
+    spelling = 1- (spelling_errors / total_words) 
+    capitalization_score = 1- (missing_capitalization / total_lines)
+    sentence_completion_score = 1- (incomplete_sentences / total_lines) 
+    grammar = 1- (grammar_errors / total_lines) 
+    punctuation_error_rate = 1- (punctuation_errors / total_lines)
 
-    # Calificación general ponderada
-    overall_score = round(((spelling_score) +(capitalization_score) + (sentence_completion_score))/3,2)
+    #Calcular métricas principales
+    grammar_score = round(((punctuation_error_rate+ grammar+ sentence_completion_score)/3)*5, 2)
+    spelling_score= round(((spelling+ capitalization_score)/2)*5,2)
+
+    if total_lines == 0:
+        return 100  # Si no hay oraciones, asumimos coherencia perfecta.
+
+    # Calcular métricas coherencia
+    # 1. Repetición de palabras
+    def calculate_word_repetition(pres_cleaned_lines):
+        repeated_words = Counter()
+        for line in pres_cleaned_lines:
+            words = line.split()
+            repeated_words.update([word.lower() for word in words])
+    
+        total_words = sum(repeated_words.values())
+        unique_words = len(repeated_words)
+        most_common_word_count = repeated_words.most_common(1)[0][1] if repeated_words else 0
+        repeated_word_ratio = (most_common_word_count / total_words) if total_words > 0 else 0
+    
+        # Una menor repetición indica mayor calidad
+        repetition_score = 1 - repeated_word_ratio
+        return repetition_score, repeated_words
+
+    # 2. Fluidez entre oraciones
+    def calculate_sentence_fluency(pres_cleaned_lines):
+        """
+        Calcula el puntaje de fluidez de las oraciones basándose en conectores lógicos, puntuación,
+        y variabilidad en la longitud de las oraciones.
+        :param pres_cleaned_lines: Lista de líneas limpias del texto.
+        :return: Puntaje de fluidez de las oraciones entre 0 y 1.
+        """
+        # Lista de conectores lógicos comunes
+        logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque"]
+        connector_count = 0
+        total_lines = len(pres_cleaned_lines)
+    
+        # Validación para evitar divisiones por cero
+        if total_lines == 0:
+            return 0  # Sin líneas, no se puede calcular fluidez
+    
+        # Inicialización de métricas
+        punctuation_errors = 0
+        sentence_lengths = []
+    
+        for line in pres_cleaned_lines:
+            # Verificar errores de puntuación (oraciones sin punto final)
+            if not line.endswith((".", "!", "?")):
+                punctuation_errors += 1
+    
+            # Almacenar la longitud de cada oración
+            sentence_lengths.append(len(line.split()))
+    
+            # Contar conectores lógicos en la línea
+            for connector in logical_connectors:
+                if connector in line.lower():
+                    connector_count += 1
+    
+        # Calcular métricas individuales
+        avg_length = sum(sentence_lengths) / total_lines
+        length_variance = sum(
+            (len(line.split()) - avg_length) ** 2 for line in pres_cleaned_lines
+        ) / total_lines if total_lines > 1 else 0
+    
+        # Normalizar métricas entre 0 y 1
+        punctuation_score = max(0, 1 - (punctuation_errors / total_lines))  # 1 si no hay errores
+        connector_score = min(1, connector_count / total_lines)  # Máximo 1, basado en conectores
+        variance_penalty = max(0, 1 - length_variance / avg_length) if avg_length > 0 else 0
+    
+        # Calcular puntaje final de fluidez
+        fluency_score = (punctuation_score + connector_score + variance_penalty) / 3
+        return round(fluency_score, 2)  # Escalar a un rango de 0 a 100 y redondear
+
+        
+    # Calcular métricas individuales
+    repetition_score, repeated_words = calculate_word_repetition(pres_cleaned_lines)
+    fluency_score = calculate_sentence_fluency(pres_cleaned_lines)
+    
+    # Calcular coherencia como promedio de las métricas
+    coherence_score = round(((repetition_score+fluency_score))*5, 2)
+     
+    # Puntaje general ponderado
+    overall_score = round((spelling_score  + coherence_score + grammar_score) / 3, 2)
 
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
@@ -890,9 +983,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     presentation_table = Table(
         [
             ["Criterio", "Puntaje"],
-            ["Coherencia", f"{sentence_completion_score:.2f}"],
+            ["Coherencia", f"{coherence_score:.2f}"],
             ["Ortografía", f"{spelling_score:.2f}"],
-            ["Gramática", f"{capitalization_score:.2f}"],
+            ["Gramática", f"{grammar_score:.2f}"],
             ["Puntaje Total", f"{overall_score:.2f}"]
         ],
         colWidths=[3 * inch, 2 * inch]
@@ -919,12 +1012,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
     
     # Consejos para coherencia de frases
-    if sentence_completion_score < 3:
+    if coherence_score < 3:
         elements.append(Paragraph(
             "• Mejora la redacción de las frases en tu hoja de vida. Asegúrate de que sean completas, coherentes y claras.",
             styles['CenturyGothic']
         ))
-    elif 3 <= sentence_completion_score <= 4:
+    elif 3 <= coherence_score <= 4:
         elements.append(Paragraph(
             "• La redacción de tus frases es adecuada, pero revisa la fluidez entre oraciones para mejorar la coherencia general.",
             styles['CenturyGothic']
@@ -953,13 +1046,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ))
     elements.append(Spacer(1, 0.1 * inch))
     
-    # Consejos para uso de mayúsculas
-    if capitalization_score < 3:
+    # Consejos para gramática
+    if grammar_score < 3:
         elements.append(Paragraph(
             "• Corrige el uso de mayúsculas. Asegúrate de que nombres propios, títulos y principios de frases estén correctamente capitalizados.",
             styles['CenturyGothic']
         ))
-    elif 3 <= capitalization_score <= 4:
+    elif 3 <= grammar_score <= 4:
         elements.append(Paragraph(
             "• Tu uso de mayúsculas es aceptable, pero puede perfeccionarse. Revisa los encabezados y títulos para asegurarte de que estén bien escritos.",
             styles['CenturyGothic']
