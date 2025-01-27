@@ -729,9 +729,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ) / total_lines if total_lines > 1 else 0
     
         # Puntaje de fluidez
-        punctuation_score = max(0, 1 - (punctuation_errors / total_lines))
+        punctuation_score = 1 - (punctuation_errors / total_lines)
         connector_score = (connector_count / total_lines) if total_lines > 0 else 0
-        variance_penalty = max(0, 1 - length_variance)
+        variance_penalty = 1 - length_variance
     
         fluency_score = (punctuation_score + connector_score + variance_penalty) / 3
         return fluency_score
@@ -741,7 +741,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     fluency_score = calculate_sentence_fluency(pres_cleaned_lines)
     
     # Calcular coherencia como promedio de las métricas
-    coherence_score = round(((repetition_score))*5, 2)
+    coherence_score = round(((fluency_score))*5, 2)
      
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
