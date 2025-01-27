@@ -2132,7 +2132,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             elements.append(Paragraph(f"  Indicador: {indicator}", styles['CenturyGothicBold']))
             for tip in critical_advice.get(indicator, ["No hay consejos disponibles para este indicador."]):
                 elements.append(Paragraph(f"    • {tip}", styles['CenturyGothic']))
-                elements.append(Spacer(1, 0.2 * inch))
+                elements.append(Spacer(1, 0.1 * inch))
 
     elements.append(Spacer(1, 0.2 * inch))
 
