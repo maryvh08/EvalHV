@@ -633,6 +633,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Inicializar corrector ortográfico
     spell = SpellChecker(language='es')
 
+    for i, line in enumerate(lines):
+        # Verificar si la oración termina con puntuación válida
+        if not line.endswith((".", "!", "?")):
+            punctuation_errors += 1
+
     # Limpiar y dividir el texto en líneas
     pres_cleaned_lines = [line.strip() for line in resume_text.split("\n") if line.strip()]
     total_lines = len(pres_cleaned_lines)
@@ -670,9 +675,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     capitalization_score = 1- (missing_capitalization / total_lines)
     sentence_completion_score = 1- (incomplete_sentences / total_lines) 
     grammar = 1- (grammar_errors / total_lines) 
+    punctuation_error_rate = 1- (punctuation_errors / total_lines)
 
     #Calcular métricas principales
-    grammar_score = round(((grammar+ sentence_completion_score)/2)*5, 2)
+    grammar_score = round(((punctuation_error_rate+ grammar+ sentence_completion_score)/2)*5, 2)
     spelling_score= round(((spelling+ capitalization_score)/2)*5,2)
 
     if total_lines == 0:
@@ -685,12 +691,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     repeated_words = Counter()
     transition_words = 0
 
-    for i, sentence in enumerate(lines):
-        # Evaluar fluidez entre oraciones
-        # Verificar si la oración termina con puntuación válida
-        if not sentence.endswith((".", "!", "?")):
-            punctuation_errors += 1
-        
+    for i, line in enumerate(lines):
         if i > 0:  # Comparar con la oración anterior
             previous_words = set(lines[i - 1].split())
             current_words = set(words)
@@ -698,18 +699,15 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
                 transition_words += 1
 
     # Calcular métricas 
-    #1. Errores de puntuación
-    punctuation_error_rate = 1- (punctuation_errors / total_lines)
-    
-    # 2. Repetición de palabras
+    # 1. Repetición de palabras
     most_common_word_count = repeated_words.most_common(1)[0][1] if repeated_words else 0
     repetition_penalty = (most_common_word_count / total_lines)
 
-    # 3. Fluidez entre oraciones
+    # 2. Fluidez entre oraciones
     transition_score = (transition_words / (total_lines - 1)) 
 
     # Calcular coherencia como promedio de las métricas
-    coherence_score = round(((punctuation_error_rate+ transition_score- repetition_penalty) / 3)*5, 2)
+    coherence_score = round(((transition_score- repetition_penalty) / 2)*5, 2)
      
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
