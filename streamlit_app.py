@@ -628,7 +628,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     resume_text= evaluate_cv_presentation(pdf_path)
 
-     # Inicializar corrector ortográfico
+      # Inicializar corrector ortográfico
     spell = SpellChecker(language='es')
 
     # Limpiar y dividir el texto en líneas
