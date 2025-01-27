@@ -706,7 +706,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         length_deviation_score = 0
 
     # 3. Variabilidad léxica (Type-Token Ratio)
-    total_words = len(all_words)
+    total_words += len(words)
     unique_words = len(set(all_words))
     lexical_diversity_score = unique_words / total_words
 
