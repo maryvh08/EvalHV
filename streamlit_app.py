@@ -665,10 +665,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         grammar_errors += len(re.findall(r'\b(?:es|está|son)\b [^\w\s]', line))  # Ejemplo: "es" sin continuación válida
 
     # Calcular métricas secundarias
-    spelling= max(0, 1 - (spelling_errors / total_words)) if total_words > 0 else 100
-    capitalization_score = max(0, 1- ((missing_capitalization / total_lines))) if total_lines > 0 else 100
-    sentence_completion_score  = max(0, 1 - ((incomplete_sentences / total_lines))) if total_lines > 0 else 100
-    grammar = max(0, 1 - ((grammar_errors / total_lines))) if total_lines > 0 else 100
+    spelling= 1 - (spelling_errors / total_words) if total_words > 0 else 100
+    capitalization_score = 1- (missing_capitalization / total_lines) if total_lines > 0 else 100
+    sentence_completion_score  = 1 - (incomplete_sentences / total_lines) if total_lines > 0 else 100
+    grammar = 1 - (grammar_errors / total_lines) if total_lines > 0 else 100
 
     #Calcular métricas principales
     grammar_score = round((grammar+ sentence_completion_score)/2)*5
@@ -693,13 +693,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular métricas    
     # 1. Errores de puntuación
-    punctuation_error_rate = (punctuation_errors / total_lines) * 1 if total_lines > 0 else 0
+    punctuation_error_rate = (punctuation_errors / total_lines)  if total_lines > 0 else 0
     
     # 2. Longitud de las oraciones
     if sentence_lengths:
         length_std_dev = np.std(sentence_lengths)
         max_expected_length = 20  # Longitud promedio esperada de una oración
-        length_deviation_score = min(100, (length_std_dev / max_expected_length) * 1)
+        length_deviation_score = length_std_dev / max_expected_length) 
     else:
         length_deviation_score = 0
 
