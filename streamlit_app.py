@@ -637,7 +637,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     for i, line in enumerate(lines):
         # Verificar si la oración termina con puntuación válida
-        if not sentence.endswith((".", "!", "?")):
+        if not line.endswith((".", "!", "?")):
             punctuation_errors += 1
 
     # Limpiar y dividir el texto en líneas
