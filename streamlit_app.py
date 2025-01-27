@@ -633,9 +633,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Inicializar corrector ortográfico
     spell = SpellChecker(language='es')
 
+    punctuation_errors = 0
+    
     for i, line in enumerate(lines):
         # Verificar si la oración termina con puntuación válida
-        if not line.endswith((".", "!", "?")):
+        if not sentence.endswith((".", "!", "?")):
             punctuation_errors += 1
 
     # Limpiar y dividir el texto en líneas
@@ -685,7 +687,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         return 100  # Si no hay oraciones, asumimos coherencia perfecta.
 
     # Variables para análisis
-    punctuation_errors = 0
     sentence_lengths = []
     all_words = []
     repeated_words = Counter()
