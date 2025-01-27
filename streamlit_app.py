@@ -671,7 +671,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     grammar_score = max(0, 100 - ((grammar_errors / total_lines) * 100)) if total_lines > 0 else 100
 
     # Dividir texto en oraciones
-    sentences = re.split(r'[.!?]\s*', text.strip())
+    sentences = re.split(r'[.!?]\s*', resume_text.strip())
     sentences = [sentence.strip() for sentence in sentences if sentence]  # Filtrar oraciones vacías
     total_sentences = len(sentences)
 
