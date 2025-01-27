@@ -1754,16 +1754,17 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_att_profile_match = 0
 
     # Extraer texto del PDF con encabezados y detalles
-    text_data = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
+    text_data = extract_text_with_headers_and_details(pdf_path)
 
     if not text_data:
-        st.error("No se pudo extraer texto del archivo PDF.")
-        return None
+        return None, "No se pudo extraer texto del archivo PDF."
 
-    # Instanciar el corrector ortográfico
+    # Instanciar corrector ortográfico
     spell = SpellChecker()
 
-    # Definir funciones para evaluación avanzada de presentación
+    # Métricas avanzadas para coherencia
+    logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque"]
+
     def evaluate_spelling(text):
         """Evalúa la ortografía del texto y retorna un puntaje."""
         if not text or not isinstance(text, str):
@@ -1786,14 +1787,31 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         return (correct_caps / len(sentences)) * 100
 
     def evaluate_sentence_coherence(text):
-        """Evalúa la coherencia y legibilidad del texto."""
+        """Evalúa la coherencia del texto basada en fluidez, conectores y longitud de oraciones."""
         if not text or not isinstance(text, str):
             return 0  # Texto inválido devuelve 0
-        try:
-            # Normalizar entre 0 y 100 usando Flesch-Kincaid Grade
-            return max(0, min(100, 100 - textstat.flesch_kincaid_grade(text) * 10))
-        except Exception:
-            return 50  # Puntaje intermedio en caso de error
+
+        sentences = re.split(r'[.!?]\s*', text.strip())
+        sentences = [sentence for sentence in sentences if sentence]
+        total_sentences = len(sentences)
+
+        # Puntuación basada en conectores lógicos
+        connector_count = sum(sentence.lower().count(connector) for connector in logical_connectors for sentence in sentences)
+        connector_score = (connector_count / total_sentences) * 100 if total_sentences > 0 else 0
+
+        # Variabilidad en longitud de oraciones
+        sentence_lengths = [len(sentence.split()) for sentence in sentences]
+        avg_length = sum(sentence_lengths) / total_sentences if total_sentences > 0 else 0
+        length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences if total_sentences > 1 else 0
+        variance_score = max(0, 100 - length_variance)
+
+        # Fluidez en puntuación
+        punctuation_errors = sum(1 for sentence in sentences if not sentence.endswith((".", "!", "?")))
+        punctuation_score = max(0, 100 - (punctuation_errors / total_sentences) * 100 if total_sentences > 0 else 0)
+
+        # Puntaje final de coherencia
+        coherence_score = (connector_score + variance_score + punctuation_score) / 3
+        return round(coherence_score, 2)
 
     # Evaluación por encabezado y detalles
     presentation_results = {}
@@ -1805,26 +1823,26 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         header_spelling = evaluate_spelling(header)
         header_capitalization = evaluate_capitalization(header)
         header_coherence = evaluate_sentence_coherence(header)
-        header_overall = (header_spelling + header_capitalization + header_coherence) / 3
+        header_overall = round((header_spelling + header_capitalization + header_coherence) / 3, 2)
 
         # Evaluar detalles
         details_spelling = evaluate_spelling(details_text)
         details_capitalization = evaluate_capitalization(details_text)
         details_coherence = evaluate_sentence_coherence(details_text)
-        details_overall = (details_spelling + details_capitalization + details_coherence) / 3
+        details_overall = round((details_spelling + details_capitalization + details_coherence) / 3, 2)
 
         # Guardar resultados para cada encabezado y sus detalles
         presentation_results[header] = {
             "header_score": {
-                "spelling_score": header_spelling,
-                "capitalization_score": header_capitalization,
-                "coherence_score": header_coherence,
+                "spelling_score": round(header_spelling, 2),
+                "capitalization_score": round(header_capitalization, 2),
+                "coherence_score": round(header_coherence, 2),
                 "overall_score": header_overall,
             },
             "details_score": {
-                "spelling_score": details_spelling,
-                "capitalization_score": details_capitalization,
-                "coherence_score": details_coherence,
+                "spelling_score": round(details_spelling, 2),
+                "capitalization_score": round(details_capitalization, 2),
+                "coherence_score": round(details_coherence, 2),
                 "overall_score": details_overall,
             },
         }
