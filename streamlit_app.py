@@ -681,38 +681,34 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     punctuation_errors = 0
     sentence_lengths = []
     all_words = []
-
+    repeated_words = Counter()
+    transition_words = 0
 
     for line in pres_cleaned_lines:
         # Verificar si la oración termina con puntuación válida
         if not line.endswith((".", "!", "?")):
             punctuation_errors += 1
 
-        # Calcular longitud de la oración
-        words = line.split()
-        if words:
-            sentence_lengths.append(len(words))
+        # Evaluar fluidez entre oraciones
+        if i > 0:  # Comparar con la oración anterior
+            previous_words = set(sentences[i - 1].split())
+            current_words = set(words)
+            if previous_words & current_words:  # Si comparten palabras de transición
+                transition_words += 1
 
     # Calcular métricas    
     # 1. Errores de puntuación
-    punctuation_error_rate = (punctuation_errors / total_lines) 
+    punctuation_error_rate = 1- (punctuation_errors / total_lines) 
     
-    # 2. Longitud de las oraciones
-    if sentence_lengths:
-        length_std_dev = np.std(sentence_lengths)
-        max_expected_length = 20  # Longitud promedio esperada de una oración
-        length_deviation_score = length_std_dev / max_expected_length
-    else:
-        length_deviation_score = 0
+    # 2. Repetición de palabras
+    most_common_word_count = repeated_words.most_common(1)[0][1] if repeated_words else 0
+    repetition_penalty = (most_common_word_count / total_sentences)
 
-    # 3. Variabilidad léxica (Type-Token Ratio)
-    total_words += len(words)
-    unique_words = len(set(all_words))
-    lexical_diversity_score = unique_words / total_words
-
+    # 3. Fluidez entre oraciones
+    transition_score = (transition_words / (total_sentences - 1)) 
 
     # Calcular coherencia como promedio de las métricas
-    coherence_score = round(((punctuation_error_rate + length_deviation_score+ lexical_diversity_score) / 3)*5, 2)
+    coherence_score = round(((punctuation_error_rate + transition_score-nrepetition_penalty) / 3)*5, 2)
      
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
