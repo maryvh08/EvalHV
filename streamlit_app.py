@@ -665,10 +665,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         grammar_errors += len(re.findall(r'\b(?:es|está|son)\b [^\w\s]', line))  # Ejemplo: "es" sin continuación válida
 
     # Calcular métricas secundarias
-    spelling= 1 - (spelling_errors / total_words) if total_words > 0 else 100
-    capitalization_score = 1- (missing_capitalization / total_lines) if total_lines > 0 else 100
-    sentence_completion_score  = 1 - (incomplete_sentences / total_lines) if total_lines > 0 else 100
-    grammar = 1 - (grammar_errors / total_lines) if total_lines > 0 else 100
+    spelling= 1 - (spelling_errors / total_words) 
+    capitalization_score = 1- (missing_capitalization / total_lines) 
+    sentence_completion_score  = 1 - (incomplete_sentences / total_lines) 
+    grammar = 1 - (grammar_errors / total_lines) 
 
     #Calcular métricas principales
     grammar_score = round((grammar+ sentence_completion_score)/2)*5
@@ -693,7 +693,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular métricas    
     # 1. Errores de puntuación
-    punctuation_error_rate = (punctuation_errors / total_lines)  if total_lines > 0 else 0
+    punctuation_error_rate = (punctuation_errors / total_lines)  
     
     # 2. Longitud de las oraciones
     if sentence_lengths:
