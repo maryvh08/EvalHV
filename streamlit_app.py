@@ -671,12 +671,18 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     grammar_score = max(0, 100 - ((grammar_errors / total_lines) * 100)) if total_lines > 0 else 100
 
     # Dividir texto en oraciones
-    sentences = re.split(r'[.!?]\s*', resume_text.strip())
+    sentences = re.split(r'[.!?]\s*', text.strip())
     sentences = [sentence.strip() for sentence in sentences if sentence]  # Filtrar oraciones vacías
     total_sentences = len(sentences)
 
     if total_sentences == 0:
         return 100  # Si no hay oraciones, asumimos coherencia perfecta.
+
+    # Lista de conectores lógicos comunes en español
+    logical_connectors = [
+        "porque", "por lo tanto", "aunque", "sin embargo", "además", "mientras", 
+        "así que", "no obstante", "en cambio", "por otro lado", "por consiguiente"
+    ]
 
     # Variables para análisis
     connector_count = 0
@@ -684,6 +690,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     sentence_lengths = []
 
     for sentence in sentences:
+        # Contar conectores lógicos
+        for connector in logical_connectors:
+            if connector in sentence.lower():
+                connector_count += 1
 
         # Verificar si la oración termina con puntuación válida
         if not sentence.endswith((".", "!", "?")):
@@ -691,18 +701,30 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
         # Calcular longitud de la oración
         words = sentence.split()
-        sentence_lengths.append(len(words))
+        if words:
+            sentence_lengths.append(len(words))
 
     # Calcular métricas
-    punctuation_error_rate = (punctuation_errors / total_sentences) * 100
-    length_std_dev = np.std(sentence_lengths)  # Desviación estándar de la longitud de oraciones
-
-    # Normalizar desviación estándar entre 0 y 100
-    max_expected_length = 20  # Longitud promedio esperada de una oración
-    length_deviation_score = min(100, (length_std_dev / max_expected_length) * 100)
+    # 1. Conectores lógicos
+    connector_score = (connector_count / total_sentences) * 100 if total_sentences > 0 else 0
+    
+    # 2. Errores de puntuación
+    punctuation_error_rate = (punctuation_errors / total_sentences) * 100 if total_sentences > 0 else 0
+    
+    # 3. Longitud de las oraciones
+    if sentence_lengths:
+        length_std_dev = np.std(sentence_lengths)
+        max_expected_length = 20  # Longitud promedio esperada de una oración
+        length_deviation_score = min(100, (length_std_dev / max_expected_length) * 100)
+    else:
+        length_deviation_score = 0
 
     # Calcular coherencia como promedio de las métricas
     coherence_score = 100 - (punctuation_error_rate + length_deviation_score) / 2
+
+    # Ajustar puntaje si hay conectores
+    if connector_count > 0:
+        coherence_score += (connector_score / 2)
      
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
