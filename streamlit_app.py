@@ -626,56 +626,65 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
-     # Inicializar corrector ortográfico
+    # Inicializar corrector ortográfico
     spell = SpellChecker(language='es')
 
-    # Variables para métricas
-    spelling_errors = 0
-    total_words = 0
-    missing_capitalization = 0
-    incomplete_sentences = 0
-
-    # Dividir el texto en líneas y limpiar
+    # Limpiar y dividir el texto en líneas
     pres_cleaned_lines = [line.strip() for line in resume_text.split("\n") if line.strip()]
     total_lines = len(pres_cleaned_lines)
 
+    # Métricas
+    total_words = 0
+    spelling_errors = 0
+    missing_capitalization = 0
+    incomplete_sentences = 0
+    grammar_errors = 0
+
     for line in pres_cleaned_lines:
-        # Evaluar palabras y ortografía
+        # Dividir en palabras y contar
         words = re.findall(r'\b\w+\b', line)
         total_words += len(words)
+
+        # Ortografía
         misspelled = spell.unknown(words)
         spelling_errors += len(misspelled)
 
-        # Evaluar capitalización
+        # Gramática básica: Uso de mayúsculas y signos de puntuación
         if line and not line[0].isupper():
             missing_capitalization += 1
-
-        # Evaluar finalización de la oración
         if not line.endswith((".", "!", "?", ":", ";")):
             incomplete_sentences += 1
 
-    # Calcular puntuaciones
-    spelling_score = round(100 - ((spelling_errors / total_words) * 100), 2) if total_words > 0 else 100
-    capitalization_score = round(100 - ((missing_capitalization / total_lines) * 100), 2) if total_lines > 0 else 100
-    sentence_completion_score = round(100 - ((incomplete_sentences / total_lines) * 100), 2) if total_lines > 0 else 100
+        # Análisis de gramática con TextBlob
+        blob = TextBlob(line)
+        grammar_errors += len(blob.correct().sentences) - len(blob.sentences)
 
-    # Coherencia (usando textstat)
+    # Calcular métricas
+    spelling_score = max(0, 100 - ((spelling_errors / total_words) * 100)) if total_words > 0 else 100
+    capitalization_score = max(0, 100 - ((missing_capitalization / total_lines) * 100)) if total_lines > 0 else 100
+    sentence_completion_score = max(0, 100 - ((incomplete_sentences / total_lines) * 100)) if total_lines > 0 else 100
+
+    # Métrica de coherencia usando textstat
     try:
         coherence_score = max(0, min(100, 100 - textstat.flesch_kincaid_grade(resume_text) * 10))
     except Exception:
-        coherence_score = 50  # Valor por defecto en caso de error
+        coherence_score = 50  # Valor intermedio en caso de error
+
+    # Métrica de gramática (basada en errores detectados)
+    grammar_score = max(0, 100 - ((grammar_errors / total_lines) * 100)) if total_lines > 0 else 100
 
     # Puntaje general ponderado
-    overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score) / 4, 2)
+    overall_score = round((spelling_score + coherence_score + grammar_score) / 3, 2)
 
     return {
-        "spelling_score": spelling_score,
-        "capitalization_score": capitalization_score,
-        "sentence_completion_score": sentence_completion_score,
-        "coherence_score": coherence_score,
-        "overall_score": overall_score
+        "spelling_score": round(spelling_score, 2),
+        "capitalization_score": round(capitalization_score, 2),
+        "sentence_completion_score": round(sentence_completion_score, 2),
+        "coherence_score": round(coherence_score, 2),
+        "grammar_score": round(grammar_score, 2),
+        "overall_score": overall_score,
     }
-    
+
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
     parcial_exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
@@ -898,7 +907,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             ["Criterio", "Puntaje"],
             ["Coherencia", f"{coherence_score:.2f}"],
             ["Ortografía", f"{spelling_score:.2f}"],
-            ["Gramática", f"{capitalization_score:.2f}"],
+            ["Gramática", f"{grammar_score:.2f}"],
             ["Puntaje Total", f"{overall_score:.2f}"]
         ],
         colWidths=[3 * inch, 2 * inch]
@@ -959,13 +968,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ))
     elements.append(Spacer(1, 0.1 * inch))
     
-    # Consejos para uso de mayúsculas
-    if capitalization_score < 3:
+    # Consejos para gramática
+    if grammar_score < 3:
         elements.append(Paragraph(
             "• Corrige el uso de mayúsculas. Asegúrate de que nombres propios, títulos y principios de frases estén correctamente capitalizados.",
             styles['CenturyGothic']
         ))
-    elif 3 <= capitalization_score <= 4:
+    elif 3 <= grammar_score <= 4:
         elements.append(Paragraph(
             "• Tu uso de mayúsculas es aceptable, pero puede perfeccionarse. Revisa los encabezados y títulos para asegurarte de que estén bien escritos.",
             styles['CenturyGothic']
