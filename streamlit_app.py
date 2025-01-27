@@ -680,7 +680,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     punctuation_error_rate = 1- (punctuation_errors / total_lines)
 
     #Calcular métricas principales
-    grammar_score = round(((punctuation_error_rate+ grammar+ sentence_completion_score)/2)*5, 2)
+    grammar_score = round(((punctuation_error_rate+ grammar+ sentence_completion_score)/3)*5, 2)
     spelling_score= round(((spelling+ capitalization_score)/2)*5,2)
 
     if total_lines == 0:
