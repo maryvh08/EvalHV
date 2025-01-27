@@ -699,7 +699,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if sentence_lengths:
         length_std_dev = np.std(sentence_lengths)
         max_expected_length = 20  # Longitud promedio esperada de una oración
-        length_deviation_score = length_std_dev / max_expected_length) 
+        length_deviation_score = (length_std_dev / max_expected_length) 
     else:
         length_deviation_score = 0
 
