@@ -919,12 +919,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
     
     # Consejos para coherencia de frases
-    if sentence_completion_score < 2.5:
+    if sentence_completion_score < 3:
         elements.append(Paragraph(
             "• Mejora la redacción de las frases en tu hoja de vida. Asegúrate de que sean completas, coherentes y claras.",
             styles['CenturyGothic']
         ))
-    elif 2.5 <= sentence_completion_score <= 3.75:
+    elif 3 <= sentence_completion_score <= 4:
         elements.append(Paragraph(
             "• La redacción de tus frases es adecuada, pero revisa la fluidez entre oraciones para mejorar la coherencia general.",
             styles['CenturyGothic']
@@ -936,12 +936,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         ))
     elements.append(Spacer(1, 0.1 * inch))
     # Consejos para ortografía
-    if spelling_score < 2.5:
+    if spelling_score < 3:
         elements.append(Paragraph(
             "• Revisa cuidadosamente la ortografía de tu hoja de vida. Considera utilizar herramientas automáticas para detectar errores de escritura.",
             styles['CenturyGothic']
         ))
-    elif 2.5 <= spelling_score <= 3.75:
+    elif 3 <= spelling_score <= 4:
         elements.append(Paragraph(
             "• Tu ortografía es buena, pero aún puede mejorar. Lee tu hoja de vida en voz alta para identificar errores menores.",
             styles['CenturyGothic']
@@ -954,12 +954,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.1 * inch))
     
     # Consejos para uso de mayúsculas
-    if capitalization_score < 2.5:
+    if capitalization_score < 3:
         elements.append(Paragraph(
             "• Corrige el uso de mayúsculas. Asegúrate de que nombres propios, títulos y principios de frases estén correctamente capitalizados.",
             styles['CenturyGothic']
         ))
-    elif 2.5 <= capitalization_score <= 3.75:
+    elif 3 <= capitalization_score <= 4:
         elements.append(Paragraph(
             "• Tu uso de mayúsculas es aceptable, pero puede perfeccionarse. Revisa los encabezados y títulos para asegurarte de que estén bien escritos.",
             styles['CenturyGothic']
@@ -1066,14 +1066,14 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             f" Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.",
             styles['CenturyGothic']
         ))
-    elif 50 <= global_profile_match <= 75 or 50 <= global_func_match <= 75:
+    elif 60 <= global_profile_match <= 75 or 60 <= global_func_match <= 75:
         elements.append(Paragraph(
-            f" Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.",
+            f" Buena Concordancia (> 0.60): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.",
             styles['CenturyGothic']
         ))
-    elif 50 < global_profile_match and 50 < global_func_match:
+    elif 60 < global_profile_match and 60 < global_func_match:
         elements.append(Paragraph(
-            f" Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.",
+            f" Baja Concordancia (< 0.60): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.",
             styles['CenturyGothic']
         ))
 
@@ -1568,10 +1568,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         indicator: (count / total_items) * 100 if total_items > 0 else 0 for indicator, count in related_items_count.items()
     }
 
-    # Consejos para indicadores críticos (<50% de concordancia)
+    # Consejos para indicadores críticos (<60% de concordancia)
     critical_advice = {
         indicator: advice.get(position, {}).get(indicator, ["No hay consejos disponibles para este indicador."])
-        for indicator, percentage in indicator_percentages.items() if percentage < 50
+        for indicator, percentage in indicator_percentages.items() if percentage < 60
     }
 
     #EVENTOS ORGANIZADOS
@@ -2038,12 +2038,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Spacer(1, 0.2 * inch))
     
     # Consejos para coherencia
-    if round_coherence_score < 2.5:
+    if round_coherence_score < 3:
         elements.append(Paragraph(
             "• La coherencia de las frases necesita atención. Asegúrate de conectar las ideas claramente y evitar frases fragmentadas.",
             styles['CenturyGothic']
         ))
-    elif 2.5 <= round_coherence_score <= 3.75:
+    elif 3 <= round_coherence_score <= 4:
         elements.append(Paragraph(
             "• La coherencia es aceptable, pero hay margen de mejora. Revisa las transiciones entre ideas para lograr un flujo más natural.",
             styles['CenturyGothic']
@@ -2055,12 +2055,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         ))
     
     # Consejos para ortografía
-    if round_spelling_score < 2.5:
+    if round_spelling_score < 3:
         elements.append(Paragraph(
             "• Revisa cuidadosamente la ortografía. Utiliza herramientas como correctores automáticos para identificar y corregir errores.",
             styles['CenturyGothic']
         ))
-    elif 2.5 <= round_spelling_score <= 3.75:
+    elif 3 <= round_spelling_score <= 4:
         elements.append(Paragraph(
             "• La ortografía es buena, pero se pueden corregir errores menores. Dedica tiempo a revisar cada palabra detenidamente.",
             styles['CenturyGothic']
@@ -2072,12 +2072,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         ))
     
     # Consejos para gramática
-    if round_capitalization_score < 2.5:
+    if round_capitalization_score < 3:
         elements.append(Paragraph(
             "• El uso de mayúsculas y la gramática necesitan mejoras. Asegúrate de que los nombres propios y los títulos estén correctamente capitalizados.",
             styles['CenturyGothic']
         ))
-    elif 2.5 <= round_capitalization_score <= 3.75:
+    elif 3 <= round_capitalization_score <= 4:
         elements.append(Paragraph(
             "• El uso de mayúsculas es correcto, pero puede perfeccionarse. Revisa los títulos y encabezados para asegurarte de que sean consistentes.",
             styles['CenturyGothic']
@@ -2128,7 +2128,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Paragraph("<b>Consejos para Indicadores Críticos:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.05 * inch))
     for indicator, percentage in indicator_percentages.items():
-        if percentage < 50:
+        if percentage < 60:
             elements.append(Paragraph(f"  Indicador: {indicator}", styles['CenturyGothicBold']))
             for tip in critical_advice.get(indicator, ["No hay consejos disponibles para este indicador."]):
                 elements.append(Paragraph(f"    • {tip}", styles['CenturyGothic']))
@@ -2178,14 +2178,14 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             f" Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.",
             styles['CenturyGothic']
         ))
-    elif 50 < global_profile_match <= 75 or 50 < global_func_match <= 75:
+    elif 60 < global_profile_match <= 75 or 60 < global_func_match <= 75:
         elements.append(Paragraph(
-            f" Buena Concordancia (> 0.50): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.",
+            f" Buena Concordancia (> 0.60): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.",
             styles['CenturyGothic']
         ))
-    elif 50 < global_profile_match and 50 < global_func_match:
+    elif 60 < global_profile_match and 60 < global_func_match:
         elements.append(Paragraph(
-            f" Baja Concordancia (< 0.50): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.",
+            f" Baja Concordancia (< 0.60): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.",
             styles['CenturyGothic']
         ))
 
