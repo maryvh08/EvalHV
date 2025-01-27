@@ -2134,8 +2134,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 elements.append(Paragraph(f"    • {tip}", styles['CenturyGothic']))
                 elements.append(Spacer(1, 0.1 * inch))
 
-    f" {indicator}
-
     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla global con ajuste de texto
