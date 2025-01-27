@@ -670,12 +670,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     sentence_completion_score  = max(0, 100 - ((incomplete_sentences / total_lines) * 100)) if total_lines > 0 else 100
     grammar_score = max(0, 100 - ((grammar_errors / total_lines) * 100)) if total_lines > 0 else 100
 
-    # Dividir texto en oraciones
-    sentences = re.split(r'[.!?]\s*', text.strip())
-    sentences = [sentence.strip() for sentence in sentences if sentence]  # Filtrar oraciones vacías
-    total_sentences = len(sentences)
-
-    if total_sentences == 0:
+    if total_lines == 0:
         return 100  # Si no hay oraciones, asumimos coherencia perfecta.
 
     # Lista de conectores lógicos comunes en español
@@ -689,8 +684,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     punctuation_errors = 0
     sentence_lengths = []
 
-    for sentence in sentences:
-        # Contar conectores lógicos
+    for line in pres_cleaned_lines:
+    # Contar conectores lógicos
         for connector in logical_connectors:
             if connector in sentence.lower():
                 connector_count += 1
