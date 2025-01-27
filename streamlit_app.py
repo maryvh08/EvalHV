@@ -678,22 +678,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if total_sentences == 0:
         return 100  # Si no hay oraciones, asumimos coherencia perfecta.
 
-    # Lista de conectores lógicos comunes en español
-    logical_connectors = [
-        "porque", "por lo tanto", "aunque", "sin embargo", "además", "mientras", 
-        "así que", "no obstante", "en cambio", "por otro lado", "por consiguiente"
-    ]
-
     # Variables para análisis
     connector_count = 0
     punctuation_errors = 0
     sentence_lengths = []
 
     for sentence in sentences:
-        # Contar conectores lógicos
-        for connector in logical_connectors:
-            if connector in sentence.lower():
-                connector_count += 1
 
         # Verificar si la oración termina con puntuación válida
         if not sentence.endswith((".", "!", "?")):
@@ -704,7 +694,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         sentence_lengths.append(len(words))
 
     # Calcular métricas
-    connector_score = (connector_count / total_sentences) * 100
     punctuation_error_rate = (punctuation_errors / total_sentences) * 100
     length_std_dev = np.std(sentence_lengths)  # Desviación estándar de la longitud de oraciones
 
@@ -713,7 +702,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     length_deviation_score = min(100, (length_std_dev / max_expected_length) * 100)
 
     # Calcular coherencia como promedio de las métricas
-    coherence_score = 100 - (connector_score + punctuation_error_rate + length_deviation_score) / 3
+    coherence_score = 100 - (punctuation_error_rate + length_deviation_score) / 2
      
     # Puntaje general ponderado
     overall_score = round((spelling_score + capitalization_score + sentence_completion_score + coherence_score + grammar_score) / 5, 2)
