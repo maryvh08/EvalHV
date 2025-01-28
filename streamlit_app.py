@@ -1753,6 +1753,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
+
     # Extraer texto del PDF con encabezados y detalles
     text_data = extract_text_with_headers_and_details(pdf_path)
 
@@ -1762,35 +1763,40 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Instanciar corrector ortográfico
     spell = SpellChecker()
 
-    # Métricas avanzadas para coherencia
+    # Conectores lógicos comunes
     logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque"]
 
     def evaluate_spelling(text):
         """Evalúa la ortografía del texto y retorna un puntaje."""
         if not text or not isinstance(text, str):
-            return 0  # Texto inválido devuelve 0
+            return 0
         words = text.split()
         misspelled = spell.unknown(words)
-        if not words:
-            return 100  # Si no hay palabras, asumimos puntaje perfecto
-        return ((len(words) - len(misspelled)) / len(words)) * 100
+        total_words = len(words)
+        if total_words == 0:
+            return 100
+        return ((total_words - len(misspelled)) / total_words) * 100
 
     def evaluate_capitalization(text):
-        """Evalúa si las frases comienzan con mayúscula."""
+        """Evalúa si las frases comienzan con mayúscula y si nombres propios están capitalizados."""
         if not text or not isinstance(text, str):
-            return 0  # Texto inválido devuelve 0
-        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
-        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
+            return 0
+        sentences = re.split(r'[.!?]\s*', text.strip())
+        sentences = [sentence for sentence in sentences if sentence]
         correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
+
+        # Evaluar nombres propios
+        proper_nouns = re.findall(r'\b[A-Z][a-z]+\b', text)
+        proper_noun_score = len(proper_nouns) / len(sentences) if sentences else 1
+
         if not sentences:
-            return 100  # Si no hay oraciones, asumimos puntaje perfecto
-        return (correct_caps / len(sentences)) * 100
+            return 100
+        return ((correct_caps / len(sentences)) * 100) * proper_noun_score
 
     def evaluate_sentence_coherence(text):
-        """Evalúa la coherencia del texto basada en fluidez, conectores y longitud de oraciones."""
+        """Evalúa la coherencia basada en conectores, variabilidad de longitud, y densidad léxica."""
         if not text or not isinstance(text, str):
-            return 0  # Texto inválido devuelve 0
-
+            return 0
         sentences = re.split(r'[.!?]\s*', text.strip())
         sentences = [sentence for sentence in sentences if sentence]
         total_sentences = len(sentences)
@@ -1805,12 +1811,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences if total_sentences > 1 else 0
         variance_score = max(0, 100 - length_variance)
 
-        # Fluidez en puntuación
-        punctuation_errors = sum(1 for sentence in sentences if not sentence.endswith((".", "!", "?")))
-        punctuation_score = max(0, 100 - (punctuation_errors / total_sentences) * 100 if total_sentences > 0 else 0)
+        # Densidad léxica
+        words = text.split()
+        unique_words = set(words)
+        lexical_density = (len(unique_words) / len(words)) * 100 if words else 100
 
         # Puntaje final de coherencia
-        coherence_score = (connector_score + variance_score + punctuation_score) / 3
+        coherence_score = (connector_score + variance_score + lexical_density) / 3
         return round(coherence_score, 2)
 
     # Evaluación por encabezado y detalles
@@ -1846,6 +1853,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 "overall_score": details_overall,
             },
         }
+
 
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
