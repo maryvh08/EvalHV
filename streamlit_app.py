@@ -1818,7 +1818,53 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
         # Puntaje final de coherencia
         coherence_score = (connector_score + variance_score + lexical_density) / 3
-        return round(coherence_score, 2)
+        return round(coherence_score, 2
+
+    def calculate_repetition_score(text):
+        """
+        Evalúa la repetición de palabras en el texto.
+        :param text: Texto a evaluar (encabezados o detalles).
+        :return: Puntaje de repetición entre 0 y 100.
+        """
+        words = text.lower().split()
+        word_counts = Counter(words)
+        total_words = len(words)
+        repeated_words = sum(count for word, count in word_counts.items() if count > 1)
+    
+        if total_words == 0:
+            return 100  # Asumir puntaje perfecto si no hay palabras
+    
+        # Cuanto menor sea la proporción de palabras repetidas, mejor es el puntaje
+        repetition_score = max(0, min(100, (1 - (repeated_words / total_words)) * 100))
+        return round(repetition_score, 2)
+
+    def calculate_punctuation_score(text):
+        """
+        Evalúa el uso de puntuación en el texto.
+        :param text: Texto a evaluar (encabezados o detalles).
+        :return: Puntaje de puntuación entre 0 y 100.
+        """
+        if not text or not isinstance(text, str):
+            return 0  # Texto inválido devuelve 0
+    
+        # Signos de puntuación relevantes
+        punctuation_marks = [".", ",", ";", ":", "!", "?"]
+        sentences = re.split(r'[.!?]\s*', text.strip())
+        sentences = [sentence for sentence in sentences if sentence]
+    
+        total_sentences = len(sentences)
+        punctuation_count = sum(text.count(mark) for mark in punctuation_marks)
+    
+        # Calcular puntuación parcial
+        punctuation_per_sentence = punctuation_count / total_sentences if total_sentences > 0 else 0
+    
+        # Asumir que al menos 1-2 signos de puntuación por oración es adecuado
+        expected_punctuation = 1.5  # Configurable según el estándar
+        penalty = max(0, expected_punctuation - punctuation_per_sentence)
+    
+        # Convertir en un puntaje entre 0 y 100
+        punctuation_score = max(0, 100 - (penalty * 20))  # Penalización proporcional
+        return round(punctuation_score, 2)
 
     # Evaluación por encabezado y detalles
     presentation_results = {}
@@ -1830,13 +1876,15 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         header_spelling = evaluate_spelling(header)
         header_capitalization = evaluate_capitalization(header)
         header_coherence = evaluate_sentence_coherence(header)
-        header_overall = round((header_spelling + header_capitalization + header_coherence) / 3, 2)
+        header_punctuation = calculate_punctuation_score(header)
+        header_overall = round((header_spelling + header_capitalization + header_coherence+header_overall) / 4, 2)
 
         # Evaluar detalles
         details_spelling = evaluate_spelling(details_text)
         details_capitalization = evaluate_capitalization(details_text)
-        details_coherence = evaluate_sentence_coherence(details_text)
-        details_overall = round((details_spelling + details_capitalization + details_coherence) / 3, 2)
+        details_coherence = evaluate_sentence_coherence(details_text
+        details_punctuation = calculate_punctuation_score(details_text)
+        details_overall = round((details_spelling + details_capitalization + details_coherence+ details_punctuation) / 4, 2)
 
         # Guardar resultados para cada encabezado y sus detalles
         presentation_results[header] = {
@@ -1844,12 +1892,14 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 "spelling_score": round(header_spelling, 2),
                 "capitalization_score": round(header_capitalization, 2),
                 "coherence_score": round(header_coherence, 2),
+                "punctuation_score": header_punctuation,
                 "overall_score": header_overall,
             },
             "details_score": {
                 "spelling_score": round(details_spelling, 2),
                 "capitalization_score": round(details_capitalization, 2),
                 "coherence_score": round(details_coherence, 2),
+                "punctuation_score": details_punctuation,
                 "overall_score": details_overall,
             },
         }
