@@ -1913,7 +1913,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         header_coherence = evaluate_sentence_coherence(header)
         header_punctuation = calculate_punctuation_score(header)
         header_repetition = calculate_repetition_score(header)
-        header_overall = round((header_spelling + ((header_capitalization+ header_punctuation)/2) + (header_coherence+ header_repetition)) / 3, 2)
+        header_overall = round((header_spelling + ((header_capitalization+ header_punctuation)/2) + (header_coherence+ header_repetition)) /3, 2)
 
         # Evaluar detalles
         details_spelling = evaluate_spelling(details_text)
@@ -2199,21 +2199,14 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
         total_spelling_score += (header_scores["spelling_score"] + details_scores["spelling_score"])
         total_capitalization_score += (header_scores["capitalization_score"] + details_scores["capitalization_score"] + header_scores["punctuation_score"] + details_scores["punctuation_score"])/2
-        total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"]+ header_scores["repetition_score"] + header_scores["repetition_score"])/2
+        total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"]+ header_scores["repetition_score"] + header_scores["repetition_score"])/
         total_overall_score += (header_scores["overall_score"] + details_scores["overall_score"])
-        total_sections += 2  # Sumar encabezado y detalle como secciones separadas
     
-    # Calcular promedios generales
-    average_spelling_score = total_spelling_score / total_sections if total_sections > 0 else 0
-    average_capitalization_score = total_capitalization_score / total_sections if total_sections > 0 else 0
-    average_coherence_score = total_coherence_score / total_sections if total_sections > 0 else 0
-    average_overall_score = total_overall_score / total_sections if total_sections > 0 else 0
-
     # Calcular puntajes ajustados
-    round_spelling_score = round((average_spelling_score / 100) * 5, 2) 
-    round_capitalization_score = round((average_capitalization_score / 100) * 5, 2) 
-    round_coherence_score = round((average_coherence_score / 100) * 5, 2) 
-    round_overall_score = round((average_overall_score / 100) * 5, 2) 
+    round_spelling_score = round((total_spelling_score / 100) * 5, 2) 
+    round_capitalization_score = round((total_capitalization_score / 100) * 5, 2) 
+    round_coherence_score = round((total_coherence_score / 100) * 5, 2) 
+    round_overall_score = round((total_overall_score / 100) * 5, 2) 
     
     # Agregar los puntajes combinados a la tabla
     presentation_table_data.append(["Coherencia", f"{round_spelling_score:.2f}"])
