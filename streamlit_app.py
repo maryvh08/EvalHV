@@ -1937,7 +1937,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 "capitalization_score": round(header_capitalization, 2),
                 "coherence_score": round(header_coherence, 2),
                 "punctuation_score": round(header_punctuation, 2),
-                "repetition_score": round(header_repetition, 2
+                "repetition_score": round(header_repetition, 2),
                 "fluency_score": round(header_fluency, 2),
                 "clarity_score": round(header_clarity, 2),
                 "overall_score": header_overall,
