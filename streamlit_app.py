@@ -1774,9 +1774,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         misspelled = spell.unknown(words)
         total_words = len(words)
         if total_words == 0:
-            return 1
-        return ((total_words - len(misspelled)) / total_words) 
-
+            return 100
+        return ((total_words - len(misspelled)) / total_words) * 100
+        
     def evaluate_capitalization(text):
         """Evalúa si las frases comienzan con mayúscula y si nombres propios están capitalizados."""
         if not text or not isinstance(text, str):
@@ -1791,7 +1791,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
         if not sentences:
             return 100
-        return ((correct_caps / len(sentences))) * proper_noun_score
+        return ((correct_caps / len(sentences)) * 100) * proper_noun_score
 
     def evaluate_sentence_coherence(text):
         """
@@ -1810,20 +1810,20 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         total_words = len(words)
     
         if total_words == 0 or total_sentences == 0:
-            return 1  # Si no hay texto, asumimos coherencia perfecta
+            return 100  # Si no hay texto, asumimos coherencia perfecta
     
         # **1. Uso de conectores lógicos**
         logical_connectors = {"porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque",
                               "por consiguiente", "en consecuencia", "en cambio", "de hecho", "a pesar de"}
         connector_count = sum(1 for word in words if word.lower() in logical_connectors)
         connector_ratio = connector_count / total_sentences if total_sentences > 0 else 0
-        connector_score = min(1, connector_ratio * 2)  
+        connector_score = min(100, connector_ratio * 200)  # Escalar a 100
     
         # **2. Consistencia en la longitud de frases**
         sentence_lengths = [len(sentence.split()) for sentence in sentences]
         avg_length = sum(sentence_lengths) / total_sentences
         length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences
-        length_variance_penalty = max(0, 1 - length_variance * 5)
+        length_variance_penalty = max(0, 100 - length_variance * 5)
     
         # **3. Transiciones entre frases**
         transition_words = {"entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"}
@@ -1834,7 +1834,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         coherence_score = (connector_score + length_variance_penalty + transition_score) / 3
         return round(coherence_score, 2)
 
-
     def calculate_repetition_score(text):
         """
         Evalúa la repetición de palabras en el texto y devuelve un puntaje entre 0 y 100.
@@ -1842,13 +1841,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         :return: Puntaje de repetición (0 = mucha repetición, 100 = buena variedad léxica).
         """
         if not text or not isinstance(text, str):
-            return 1  # Si no hay texto, asumimos repetición mínima
+            return 100  # Si no hay texto, asumimos repetición mínima
     
         words = text.lower().split()
         total_words = len(words)
     
         if total_words < 5:  # No evaluar textos demasiado cortos
-            return 1
+            return 100
     
         # **1. Contar repeticiones de palabras**
         word_counts = Counter(words)
@@ -1856,7 +1855,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
         # **2. Calcular proporción de palabras repetidas**
         repeated_ratio = sum(repeated_words.values()) / total_words
-        repetition_penalty = min(1, repeated_ratio * 2)  
+        repetition_penalty = min(100, repeated_ratio * 200)  # Escalar a 100
     
         # **3. Evaluar la distancia promedio entre repeticiones**
         last_seen = {}
@@ -1867,12 +1866,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             last_seen[word] = index
     
         avg_distance = sum(repetition_distances) / len(repetition_distances) if repetition_distances else 100
-        distance_penalty = max(0, min(1, avg_distance))
+        distance_penalty = max(0, min(100, avg_distance))
     
         # **Puntaje Final de Repetición**
-        repetition_score = (distance_penalty + (1 - repetition_penalty)) / 2
+        repetition_score = (distance_penalty + (100 - repetition_penalty)) / 2
         return round(repetition_score, 2)
-
+    
     def calculate_punctuation_score(text):
         """
         Evalúa el uso de puntuación en el texto.
@@ -1898,9 +1897,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         penalty = max(0, expected_punctuation - punctuation_per_sentence)
     
         # Convertir en un puntaje entre 0 y 100
-        punctuation_score = max(0, 1 - (penalty * 0.2))  # Penalización proporcional
+        punctuation_score = max(0, 100 - (penalty * 20))  # Penalización proporcional
         return round(punctuation_score, 2)
-
+    
     # Evaluación por encabezado y detalles
     presentation_results = {}
     for header, details in text_data.items():
