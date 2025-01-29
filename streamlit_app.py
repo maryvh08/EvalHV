@@ -2179,7 +2179,11 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         )
         total_coherence_score += (
             (header_scores["coherence_score"] + details_scores["coherence_score"]) / 2
-            + (header_scores["repetition_score"] + details_scores["repetition_score"]) / 2
+            + (header_scores["repetition_score"] + details_scores["repetition_score"]) / 2+
+        )
+        total_capitalization_score += (
+            (header_scores["capitalization_score"] + details_scores["capitalization_score"]) / 2
+            + (header_scores["capitalization_score"] + details_scores["capitalization_score"]) / 2+
         )
         total_overall_score += (header_scores["overall_score"] + details_scores["overall_score"]) / 2
     
