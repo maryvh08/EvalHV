@@ -2207,6 +2207,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     average_capitalization_score = total_capitalization_score / total_sections if total_sections > 0 else 0
     average_coherence_score = total_coherence_score / total_sections if total_sections > 0 else 0
     average_overall_score = total_overall_score / total_sections if total_sections > 0 else 0
+
+    # Calcular puntajes ajustados
+    round_spelling_score = round((total_spelling_score / total_sections / 100) * 5, 2) if total_sections > 0 else 0
+    round_capitalization_score = round((total_capitalization_score / total_sections / 100) * 5, 2) if total_sections > 0 else 0
+    round_coherence_score = round((total_coherence_score / total_sections / 100) * 5, 2) if total_sections > 0 else 0
+    round_overall_score = round((total_overall_score / total_sections / 100) * 5, 2) if total_sections > 0 else 0
     
     # Agregar los puntajes combinados a la tabla
     presentation_table_data.append(["Coherencia", f"{average_coherence_score:.2f}"])
