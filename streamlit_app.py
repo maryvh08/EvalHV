@@ -1757,107 +1757,97 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Extraer texto del PDF con encabezados y detalles
     text_data = extract_text_with_headers_and_details(pdf_path)
 
+   # Verificar si se extrajo correctamente el texto
     if not text_data:
-        return None, "No se pudo extraer texto del archivo PDF."
-
-    # Instanciar corrector ortográfico
+        st.error("No se pudo extraer texto del archivo PDF.")
+        return None
+    
+    # Inicializar corrector ortográfico
     spell = SpellChecker()
-
+    
     # Conectores lógicos comunes
     logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque"]
-
+    
     def evaluate_spelling(text):
-        """Evalúa la ortografía del texto y retorna un puntaje."""
+        """Evalúa la ortografía del texto y retorna un puntaje entre 0 y 100."""
         if not text or not isinstance(text, str):
-            return 0
+            return 100  # Si no hay texto, asumimos puntaje perfecto
+    
         words = text.split()
+        if len(words) < 2:
+            return 100  # Evitar dividir por 0 si hay muy pocas palabras
+    
         misspelled = spell.unknown(words)
         total_words = len(words)
-        if total_words == 0:
-            return 100
-        return ((total_words - len(misspelled)) / total_words) * 100
-        
+    
+        return round(((total_words - len(misspelled)) / total_words) * 100, 2)
+    
     def evaluate_capitalization(text):
-        """Evalúa si las frases comienzan con mayúscula y si nombres propios están capitalizados."""
+        """Evalúa si las frases comienzan con mayúscula y si nombres propios están bien capitalizados."""
         if not text or not isinstance(text, str):
-            return 0
+            return 100  # Si no hay texto, asumimos puntaje perfecto
+    
+        sentences = re.split(r'[.!?]\s*', text.strip())
+        sentences = [sentence.strip() for sentence in sentences if sentence]
+    
+        if len(sentences) == 0:
+            return 100  # Evitar dividir por 0
+    
+        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
+    
+        return round((correct_caps / len(sentences)) * 100, 2)
+    
+    def evaluate_sentence_coherence(text):
+        """Evalúa la coherencia basada en conectores, estructura de oraciones y transiciones lógicas."""
+        if not text or not isinstance(text, str):
+            return 50  # Si no hay texto válido, devolver un puntaje medio
+    
         sentences = re.split(r'[.!?]\s*', text.strip())
         sentences = [sentence for sentence in sentences if sentence]
-        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
-
-        # Evaluar nombres propios
-        proper_nouns = re.findall(r'\b[A-Z][a-z]+\b', text)
-        proper_noun_score = len(proper_nouns) / len(sentences) if sentences else 1
-
-        if not sentences:
-            return 100
-        return ((correct_caps / len(sentences)) * 100) * proper_noun_score
-
-    def evaluate_sentence_coherence(text):
-        """
-        Evalúa la coherencia del texto en función de conectores, longitud de frases y transiciones lógicas.
-        :param text: Texto a evaluar.
-        :return: Puntaje de coherencia entre 0 y 100.
-        """
-        if not text or not isinstance(text, str):
-            return 0  # Retornar 0 si el texto no es válido
-    
-        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
-        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
         total_sentences = len(sentences)
     
         words = text.split()
         total_words = len(words)
     
         if total_words == 0 or total_sentences == 0:
-            return 100  # Si no hay texto, asumimos coherencia perfecta
+            return 100  # Evitar dividir por 0
     
-        # **1. Uso de conectores lógicos**
-        logical_connectors = {"porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque",
-                              "por consiguiente", "en consecuencia", "en cambio", "de hecho", "a pesar de"}
+        # **Uso de conectores lógicos**
         connector_count = sum(1 for word in words if word.lower() in logical_connectors)
         connector_ratio = connector_count / total_sentences if total_sentences > 0 else 0
-        connector_score = min(100, connector_ratio * 200)  # Escalar a 100
+        connector_score = min(100, connector_ratio * 200)  
     
-        # **2. Consistencia en la longitud de frases**
+        # **Consistencia en la longitud de frases**
         sentence_lengths = [len(sentence.split()) for sentence in sentences]
         avg_length = sum(sentence_lengths) / total_sentences
         length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences
         length_variance_penalty = max(0, 100 - length_variance * 5)
     
-        # **3. Transiciones entre frases**
+        # **Transiciones entre frases**
         transition_words = {"entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"}
         transition_count = sum(1 for sentence in sentences if any(word in sentence.lower() for word in transition_words))
         transition_score = (transition_count / total_sentences) * 100 if total_sentences > 0 else 0
     
-        # **Puntaje Final de Coherencia**
-        coherence_score = (connector_score + length_variance_penalty + transition_score) / 3
-        return round(coherence_score, 2)
-
+        coherence_score = round((connector_score + length_variance_penalty + transition_score) / 3, 2)
+        return coherence_score
+    
     def calculate_repetition_score(text):
-        """
-        Evalúa la repetición de palabras en el texto y devuelve un puntaje entre 0 y 100.
-        :param text: Texto a evaluar.
-        :return: Puntaje de repetición (0 = mucha repetición, 100 = buena variedad léxica).
-        """
+        """Evalúa la repetición de palabras y devuelve un puntaje de 0 a 100."""
         if not text or not isinstance(text, str):
-            return 100  # Si no hay texto, asumimos repetición mínima
+            return 100  
     
         words = text.lower().split()
         total_words = len(words)
     
-        if total_words < 5:  # No evaluar textos demasiado cortos
-            return 100
+        if total_words < 5:
+            return 100  
     
-        # **1. Contar repeticiones de palabras**
         word_counts = Counter(words)
         repeated_words = {word: count for word, count in word_counts.items() if count > 1}
     
-        # **2. Calcular proporción de palabras repetidas**
         repeated_ratio = sum(repeated_words.values()) / total_words
-        repetition_penalty = min(100, repeated_ratio * 200)  # Escalar a 100
+        repetition_penalty = min(100, repeated_ratio * 200)  
     
-        # **3. Evaluar la distancia promedio entre repeticiones**
         last_seen = {}
         repetition_distances = []
         for index, word in enumerate(words):
@@ -1868,20 +1858,14 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         avg_distance = sum(repetition_distances) / len(repetition_distances) if repetition_distances else 100
         distance_penalty = max(0, min(100, avg_distance))
     
-        # **Puntaje Final de Repetición**
-        repetition_score = (distance_penalty + (100 - repetition_penalty)) / 2
-        return round(repetition_score, 2)
+        repetition_score = round((distance_penalty + (100 - repetition_penalty)) / 2, 2)
+        return repetition_score
     
     def calculate_punctuation_score(text):
-        """
-        Evalúa el uso de puntuación en el texto.
-        :param text: Texto a evaluar (encabezados o detalles).
-        :return: Puntaje de puntuación entre 0 y 100.
-        """
+        """Evalúa el uso de puntuación en el texto."""
         if not text or not isinstance(text, str):
-            return 0  # Texto inválido devuelve 0
+            return 100  
     
-        # Signos de puntuación relevantes
         punctuation_marks = [".", ",", ";", ":", "!", "?"]
         sentences = re.split(r'[.!?]\s*', text.strip())
         sentences = [sentence for sentence in sentences if sentence]
@@ -1889,40 +1873,32 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         total_sentences = len(sentences)
         punctuation_count = sum(text.count(mark) for mark in punctuation_marks)
     
-        # Calcular puntuación parcial
         punctuation_per_sentence = punctuation_count / total_sentences if total_sentences > 0 else 0
-    
-        # Asumir que al menos 1-2 signos de puntuación por oración es adecuado
-        expected_punctuation = 1.5  # Configurable según el estándar
+        expected_punctuation = 1.5  
         penalty = max(0, expected_punctuation - punctuation_per_sentence)
     
-        # Convertir en un puntaje entre 0 y 100
-        punctuation_score = max(0, 100 - (penalty * 20))  # Penalización proporcional
+        punctuation_score = max(0, 100 - (penalty * 20))
         return round(punctuation_score, 2)
     
-    # Evaluación por encabezado y detalles
+    # **Evaluación por encabezado y detalles**
     presentation_results = {}
     for header, details in text_data.items():
-        # Convertir detalles en texto completo
         details_text = " ".join(details)
-
-        # Evaluar encabezado
+    
         header_spelling = evaluate_spelling(header)
         header_capitalization = evaluate_capitalization(header)
         header_coherence = evaluate_sentence_coherence(header)
         header_punctuation = calculate_punctuation_score(header)
         header_repetition = calculate_repetition_score(header)
         header_overall = round((header_spelling + ((header_capitalization+ header_punctuation)/2) + (header_coherence+ header_repetition)) /3, 2)
-
-        # Evaluar detalles
+    
         details_spelling = evaluate_spelling(details_text)
         details_capitalization = evaluate_capitalization(details_text)
         details_coherence = evaluate_sentence_coherence(details_text)
         details_punctuation = calculate_punctuation_score(details_text)
         details_repetition = calculate_repetition_score(details_text)
         details_overall = round((details_spelling + ((details_capitalization + details_punctuation)/2) + ((details_coherence+ details_repetition))) / 3, 2)
-
-        # Guardar resultados para cada encabezado y sus detalles
+    
         presentation_results[header] = {
             "header_score": {
                 "spelling_score": round(header_spelling, 2),
