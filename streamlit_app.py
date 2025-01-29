@@ -1503,7 +1503,7 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     spell = SpellChecker()
 
     # Función para evaluar ortografía
-        def evaluate_spelling(text):
+    def evaluate_spelling(text):
         """Evalúa la ortografía del texto y retorna un puntaje entre 0 y 100."""
         if nottext  or not isinstance(text, str):
             return 100  # Si no hay texto, asumimos puntaje perfecto
