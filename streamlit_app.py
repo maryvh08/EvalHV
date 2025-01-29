@@ -1877,14 +1877,18 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         header_capitalization = evaluate_capitalization(header)
         header_coherence = evaluate_sentence_coherence(header)
         header_punctuation = calculate_punctuation_score(header)
-        header_overall = round((header_spelling + header_capitalization + header_coherence+header_overall) / 4, 2)
+        header_repetition = calculate_punctuation_score(header)
+        header_fluency = calculate_punctuation_score(header)
+        header_overall = round((header_spelling + header_capitalization + header_coherence+ header_punctuation+ details_repetition) / 4, 2)
 
         # Evaluar detalles
         details_spelling = evaluate_spelling(details_text)
         details_capitalization = evaluate_capitalization(details_text)
         details_coherence = evaluate_sentence_coherence(details_text)
         details_punctuation = calculate_punctuation_score(details_text)
-        details_overall = round((details_spelling + details_capitalization + details_coherence+ details_punctuation) / 4, 2)
+        details_repetition = calculate_punctuation_score(details_text)
+        details_fluency = calculate_punctuation_score(details_text)
+        details_overall = round((details_spelling + details_capitalization + details_coherence+ details_punctuation+ details_repetition) / 4, 2)
 
         # Guardar resultados para cada encabezado y sus detalles
         presentation_results[header] = {
