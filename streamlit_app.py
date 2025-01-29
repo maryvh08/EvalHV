@@ -1818,7 +1818,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
         # Puntaje final de coherencia
         coherence_score = (connector_score + variance_score + lexical_density) / 3
-        return round(coherence_score, 2
+        return round(coherence_score, 2)
 
     def calculate_repetition_score(text):
         """
