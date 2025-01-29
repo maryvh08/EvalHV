@@ -1793,7 +1793,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             return 100
         return ((correct_caps / len(sentences)) * 100) * proper_noun_score
 
-    def calculate_coherence_score(text):
+    def evaluate_sentence_coherence(text):
         """
         Evalúa la coherencia del texto en función de conectores, longitud de frases y transiciones lógicas.
         :param text: Texto a evaluar.
