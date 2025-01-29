@@ -2195,7 +2195,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     round_spelling_score = min(5, round((average_spelling_score / 100) * 5, 2))
     round_capitalization_score = min(5, round((average_capitalization_score / 100) * 5, 2))
     round_coherence_score = min(5, round((average_coherence_score / 100) * 5, 2))
-    round_overall_score = min(5, round((average_overall_score / 100) * 5, 2))
+    round_overall_score = round_spelling_score+ round_capitalization_score+ round_coherence_score
     
     # **Agregar los puntajes combinados a la tabla**
     presentation_table_data.append(["Ortografía", f"{round_spelling_score:.2f}"])
