@@ -1892,14 +1892,17 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 "spelling_score": round(header_spelling, 2),
                 "capitalization_score": round(header_capitalization, 2),
                 "coherence_score": round(header_coherence, 2),
-                "punctuation_score": header_punctuation,
+                "punctuation_score": round(header_punctuation, 2),
+                "repetition_score": round(header_repetition, 2),
                 "overall_score": header_overall,
             },
             "details_score": {
                 "spelling_score": round(details_spelling, 2),
                 "capitalization_score": round(details_capitalization, 2),
                 "coherence_score": round(details_coherence, 2),
-                "punctuation_score": details_punctuation,
+                "punctuation_score": round(details_punctuation, 2),
+                "repetition_score": round(details_repetition, 2),
+                "fluency_score": round(details_fluency, 2),
                 "overall_score": details_overall,
             },
         }
@@ -2159,8 +2162,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         details_scores = scores["details_score"]
     
         total_spelling_score += (header_scores["spelling_score"] + details_scores["spelling_score"])
-        total_capitalization_score += (header_scores["capitalization_score"] + details_scores["capitalization_score"])
-        total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"])
+        total_capitalization_score += (header_scores["capitalization_score"] + details_scores["capitalization_score"] + header_scores["punctuation_score"] + details_scores["punctuation_score"])/2
+        total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"]+ header_scores["repetition_score"] + details_scores["repetition_score"])/2
         total_overall_score += (header_scores["overall_score"] + details_scores["overall_score"])
         total_sections += 2  # Sumar encabezado y detalle como secciones separadas
     
