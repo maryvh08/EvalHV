@@ -1865,6 +1865,51 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         # Convertir en un puntaje entre 0 y 100
         punctuation_score = max(0, 100 - (penalty * 20))  # Penalización proporcional
         return round(punctuation_score, 2)
+
+    def calculate_fluency_score(text):
+        """
+        Evalúa la fluidez del texto basado en conectores lógicos, puntuación y variabilidad en longitudes.
+        :param text: Texto a evaluar (encabezados o detalles).
+        :return: Puntaje de fluidez entre 0 y 100.
+        """
+        logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque", "así que"]
+        total_lines = len(text.split("\n"))
+        connector_count = 0
+        punctuation_errors = 0
+        sentence_lengths = []
+    
+        sentences = re.split(r'[.!?]\s*', text.strip())
+        sentences = [sentence for sentence in sentences if sentence]
+    
+        for sentence in sentences:
+            # Revisar conectores lógicos
+            for connector in logical_connectors:
+                if connector in sentence.lower():
+                    connector_count += 1
+    
+            # Revisar puntuación final
+            if not sentence.endswith((".", "!", "?")):
+                punctuation_errors += 1
+    
+            # Longitud de la oración
+            sentence_lengths.append(len(sentence.split()))
+    
+        # Variabilidad de longitud de oraciones
+        avg_length = sum(sentence_lengths) / len(sentence_lengths) if sentence_lengths else 0
+        length_variance = sum(
+            (len(sentence.split()) - avg_length) ** 2 for sentence in sentences
+        ) / len(sentences) if len(sentences) > 1 else 0
+    
+        # Calcular puntajes parciales
+        punctuation_score = 1 - (punctuation_errors / total_lines if total_lines > 0 else 0)
+        connector_score = connector_count / total_lines if total_lines > 0 else 0
+        variance_penalty = 1 - min(length_variance / avg_length if avg_length > 0 else 1, 1)
+    
+        # Puntaje combinado
+        fluency_score = max(0, (punctuation_score + connector_score + variance_penalty) / 3 * 100)
+        return round(fluency_score, 2)
+
+    
     def calculate_clarity_score(text):
         """
         Evalúa la claridad del texto considerando longitud de frases, variedad léxica e índice de palabras comunes.
