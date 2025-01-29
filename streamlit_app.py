@@ -1882,7 +1882,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         # Evaluar detalles
         details_spelling = evaluate_spelling(details_text)
         details_capitalization = evaluate_capitalization(details_text)
-        details_coherence = evaluate_sentence_coherence(details_text
+        details_coherence = evaluate_sentence_coherence(details_text)
         details_punctuation = calculate_punctuation_score(details_text)
         details_overall = round((details_spelling + details_capitalization + details_coherence+ details_punctuation) / 4, 2)
 
