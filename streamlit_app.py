@@ -2191,11 +2191,11 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     average_coherence_score = total_coherence_score / total_sections if total_sections > 0 else 0
     average_overall_score = total_overall_score / total_sections if total_sections > 0 else 0
     
-    # **Ajustar puntajes a escala de 1 a 5**
-    round_spelling_score = round((average_spelling_score / 100) * 5, 2)
-    round_capitalization_score = round((average_capitalization_score / 100) * 5, 2)
-    round_coherence_score = round((average_coherence_score / 100) * 5, 2)
-    round_overall_score = round((average_overall_score / 100) * 5, 2)
+    # **Ajustar puntajes a escala de 1 a 5 y limitar el valor máximo a 5**
+    round_spelling_score = min(5, round((average_spelling_score / 100) * 5, 2))
+    round_capitalization_score = min(5, round((average_capitalization_score / 100) * 5, 2))
+    round_coherence_score = min(5, round((average_coherence_score / 100) * 5, 2))
+    round_overall_score = min(5, round((average_overall_score / 100) * 5, 2))
     
     # **Agregar los puntajes combinados a la tabla**
     presentation_table_data.append(["Ortografía", f"{round_spelling_score:.2f}"])
@@ -2222,7 +2222,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # **Agregar la tabla a los elementos**
     elements.append(presentation_table)
     elements.append(Spacer(1, 0.2 * inch))
-
 
     # Generar consejos basados en puntajes
     elements.append(Paragraph("<b>Consejos para Mejorar la Presentación:</b>", styles['CenturyGothicBold']))
