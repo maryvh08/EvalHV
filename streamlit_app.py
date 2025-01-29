@@ -2167,7 +2167,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
         total_spelling_score += (header_scores["spelling_score"] + details_scores["spelling_score"])
         total_capitalization_score += (header_scores["capitalization_score"] + details_scores["capitalization_score"] + header_scores["punctuation_score"] + details_scores["punctuation_score"])/2
-        total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"]+ header_scores["repetition_score"] + details_scores["fluency_score"+ header_scores["repetition_score"] + details_scores["fluency_score"])/2
+        total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"]+ header_scores["repetition_score"] + details_scores["fluency_score"]+ header_scores["repetition_score"] + details_scores["fluency_score"])/2
         total_overall_score += (header_scores["overall_score"] + details_scores["overall_score"])
         total_sections += 2  # Sumar encabezado y detalle como secciones separadas
     
