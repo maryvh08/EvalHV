@@ -2202,11 +2202,17 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"]+ header_scores["repetition_score"] + header_scores["repetition_score"])
         total_overall_score += (header_scores["overall_score"] + details_scores["overall_score"])/2
     
-    # Calcular puntajes ajustados
-    round_spelling_score = round((total_spelling_score / 100) * 5, 2) 
-    round_capitalization_score = round((total_capitalization_score / 100) * 5, 2) 
-    round_coherence_score = round((total_coherence_score / 100) * 5, 2) 
-    round_overall_score = round((total_overall_score / 100) * 5, 2) 
+    # Calcular promedios generales
+    average_spelling_score = total_spelling_score / total_sections if total_sections > 0 else 0
+    average_capitalization_score = total_capitalization_score / total_sections if total_sections > 0 else 0
+    average_coherence_score = total_coherence_score / total_sections if total_sections > 0 else 0
+    average_overall_score = total_overall_score / total_sections if total_sections > 0 else 0
+    
+    # Agregar los puntajes combinados a la tabla
+    presentation_table_data.append(["Coherencia", f"{average_coherence_score:.2f}"])
+    presentation_table_data.append(["Ortografía", f"{average_spelling_score:.2f}"])
+    presentation_table_data.append(["Gramática", f"{average_capitalization_score:.2f}"])
+    presentation_table_data.append(["Puntaje Total", f"{average_overall_score:.2f}"])
     
     # Agregar los puntajes combinados a la tabla
     presentation_table_data.append(["Coherencia", f"{round_spelling_score:.2f}"])
