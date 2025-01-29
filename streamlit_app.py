@@ -1793,49 +1793,84 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             return 100
         return ((correct_caps / len(sentences)) * 100) * proper_noun_score
 
-    def evaluate_sentence_coherence(text):
-        """Evalúa la coherencia basada en conectores, variabilidad de longitud, y densidad léxica."""
+    def calculate_coherence_score(text):
+        """
+        Evalúa la coherencia del texto en función de conectores, longitud de frases y transiciones lógicas.
+        :param text: Texto a evaluar.
+        :return: Puntaje de coherencia entre 0 y 100.
+        """
         if not text or not isinstance(text, str):
-            return 0
-        sentences = re.split(r'[.!?]\s*', text.strip())
-        sentences = [sentence for sentence in sentences if sentence]
+            return 0  # Retornar 0 si el texto no es válido
+    
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
+        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
         total_sentences = len(sentences)
-
-        # Puntuación basada en conectores lógicos
-        connector_count = sum(sentence.lower().count(connector) for connector in logical_connectors for sentence in sentences)
-        connector_score = (connector_count / total_sentences) * 100 if total_sentences > 0 else 0
-
-        # Variabilidad en longitud de oraciones
-        sentence_lengths = [len(sentence.split()) for sentence in sentences]
-        avg_length = sum(sentence_lengths) / total_sentences if total_sentences > 0 else 0
-        length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences if total_sentences > 1 else 0
-        variance_score = max(0, 100 - length_variance)
-
-        # Densidad léxica
+    
         words = text.split()
-        unique_words = set(words)
-        lexical_density = (len(unique_words) / len(words)) * 100 if words else 100
-
-        # Puntaje final de coherencia
-        coherence_score = (connector_score + variance_score + lexical_density) / 3
+        total_words = len(words)
+    
+        if total_words == 0 or total_sentences == 0:
+            return 100  # Si no hay texto, asumimos coherencia perfecta
+    
+        # **1. Uso de conectores lógicos**
+        logical_connectors = {"porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque",
+                              "por consiguiente", "en consecuencia", "en cambio", "de hecho", "a pesar de"}
+        connector_count = sum(1 for word in words if word.lower() in logical_connectors)
+        connector_ratio = connector_count / total_sentences if total_sentences > 0 else 0
+        connector_score = min(100, connector_ratio * 200)  # Escalar a 100
+    
+        # **2. Consistencia en la longitud de frases**
+        sentence_lengths = [len(sentence.split()) for sentence in sentences]
+        avg_length = sum(sentence_lengths) / total_sentences
+        length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences
+        length_variance_penalty = max(0, 100 - length_variance * 5)
+    
+        # **3. Transiciones entre frases**
+        transition_words = {"entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"}
+        transition_count = sum(1 for sentence in sentences if any(word in sentence.lower() for word in transition_words))
+        transition_score = (transition_count / total_sentences) * 100 if total_sentences > 0 else 0
+    
+        # **Puntaje Final de Coherencia**
+        coherence_score = (connector_score + length_variance_penalty + transition_score) / 3
         return round(coherence_score, 2)
+
 
     def calculate_repetition_score(text):
         """
-        Evalúa la repetición de palabras en el texto.
-        :param text: Texto a evaluar (encabezados o detalles).
-        :return: Puntaje de repetición entre 0 y 100.
+        Evalúa la repetición de palabras en el texto y devuelve un puntaje entre 0 y 100.
+        :param text: Texto a evaluar.
+        :return: Puntaje de repetición (0 = mucha repetición, 100 = buena variedad léxica).
         """
+        if not text or not isinstance(text, str):
+            return 100  # Si no hay texto, asumimos repetición mínima
+    
         words = text.lower().split()
-        word_counts = Counter(words)
         total_words = len(words)
-        repeated_words = sum(count for word, count in word_counts.items() if count > 1)
     
-        if total_words == 0:
-            return 100  # Asumir puntaje perfecto si no hay palabras
+        if total_words < 5:  # No evaluar textos demasiado cortos
+            return 100
     
-        # Cuanto menor sea la proporción de palabras repetidas, mejor es el puntaje
-        repetition_score = max(0, min(100, (1 - (repeated_words / total_words)) * 100))
+        # **1. Contar repeticiones de palabras**
+        word_counts = Counter(words)
+        repeated_words = {word: count for word, count in word_counts.items() if count > 1}
+    
+        # **2. Calcular proporción de palabras repetidas**
+        repeated_ratio = sum(repeated_words.values()) / total_words
+        repetition_penalty = min(100, repeated_ratio * 200)  # Escalar a 100
+    
+        # **3. Evaluar la distancia promedio entre repeticiones**
+        last_seen = {}
+        repetition_distances = []
+        for index, word in enumerate(words):
+            if word in last_seen:
+                repetition_distances.append(index - last_seen[word])
+            last_seen[word] = index
+    
+        avg_distance = sum(repetition_distances) / len(repetition_distances) if repetition_distances else 100
+        distance_penalty = max(0, min(100, avg_distance))
+    
+        # **Puntaje Final de Repetición**
+        repetition_score = (distance_penalty + (100 - repetition_penalty)) / 2
         return round(repetition_score, 2)
 
     def calculate_punctuation_score(text):
