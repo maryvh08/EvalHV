@@ -1865,51 +1865,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         # Convertir en un puntaje entre 0 y 100
         punctuation_score = max(0, 100 - (penalty * 20))  # Penalización proporcional
         return round(punctuation_score, 2)
-
-    def calculate_fluency_score(text):
-        """
-        Evalúa la fluidez del texto basado en conectores lógicos, puntuación y variabilidad en longitudes.
-        :param text: Texto a evaluar (encabezados o detalles).
-        :return: Puntaje de fluidez entre 0 y 100.
-        """
-        logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque", "así que"]
-        total_lines = len(text.split("\n"))
-        connector_count = 0
-        punctuation_errors = 0
-        sentence_lengths = []
-    
-        sentences = re.split(r'[.!?]\s*', text.strip())
-        sentences = [sentence for sentence in sentences if sentence]
-    
-        for sentence in sentences:
-            # Revisar conectores lógicos
-            for connector in logical_connectors:
-                if connector in sentence.lower():
-                    connector_count += 1
-    
-            # Revisar puntuación final
-            if not sentence.endswith((".", "!", "?")):
-                punctuation_errors += 1
-    
-            # Longitud de la oración
-            sentence_lengths.append(len(sentence.split()))
-    
-        # Variabilidad de longitud de oraciones
-        avg_length = sum(sentence_lengths) / len(sentence_lengths) if sentence_lengths else 0
-        length_variance = sum(
-            (len(sentence.split()) - avg_length) ** 2 for sentence in sentences
-        ) / len(sentences) if len(sentences) > 1 else 0
-    
-        # Calcular puntajes parciales
-        punctuation_score = 1 - (punctuation_errors / total_lines if total_lines > 0 else 0)
-        connector_score = connector_count / total_lines if total_lines > 0 else 0
-        variance_penalty = 1 - min(length_variance / avg_length if avg_length > 0 else 1, 1)
-    
-        # Puntaje combinado
-        fluency_score = max(0, (punctuation_score + connector_score + variance_penalty) / 3 * 100)
-        return round(fluency_score, 2)
-
-    
+ 
     def calculate_clarity_score(text):
         """
         Evalúa la claridad del texto considerando longitud de frases, variedad léxica e índice de palabras comunes.
@@ -1961,9 +1917,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         header_coherence = evaluate_sentence_coherence(header)
         header_punctuation = calculate_punctuation_score(header)
         header_repetition = calculate_repetition_score(header)
-        header_fluency = calculate_fluency_score(header)
         header_clarity = calculate_clarity_score(header)
-        header_overall = round((header_spelling + ((header_capitalization+ header_punctuation)/2) + (header_coherence+ header_repetition+ header_fluency)/2) / 4, 2)
+        header_overall = round((header_spelling + ((header_capitalization+ header_punctuation)/2) + (header_coherence+ header_repetition+ header_clarity)/2) / 4, 2)
 
         # Evaluar detalles
         details_spelling = evaluate_spelling(details_text)
@@ -1971,9 +1926,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         details_coherence = evaluate_sentence_coherence(details_text)
         details_punctuation = calculate_punctuation_score(details_text)
         details_repetition = calculate_repetition_score(details_text)
-        details_fluency = calculate_fluency_score(details_text)
-        details_clarity = calculate_fluency_score(details_text)
-        details_overall = round((details_spelling + ((details_capitalization + details_punctuation)/2) + ((details_coherence+ details_repetition+ details_fluency)/2)) / 4, 2)
+        details_clarity = calculate_clarity_score(details_text)
+        details_overall = round((details_spelling + ((details_capitalization + details_punctuation)/2) + ((details_coherence+ details_repetition+ details_clarity)/2)) / 4, 2)
 
         # Guardar resultados para cada encabezado y sus detalles
         presentation_results[header] = {
@@ -1983,7 +1937,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 "coherence_score": round(header_coherence, 2),
                 "punctuation_score": round(header_punctuation, 2),
                 "repetition_score": round(header_repetition, 2),
-                "fluency_score": round(header_fluency, 2),
                 "clarity_score": round(header_clarity, 2),
                 "overall_score": header_overall,
             },
@@ -1993,7 +1946,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 "coherence_score": round(details_coherence, 2),
                 "punctuation_score": round(details_punctuation, 2),
                 "repetition_score": round(details_repetition, 2),
-                "fluency_score": round(details_fluency, 2),
                 "clarity_score": round(details_clarity, 2),
                 "overall_score": details_overall,
             },
@@ -2255,7 +2207,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
         total_spelling_score += (header_scores["spelling_score"] + details_scores["spelling_score"])
         total_capitalization_score += (header_scores["capitalization_score"] + details_scores["capitalization_score"] + header_scores["punctuation_score"] + details_scores["punctuation_score"])/2
-        total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"]+ header_scores["repetition_score"] + details_scores["fluency_score"]+ header_scores["repetition_score"] + details_scores["fluency_score"])/2
+        total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"]+ header_scores["repetition_score"] + header_scores["repetition_score"] + header_scores["clarity_score"]+ details_scores["clarity_score"])/2
         total_overall_score += (header_scores["overall_score"] + details_scores["overall_score"])
         total_sections += 2  # Sumar encabezado y detalle como secciones separadas
     
