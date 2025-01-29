@@ -1865,6 +1865,44 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         # Convertir en un puntaje entre 0 y 100
         punctuation_score = max(0, 100 - (penalty * 20))  # Penalización proporcional
         return round(punctuation_score, 2)
+    def calculate_clarity_score(text):
+        """
+        Evalúa la claridad del texto considerando longitud de frases, variedad léxica e índice de palabras comunes.
+        :param text: Texto a evaluar.
+        :return: Puntaje de claridad entre 0 y 100.
+        """
+        if not text or not isinstance(text, str):
+            return 0  # Texto inválido devuelve 0
+    
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
+        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
+        total_sentences = len(sentences)
+    
+        words = text.split()
+        total_words = len(words)
+    
+        if total_words == 0 or total_sentences == 0:
+            return 100  # Si no hay texto, asumimos claridad perfecta
+    
+        # 1. Longitud media de frases (Ideal: 15-25 palabras)
+        avg_sentence_length = total_words / total_sentences
+        length_score = max(0, min(100, 100 - abs(avg_sentence_length - 20) * 5))
+    
+        # 2. Variedad léxica (Ratio de palabras únicas sobre el total)
+        unique_words = set(words)
+        lexical_diversity = len(unique_words) / total_words
+        lexical_score = min(100, lexical_diversity * 200)  # Escalar a 100
+    
+        # 3. Índice de palabras comunes (Más palabras comunes -> Menos claridad)
+        common_words = {"y", "pero", "porque", "además", "sin embargo", "entonces", "aunque", "por lo tanto", "así que"}
+        common_word_count = sum(1 for word in words if word.lower() in common_words)
+        common_word_ratio = common_word_count / total_words
+        common_word_score = max(0, 100 - (common_word_ratio * 200))  # Penalizar exceso de palabras comunes
+    
+        # Puntaje final de claridad
+        clarity_score = (length_score + lexical_score + common_word_score) / 3
+        return round(clarity_score, 2)
+
 
     # Evaluación por encabezado y detalles
     presentation_results = {}
@@ -1877,8 +1915,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         header_capitalization = evaluate_capitalization(header)
         header_coherence = evaluate_sentence_coherence(header)
         header_punctuation = calculate_punctuation_score(header)
-        header_repetition = calculate_punctuation_score(header)
-        header_fluency = calculate_punctuation_score(header)
+        header_repetition = calculate_repetition_score(header)
+        header_fluency = calculate_fluency_score(header)
+        header_clarity = calculate_clarity_score(header)
         header_overall = round((header_spelling + ((header_capitalization+ header_punctuation)/2) + (header_coherence+ header_repetition+ header_fluency)/2) / 4, 2)
 
         # Evaluar detalles
@@ -1886,9 +1925,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         details_capitalization = evaluate_capitalization(details_text)
         details_coherence = evaluate_sentence_coherence(details_text)
         details_punctuation = calculate_punctuation_score(details_text)
-        details_repetition = calculate_punctuation_score(details_text)
-        details_fluency = calculate_punctuation_score(details_text)
-        details_overall = round((details_spelling + details_capitalization + details_coherence+ details_punctuation+ details_repetition+ details_fluency) / 4, 2)
+        details_repetition = calculate_repetition_score(details_text)
+        details_fluency = calculate_fluency_score(details_text)
+        details_clarity = calculate_fluency_score(details_text)
+        details_overall = round((details_spelling + ((details_capitalization + details_punctuation)/2) + ((details_coherence+ details_repetition+ details_fluency)/2)) / 4, 2)
 
         # Guardar resultados para cada encabezado y sus detalles
         presentation_results[header] = {
@@ -1897,7 +1937,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 "capitalization_score": round(header_capitalization, 2),
                 "coherence_score": round(header_coherence, 2),
                 "punctuation_score": round(header_punctuation, 2),
-                "repetition_score": round(header_repetition, 2),
+                "repetition_score": round(header_repetition, 2
+                "fluency_score": round(header_fluency, 2),
+                "clarity_score": round(header_clarity, 2),
                 "overall_score": header_overall,
             },
             "details_score": {
@@ -1907,6 +1949,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
                 "punctuation_score": round(details_punctuation, 2),
                 "repetition_score": round(details_repetition, 2),
                 "fluency_score": round(details_fluency, 2),
+                "clarity_score": round(details_clarity, 2),
                 "overall_score": details_overall,
             },
         }
