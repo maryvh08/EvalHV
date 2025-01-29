@@ -2197,10 +2197,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         header_scores = scores["header_score"]
         details_scores = scores["details_score"]
     
-        total_spelling_score += (header_scores["spelling_score"] + details_scores["spelling_score"])
-        total_capitalization_score += (header_scores["capitalization_score"] + details_scores["capitalization_score"] + header_scores["punctuation_score"] + details_scores["punctuation_score"])/2
+        total_spelling_score += (header_scores["spelling_score"] + details_scores["spelling_score"])/2
+        total_capitalization_score += ((header_scores["capitalization_score"] + details_scores["capitalization_score"])/2 + (header_scores["punctuation_score"] + details_scores["punctuation_score"])/2)
         total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"]+ header_scores["repetition_score"] + header_scores["repetition_score"])
-        total_overall_score += (header_scores["overall_score"] + details_scores["overall_score"])
+        total_overall_score += (header_scores["overall_score"] + details_scores["overall_score"])/2
     
     # Calcular puntajes ajustados
     round_spelling_score = round((total_spelling_score / 100) * 5, 2) 
