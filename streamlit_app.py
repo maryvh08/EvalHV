@@ -35,7 +35,7 @@ import re
 from PIL import Image as PILImage
 from PIL import Image, ImageFilter, ImageOps, ImageEnhance
 
-#Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app/
+#Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app
 
 # Cargar las palabras clave y consejos desde los archivos JSON
 def load_indicators(filepath="indicators.json"):
