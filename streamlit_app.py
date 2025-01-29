@@ -2214,12 +2214,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     presentation_table_data.append(["Gramática", f"{average_capitalization_score:.2f}"])
     presentation_table_data.append(["Puntaje Total", f"{average_overall_score:.2f}"])
     
-    # Agregar los puntajes combinados a la tabla
-    presentation_table_data.append(["Coherencia", f"{round_spelling_score:.2f}"])
-    presentation_table_data.append(["Ortografía", f"{round_capitalization_score:.2f}"])
-    presentation_table_data.append(["Gramática", f"{round_coherence_score:.2f}"])
-    presentation_table_data.append(["Puntaje Total", f"{round_overall_score:.2f}"])
-    
     # Crear la tabla con ancho ajustado para las columnas
     presentation_table = Table(presentation_table_data, colWidths=[4 * inch, 2 * inch])
     
