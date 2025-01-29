@@ -1503,15 +1503,19 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     spell = SpellChecker()
 
     # Función para evaluar ortografía
-    def evaluate_spelling(text):
-        """Evalúa la ortografía del texto y retorna un puntaje."""
-        if not text or not isinstance(text, str):
-            return 0  # Devuelve un puntaje de 0 si el texto no es válido
+        def evaluate_spelling(text):
+        """Evalúa la ortografía del texto y retorna un puntaje entre 0 y 100."""
+        if nottext  or not isinstance(text, str):
+            return 100  # Si no hay texto, asumimos puntaje perfecto
+    
         words = text.split()
+        if len(words) < 2:
+            return 100  # Evitar dividir por 0 si hay muy pocas palabras
+    
         misspelled = spell.unknown(words)
-        if not words:
-            return 100
-        return ((len(words) - len(misspelled)) / len(words)) * 100
+        total_words = len(words)
+    
+        return round(((total_words - len(misspelled)) / total_words) * 100, 2)
 
 
     # Función para evaluar capitalización
