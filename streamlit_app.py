@@ -1769,18 +1769,41 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque"]
     
     def evaluate_spelling(text):
-        """Evalúa la ortografía del texto y retorna un puntaje entre 0 y 100."""
+        """
+        Evalúa la ortografía del texto y devuelve un puntaje más preciso.
+        :param text: Texto a evaluar.
+        :return: Puntaje de ortografía entre 0 y 100.
+        """
         if not text or not isinstance(text, str):
-            return 100  # Si no hay texto, asumimos puntaje perfecto
+            return 100  # Si no hay texto, asumimos ortografía perfecta
     
-        words = text.split()
-        if len(words) < 2:
-            return 100  # Evitar dividir por 0 si hay muy pocas palabras
-    
-        misspelled = spell.unknown(words)
+        words = re.findall(r'\b\w+\b', text.lower())  # Extrae solo palabras, ignorando puntuación
         total_words = len(words)
     
-        return round(((total_words - len(misspelled)) / total_words) * 100, 2)
+        if total_words == 0:
+            return 100  # Si no hay palabras, no hay errores
+    
+        # Identificar palabras mal escritas
+        misspelled_words = spell.unknown(words)
+        misspelled_count = len(misspelled_words)
+    
+        # **1. Verificar si hay palabras corregibles**
+        correctable_errors = 0
+        for word in misspelled_words:
+            if spell.correction(word):  # Si existe una corrección válida, cuenta como error corregible
+                correctable_errors += 1
+    
+        # **2. Aplicar penalización a palabras no corregibles**
+        non_correctable_errors = misspelled_count - correctable_errors
+    
+        # **3. Verificar si hay siglas o palabras cortas para evitar penalización**
+        acronyms_or_short_words = sum(1 for word in misspelled_words if len(word) <= 2)
+    
+        # **4. Calcular el puntaje de ortografía**
+        # Penaliza más los errores que no tienen corrección
+        spelling_score = max(0, 100 - ((correctable_errors * 1.5 + non_correctable_errors * 2 - acronyms_or_short_words) / total_words) * 100)
+    
+        return round(spelling_score, 2)  # Redondear el puntaje final
     
     def evaluate_capitalization(text):
         """Evalúa si las frases comienzan con mayúscula y si nombres propios están bien capitalizados."""
