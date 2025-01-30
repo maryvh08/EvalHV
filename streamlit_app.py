@@ -1797,40 +1797,53 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
     def evaluate_spelling(text):
         """
-        Evalúa la ortografía del texto y devuelve un puntaje más preciso.
+        Evalúa la ortografía del texto de manera optimizada, evitando análisis innecesarios.
+        
         :param text: Texto a evaluar.
         :return: Puntaje de ortografía entre 0 y 100.
         """
         if not text or not isinstance(text, str):
             return 100  # Si no hay texto, asumimos ortografía perfecta
     
-        words = re.findall(r'\b\w+\b', text.lower())  # Extrae solo palabras, ignorando puntuación
+        words = re.findall(r'\b\w+\b', text.lower())  # Extraer palabras sin puntuación
+        words = words[:1000]  # Limitar a las primeras 1000 palabras para optimizar rendimiento
         total_words = len(words)
     
         if total_words == 0:
             return 100  # Si no hay palabras, no hay errores
     
-        # Identificar palabras mal escritas
-        misspelled_words = spell.unknown(words)
+        # Identificar palabras mal escritas y evitar reevaluaciones
+        misspelled_words = set(spell.unknown(words))
         misspelled_count = len(misspelled_words)
     
-        # **1. Verificar si hay palabras corregibles**
+        if misspelled_count == 0:
+            return 100  # Si no hay errores, el puntaje es perfecto
+    
+        # **1. Evaluar distancia de Levenshtein solo si hay corrección posible**
+        total_levenshtein_distance = 0
         correctable_errors = 0
+        non_correctable_errors = 0
+    
         for word in misspelled_words:
-            if spell.correction(word):  # Si existe una corrección válida, cuenta como error corregible
-                correctable_errors += 1
+            suggested_correction = spell.correction(word)
+            if suggested_correction:
+                levenshtein_score = levenshtein_distance(word, suggested_correction)
+                total_levenshtein_distance += levenshtein_score
     
-        # **2. Aplicar penalización a palabras no corregibles**
-        non_correctable_errors = misspelled_count - correctable_errors
+                if levenshtein_score <= 2:  # Si la diferencia es pequeña, cuenta como correctable
+                    correctable_errors += 1
+                else:
+                    non_correctable_errors += 1
+            else:
+                non_correctable_errors += 1  # No hay corrección posible
     
-        # **3. Verificar si hay siglas o palabras cortas para evitar penalización**
+        # **2. Ajuste para acrónimos y palabras cortas**
         acronyms_or_short_words = sum(1 for word in misspelled_words if len(word) <= 2)
     
-        # **4. Calcular el puntaje de ortografía**
-        # Penaliza más los errores que no tienen corrección
-        spelling_score = max(0, 100 - ((correctable_errors * 1.5 + non_correctable_errors * 2 - acronyms_or_short_words) / total_words) * 100)
+        # **3. Calcular el puntaje de ortografía**
+        spelling_score = max(0, 100 - (((correctable_errors * 1.2) + (non_correctable_errors * 2) + (total_levenshtein_distance * 0.5) - acronyms_or_short_words) / total_words) * 100)
     
-        return round(spelling_score, 2)  # Redondear el puntaje final
+        return round(spelling_score, 2)  # Redondear el puntaje final    
     
     def evaluate_capitalization(text):
         """Evalúa si las frases comienzan con mayúscula y si nombres propios están bien capitalizados."""
