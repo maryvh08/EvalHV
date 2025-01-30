@@ -1820,8 +1820,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         # Penaliza más los errores que no tienen corrección
         spelling_score = max(0, 100 - ((correctable_errors  + non_correctable_errors ) / 2) * 100)
     
-        return round(((total_words - len(misspelled)) / total_words) * 100, 2)
-    
+        return round(spelling_score, 2)
+
     def evaluate_capitalization(text):
         """Evalúa si las frases comienzan con mayúscula y si nombres propios están bien capitalizados."""
         if not text or not isinstance(text, str):
