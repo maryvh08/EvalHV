@@ -1782,8 +1782,26 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
         misspelled = spell.unknown(words)
         total_words = len(words)
+
+        # Identificar palabras mal escritas
+        misspelled_words = spell.unknown(words)
+        misspelled_count = len(misspelled_words)
+
+        # **1. Verificar si hay palabras corregibles**
+        correctable_errors = 0
+        for word in misspelled_words:
+            if spell.correction(word):  # Si existe una corrección válida, cuenta como error corregible
+                correctable_errors += 1
     
-        return round(((total_words - len(misspelled)) / total_words) * 100, 2)
+        # **2. Aplicar penalización a palabras no corregibles**
+        non_correctable_errors = misspelled_count - correctable_errors
+
+        # **3. Verificar si hay siglas o palabras cortas para evitar penalización**
+            acronyms_or_short_words = sum(1 for word in misspelled_words if len(word) <= 2
+
+        correct_score = (correctable_errors + non_correctable_errors - acronyms_or_short_words) / 3
+
+        return round(((correct_score) / total_words) * 100, 2)
 
     def evaluate_capitalization(text):
         """Evalúa si las frases comienzan con mayúscula y si nombres propios están bien capitalizados."""
