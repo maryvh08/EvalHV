@@ -757,9 +757,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     repetition_score, repeated_words = calculate_word_repetition(pres_cleaned_lines)
     fluency_score = calculate_sentence_fluency(pres_cleaned_lines)
     
-    # Calcular coherencia como promedio de las métricas
-    coherence_score = round(((repetition_score+fluency_score))*5, 2)
-     
+    # Calcular coherencia como promedio de las métricas y limitar a 5
+    coherence_score = round(min(5, (repetition_score + fluency_score) * 5), 2)
+
     # Puntaje general ponderado
     overall_score = round((spelling_score  + coherence_score + grammar_score) / 3, 2)
 
