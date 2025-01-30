@@ -15,4 +15,3 @@ language_tool_python
 nltk>=3.8.1
 spacy
 textstat
-Levenshtein 
