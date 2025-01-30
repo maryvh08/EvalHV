@@ -1509,32 +1509,15 @@ def evaluate_cv_presentation_with_headers(pdf_path):
         if not text or not isinstance(text, str):
             return 100  # Si no hay texto, asumimos puntaje perfecto
     
-        words = re.findall(r'\b\w+\b', text.lower())  # Extraer palabras sin puntuación
+        words = text.split()
+        if len(words) < 2:
+            return 100  # Evitar dividir por 0 si hay muy pocas palabras
+    
+        misspelled = spell.unknown(words)
         total_words = len(words)
-        
-        if total_words < 5:  # Si hay menos de 5 palabras, no evaluamos
-            return 100
     
-        # Identificar palabras mal escritas
-        misspelled_words = set(spell.unknown(words))  # Usar `set` para evitar duplicados
-        misspelled_count = len(misspelled_words)
-    
-        if misspelled_count == 0:
-            return 100  # Si no hay errores, el puntaje es perfecto
-    
-        # **1. Verificar palabras corregibles**
-        correctable_errors = sum(1 for word in misspelled_words if spell.correction(word))
-    
-        # **2. Aplicar penalización**
-        non_correctable_errors = misspelled_count - correctable_errors  # Errores sin corrección sugerida
-        correctable_ratio = correctable_errors / total_words
-        non_correctable_ratio = non_correctable_errors / total_words
-    
-        # **3. Calcular el puntaje final**
-        spelling_score = max(0, 100 - (correctable_ratio * 150 + non_correctable_ratio * 250))  # Mayor penalización a errores no corregibles
-    
-        return round(spelling_score, 2)
-    
+        return round(((total_words - len(misspelled)) / total_words) * 100, 2)
+
         # Función para evaluar capitalización
         def evaluate_capitalization(text):
             sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
