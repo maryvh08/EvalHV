@@ -1804,8 +1804,21 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         if len(words) < 2:
             return 100  # Evitar dividir por 0 si hay muy pocas palabras
     
-        misspelled = spell.unknown(words)
-        total_words = len(words)
+        # Identificar palabras mal escritas
+        misspelled_words = spell.unknown(words)
+        misspelled_count = len(misspelled_words)
+    
+        # **1. Verificar si hay palabras corregibles**
+        correctable_errors = 0
+        for word in misspelled_words:
+            if spell.correction(word):  # Si existe una corrección válida, cuenta como error corregible
+                correctable_errors += 1
+    
+        # **2. Aplicar penalización a palabras no corregibles**
+        non_correctable_errors = misspelled_count - correctable_errors
+
+        # Penaliza más los errores que no tienen corrección
+        spelling_score = max(0, 100 - ((correctable_errors  + non_correctable_errors ) / 2) * 100)
     
         return round(((total_words - len(misspelled)) / total_words) * 100, 2)
     
