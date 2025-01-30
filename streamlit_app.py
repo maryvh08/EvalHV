@@ -1539,6 +1539,7 @@ def evaluate_cv_presentation_with_headers(pdf_path):
         spelling_score = max(0, 100 - ((correctable_errors * 1.5 + non_correctable_errors * 2 - acronyms_or_short_words) / total_words) * 100)
     
         return round(spelling_score, 2)  # Redondear el puntaje final
+    
         # Función para evaluar capitalización
         def evaluate_capitalization(text):
             sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
