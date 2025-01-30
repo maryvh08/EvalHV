@@ -28,7 +28,6 @@ from reportlab.lib.units import inch
 from reportlab.platypus import Image as RLImage
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from Levenshtein import distance as levenshtein_distance
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from spellchecker import SpellChecker
