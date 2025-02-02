@@ -1280,6 +1280,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         styles['CenturyGothic']
     ))
 
+    from reportlab.platypus import Image as RLImage
+
     # **1️⃣ CREAR PORTADA**
     elements = []
 
