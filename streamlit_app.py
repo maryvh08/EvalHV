@@ -201,7 +201,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     title_style = ParagraphStyle(name='cover', fontName='CenturyGothicBold', fontSize=48, leading=16, alignment=1,)  # 1 significa centrado, textColor=colors.black
 
     # 📌 Medir el ancho y alto del texto
-    text_width = max(canvas.stringWidth(line, "cover", 22) for line in title_text.split("\n"))
+    text_width = max(canvas.stringWidth(line, "CenturyGothicBold", 22) for line in title_text.split("\n"))
     text_height = 22 * len(title_text.split("\n"))  # Multiplicamos por el número de líneas
 
     # 📌 Centrar el texto
@@ -210,7 +210,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
 
     # 📌 Dibujar cada línea del título centrado
     for i, line in enumerate(title_text.split("\n")):
-        line_width = canvas.stringWidth(line, "cover", 22)
+        line_width = canvas.stringWidth(line, "CenturyGothicBold", 22)
         line_x = (page_width - line_width) / 2
         canvas.drawString(line_x, text_y - (i * 30), line)  # Espaciado entre líneas
 
