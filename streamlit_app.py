@@ -1285,11 +1285,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     img_width, img_height = img.getSize()
 
     # **📌 Ajustar tamaño proporcionalmente**
-    max_width = letter[0] 
-    max_height = letter[1] 
+    max_width = 456
+    max_height = 608
 
-    new_width = letter[0]  
-    new_height = letter[1] 
+    new_width = max_width 
+    new_height = max_height
 
     elements.append(RLImage(portada_path, width=new_width, height=new_height))
 
