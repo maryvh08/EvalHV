@@ -1291,12 +1291,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Obtener tamaño original de la imagen
     img_width, img_height = img.getSize()
     
-    # Ajustar proporciones sin distorsión
-    scale_factor = min(max_width / img_width, max_height / img_height)
-    
-    new_width = img_width * scale_factor
-    new_height = img_height * scale_factor
-    
     # Agregar la portada con el tamaño ajustado
     elements.append(RLImage(portada_path, width=new_width, height=new_height))
 
