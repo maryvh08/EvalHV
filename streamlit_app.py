@@ -1284,9 +1284,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     img = ImageReader(portada_path)
     img_width, img_height = img.getSize()
 
-    # Ajustar tamaño proporcionalmente
-    max_width = letter[0]
-    max_height = letter[1]
+    # **📌 Ajustar tamaño proporcionalmente**
+    max_width = letter[0] - 40  # Margen de 20px a cada lado
+    max_height = letter[1] - 40  # Margen de 20px arriba y abajo
     scale_factor = min(max_width / img_width, max_height / img_height)
 
     new_width = img_width * scale_factor
@@ -1309,15 +1309,17 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # **📌 5️⃣ CONFIGURAR TEMPLATE DE PÁGINAS**
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="content_frame")
+    frame_cover = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="cover_frame")
+
     template_with_background = PageTemplate(id="background_template", frames=frame, onPage=on_later_pages)
-    template_no_background = PageTemplate(id="cover_template", frames=frame)
+    template_no_background = PageTemplate(id="cover_template", frames=frame_cover)
 
     doc.addPageTemplates([template_no_background, template_with_background])
 
     # **📌 6️⃣ AGREGAR CONTENIDO DEL REPORTE**
     elements.append(Paragraph("<b>Resultados del Análisis:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
-
+    
     doc.build(elements)
 
     # Descargar el reporte desde Streamlit
