@@ -1281,7 +1281,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         styles['CenturyGothic']
     ))
 
-    def on_first_page:
+    def on_first_page (portada_path, doc):
         img = ImageReader(portada_path)
         img_width, img_height = img.getSize()
     
