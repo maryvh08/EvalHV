@@ -172,13 +172,13 @@ def calculate_presence(texts, keywords):
 
 def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     """
-    Dibuja la portada con una imagen a página completa y el título del reporte centrado.
+    Dibuja la portada con una imagen a página completa y el título del reporte completamente centrado.
     :param canvas: Lienzo de ReportLab.
     :param portada_path: Ruta de la imagen de la portada.
     :param candidate_name: Nombre del candidato.
     :param position: Cargo al que aspira.
     """
-    # 📌 Obtener el tamaño de la página (Letter)
+    # 📌 Obtener el tamaño de la página (Carta)
     page_width, page_height = letter
 
     # 📌 Cargar la imagen de la portada
@@ -197,7 +197,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     # 📌 Dibujar la imagen de portada en toda la página
     canvas.drawImage(portada_path, x_offset, y_offset, width=new_width, height=new_height)
 
-    # 📌 **AGREGAR EL TÍTULO DEL REPORTE**
+    # 📌 **AGREGAR EL TÍTULO DEL REPORTE EN EL CENTRO**
     title_style = ParagraphStyle(
         name="Title",
         fontName="Helvetica-Bold",
@@ -208,18 +208,23 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
 
     title_text = f"REPORTE DE ANÁLISIS\n{candidate_name.upper()}\nCARGO: {position.upper()}"
 
-    # 📌 Dibujar el título con una posición fija
-    canvas.setFont("Helvetica-Bold", 18)
+    # 📌 Configurar fuente y color del texto
+    canvas.setFont("Helvetica-Bold", 22)
     canvas.setFillColor(colors.black)
 
-    text_width = canvas.stringWidth(title_text, "Helvetica-Bold", 18)
-    text_x = (page_width - text_width) / 2
-    text_y = 150  # Ajustar la posición vertical del título
+    # 📌 Medir el ancho y alto del texto
+    text_width = max(canvas.stringWidth(line, "Helvetica-Bold", 22) for line in title_text.split("\n"))
+    text_height = 22 * len(title_text.split("\n"))  # Multiplicamos por el número de líneas
 
-    # 📌 Dividir el texto en líneas manualmente
-    lines = title_text.split("\n")
-    for i, line in enumerate(lines):
-        canvas.drawString(text_x, text_y - (i * 25), line)
+    # 📌 Centrar el texto
+    text_x = (page_width - text_width) / 2
+    text_y = (page_height - text_height) / 2  # Ajuste para centrar verticalmente
+
+    # 📌 Dibujar cada línea del título centrado
+    for i, line in enumerate(title_text.split("\n")):
+        line_width = canvas.stringWidth(line, "Helvetica-Bold", 22)
+        line_x = (page_width - line_width) / 2
+        canvas.drawString(line_x, text_y - (i * 30), line)  # Espaciado entre líneas
 
 # Definir función para añadir fondo
 def add_background(canvas, background_path):
