@@ -431,7 +431,6 @@ def generate_report_with_background(pdf_path, position, candidate_name):
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
-    :param background_path: Ruta de la imagen de fondo.
     """
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
@@ -1541,7 +1540,7 @@ def evaluate_cv_presentation_with_headers(pdf_path):
         }
 
 # Función principal para generar el reporte descriptivo
-def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
+def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators):
     """
     Analiza un CV descriptivo y genera un reporte PDF con un fondo en cada página.
     :param pdf_path: Ruta del PDF.
@@ -1549,7 +1548,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     :param candidate_name: Nombre del candidato.
     :param advice: Diccionario con consejos.
     :param indicators: Diccionario con indicadores y palabras clave.
-    :param background_path: Ruta de la imagen de fondo.
     """
 
     # Extraer la sección 'Perfil'
@@ -2596,7 +2594,7 @@ def primary():
                 f.write(uploaded_file.read())
             
             # Llamar a la función para generar el reporte con fondo
-            generate_report_with_background("uploaded_cv.pdf", position, candidate_name, background_path)
+            generate_report_with_background("uploaded_cv.pdf", position, candidate_name)
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
     
