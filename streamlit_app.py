@@ -1301,10 +1301,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Paragraph(f"CARGO: {position.upper()}", title_style))
     elements.append(PageBreak())  # Salto de página para empezar el contenido
 
-    # **📌 4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
     def on_later_pages(canvas, doc):
-        """Añade el fondo en páginas posteriores a la portada."""
         add_background(canvas, background_path)
+
+    # Construcción del PDF
+    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 
     # **📌 5️⃣ CONFIGURAR TEMPLATE DE PÁGINAS**
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="content_frame")
