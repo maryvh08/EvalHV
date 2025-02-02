@@ -817,8 +817,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         img_width, img_height = img.getSize()
 
         # Ajustar tamaño proporcionalmente dentro de la página
-        max_width = letter[0] - 10  # Márgenes de 20px a cada lado
-        max_height = letter[1] - 10  # Márgenes de 20px arriba y abajo
+        max_width = letter[0]
+        max_height = letter[1]
         scale_factor = min(max_width / img_width, max_height / img_height)
 
         new_width = img_width * scale_factor
