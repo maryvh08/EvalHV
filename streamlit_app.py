@@ -2277,17 +2277,20 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
         total_sections += 1  # Contar la cantidad de secciones procesadas
     
-    # **Evitar divisiones por cero y calcular promedios generales**
-    average_spelling_score = total_spelling_score / total_sections if total_sections > 0 else 0
-    average_capitalization_score = total_capitalization_score / total_sections if total_sections > 0 else 0
-    average_coherence_score = total_coherence_score / total_sections if total_sections > 0 else 0
-    average_overall_score = total_overall_score / total_sections if total_sections > 0 else 0
+   # 📌 Evitar valores mayores a 100% en cada métrica
+    average_spelling_score = min(100, total_spelling_score / total_sections) if total_sections > 0 else 0
+    average_capitalization_score = min(100, total_capitalization_score / total_sections) if total_sections > 0 else 0
+    average_coherence_score = min(100, total_coherence_score / total_sections) if total_sections > 0 else 0
+    average_overall_score = min(100, total_overall_score / total_sections) if total_sections > 0 else 0
     
-    # **Ajustar puntajes a escala de 1 a 5 y limitar el valor máximo a 5**
+    # 📌 Escalar a una escala de 1 a 5 y **asegurar que no sobrepase 5**
     round_spelling_score = min(5, round((average_spelling_score / 100) * 5, 2))
     round_capitalization_score = min(5, round((average_capitalization_score / 100) * 5, 2))
     round_coherence_score = min(5, round((average_coherence_score / 100) * 5, 2))
-    round_overall_score = (round_spelling_score+ round_capitalization_score+ round_coherence_score)/3
+    
+    # 📌 Calcular el puntaje general asegurando que no supere 5
+    round_overall_score = min(5, round((round_spelling_score + round_capitalization_score + round_coherence_score) / 3, 2))
+
     
     # **Agregar los puntajes combinados a la tabla**
     presentation_table_data.append(["Ortografía", f"{round_spelling_score:.2f}"])
@@ -2477,18 +2480,19 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Paragraph("<b>Puntajes totales:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
 
-    total_score= (exp_score+ att_score+ org_score+ round_overall_score+ profile_score)/5
+    total_score = min(5, round((exp_score + att_score + org_score + round_overall_score + profile_score) / 5, 2))
     
     # Crear tabla de evaluación de presentación
+    # 📌 **Crear tabla con los puntajes corregidos**
     total_table = Table(
         [
             ["Criterio", "Puntaje"],
             ["Experiencia en ANEIAP", f"{exp_score:.2f}"],
             ["Asistencia a eventos", f"{att_score:.2f}"],
             ["Eventos organizados", f"{org_score:.2f}"],
-            ["Perfil", f"{prof_score:.2f}"],
-            ["Presentación", f"{round_overall_score:.2f}"],
-            ["Puntaje Total", f"{total_score:.2f}"]
+            ["Perfil", f"{profile_score:.2f}"],
+            ["Presentación", f"{round_overall_score:.2f}"],  # Asegurado en la escala 1-5
+            ["Puntaje Total", f"{total_score:.2f}"],  # Asegurado en la escala 1-5
         ],
         colWidths=[3 * inch, 2 * inch]
     )
