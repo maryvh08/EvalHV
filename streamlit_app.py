@@ -198,7 +198,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     canvas.drawImage(portada_path, x_offset, y_offset, width=new_width, height=new_height)
 
     # 📌 **AGREGAR EL TÍTULO DEL REPORTE EN EL CENTRO**
-    title_style = ParagraphStyle(name='cover', fontName='CenturyGothicBold', fontSize=48, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black)
+    title_style = ParagraphStyle(name='cover', fontName='CenturyGothicBold', fontSize=48, leading=16, alignment=1,)  # 1 significa centrado, textColor=colors.black
 
     # 📌 Medir el ancho y alto del texto
     text_width = max(canvas.stringWidth(line, "cover", 22) for line in title_text.split("\n"))
