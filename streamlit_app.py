@@ -201,7 +201,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     title_style = ParagraphStyle(
         name="Title",
         fontName="Helvetica-Bold",
-        fontSize=48,
+        fontSize=56,
         textColor=colors.black,
         alignment=1,  # Centrado
     )
