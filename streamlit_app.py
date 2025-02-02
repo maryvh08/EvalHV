@@ -1826,134 +1826,118 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Instanciar el corrector ortográfico
     spell = SpellChecker()
 
-    # 📌 **1️⃣ Evaluación de ortografía (Spelling)**
-    def evaluate_spelling(text):
-        """Evalúa la ortografía del texto y retorna un puntaje entre 0 y 100."""
-        if not text or not isinstance(text, str) or len(text.split()) < 5:
-            return 100  # Si no hay texto o es muy corto, asumimos ortografía perfecta
-        
-        words = re.findall(r'\b\w+\b', text.lower())  # Extraer palabras sin puntuación
-        misspelled_words = spell.unknown(words)  # Palabras incorrectas
-        
-        # **1. Identificar palabras corregibles**
-        correctable_errors = sum(1 for word in misspelled_words if spell.correction(word))
-    
-        # **2. Aplicar penalización**
-        non_correctable_errors = len(misspelled_words) - correctable_errors
-        correctable_ratio = correctable_errors / len(words)
-        non_correctable_ratio = non_correctable_errors / len(words)
-    
-        # **3. Calcular el puntaje final**
-        spelling_score = max(0, 100 - (correctable_ratio * 120 + non_correctable_ratio * 180))  # Penalización más fuerte para errores sin corrección
-    
-        return round(spelling_score, 2)
-    
-    
-    # 📌 **2️⃣ Evaluación de capitalización (Gramática y uso de mayúsculas)**
-    def evaluate_capitalization(text):
-        """Evalúa si las frases comienzan con mayúscula y si nombres propios están bien capitalizados."""
-        if not text or not isinstance(text, str) or len(text.split()) < 5:
-            return 100  # Si no hay texto o es muy corto, asumimos capitalización perfecta
-    
-        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
-        sentences = [s for s in sentences if s]  # Filtrar oraciones vacías
-    
-        if not sentences:
-            return 100  # Evitar división por cero
-    
-        correct_caps = sum(1 for s in sentences if s and s[0].isupper())
-    
-        # **Evaluar nombres propios y siglas**
-        proper_nouns = re.findall(r'\b[A-Z][a-z]+\b', text)
-        acronyms = re.findall(r'\b[A-Z]{2,}\b', text)
-    
-        proper_noun_score = len(proper_nouns) / len(sentences) if sentences else 1
-        acronym_score = len(acronyms) / len(sentences) if sentences else 1
-    
-        final_score = ((correct_caps / len(sentences)) * 100) * (0.8 * proper_noun_score + 0.2 * acronym_score)
-        
-        return round(final_score, 2)
-    
-    
-    # 📌 **3️⃣ Evaluación de coherencia del texto**
-    def evaluate_sentence_coherence(text):
-        """Evalúa la coherencia basada en conectores, estructura de oraciones y fluidez."""
-        if not text or not isinstance(text, str) or len(text.split()) < 5:
-            return 50  # Texto muy corto o vacío recibe un puntaje medio
-    
-        sentences = re.split(r'[.!?]\s*', text.strip())
-        sentences = [s for s in sentences if s]
-        total_sentences = len(sentences)
-    
-        words = text.split()
-        total_words = len(words)
-    
-        if total_sentences == 0 or total_words == 0:
-            return 100  # Evitar división por cero
-    
-        # **1. Evaluación de conectores lógicos**
-        logical_connectors = {"porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque",
-                              "por consiguiente", "en consecuencia", "en cambio", "de hecho", "a pesar de"}
-        
-        connector_count = sum(1 for word in words if word.lower() in logical_connectors)
-        connector_ratio = connector_count / total_sentences if total_sentences > 0 else 0
-        connector_score = min(100, connector_ratio * 120)
-    
-        # **2. Consistencia en la longitud de frases**
-        sentence_lengths = [len(s.split()) for s in sentences]
-        avg_length = sum(sentence_lengths) / total_sentences
-        length_variance = sum((len(s.split()) - avg_length) ** 2 for s in sentences) / total_sentences
-        length_penalty = max(0, 100 - length_variance * 5)
-    
-        # **3. Fluidez y transiciones**
-        transition_words = {"entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"}
-        transition_count = sum(1 for s in sentences if any(word in s.lower() for word in transition_words))
-        transition_score = (transition_count / total_sentences) * 100 if total_sentences > 0 else 0
-    
-        # **4. Evaluación de legibilidad**
-        try:
-            readability_score = max(0, min(100, 100 - flesch_kincaid_grade(text) * 10))
-        except:
-            readability_score = 50  # Puntaje intermedio en caso de error
-    
-        # **Puntaje final de coherencia**
-        coherence_score = round((connector_score + length_penalty + transition_score + readability_score) / 4, 2)
-    
-        return coherence_score
+    # 📌 **Evaluación avanzada de presentación**
+def evaluate_spelling(text):
+    """Evalúa la ortografía del texto y retorna un puntaje entre 0 y 100."""
+    if not text or not isinstance(text, str):
+        return 0  # Texto inválido devuelve 0
 
-    # Evaluación por encabezado y detalles
-    presentation_results = {}
-    for header, details in text_data.items():
-        # Convertir detalles en texto completo
-        details_text = " ".join(details)
+    words = re.findall(r'\b\w+\b', text.lower())  # Extraer palabras sin puntuación
+    total_words = len(words)
 
-        # Evaluar encabezado
-        header_spelling = evaluate_spelling(header)
-        header_capitalization = evaluate_capitalization(header)
-        header_coherence = evaluate_sentence_coherence(header)
-        header_overall = (header_spelling + header_capitalization + header_coherence) / 3
+    if total_words == 0:
+        return 100  # Si no hay palabras, asumimos puntaje perfecto
 
-        # Evaluar detalles
-        details_spelling = evaluate_spelling(details_text)
-        details_capitalization = evaluate_capitalization(details_text)
-        details_coherence = evaluate_sentence_coherence(details_text)
-        details_overall = (details_spelling + details_capitalization + details_coherence) / 3
+    misspelled_words = spell.unknown(words)
+    misspelled_count = len(misspelled_words)
 
-        # Guardar resultados para cada encabezado y sus detalles
-        presentation_results[header] = {
-            "header_score": {
-                "spelling_score": header_spelling,
-                "capitalization_score": header_capitalization,
-                "coherence_score": header_coherence,
-                "overall_score": header_overall,
-            },
-            "details_score": {
-                "spelling_score": details_spelling,
-                "capitalization_score": details_capitalization,
-                "coherence_score": details_coherence,
-                "overall_score": details_overall,
-            },
-        }
+    correctable_errors = sum(1 for word in misspelled_words if spell.correction(word))
+    non_correctable_errors = misspelled_count - correctable_errors
+
+    correctable_ratio = correctable_errors / total_words
+    non_correctable_ratio = non_correctable_errors / total_words
+
+    # Penalización más fuerte para errores sin corrección sugerida
+    return max(0, min(100, 100 - (correctable_ratio * 150 + non_correctable_ratio * 250)))
+
+
+def evaluate_capitalization(text):
+    """Evalúa si las frases comienzan con mayúscula y si los nombres propios están bien capitalizados."""
+    if not text or not isinstance(text, str):
+        return 0  # Texto inválido devuelve 0
+
+    sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
+    sentences = [sentence.strip() for sentence in sentences if sentence]
+
+    if len(sentences) == 0:
+        return 100  # Si no hay oraciones, asumimos puntaje perfecto
+
+    correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
+
+    # Puntaje considerando que todas las oraciones deben empezar en mayúscula
+    return max(0, min(100, (correct_caps / len(sentences)) * 100))
+
+
+def evaluate_sentence_coherence(text):
+    """Evalúa la coherencia basada en conectores, estructura de oraciones y transiciones lógicas."""
+    if not text or not isinstance(text, str):
+        return 50  # Si no hay texto válido, devolver un puntaje medio
+
+    sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
+    sentences = [sentence.strip() for sentence in sentences if sentence]  # Filtrar oraciones vacías
+    total_sentences = len(sentences)
+
+    words = re.findall(r'\b\w+\b', text.lower())
+    total_words = len(words)
+
+    if total_words == 0 or total_sentences == 0:
+        return 100  # Evitar divisiones por 0
+
+    # **📌 Uso de conectores lógicos**
+    logical_connectors = {"porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque",
+                          "por consiguiente", "en consecuencia", "en cambio", "de hecho", "a pesar de"}
+    connector_count = sum(1 for word in words if word in logical_connectors)
+    connector_ratio = connector_count / total_sentences if total_sentences > 0 else 0
+    connector_score = min(100, connector_ratio * 200)  # Escalar a 100
+
+    # **📌 Consistencia en la longitud de frases**
+    sentence_lengths = [len(sentence.split()) for sentence in sentences]
+    avg_length = sum(sentence_lengths) / total_sentences
+    length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences
+    length_variance_penalty = max(0, 100 - length_variance * 5)
+
+    # **📌 Transiciones entre frases**
+    transition_words = {"entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"}
+    transition_count = sum(1 for sentence in sentences if any(word in sentence.lower() for word in transition_words))
+    transition_score = (transition_count / total_sentences) * 100 if total_sentences > 0 else 0
+
+    return round((connector_score + length_variance_penalty + transition_score) / 3, 2)
+
+
+# 📌 **Evaluación por encabezado y detalles**
+presentation_results = {}
+for header, details in text_data.items():
+    details_text = " ".join(details)
+
+    # 📌 **Evaluar encabezado**
+    header_spelling = evaluate_spelling(header)
+    header_capitalization = evaluate_capitalization(header)
+    header_coherence = evaluate_sentence_coherence(header)
+
+    header_overall = round((header_spelling + header_capitalization + header_coherence) / 3, 2)
+
+    # 📌 **Evaluar detalles**
+    details_spelling = evaluate_spelling(details_text)
+    details_capitalization = evaluate_capitalization(details_text)
+    details_coherence = evaluate_sentence_coherence(details_text)
+
+    details_overall = round((details_spelling + details_capitalization + details_coherence) / 3, 2)
+
+    # 📌 **Guardar resultados en la estructura final**
+    presentation_results[header] = {
+        "header_score": {
+            "spelling_score": header_spelling,
+            "capitalization_score": header_capitalization,
+            "coherence_score": header_coherence,
+            "overall_score": header_overall,
+        },
+        "details_score": {
+            "spelling_score": details_spelling,
+            "capitalization_score": details_capitalization,
+            "coherence_score": details_coherence,
+            "overall_score": details_overall,
+        },
+    }
 
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
