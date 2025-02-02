@@ -2570,9 +2570,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         styles['CenturyGothic']
     ))
 
-    # Configuración de funciones de fondo
-    def on_first_page(canvas, doc):
-        add_background(canvas, background_path)
 
     def on_later_pages(canvas, doc):
         add_background(canvas, background_path)
@@ -2589,8 +2586,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             file_name=output_path,
             mime="application/pdf",
         )
-
-
 
 # Interfaz en Streamlit
 def home_page():
