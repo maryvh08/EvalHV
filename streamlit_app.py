@@ -1265,13 +1265,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         styles['CenturyGothic']
     ))
 
-     # Configuración de funciones de fondo
-    def on_first_page(canvas, doc):
-        add_background(canvas, background_path)
-
-    def on_later_pages(canvas, doc):
-        add_background(canvas, background_path)
-
     # Construcción del PDF
     doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 
@@ -2496,13 +2489,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         f"Gracias, {candidate_name}, por tu interés en el cargo de {position} ¡Éxitos en tu proceso!",
         styles['CenturyGothic']
     ))
-
-    # Configuración de funciones de fondo
-    def on_first_page(canvas, doc):
-        add_background(canvas, background_path)
-
-    def on_later_pages(canvas, doc):
-        add_background(canvas, background_path)
 
     # Construcción del PDF
     doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
