@@ -2045,11 +2045,16 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Lista de elementos para el reporte
     elements = []
     
+    # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
+    def on_first_page(canvas, doc):
+        """Dibuja una portada que ocupa toda la página."""
+        draw_full_page_cover(canvas, portada_path, candidate_name, position)
+
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
                                 )
-    
     # Convertir texto a mayúsculas
+    elements.append(PageBreak())
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
 
