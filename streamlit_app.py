@@ -1313,8 +1313,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         """Aplica el fondo solo en páginas después de la portada."""
         add_background(canvas, background_path)
     
-    doc.build(elements)
-
+    # Construcción del PDF
+    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
+    
     # Descargar el reporte desde Streamlit
     with open(report_path, "rb") as file:
         st.success("Reporte PDF generado exitosamente.")
