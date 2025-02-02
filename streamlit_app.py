@@ -425,7 +425,7 @@ def extract_attendance_section_with_ocr(pdf_path):
     
     return "\n".join(att_cleaned_lines)
 
-def generate_report_with_background(pdf_path, position, candidate_name,background_path):
+def generate_report_with_background(pdf_path, position, candidate_name):
     """
     Genera un reporte con un fondo en cada página.
     :param pdf_path: Ruta del PDF.
