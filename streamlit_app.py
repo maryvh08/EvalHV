@@ -1281,39 +1281,42 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         styles['CenturyGothic']
     ))
 
-    def on_first_page (portada_path, doc):
+    # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
+    def on_first_page(canvas, doc):
+        """Dibuja la portada sin aplicar fondo."""
+
+        # Cargar la imagen de portada
         img = ImageReader(portada_path)
         img_width, img_height = img.getSize()
-    
-        # **📌 Ajustar tamaño proporcionalmente**
-        max_width = 456
-        max_height = 608
-    
-        new_width = max_width 
-        new_height = max_height
-    
-        elements.append(RLImage(portada_path, width=new_width, height=new_height))
-    
-        # **📌 AGREGAR TÍTULO EN LA PORTADA**
-        title_style = ParagraphStyle(name="Title", fontName="CenturyGothicBold", fontSize=24, alignment=1)
-        elements.append(Spacer(1, 1 * inch))
-        elements.append(Paragraph(f"REPORTE DE ANÁLISIS", title_style))
-        elements.append(Paragraph(f"{candidate_name.upper()}", title_style))
-        elements.append(Paragraph(f"CARGO: {position.upper()}", title_style))
-        elements.append(PageBreak())  # Salto de página para empezar el contenido
 
+        # Ajustar tamaño proporcionalmente dentro de la página
+        max_width = letter[0] - 40  # Márgenes de 20px a cada lado
+        max_height = letter[1] - 40  # Márgenes de 20px arriba y abajo
+        scale_factor = min(max_width / img_width, max_height / img_height)
+
+        new_width = img_width * scale_factor
+        new_height = img_height * scale_factor
+
+        # Dibujar la imagen en la portada
+        canvas.drawImage(portada_path, 20, letter[1] - new_height - 20, width=new_width, height=new_height)
+
+        # 📌 **AGREGAR TÍTULO EN LA PORTADA**
+        canvas.setFont("Helvetica-Bold", 24)
+        canvas.setFillColor(colors.black)
+        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 50, "REPORTE DE ANÁLISIS")
+        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 80, candidate_name.upper())
+        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 110, f"CARGO: {position.upper()}")
+
+    # 📌 **4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
     def on_later_pages(canvas, doc):
+        """Aplica el fondo solo en páginas después de la portada."""
         add_background(canvas, background_path)
 
-    # Construcción del PDF
-    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
-
-    # **📌 5️⃣ CONFIGURAR TEMPLATE DE PÁGINAS**
+    # 📌 **5️⃣ CONFIGURAR TEMPLATE DE PÁGINAS**
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="content_frame")
-    frame_cover = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="cover_frame")
 
     template_with_background = PageTemplate(id="background_template", frames=frame, onPage=on_later_pages)
-    template_no_background = PageTemplate(id="cover_template", frames=frame_cover)
+    template_no_background = PageTemplate(id="cover_template", frames=frame, onPage=on_first_page)
 
     doc.addPageTemplates([template_no_background, template_with_background])
     
