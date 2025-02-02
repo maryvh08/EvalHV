@@ -15,6 +15,7 @@ import os
 import pytesseract
 from spellchecker import SpellChecker
 from textblob import TextBlob
+from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageTemplate, Frame, Image, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_JUSTIFY
@@ -47,6 +48,9 @@ def load_advice(filepath="advice.json"):
 # Cargar indicadores y consejos al inicio del script
 indicators = load_indicators()
 advice = load_advice()
+
+# Uso del código
+background_path = "Fondo Comunicado.png"
 
 def preprocess_image(image):
     """
@@ -163,6 +167,17 @@ def calculate_presence(texts, keywords):
 
     matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
     return (matches / total_keywords) * 100
+
+# Definir función para añadir fondo
+def add_background(canvas, background_path):
+    """
+    Dibuja una imagen de fondo en cada página del PDF.
+    :param canvas: Lienzo de ReportLab.
+    :param background_path: Ruta a la imagen de fondo.
+    """
+    canvas.saveState()
+    canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
+    canvas.restoreState()
 
 # FUNCIONES PARA PRIMARY
 def extract_profile_section_with_ocr(pdf_path):
@@ -424,12 +439,13 @@ def extract_attendance_section_with_ocr(pdf_path):
     
     return "\n".join(att_cleaned_lines)
 
-def generate_report_with_background(pdf_path, position, candidate_name):
+def generate_report_with_background(pdf_path, position, candidate_name,background_path):
     """
     Genera un reporte con un fondo en cada página.
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
+    :param background_path: Ruta de la imagen de fondo.
     """
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
@@ -1263,6 +1279,13 @@ def generate_report_with_background(pdf_path, position, candidate_name):
         styles['CenturyGothic']
     ))
 
+     # Configuración de funciones de fondo
+    def on_first_page(canvas, doc):
+        add_background(canvas, background_path)
+
+    def on_later_pages(canvas, doc):
+        add_background(canvas, background_path)
+
     # Construcción del PDF
     doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 
@@ -1539,7 +1562,7 @@ def evaluate_cv_presentation_with_headers(pdf_path):
         }
 
 # Función principal para generar el reporte descriptivo
-def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators):
+def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
     """
     Analiza un CV descriptivo y genera un reporte PDF con un fondo en cada página.
     :param pdf_path: Ruta del PDF.
@@ -1547,6 +1570,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     :param candidate_name: Nombre del candidato.
     :param advice: Diccionario con consejos.
     :param indicators: Diccionario con indicadores y palabras clave.
+    :param background_path: Ruta de la imagen de fondo.
     """
 
     # Extraer la sección 'Perfil'
@@ -2487,6 +2511,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         styles['CenturyGothic']
     ))
 
+    # Configuración de funciones de fondo
+    def on_first_page(canvas, doc):
+        add_background(canvas, background_path)
+
+    def on_later_pages(canvas, doc):
+        add_background(canvas, background_path)
+
     # Construcción del PDF
     doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 
@@ -2593,7 +2624,7 @@ def primary():
                 f.write(uploaded_file.read())
             
             # Llamar a la función para generar el reporte con fondo
-            generate_report_with_background("uploaded_cv.pdf", position, candidate_name)
+            generate_report_with_background("uploaded_cv.pdf", position, candidate_name, background_path)
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
     
@@ -2638,7 +2669,7 @@ def secondary():
                 f.write(detailed_uploaded_file.read())
             
             # Llamar a la nueva función unificada
-            analyze_and_generate_descriptive_report_with_background("detailed_uploaded_cv.pdf", position, candidate_name, advice, indicators)
+            analyze_and_generate_descriptive_report_with_background("detailed_uploaded_cv.pdf", position, candidate_name, advice, indicators, background_path)
 
 
         else:
