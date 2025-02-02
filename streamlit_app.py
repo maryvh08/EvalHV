@@ -1629,18 +1629,31 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     :param background_path: Ruta de la imagen de fondo.
     """
 
-   # 📌 **1️⃣ Extracción de información**
+    # Extraer la sección 'Perfil'
     profile_text = extract_profile_section_with_details(pdf_path)
-    items = extract_experience_items_with_details(pdf_path)
-    org_items = extract_event_items_with_details(pdf_path)
-    att_items = extract_asistencia_items_with_details(pdf_path)
-
-    # Validar que se encontraron las secciones
-    if not all([profile_text, items, org_items, att_items]):
-        st.error("No se encontraron todas las secciones necesarias en el PDF.")
+    if not profile_text:
+        st.error("No se encontró la sección 'Perfil' en el PDF.")
         return
 
-     # 📌 **2️⃣ Carga de documentos de referencia**
+    # Extraer texto de la sección EXPERIENCIA EN ANEIAP
+    items = extract_experience_items_with_details(pdf_path)
+    if not items:
+        st.error("No se encontraron encabezados y detalles de experiencia para analizar.")
+        return
+
+    # Extraer texto de la sección EVENTOS ORGANIZADOS
+    org_items = extract_event_items_with_details(pdf_path)
+    if not org_items:
+        st.error("No se encontraron encabezados y detalles de eventos para analizar.")
+        return
+
+    # Extraer texto de la sección EVENTOS ORGANIZADOS
+    att_items = extract_asistencia_items_with_details(pdf_path)
+    if not att_items:
+        st.error("No se encontraron encabezados y detalles de asistencias para analizar.")
+        return
+
+    # Cargar funciones y perfil del cargo
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
             functions_text = func_doc[0].get_text()
@@ -1650,15 +1663,11 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         st.error(f"Error al cargar funciones o perfil: {e}")
         return
 
-    # 📌 **3️⃣ Filtrar indicadores del cargo**
+    # Filtrar indicadores correspondientes al cargo seleccionado
     position_indicators = indicators.get(position, {})
     if not position_indicators:
         st.error("No se encontraron indicadores para el cargo seleccionado.")
         return
-
-    # 📌 **4️⃣ Evaluación de la sección de perfil**
-    profile_func_match = calculate_similarity(profile_text, functions_text)
-    profile_profile_match = calculate_similarity(profile_text, profile_text)
 
     # Analizar encabezados y detalles
     item_results = {}
@@ -1807,185 +1816,78 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
-
     # Extraer texto del PDF con encabezados y detalles
-    text_data = extract_text_with_headers_and_details(pdf_path)
+    text_data = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
 
-   # Verificar si se extrajo correctamente el texto
     if not text_data:
         st.error("No se pudo extraer texto del archivo PDF.")
         return None
-    
-    # Inicializar corrector ortográfico
+
+    # Instanciar el corrector ortográfico
     spell = SpellChecker()
-    
-    # Conectores lógicos comunes
-    logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque"]
-    
+
+    # Definir funciones para evaluación avanzada de presentación
     def evaluate_spelling(text):
-        """Evalúa la ortografía del texto y retorna un puntaje entre 0 y 100."""
+        """Evalúa la ortografía del texto y retorna un puntaje."""
         if not text or not isinstance(text, str):
-            return 100  # Si no hay texto, asumimos puntaje perfecto
-    
+            return 0  # Texto inválido devuelve 0
         words = text.split()
-        if len(words) < 2:
-            return 100  # Evitar dividir por 0 si hay muy pocas palabras
-    
         misspelled = spell.unknown(words)
-        total_words = len(words)
-
-        # Identificar palabras mal escritas
-        misspelled_words = spell.unknown(words)
-        misspelled_count = len(misspelled_words)
-
-        # **1. Verificar si hay palabras corregibles**
-        correctable_errors = 0
-        for word in misspelled_words:
-            if spell.correction(word):  # Si existe una corrección válida, cuenta como error corregible
-                correctable_errors += 1
-    
-        # **2. Aplicar penalización a palabras no corregibles**
-        non_correctable_errors = misspelled_count - correctable_errors
-
-        # **3. Verificar si hay siglas o palabras cortas para evitar penalización**
-        acronyms_or_short_words = sum(1 for word in misspelled_words if len(word) <= 2)
-
-        correct_score = (correctable_errors + non_correctable_errors - acronyms_or_short_words) / 3
-
-        return round(((correct_score) / total_words) * 100, 2)
+        if not words:
+            return 100  # Si no hay palabras, asumimos puntaje perfecto
+        return ((len(words) - len(misspelled)) / len(words)) * 100
 
     def evaluate_capitalization(text):
-        """Evalúa si las frases comienzan con mayúscula y si nombres propios están bien capitalizados."""
+        """Evalúa si las frases comienzan con mayúscula."""
         if not text or not isinstance(text, str):
-            return 100  # Si no hay texto, asumimos puntaje perfecto
-    
-        sentences = re.split(r'[.!?]\s*', text.strip())
-        sentences = [sentence.strip() for sentence in sentences if sentence]
-    
-        if len(sentences) == 0:
-            return 100  # Evitar dividir por 0
-    
+            return 0  # Texto inválido devuelve 0
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
+        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
         correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
-    
-        return round((correct_caps / len(sentences)) * 100, 2)
-    
+        if not sentences:
+            return 100  # Si no hay oraciones, asumimos puntaje perfecto
+        return (correct_caps / len(sentences)) * 100
+
     def evaluate_sentence_coherence(text):
-        """Evalúa la coherencia basada en conectores, estructura de oraciones y transiciones lógicas."""
+        """Evalúa la coherencia y legibilidad del texto."""
         if not text or not isinstance(text, str):
-            return 50  # Si no hay texto válido, devolver un puntaje medio
-    
-        sentences = re.split(r'[.!?]\s*', text.strip())
-        sentences = [sentence for sentence in sentences if sentence]
-        total_sentences = len(sentences)
-    
-        words = text.split()
-        total_words = len(words)
-    
-        if total_words == 0 or total_sentences == 0:
-            return 100  # Evitar dividir por 0
-    
-        # **Uso de conectores lógicos**
-        connector_count = sum(1 for word in words if word.lower() in logical_connectors)
-        connector_ratio = connector_count / total_sentences if total_sentences > 0 else 0
-        connector_score = min(100, connector_ratio * 200)  
-    
-        # **Consistencia en la longitud de frases**
-        sentence_lengths = [len(sentence.split()) for sentence in sentences]
-        avg_length = sum(sentence_lengths) / total_sentences
-        length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences
-        length_variance_penalty = max(0, 100 - length_variance * 5)
-    
-        # **Transiciones entre frases**
-        transition_words = {"entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"}
-        transition_count = sum(1 for sentence in sentences if any(word in sentence.lower() for word in transition_words))
-        transition_score = (transition_count / total_sentences) * 100 if total_sentences > 0 else 0
-    
-        coherence_score = round((connector_score + length_variance_penalty + transition_score) / 3, 2)
-        return coherence_score
-    
-    def calculate_repetition_score(text):
-        """Evalúa la repetición de palabras y devuelve un puntaje de 0 a 100."""
-        if not text or not isinstance(text, str):
-            return 100  
-    
-        words = text.lower().split()
-        total_words = len(words)
-    
-        if total_words < 5:
-            return 100  
-    
-        word_counts = Counter(words)
-        repeated_words = {word: count for word, count in word_counts.items() if count > 1}
-    
-        repeated_ratio = sum(repeated_words.values()) / total_words
-        repetition_penalty = min(100, repeated_ratio * 200)  
-    
-        last_seen = {}
-        repetition_distances = []
-        for index, word in enumerate(words):
-            if word in last_seen:
-                repetition_distances.append(index - last_seen[word])
-            last_seen[word] = index
-    
-        avg_distance = sum(repetition_distances) / len(repetition_distances) if repetition_distances else 100
-        distance_penalty = max(0, min(100, avg_distance))
-    
-        repetition_score = round((distance_penalty + (100 - repetition_penalty)) / 2, 2)
-        return repetition_score
-    
-    def calculate_punctuation_score(text):
-        """Evalúa el uso de puntuación en el texto."""
-        if not text or not isinstance(text, str):
-            return 100  
-    
-        punctuation_marks = [".", ",", ";", ":", "!", "?"]
-        sentences = re.split(r'[.!?]\s*', text.strip())
-        sentences = [sentence for sentence in sentences if sentence]
-    
-        total_sentences = len(sentences)
-        punctuation_count = sum(text.count(mark) for mark in punctuation_marks)
-    
-        punctuation_per_sentence = punctuation_count / total_sentences if total_sentences > 0 else 0
-        expected_punctuation = 1.5  
-        penalty = max(0, expected_punctuation - punctuation_per_sentence)
-    
-        punctuation_score = max(0, 100 - (penalty * 20))
-        return round(punctuation_score, 2)
-    
-    # **Evaluación por encabezado y detalles**
+            return 0  # Texto inválido devuelve 0
+        try:
+            # Normalizar entre 0 y 100 usando Flesch-Kincaid Grade
+            return max(0, min(100, 100 - textstat.flesch_kincaid_grade(text) * 10))
+        except Exception:
+            return 50  # Puntaje intermedio en caso de error
+
+    # Evaluación por encabezado y detalles
     presentation_results = {}
     for header, details in text_data.items():
+        # Convertir detalles en texto completo
         details_text = " ".join(details)
-    
+
+        # Evaluar encabezado
         header_spelling = evaluate_spelling(header)
         header_capitalization = evaluate_capitalization(header)
         header_coherence = evaluate_sentence_coherence(header)
-        header_punctuation = calculate_punctuation_score(header)
-        header_repetition = calculate_repetition_score(header)
-        header_overall = round((header_spelling + ((header_capitalization+ header_punctuation)/2) + (header_coherence+ header_repetition)) /3, 2)
-    
+        header_overall = (header_spelling + header_capitalization + header_coherence) / 3
+
+        # Evaluar detalles
         details_spelling = evaluate_spelling(details_text)
         details_capitalization = evaluate_capitalization(details_text)
         details_coherence = evaluate_sentence_coherence(details_text)
-        details_punctuation = calculate_punctuation_score(details_text)
-        details_repetition = calculate_repetition_score(details_text)
-        details_overall = round((details_spelling + ((details_capitalization + details_punctuation)/2) + ((details_coherence+ details_repetition))) / 3, 2)
-    
+        details_overall = (details_spelling + details_capitalization + details_coherence) / 3
+
+        # Guardar resultados para cada encabezado y sus detalles
         presentation_results[header] = {
             "header_score": {
-                "spelling_score": round(header_spelling, 2),
-                "capitalization_score": round(header_capitalization, 2),
-                "coherence_score": round(header_coherence, 2),
-                "punctuation_score": round(header_punctuation, 2),
-                "repetition_score": round(header_repetition, 2),
+                "spelling_score": header_spelling,
+                "capitalization_score": header_capitalization,
+                "coherence_score": header_coherence,
                 "overall_score": header_overall,
             },
             "details_score": {
-                "spelling_score": round(details_spelling, 2),
-                "capitalization_score": round(details_capitalization, 2),
-                "coherence_score": round(details_coherence, 2),
-                "punctuation_score": round(details_punctuation, 2),
-                "repetition_score": round(details_repetition, 2),
+                "spelling_score": details_spelling,
+                "capitalization_score": details_capitalization,
+                "coherence_score": details_coherence,
                 "overall_score": details_overall,
             },
         }
@@ -2554,7 +2456,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         f"Gracias, {candidate_name}, por tu interés en el cargo de {position} ¡Éxitos en tu proceso!",
         styles['CenturyGothic']
     ))
-
 
     def on_later_pages(canvas, doc):
         add_background(canvas, background_path)
