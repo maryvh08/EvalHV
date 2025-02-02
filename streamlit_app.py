@@ -1629,31 +1629,18 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     :param background_path: Ruta de la imagen de fondo.
     """
 
-    # Extraer la sección 'Perfil'
+   # 📌 **1️⃣ Extracción de información**
     profile_text = extract_profile_section_with_details(pdf_path)
-    if not profile_text:
-        st.error("No se encontró la sección 'Perfil' en el PDF.")
-        return
-
-    # Extraer texto de la sección EXPERIENCIA EN ANEIAP
     items = extract_experience_items_with_details(pdf_path)
-    if not items:
-        st.error("No se encontraron encabezados y detalles de experiencia para analizar.")
-        return
-
-    # Extraer texto de la sección EVENTOS ORGANIZADOS
     org_items = extract_event_items_with_details(pdf_path)
-    if not org_items:
-        st.error("No se encontraron encabezados y detalles de eventos para analizar.")
-        return
-
-    # Extraer texto de la sección EVENTOS ORGANIZADOS
     att_items = extract_asistencia_items_with_details(pdf_path)
-    if not att_items:
-        st.error("No se encontraron encabezados y detalles de asistencias para analizar.")
+
+    # Validar que se encontraron las secciones
+    if not all([profile_text, items, org_items, att_items]):
+        st.error("No se encontraron todas las secciones necesarias en el PDF.")
         return
 
-    # Cargar funciones y perfil del cargo
+     # 📌 **2️⃣ Carga de documentos de referencia**
     try:
         with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
             functions_text = func_doc[0].get_text()
@@ -1663,11 +1650,15 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         st.error(f"Error al cargar funciones o perfil: {e}")
         return
 
-    # Filtrar indicadores correspondientes al cargo seleccionado
+    # 📌 **3️⃣ Filtrar indicadores del cargo**
     position_indicators = indicators.get(position, {})
     if not position_indicators:
         st.error("No se encontraron indicadores para el cargo seleccionado.")
         return
+
+    # 📌 **4️⃣ Evaluación de la sección de perfil**
+    profile_func_match = calculate_similarity(profile_text, functions_text)
+    profile_profile_match = calculate_similarity(profile_text, profile_text)
 
     # Analizar encabezados y detalles
     item_results = {}
