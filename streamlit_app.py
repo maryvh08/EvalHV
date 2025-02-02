@@ -1826,37 +1826,100 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Instanciar el corrector ortográfico
     spell = SpellChecker()
 
-    # Definir funciones para evaluación avanzada de presentación
+    # 📌 **1️⃣ Evaluación de ortografía (Spelling)**
     def evaluate_spelling(text):
-        """Evalúa la ortografía del texto y retorna un puntaje."""
-        if not text or not isinstance(text, str):
-            return 0  # Texto inválido devuelve 0
-        words = text.split()
-        misspelled = spell.unknown(words)
-        if not words:
-            return 100  # Si no hay palabras, asumimos puntaje perfecto
-        return ((len(words) - len(misspelled)) / len(words)) * 100
-
+        """Evalúa la ortografía del texto y retorna un puntaje entre 0 y 100."""
+        if not text or not isinstance(text, str) or len(text.split()) < 5:
+            return 100  # Si no hay texto o es muy corto, asumimos ortografía perfecta
+        
+        words = re.findall(r'\b\w+\b', text.lower())  # Extraer palabras sin puntuación
+        misspelled_words = spell.unknown(words)  # Palabras incorrectas
+        
+        # **1. Identificar palabras corregibles**
+        correctable_errors = sum(1 for word in misspelled_words if spell.correction(word))
+    
+        # **2. Aplicar penalización**
+        non_correctable_errors = len(misspelled_words) - correctable_errors
+        correctable_ratio = correctable_errors / len(words)
+        non_correctable_ratio = non_correctable_errors / len(words)
+    
+        # **3. Calcular el puntaje final**
+        spelling_score = max(0, 100 - (correctable_ratio * 120 + non_correctable_ratio * 180))  # Penalización más fuerte para errores sin corrección
+    
+        return round(spelling_score, 2)
+    
+    
+    # 📌 **2️⃣ Evaluación de capitalización (Gramática y uso de mayúsculas)**
     def evaluate_capitalization(text):
-        """Evalúa si las frases comienzan con mayúscula."""
-        if not text or not isinstance(text, str):
-            return 0  # Texto inválido devuelve 0
-        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
-        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
-        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
+        """Evalúa si las frases comienzan con mayúscula y si nombres propios están bien capitalizados."""
+        if not text or not isinstance(text, str) or len(text.split()) < 5:
+            return 100  # Si no hay texto o es muy corto, asumimos capitalización perfecta
+    
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
+        sentences = [s for s in sentences if s]  # Filtrar oraciones vacías
+    
         if not sentences:
-            return 100  # Si no hay oraciones, asumimos puntaje perfecto
-        return (correct_caps / len(sentences)) * 100
-
+            return 100  # Evitar división por cero
+    
+        correct_caps = sum(1 for s in sentences if s and s[0].isupper())
+    
+        # **Evaluar nombres propios y siglas**
+        proper_nouns = re.findall(r'\b[A-Z][a-z]+\b', text)
+        acronyms = re.findall(r'\b[A-Z]{2,}\b', text)
+    
+        proper_noun_score = len(proper_nouns) / len(sentences) if sentences else 1
+        acronym_score = len(acronyms) / len(sentences) if sentences else 1
+    
+        final_score = ((correct_caps / len(sentences)) * 100) * (0.8 * proper_noun_score + 0.2 * acronym_score)
+        
+        return round(final_score, 2)
+    
+    
+    # 📌 **3️⃣ Evaluación de coherencia del texto**
     def evaluate_sentence_coherence(text):
-        """Evalúa la coherencia y legibilidad del texto."""
-        if not text or not isinstance(text, str):
-            return 0  # Texto inválido devuelve 0
+        """Evalúa la coherencia basada en conectores, estructura de oraciones y fluidez."""
+        if not text or not isinstance(text, str) or len(text.split()) < 5:
+            return 50  # Texto muy corto o vacío recibe un puntaje medio
+    
+        sentences = re.split(r'[.!?]\s*', text.strip())
+        sentences = [s for s in sentences if s]
+        total_sentences = len(sentences)
+    
+        words = text.split()
+        total_words = len(words)
+    
+        if total_sentences == 0 or total_words == 0:
+            return 100  # Evitar división por cero
+    
+        # **1. Evaluación de conectores lógicos**
+        logical_connectors = {"porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque",
+                              "por consiguiente", "en consecuencia", "en cambio", "de hecho", "a pesar de"}
+        
+        connector_count = sum(1 for word in words if word.lower() in logical_connectors)
+        connector_ratio = connector_count / total_sentences if total_sentences > 0 else 0
+        connector_score = min(100, connector_ratio * 120)
+    
+        # **2. Consistencia en la longitud de frases**
+        sentence_lengths = [len(s.split()) for s in sentences]
+        avg_length = sum(sentence_lengths) / total_sentences
+        length_variance = sum((len(s.split()) - avg_length) ** 2 for s in sentences) / total_sentences
+        length_penalty = max(0, 100 - length_variance * 5)
+    
+        # **3. Fluidez y transiciones**
+        transition_words = {"entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"}
+        transition_count = sum(1 for s in sentences if any(word in s.lower() for word in transition_words))
+        transition_score = (transition_count / total_sentences) * 100 if total_sentences > 0 else 0
+    
+        # **4. Evaluación de legibilidad**
         try:
-            # Normalizar entre 0 y 100 usando Flesch-Kincaid Grade
-            return max(0, min(100, 100 - textstat.flesch_kincaid_grade(text) * 10))
-        except Exception:
-            return 50  # Puntaje intermedio en caso de error
+            readability_score = max(0, min(100, 100 - flesch_kincaid_grade(text) * 10))
+        except:
+            readability_score = 50  # Puntaje intermedio en caso de error
+    
+        # **Puntaje final de coherencia**
+        coherence_score = round((connector_score + length_penalty + transition_score + readability_score) / 4, 2)
+    
+        return coherence_score
 
     # Evaluación por encabezado y detalles
     presentation_results = {}
