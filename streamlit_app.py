@@ -201,7 +201,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     title_style = ParagraphStyle(
         name="Title",
         fontName="CenturyGothicBold",
-        fontSize=22,
+        fontSize=48,
         textColor=colors.black,
         alignment=1,  # Centrado
     )
@@ -209,7 +209,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     title_text = f"REPORTE DE ANÁLISIS\n{candidate_name.upper()}\nCARGO: {position.upper()}"
 
     # 📌 Configurar fuente y color del texto
-    canvas.setFont("CenturyGothicBold", 48)
+    canvas.setFont("CenturyGothicBold", 22)
     canvas.setFillColor(colors.black)
 
     # 📌 Medir el ancho y alto del texto
