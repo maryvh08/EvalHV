@@ -1904,40 +1904,40 @@ def evaluate_sentence_coherence(text):
     return round((connector_score + length_variance_penalty + transition_score) / 3, 2)
 
 
-# 📌 **Evaluación por encabezado y detalles**
-presentation_results = {}
-for header, details in text_data.items():
-    details_text = " ".join(details)
-
-    # 📌 **Evaluar encabezado**
-    header_spelling = evaluate_spelling(header)
-    header_capitalization = evaluate_capitalization(header)
-    header_coherence = evaluate_sentence_coherence(header)
-
-    header_overall = round((header_spelling + header_capitalization + header_coherence) / 3, 2)
-
-    # 📌 **Evaluar detalles**
-    details_spelling = evaluate_spelling(details_text)
-    details_capitalization = evaluate_capitalization(details_text)
-    details_coherence = evaluate_sentence_coherence(details_text)
-
-    details_overall = round((details_spelling + details_capitalization + details_coherence) / 3, 2)
-
-    # 📌 **Guardar resultados en la estructura final**
-    presentation_results[header] = {
-        "header_score": {
-            "spelling_score": header_spelling,
-            "capitalization_score": header_capitalization,
-            "coherence_score": header_coherence,
-            "overall_score": header_overall,
-        },
-        "details_score": {
-            "spelling_score": details_spelling,
-            "capitalization_score": details_capitalization,
-            "coherence_score": details_coherence,
-            "overall_score": details_overall,
-        },
-    }
+    # 📌 **Evaluación por encabezado y detalles**
+    presentation_results = {}
+    for header, details in text_data.items():
+        details_text = " ".join(details)
+    
+        # 📌 **Evaluar encabezado**
+        header_spelling = evaluate_spelling(header)
+        header_capitalization = evaluate_capitalization(header)
+        header_coherence = evaluate_sentence_coherence(header)
+    
+        header_overall = round((header_spelling + header_capitalization + header_coherence) / 3, 2)
+    
+        # 📌 **Evaluar detalles**
+        details_spelling = evaluate_spelling(details_text)
+        details_capitalization = evaluate_capitalization(details_text)
+        details_coherence = evaluate_sentence_coherence(details_text)
+    
+        details_overall = round((details_spelling + details_capitalization + details_coherence) / 3, 2)
+    
+        # 📌 **Guardar resultados en la estructura final**
+        presentation_results[header] = {
+            "header_score": {
+                "spelling_score": header_spelling,
+                "capitalization_score": header_capitalization,
+                "coherence_score": header_coherence,
+                "overall_score": header_overall,
+            },
+            "details_score": {
+                "spelling_score": details_spelling,
+                "capitalization_score": details_capitalization,
+                "coherence_score": details_coherence,
+                "overall_score": details_overall,
+            },
+        }
 
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
