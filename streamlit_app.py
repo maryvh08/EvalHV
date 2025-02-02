@@ -1279,14 +1279,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         styles['CenturyGothic']
     ))
 
-    # **📌 1️⃣ CONFIGURAR DOCUMENTO**
-    report_path = f"Reporte_analisis_cargo_{candidate_name}.pdf"
-    doc = BaseDocTemplate(report_path, pagesize=letter)
-
-    # **📌 2️⃣ LISTA DE ELEMENTOS**
-    elements = []
-
-    # **📌 3️⃣ AGREGAR PORTADA**
     img = ImageReader(portada_path)
     img_width, img_height = img.getSize()
 
