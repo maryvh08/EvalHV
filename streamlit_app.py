@@ -170,6 +170,32 @@ def calculate_presence(texts, keywords):
     matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
     return (matches / total_keywords) * 100
 
+def draw_full_page_cover(canvas, portada_path):
+    """
+    Dibuja una imagen de portada que ocupa toda la hoja carta.
+    :param canvas: Lienzo de ReportLab.
+    :param portada_path: Ruta de la imagen de la portada.
+    """
+    # 📌 Obtener el tamaño de la página (Letter)
+    page_width, page_height = letter
+
+    # 📌 Cargar la imagen de la portada
+    img = ImageReader(portada_path)
+    img_width, img_height = img.getSize()
+
+    # 📌 Ajustar la imagen proporcionalmente para que llene la página
+    scale_factor = max(page_width / img_width, page_height / img_height)
+    new_width = img_width * scale_factor
+    new_height = img_height * scale_factor
+
+    # 📌 Centrar la imagen en la página
+    x_offset = (page_width - new_width) / 2
+    y_offset = (page_height - new_height) / 2
+
+    # 📌 Dibujar la imagen de portada en toda la página
+    canvas.drawImage(portada_path, x_offset, y_offset, width=new_width, height=new_height)
+
+
 # Definir función para añadir fondo
 def add_background(canvas, background_path):
     """
@@ -810,29 +836,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
     def on_first_page(canvas, doc):
-        """Dibuja la portada sin aplicar fondo."""
-
-        # Cargar la imagen de portada
-        img = ImageReader(portada_path)
-        img_width, img_height = img.getSize()
-
-        # Ajustar tamaño proporcionalmente dentro de la página
-        max_width = letter[0]
-        max_height = letter[1]
-        scale_factor = min(max_width / img_width, max_height / img_height)
-
-        new_width = img_width * scale_factor
-        new_height = img_height * scale_factor
-
-        # Dibujar la imagen en la portada
-        canvas.drawImage(portada_path, 0, 0, width=new_width, height=new_height)
-
-        # 📌 **AGREGAR TÍTULO EN LA PORTADA**
-        canvas.setFont("Helvetica-Bold", 24)
-        canvas.setFillColor(colors.black)
-        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 50, "REPORTE DE ANÁLISIS")
-        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 80, candidate_name.upper())
-        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 110, f"CARGO: {position.upper()}")
+        """Dibuja una portada que ocupa toda la página."""
+        draw_full_page_cover(canvas, portada_path)
 
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
