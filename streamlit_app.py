@@ -2053,8 +2053,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
                                 )
+    
     # Convertir texto a mayúsculas
-    elements.append(PageBreak())
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
 
@@ -2262,7 +2262,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     for header, scores in presentation_results.items():
         header_scores = scores["header_score"]
         details_scores = scores["details_score"]
-        
+    
+        # Acumular puntajes de ortografía, gramática y coherencia
         total_spelling_score += (header_scores["spelling_score"] + details_scores["spelling_score"]) / 2
         total_capitalization_score += (
             (header_scores["capitalization_score"] + details_scores["capitalization_score"]) / 2
@@ -2272,28 +2273,21 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             (header_scores["coherence_score"] + details_scores["coherence_score"]) / 2
             + (header_scores["repetition_score"] + details_scores["repetition_score"]) / 2
         )
-        total_overall_score += (total_spelling_score + total_capitalization_score + total_coherence_score) / 3
-        total_sections += 1
-
+        total_overall_score += (total_spelling_score + total_capitalization_score+ total_coherence_score) / 3
     
-   # 📌 Evitar valores mayores a 100% en cada métrica
-    average_spelling_score = min(100, total_spelling_score / total_sections) if total_sections > 0 else 0
-    average_capitalization_score = min(100, total_capitalization_score / total_sections) if total_sections > 0 else 0
-    average_coherence_score = min(100, total_coherence_score / total_sections) if total_sections > 0 else 0
-    average_overall_score = min(100, total_overall_score / total_sections) if total_sections > 0 else 0
+        total_sections += 1  # Contar la cantidad de secciones procesadas
     
-    # Convertimos a escala de 1-5 más eficientemente
-    round_spelling_score = (average_spelling_score / 100) * 5
-    round_capitalization_score = (average_capitalization_score / 100) * 5
-    round_coherence_score = (average_coherence_score / 100) * 5
+    # **Evitar divisiones por cero y calcular promedios generales**
+    average_spelling_score = total_spelling_score / total_sections if total_sections > 0 else 0
+    average_capitalization_score = total_capitalization_score / total_sections if total_sections > 0 else 0
+    average_coherence_score = total_coherence_score / total_sections if total_sections > 0 else 0
+    average_overall_score = total_overall_score / total_sections if total_sections > 0 else 0
     
-    # Limitar todos los valores a 5 en un solo paso (evita múltiples llamadas a `min()`)
-    round_spelling_score, round_capitalization_score, round_coherence_score = [
-        min(5, score) for score in [round_spelling_score, round_capitalization_score, round_coherence_score]
-    ]
-    
-    # Cálculo más eficiente del puntaje total
-    round_overall_score = (round_spelling_score + round_capitalization_score + round_coherence_score) / 3
+    # **Ajustar puntajes a escala de 1 a 5 y limitar el valor máximo a 5**
+    round_spelling_score = min(5, round((average_spelling_score / 100) * 5, 2))
+    round_capitalization_score = min(5, round((average_capitalization_score / 100) * 5, 2))
+    round_coherence_score = min(5, round((average_coherence_score / 100) * 5, 2))
+    round_overall_score = (round_spelling_score+ round_capitalization_score+ round_coherence_score)/3
     
     # **Agregar los puntajes combinados a la tabla**
     presentation_table_data.append(["Ortografía", f"{round_spelling_score:.2f}"])
@@ -2483,19 +2477,18 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(Paragraph("<b>Puntajes totales:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
 
-    total_score = min(5, round((exp_score + att_score + org_score + round_overall_score + profile_score) / 5, 2))
+    total_score= (exp_score+ att_score+ org_score+ round_overall_score+ profile_score)/5
     
     # Crear tabla de evaluación de presentación
-    # 📌 **Crear tabla con los puntajes corregidos**
     total_table = Table(
         [
             ["Criterio", "Puntaje"],
             ["Experiencia en ANEIAP", f"{exp_score:.2f}"],
             ["Asistencia a eventos", f"{att_score:.2f}"],
             ["Eventos organizados", f"{org_score:.2f}"],
-            ["Perfil", f"{profile_score:.2f}"],
-            ["Presentación", f"{round_overall_score:.2f}"],  # Asegurado en la escala 1-5
-            ["Puntaje Total", f"{total_score:.2f}"],  # Asegurado en la escala 1-5
+            ["Perfil", f"{prof_score:.2f}"],
+            ["Presentación", f"{round_overall_score:.2f}"],
+            ["Puntaje Total", f"{total_score:.2f}"]
         ],
         colWidths=[3 * inch, 2 * inch]
     )
@@ -2585,11 +2578,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         styles['CenturyGothic']
     ))
 
-     # 📌 **4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
-    def on_later_pages(canvas, doc):
-        """Aplica el fondo solo en páginas después de la portada."""
+    # Configuración de funciones de fondo
+    def on_first_page(canvas, doc):
         add_background(canvas, background_path)
-    
+
+    def on_later_pages(canvas, doc):
+        add_background(canvas, background_path)
+
     # Construcción del PDF
     doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 
