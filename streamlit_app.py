@@ -1288,7 +1288,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     img = ImageReader(portada_path)
   
     # Agregar la portada con el tamaño ajustado
-    elements.append(RLImage(portada_path, 0, 0, width=letter[0], height=letter[1]))
+    elements.append(RLImage(portada_path, width=letter[0], height=letter[1]))
 
     # Agregar título del reporte en la portada
     title_style = ParagraphStyle(
