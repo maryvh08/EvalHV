@@ -1827,83 +1827,82 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     spell = SpellChecker()
 
     # 📌 **Evaluación avanzada de presentación**
-def evaluate_spelling(text):
-    """Evalúa la ortografía del texto y retorna un puntaje entre 0 y 100."""
-    if not text or not isinstance(text, str):
-        return 0  # Texto inválido devuelve 0
-
-    words = re.findall(r'\b\w+\b', text.lower())  # Extraer palabras sin puntuación
-    total_words = len(words)
-
-    if total_words == 0:
-        return 100  # Si no hay palabras, asumimos puntaje perfecto
-
-    misspelled_words = spell.unknown(words)
-    misspelled_count = len(misspelled_words)
-
-    correctable_errors = sum(1 for word in misspelled_words if spell.correction(word))
-    non_correctable_errors = misspelled_count - correctable_errors
-
-    correctable_ratio = correctable_errors / total_words
-    non_correctable_ratio = non_correctable_errors / total_words
-
-    # Penalización más fuerte para errores sin corrección sugerida
-    return max(0, min(100, 100 - (correctable_ratio * 150 + non_correctable_ratio * 250)))
-
-
-def evaluate_capitalization(text):
-    """Evalúa si las frases comienzan con mayúscula y si los nombres propios están bien capitalizados."""
-    if not text or not isinstance(text, str):
-        return 0  # Texto inválido devuelve 0
-
-    sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
-    sentences = [sentence.strip() for sentence in sentences if sentence]
-
-    if len(sentences) == 0:
-        return 100  # Si no hay oraciones, asumimos puntaje perfecto
-
-    correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
-
-    # Puntaje considerando que todas las oraciones deben empezar en mayúscula
-    return max(0, min(100, (correct_caps / len(sentences)) * 100))
+    def evaluate_spelling(text):
+        """Evalúa la ortografía del texto y retorna un puntaje entre 0 y 100."""
+        if not text or not isinstance(text, str):
+            return 0  # Texto inválido devuelve 0
+    
+        words = re.findall(r'\b\w+\b', text.lower())  # Extraer palabras sin puntuación
+        total_words = len(words)
+    
+        if total_words == 0:
+            return 100  # Si no hay palabras, asumimos puntaje perfecto
+    
+        misspelled_words = spell.unknown(words)
+        misspelled_count = len(misspelled_words)
+    
+        correctable_errors = sum(1 for word in misspelled_words if spell.correction(word))
+        non_correctable_errors = misspelled_count - correctable_errors
+    
+        correctable_ratio = correctable_errors / total_words
+        non_correctable_ratio = non_correctable_errors / total_words
+    
+        # Penalización más fuerte para errores sin corrección sugerida
+        return max(0, min(100, 100 - (correctable_ratio * 150 + non_correctable_ratio * 250)))
 
 
-def evaluate_sentence_coherence(text):
-    """Evalúa la coherencia basada en conectores, estructura de oraciones y transiciones lógicas."""
-    if not text or not isinstance(text, str):
-        return 50  # Si no hay texto válido, devolver un puntaje medio
-
-    sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
-    sentences = [sentence.strip() for sentence in sentences if sentence]  # Filtrar oraciones vacías
-    total_sentences = len(sentences)
-
-    words = re.findall(r'\b\w+\b', text.lower())
-    total_words = len(words)
-
-    if total_words == 0 or total_sentences == 0:
-        return 100  # Evitar divisiones por 0
-
-    # **📌 Uso de conectores lógicos**
-    logical_connectors = {"porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque",
-                          "por consiguiente", "en consecuencia", "en cambio", "de hecho", "a pesar de"}
-    connector_count = sum(1 for word in words if word in logical_connectors)
-    connector_ratio = connector_count / total_sentences if total_sentences > 0 else 0
-    connector_score = min(100, connector_ratio * 200)  # Escalar a 100
-
-    # **📌 Consistencia en la longitud de frases**
-    sentence_lengths = [len(sentence.split()) for sentence in sentences]
-    avg_length = sum(sentence_lengths) / total_sentences
-    length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences
-    length_variance_penalty = max(0, 100 - length_variance * 5)
-
-    # **📌 Transiciones entre frases**
-    transition_words = {"entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"}
-    transition_count = sum(1 for sentence in sentences if any(word in sentence.lower() for word in transition_words))
-    transition_score = (transition_count / total_sentences) * 100 if total_sentences > 0 else 0
-
-    return round((connector_score + length_variance_penalty + transition_score) / 3, 2)
+    def evaluate_capitalization(text):
+        """Evalúa si las frases comienzan con mayúscula y si los nombres propios están bien capitalizados."""
+        if not text or not isinstance(text, str):
+            return 0  # Texto inválido devuelve 0
+    
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
+        sentences = [sentence.strip() for sentence in sentences if sentence]
+    
+        if len(sentences) == 0:
+            return 100  # Si no hay oraciones, asumimos puntaje perfecto
+    
+        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
+    
+        # Puntaje considerando que todas las oraciones deben empezar en mayúscula
+        return max(0, min(100, (correct_caps / len(sentences)) * 100))
 
 
+    def evaluate_sentence_coherence(text):
+        """Evalúa la coherencia basada en conectores, estructura de oraciones y transiciones lógicas."""
+        if not text or not isinstance(text, str):
+            return 50  # Si no hay texto válido, devolver un puntaje medio
+    
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
+        sentences = [sentence.strip() for sentence in sentences if sentence]  # Filtrar oraciones vacías
+        total_sentences = len(sentences)
+    
+        words = re.findall(r'\b\w+\b', text.lower())
+        total_words = len(words)
+    
+        if total_words == 0 or total_sentences == 0:
+            return 100  # Evitar divisiones por 0
+    
+        # **📌 Uso de conectores lógicos**
+        logical_connectors = {"porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque",
+                              "por consiguiente", "en consecuencia", "en cambio", "de hecho", "a pesar de"}
+        connector_count = sum(1 for word in words if word in logical_connectors)
+        connector_ratio = connector_count / total_sentences if total_sentences > 0 else 0
+        connector_score = min(100, connector_ratio * 200)  # Escalar a 100
+    
+        # **📌 Consistencia en la longitud de frases**
+        sentence_lengths = [len(sentence.split()) for sentence in sentences]
+        avg_length = sum(sentence_lengths) / total_sentences
+        length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences
+        length_variance_penalty = max(0, 100 - length_variance * 5)
+    
+        # **📌 Transiciones entre frases**
+        transition_words = {"entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"}
+        transition_count = sum(1 for sentence in sentences if any(word in sentence.lower() for word in transition_words))
+        transition_score = (transition_count / total_sentences) * 100 if total_sentences > 0 else 0
+    
+        return round((connector_score + length_variance_penalty + transition_score) / 3, 2)
+    
     # 📌 **Evaluación por encabezado y detalles**
     presentation_results = {}
     for header, details in text_data.items():
