@@ -1279,28 +1279,39 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         styles['CenturyGothic']
     ))
 
-     # Agregar portada al inicio del documento
-    cover_image_path = "Portada Analizador.png"  # Asegúrate de reemplazar con la ruta real
-    
-    # Crear una nueva lista de elementos para la portada
-    cover_elements = []
-    
-    # Insertar imagen de portada ocupando toda la primera página
-    cover = Image(cover_image_path, width=doc.width, height=doc.height)
-    cover_elements.append(cover)
-    
-    # Insertar un salto de página después de la portada
-    cover_elements.append(PageBreak())
-    
-    # Combinar portada con el resto del contenido del reporte
-    final_elements = cover_elements + elements
-    
-    # Nueva configuración de fondo para evitarlo en la portada
+    # **1️⃣ CREAR PORTADA**
+    elements = []
+
+    # Agregar imagen de portada (ajusta la ruta si es necesario)
+    portada_path = "ruta_de_tu_imagen_de_portada.png"
+    elements.append(Image(portada_path, width=500, height=700))
+
+    # Agregar título del reporte en la portada
+    title_style = ParagraphStyle(
+        name="Title",
+        fontName="CenturyGothicBold",
+        fontSize=24,
+        alignment=1,  # Centrado
+        textColor=colors.black,
+    )
+
+    elements.append(Spacer(1, 0.5 * inch))
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS", title_style))
+    elements.append(Paragraph(f"{candidate_name.upper()}", title_style))
+    elements.append(Paragraph(f"CARGO: {position.upper()}", title_style))
+    elements.append(Spacer(1, 1 * inch))
+
+    # **2️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
+    def on_first_page(canvas, doc):
+        """Deja la primera página sin fondo."""
+        pass
+
     def on_later_pages(canvas, doc):
-        add_background(canvas, background_path)  # Aplica fondo solo después de la portada
-    
-    # Construcción del PDF sin fondo en la primera página
-    doc.build(final_elements, onLaterPages=on_later_pages)
+        """Añade el fondo en páginas posteriores."""
+        add_background(canvas, background_path)
+
+    # **3️⃣ CONSTRUIR EL PDF**
+    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 
     # Descargar el reporte desde Streamlit
     with open(report_path, "rb") as file:
