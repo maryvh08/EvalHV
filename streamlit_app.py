@@ -1287,7 +1287,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Agregar imagen de portada 
     portada_path = "Portada Analizador.png"
-    elements.append(Image(portada_path, width=500, height=700))
+    
+    # Agregar la imagen de la portada
+    elements.append(RLImage(portada_path, width=500, height=700))
 
     # Agregar título del reporte en la portada
     title_style = ParagraphStyle(
