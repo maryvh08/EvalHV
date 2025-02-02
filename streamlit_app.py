@@ -172,6 +172,7 @@ def add_background(canvas, background_path):
     :param canvas: Lienzo de ReportLab.
     :param background_path: Ruta a la imagen de fondo.
     """
+    background_path= "EvalHVAN.png"
     canvas.saveState()
     canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
     canvas.restoreState()
