@@ -1801,7 +1801,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         non_correctable_errors = misspelled_count - correctable_errors
 
         # **3. Verificar si hay siglas o palabras cortas para evitar penalización**
-        acronyms_or_short_words = sum(1 for word in misspelled_words if len(word) <= 2
+        acronyms_or_short_words = sum(1 for word in misspelled_words if len(word) <= 2)
 
         correct_score = (correctable_errors + non_correctable_errors - acronyms_or_short_words) / 3
 
