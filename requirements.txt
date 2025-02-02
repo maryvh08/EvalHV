@@ -1,6 +1,7 @@
 PyMuPDF
 scikit-learn
 fpdf
+streamlit-multipage
 pytesseract
 reportlab
 statsmodels
