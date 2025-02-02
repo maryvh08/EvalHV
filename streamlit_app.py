@@ -2262,8 +2262,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     for header, scores in presentation_results.items():
         header_scores = scores["header_score"]
         details_scores = scores["details_score"]
-    
-        # Acumular puntajes de ortografía, gramática y coherencia
+        
         total_spelling_score += (header_scores["spelling_score"] + details_scores["spelling_score"]) / 2
         total_capitalization_score += (
             (header_scores["capitalization_score"] + details_scores["capitalization_score"]) / 2
@@ -2273,9 +2272,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             (header_scores["coherence_score"] + details_scores["coherence_score"]) / 2
             + (header_scores["repetition_score"] + details_scores["repetition_score"]) / 2
         )
-        total_overall_score += (total_spelling_score + total_capitalization_score+ total_coherence_score) / 3
-    
-        total_sections += 1  # Contar la cantidad de secciones procesadas
+        total_overall_score += (total_spelling_score + total_capitalization_score + total_coherence_score) / 3
+        total_sections += 1
+
     
    # 📌 Evitar valores mayores a 100% en cada métrica
     average_spelling_score = min(100, total_spelling_score / total_sections) if total_sections > 0 else 0
@@ -2283,14 +2282,18 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     average_coherence_score = min(100, total_coherence_score / total_sections) if total_sections > 0 else 0
     average_overall_score = min(100, total_overall_score / total_sections) if total_sections > 0 else 0
     
-    # 📌 Escalar a una escala de 1 a 5 y **asegurar que no sobrepase 5**
-    round_spelling_score = min(5, round((average_spelling_score / 100) * 5, 2))
-    round_capitalization_score = min(5, round((average_capitalization_score / 100) * 5, 2))
-    round_coherence_score = min(5, round((average_coherence_score / 100) * 5, 2))
+    # Convertimos a escala de 1-5 más eficientemente
+    round_spelling_score = (average_spelling_score / 100) * 5
+    round_capitalization_score = (average_capitalization_score / 100) * 5
+    round_coherence_score = (average_coherence_score / 100) * 5
     
-    # 📌 Calcular el puntaje general asegurando que no supere 5
-    round_overall_score = min(5, round((round_spelling_score + round_capitalization_score + round_coherence_score) / 3, 2))
-
+    # Limitar todos los valores a 5 en un solo paso (evita múltiples llamadas a `min()`)
+    round_spelling_score, round_capitalization_score, round_coherence_score = [
+        min(5, score) for score in [round_spelling_score, round_capitalization_score, round_coherence_score]
+    ]
+    
+    # Cálculo más eficiente del puntaje total
+    round_overall_score = (round_spelling_score + round_capitalization_score + round_coherence_score) / 3
     
     # **Agregar los puntajes combinados a la tabla**
     presentation_table_data.append(["Ortografía", f"{round_spelling_score:.2f}"])
@@ -2587,8 +2590,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         """Aplica el fondo solo en páginas después de la portada."""
         add_background(canvas, background_path)
     
-    # Construcción del PDF
-    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
+    doc.addPageTemplates([PageTemplate(id="cover", frames=Frame(0, 0, *letter)),  # Portada sin fondo
+                      PageTemplate(id="content", frames=Frame(72, 72, letter[0]-144, letter[1]-144), onPage=on_later_pages)])
+
+    doc.build(elements)
 
     # Descargar el reporte desde Streamlit
     with open(output_path, "rb") as file:
