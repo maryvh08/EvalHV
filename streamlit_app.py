@@ -198,7 +198,19 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     canvas.drawImage(portada_path, x_offset, y_offset, width=new_width, height=new_height)
 
     # 📌 **AGREGAR EL TÍTULO DEL REPORTE EN EL CENTRO**
-    title_style = ParagraphStyle(name='cover', fontName='CenturyGothicBold', fontSize=48, leading=16, alignment=1,)  # 1 significa centrado, textColor=colors.black
+    title_style = ParagraphStyle(
+        name="Title",
+        fontName="CenturyGothicBold",
+        fontSize=48,
+        textColor=colors.black,
+        alignment=1,  # Centrado
+    )
+
+    title_text = f"REPORTE DE ANÁLISIS\n{candidate_name.upper()}\nCARGO: {position.upper()}"
+
+    # 📌 Configurar fuente y color del texto
+    canvas.setFont("CenturyGothicBold", 22)
+    canvas.setFillColor(colors.black)
 
     # 📌 Medir el ancho y alto del texto
     text_width = max(canvas.stringWidth(line, "CenturyGothicBold", 22) for line in title_text.split("\n"))
@@ -214,7 +226,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
         line_x = (page_width - line_width) / 2
         canvas.drawString(line_x, text_y - (i * 30), line)  # Espaciado entre líneas
 
-# Definir función para añadir fondo
+
 def add_background(canvas, background_path):
     """
     Dibuja una imagen de fondo en cada página del PDF.
