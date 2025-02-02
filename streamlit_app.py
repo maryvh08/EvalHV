@@ -201,7 +201,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     title_style = ParagraphStyle(
         name="Title",
         fontName="Helvetica-Bold",
-        fontSize=24,
+        fontSize=48,
         textColor=colors.black,
         alignment=1,  # Centrado
     )
@@ -2045,11 +2045,16 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Lista de elementos para el reporte
     elements = []
     
+    # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
+    def on_first_page(canvas, doc):
+        """Dibuja una portada que ocupa toda la página."""
+        draw_full_page_cover(canvas, portada_path, candidate_name, position)
+
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
                                 )
-    
     # Convertir texto a mayúsculas
+    elements.append(PageBreak())
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
 
@@ -2573,28 +2578,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         styles['CenturyGothic']
     ))
 
-    # Agregar portada al inicio del documento
-    cover_image_path = "Portada Analizador.png"
-
-    # Crear una nueva lista de elementos para la portada
-    cover_elements = []
-    
-    # Insertar imagen de portada ocupando toda la primera página
-    cover = Image(cover_image_path, width=doc.width, height=doc.height)
-    cover_elements.append(cover)
-    
-    # Insertar un salto de página después de la portada
-    cover_elements.append(PageBreak())
-    
-    # Combinar portada con el resto del contenido del reporte
-    final_elements = cover_elements + elements
-    
-    # Nueva configuración de fondo para evitarlo en la portada
+        # 📌 **4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
     def on_later_pages(canvas, doc):
-        add_background(canvas, background_path)  # Aplica fondo solo después de la portada
+        """Aplica el fondo solo en páginas después de la portada."""
+        add_background(canvas, background_path)
     
-    # Construcción del PDF sin fondo en la primera página
-    doc.build(final_elements, onLaterPages=on_later_pages)
+    # Construcción del PDF
+    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 
     # Descargar el reporte desde Streamlit
     with open(output_path, "rb") as file:
