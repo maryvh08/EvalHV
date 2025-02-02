@@ -49,9 +49,6 @@ def load_advice(filepath="advice.json"):
 indicators = load_indicators()
 advice = load_advice()
 
-# Uso del código
-background_path = "Fondo reporte.png"
-
 def preprocess_image(image):
     """
     Preprocesa una imagen antes de aplicar OCR.
