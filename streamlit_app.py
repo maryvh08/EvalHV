@@ -165,18 +165,6 @@ def calculate_presence(texts, keywords):
     matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
     return (matches / total_keywords) * 100
 
-# Definir función para añadir fondo
-def add_background(canvas, background_path):
-    """
-    Dibuja una imagen de fondo en cada página del PDF.
-    :param canvas: Lienzo de ReportLab.
-    :param background_path: Ruta a la imagen de fondo.
-    """
-    background_path= "EvalHVAN.png"
-    canvas.saveState()
-    canvas.drawImage(background_path, 0, 0, width=letter[0], height=letter[1])
-    canvas.restoreState()
-
 # FUNCIONES PARA PRIMARY
 def extract_profile_section_with_ocr(pdf_path):
     """
