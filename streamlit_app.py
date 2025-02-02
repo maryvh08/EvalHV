@@ -1312,14 +1312,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     def on_later_pages(canvas, doc):
         """Aplica el fondo solo en páginas después de la portada."""
         add_background(canvas, background_path)
-
-    # 📌 **5️⃣ CONFIGURAR TEMPLATE DE PÁGINAS**
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="content_frame")
-
-    template_with_background = PageTemplate(id="background_template", frames=frame, onPage=on_later_pages)
-    template_no_background = PageTemplate(id="cover_template", frames=frame, onPage=on_first_page)
-
-    doc.addPageTemplates([template_no_background, template_with_background])
     
     doc.build(elements)
 
