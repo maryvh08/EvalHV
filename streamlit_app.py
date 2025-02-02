@@ -51,6 +51,7 @@ advice = load_advice()
 
 # Uso del código
 background_path = "Fondo reporte.png"
+portada_path= "Portada Analizador.png"
 
 def preprocess_image(image):
     """
