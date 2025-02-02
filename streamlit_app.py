@@ -2585,15 +2585,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         styles['CenturyGothic']
     ))
 
-    # 📌 **4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
+     # 📌 **4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
     def on_later_pages(canvas, doc):
         """Aplica el fondo solo en páginas después de la portada."""
         add_background(canvas, background_path)
     
-    doc.addPageTemplates([PageTemplate(id="cover", frames=Frame(0, 0, *letter)),  # Portada sin fondo
-                      PageTemplate(id="content", frames=Frame(72, 72, letter[0]-144, letter[1]-144), onPage=on_later_pages)])
-
-    doc.build(elements)
+    # Construcción del PDF
+    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 
     # Descargar el reporte desde Streamlit
     with open(output_path, "rb") as file:
