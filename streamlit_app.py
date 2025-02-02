@@ -2578,7 +2578,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         styles['CenturyGothic']
     ))
 
-        # 📌 **4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
+    # 📌 **4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
     def on_later_pages(canvas, doc):
         """Aplica el fondo solo en páginas después de la portada."""
         add_background(canvas, background_path)
