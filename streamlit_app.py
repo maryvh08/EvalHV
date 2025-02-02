@@ -825,7 +825,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         new_height = img_height * scale_factor
 
         # Dibujar la imagen en la portada
-        canvas.drawImage(portada_path, 20, letter[1] - new_height, width=new_width, height=new_height)
+        canvas.drawImage(portada_path, 0, letter[1] - new_height, width=new_width, height=new_height)
 
         # 📌 **AGREGAR TÍTULO EN LA PORTADA**
         canvas.setFont("Helvetica-Bold", 24)
