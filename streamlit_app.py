@@ -808,10 +808,37 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Lista de elementos para el reporte
     elements = []
 
+    # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
+    def on_first_page(canvas, doc):
+        """Dibuja la portada sin aplicar fondo."""
+
+        # Cargar la imagen de portada
+        img = ImageReader(portada_path)
+        img_width, img_height = img.getSize()
+
+        # Ajustar tamaño proporcionalmente dentro de la página
+        max_width = letter[0] - 40  # Márgenes de 20px a cada lado
+        max_height = letter[1] - 40  # Márgenes de 20px arriba y abajo
+        scale_factor = min(max_width / img_width, max_height / img_height)
+
+        new_width = img_width * scale_factor
+        new_height = img_height * scale_factor
+
+        # Dibujar la imagen en la portada
+        canvas.drawImage(portada_path, 20, letter[1] - new_height - 20, width=new_width, height=new_height)
+
+        # 📌 **AGREGAR TÍTULO EN LA PORTADA**
+        canvas.setFont("Helvetica-Bold", 24)
+        canvas.setFillColor(colors.black)
+        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 50, "REPORTE DE ANÁLISIS")
+        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 80, candidate_name.upper())
+        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 110, f"CARGO: {position.upper()}")
+
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
                                 )
     # Convertir texto a mayúsculas
+    elements.append(PageBreak())
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
     
@@ -1280,32 +1307,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         f"Gracias, {candidate_name}, por tu interés en el cargo de {position} ¡Éxitos en tu proceso!",
         styles['CenturyGothic']
     ))
-
-    # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
-    def on_first_page(canvas, doc):
-        """Dibuja la portada sin aplicar fondo."""
-
-        # Cargar la imagen de portada
-        img = ImageReader(portada_path)
-        img_width, img_height = img.getSize()
-
-        # Ajustar tamaño proporcionalmente dentro de la página
-        max_width = letter[0] - 40  # Márgenes de 20px a cada lado
-        max_height = letter[1] - 40  # Márgenes de 20px arriba y abajo
-        scale_factor = min(max_width / img_width, max_height / img_height)
-
-        new_width = img_width * scale_factor
-        new_height = img_height * scale_factor
-
-        # Dibujar la imagen en la portada
-        canvas.drawImage(portada_path, 20, letter[1] - new_height - 20, width=new_width, height=new_height)
-
-        # 📌 **AGREGAR TÍTULO EN LA PORTADA**
-        canvas.setFont("Helvetica-Bold", 24)
-        canvas.setFillColor(colors.black)
-        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 50, "REPORTE DE ANÁLISIS")
-        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 80, candidate_name.upper())
-        canvas.drawCentredString(letter[0] / 2, letter[1] - new_height - 110, f"CARGO: {position.upper()}")
 
     # 📌 **4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
     def on_later_pages(canvas, doc):
