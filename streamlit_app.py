@@ -170,11 +170,21 @@ def calculate_presence(texts, keywords):
     matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
     return (matches / total_keywords) * 100
 
-def draw_full_page_cover(canvas, portada_path):
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.platypus import Paragraph
+
+
+def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     """
-    Dibuja una imagen de portada que ocupa toda la hoja carta.
+    Dibuja la portada con una imagen a página completa y el título del reporte centrado.
     :param canvas: Lienzo de ReportLab.
     :param portada_path: Ruta de la imagen de la portada.
+    :param candidate_name: Nombre del candidato.
+    :param position: Cargo al que aspira.
     """
     # 📌 Obtener el tamaño de la página (Letter)
     page_width, page_height = letter
@@ -195,6 +205,29 @@ def draw_full_page_cover(canvas, portada_path):
     # 📌 Dibujar la imagen de portada en toda la página
     canvas.drawImage(portada_path, x_offset, y_offset, width=new_width, height=new_height)
 
+    # 📌 **AGREGAR EL TÍTULO DEL REPORTE**
+    title_style = ParagraphStyle(
+        name="Title",
+        fontName="Helvetica-Bold",
+        fontSize=24,
+        textColor=colors.black,
+        alignment=1,  # Centrado
+    )
+
+    title_text = f"REPORTE DE ANÁLISIS\n{candidate_name.upper()}\nCARGO: {position.upper()}"
+
+    # 📌 Dibujar el título con una posición fija
+    canvas.setFont("Helvetica-Bold", 18)
+    canvas.setFillColor(colors.black)
+
+    text_width = canvas.stringWidth(title_text, "Helvetica-Bold", 18)
+    text_x = (page_width - text_width) / 2
+    text_y = 150  # Ajustar la posición vertical del título
+
+    # 📌 Dividir el texto en líneas manualmente
+    lines = title_text.split("\n")
+    for i, line in enumerate(lines):
+        canvas.drawString(text_x, text_y - (i * 25), line)
 
 # Definir función para añadir fondo
 def add_background(canvas, background_path):
