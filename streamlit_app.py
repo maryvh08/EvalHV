@@ -213,8 +213,8 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     canvas.setFillColor(colors.black)
 
     # 📌 Medir el ancho y alto del texto
-    text_width = max(canvas.stringWidth(line, "CenturyGothicBold", 48) for line in title_text.split("\n"))
-    text_height = 48 * len(title_text.split("\n"))  # Multiplicamos por el número de líneas
+    text_width = max(canvas.stringWidth(line, "CenturyGothicBold", 22) for line in title_text.split("\n"))
+    text_height = 22 * len(title_text.split("\n"))  # Multiplicamos por el número de líneas
 
     # 📌 Centrar el texto
     text_x = (page_width - text_width) / 2
@@ -222,7 +222,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
 
     # 📌 Dibujar cada línea del título centrado
     for i, line in enumerate(title_text.split("\n")):
-        line_width = canvas.stringWidth(line, "CenturyGothicBold", 48)
+        line_width = canvas.stringWidth(line, "CenturyGothicBold", 22)
         line_x = (page_width - line_width) / 2
         canvas.drawString(line_x, text_y - (i * 30), line)  # Espaciado entre líneas
 
