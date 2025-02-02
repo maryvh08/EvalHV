@@ -1279,15 +1279,28 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         styles['CenturyGothic']
     ))
 
-     # Configuración de funciones de fondo
-    def on_first_page(canvas, doc):
-        add_background(canvas, background_path)
-
+     # Agregar portada al inicio del documento
+    cover_image_path = "Portada Analizador.png"  # Asegúrate de reemplazar con la ruta real
+    
+    # Crear una nueva lista de elementos para la portada
+    cover_elements = []
+    
+    # Insertar imagen de portada ocupando toda la primera página
+    cover = Image(cover_image_path, width=doc.width, height=doc.height)
+    cover_elements.append(cover)
+    
+    # Insertar un salto de página después de la portada
+    cover_elements.append(PageBreak())
+    
+    # Combinar portada con el resto del contenido del reporte
+    final_elements = cover_elements + elements
+    
+    # Nueva configuración de fondo para evitarlo en la portada
     def on_later_pages(canvas, doc):
-        add_background(canvas, background_path)
-
-    # Construcción del PDF
-    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
+        add_background(canvas, background_path)  # Aplica fondo solo después de la portada
+    
+    # Construcción del PDF sin fondo en la primera página
+    doc.build(final_elements, onLaterPages=on_later_pages)
 
     # Descargar el reporte desde Streamlit
     with open(report_path, "rb") as file:
