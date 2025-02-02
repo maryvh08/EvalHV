@@ -1288,8 +1288,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     max_width = letter[0] 
     max_height = letter[1] 
 
-    new_width = img_width 
-    new_height = img_height 
+    new_width = letter[0]  
+    new_height = letter[1] 
 
     elements.append(RLImage(portada_path, width=new_width, height=new_height))
 
