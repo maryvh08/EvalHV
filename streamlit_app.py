@@ -2045,16 +2045,11 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # Lista de elementos para el reporte
     elements = []
     
-    # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
-    def on_first_page(canvas, doc):
-        """Dibuja una portada que ocupa toda la página."""
-        draw_full_page_cover(canvas, portada_path, candidate_name, position)
-
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
                                 )
+    
     # Convertir texto a mayúsculas
-    elements.append(PageBreak())
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
 
@@ -2248,7 +2243,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
     elements.append(Spacer(1, 0.2 * inch))
 
-   # Crear tabla con la estructura deseada
+    # Crear tabla con la estructura deseada
     presentation_table_data = [["Criterio", "Puntaje"]]
     
     # Inicializar variables para combinar encabezados y detalles
@@ -2256,49 +2251,41 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     total_capitalization_score = 0
     total_coherence_score = 0
     total_overall_score = 0
-    total_sections = 0  # Contador de secciones evaluadas
+    total_sections = 0
     
     # Combinar puntajes de encabezados y detalles
     for header, scores in presentation_results.items():
         header_scores = scores["header_score"]
         details_scores = scores["details_score"]
     
-        # Acumular puntajes de ortografía, gramática y coherencia
-        total_spelling_score += (header_scores["spelling_score"] + details_scores["spelling_score"]) / 2
-        total_capitalization_score += (
-            (header_scores["capitalization_score"] + details_scores["capitalization_score"]) / 2
-            + (header_scores["punctuation_score"] + details_scores["punctuation_score"]) / 2
-        )
-        total_coherence_score += (
-            (header_scores["coherence_score"] + details_scores["coherence_score"]) / 2
-            + (header_scores["repetition_score"] + details_scores["repetition_score"]) / 2
-        )
-        total_overall_score += (total_spelling_score + total_capitalization_score+ total_coherence_score) / 3
+        total_spelling_score += (header_scores["spelling_score"] + details_scores["spelling_score"])
+        total_capitalization_score += (header_scores["capitalization_score"] + details_scores["capitalization_score"])
+        total_coherence_score += (header_scores["coherence_score"] + details_scores["coherence_score"])
+        total_overall_score += (header_scores["overall_score"] + details_scores["overall_score"])
+        total_sections += 2  # Sumar encabezado y detalle como secciones separadas
     
-        total_sections += 1  # Contar la cantidad de secciones procesadas
-    
-    # **Evitar divisiones por cero y calcular promedios generales**
+    # Calcular promedios generales
     average_spelling_score = total_spelling_score / total_sections if total_sections > 0 else 0
     average_capitalization_score = total_capitalization_score / total_sections if total_sections > 0 else 0
     average_coherence_score = total_coherence_score / total_sections if total_sections > 0 else 0
     average_overall_score = total_overall_score / total_sections if total_sections > 0 else 0
+
+    # Calcular puntajes ajustados
+    round_spelling_score = round((average_spelling_score / 100) * 5, 2) 
+    round_capitalization_score = round((average_capitalization_score / 100) * 5, 2) 
+    round_coherence_score = round((average_coherence_score / 100) * 5, 2) 
+    round_overall_score = round((average_overall_score / 100) * 5, 2) 
     
-    # **Ajustar puntajes a escala de 1 a 5 y limitar el valor máximo a 5**
-    round_spelling_score = min(5, round((average_spelling_score / 100) * 5, 2))
-    round_capitalization_score = min(5, round((average_capitalization_score / 100) * 5, 2))
-    round_coherence_score = min(5, round((average_coherence_score / 100) * 5, 2))
-    round_overall_score = (round_spelling_score+ round_capitalization_score+ round_coherence_score)/3
-    
-    # **Agregar los puntajes combinados a la tabla**
-    presentation_table_data.append(["Ortografía", f"{round_spelling_score:.2f}"])
-    presentation_table_data.append(["Gramática", f"{round_capitalization_score:.2f}"])
-    presentation_table_data.append(["Coherencia", f"{round_coherence_score:.2f}"])
+    # Agregar los puntajes combinados a la tabla
+    presentation_table_data.append(["Coherencia", f"{round_spelling_score:.2f}"])
+    presentation_table_data.append(["Ortografía", f"{round_capitalization_score:.2f}"])
+    presentation_table_data.append(["Gramática", f"{round_coherence_score:.2f}"])
     presentation_table_data.append(["Puntaje Total", f"{round_overall_score:.2f}"])
     
-    # **Crear la tabla con ancho ajustado para las columnas**
+    # Crear la tabla con ancho ajustado para las columnas
     presentation_table = Table(presentation_table_data, colWidths=[4 * inch, 2 * inch])
     
-    # **Aplicar estilos a la tabla**
+    # Estilo de la tabla
     presentation_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
@@ -2311,7 +2298,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Centrar texto verticalmente
     ]))
     
-    # **Agregar la tabla a los elementos**
+    # Agregar la tabla a los elementos
     elements.append(presentation_table)
     elements.append(Spacer(1, 0.2 * inch))
 
@@ -2597,6 +2584,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             file_name=output_path,
             mime="application/pdf",
         )
+
 
 
 # Interfaz en Streamlit
