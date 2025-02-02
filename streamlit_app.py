@@ -170,14 +170,6 @@ def calculate_presence(texts, keywords):
     matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
     return (matches / total_keywords) * 100
 
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.utils import ImageReader
-from reportlab.pdfgen import canvas
-from reportlab.lib import colors
-from reportlab.lib.styles import ParagraphStyle
-from reportlab.platypus import Paragraph
-
-
 def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     """
     Dibuja la portada con una imagen a página completa y el título del reporte centrado.
@@ -870,7 +862,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
     def on_first_page(canvas, doc):
         """Dibuja una portada que ocupa toda la página."""
-        draw_full_page_cover(canvas, portada_path)
+        draw_full_page_cover(canvas, portada_path, candidate_name, position)
 
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
