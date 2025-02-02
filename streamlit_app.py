@@ -1291,10 +1291,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Obtener tamaño original de la imagen
     img_width, img_height = img.getSize()
     
-    # Definir el tamaño máximo permitido en la página
-    max_width = 456  # Ancho máximo del frame
-    max_height = 608  # Altura máxima del frame
-    
     # Ajustar proporciones sin distorsión
     scale_factor = min(max_width / img_width, max_height / img_height)
     
@@ -1303,8 +1299,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     # Agregar la portada con el tamaño ajustado
     elements.append(RLImage(portada_path, width=new_width, height=new_height))
-
-    
 
     # Agregar título del reporte en la portada
     title_style = ParagraphStyle(
