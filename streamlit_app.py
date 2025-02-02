@@ -198,13 +198,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     canvas.drawImage(portada_path, x_offset, y_offset, width=new_width, height=new_height)
 
     # 📌 **AGREGAR EL TÍTULO DEL REPORTE EN EL CENTRO**
-    title_style = ParagraphStyle(
-        name="Title",
-        fontName="CenturyGothicBold",
-        fontSize=48,
-        textColor=colors.black,
-        alignment=1,  # Centrado
-    )
+    title_style = ParagraphStyle(name="Title", fontName="CenturyGothicBold", fontSize=48, textColor=colors.black, alignment=1,)
 
     title_text = f"REPORTE DE ANÁLISIS\n{candidate_name.upper()}\nCARGO: {position.upper()}"
 
