@@ -1315,10 +1315,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     template_no_background = PageTemplate(id="cover_template", frames=frame_cover)
 
     doc.addPageTemplates([template_no_background, template_with_background])
-
-    # **📌 6️⃣ AGREGAR CONTENIDO DEL REPORTE**
-    elements.append(Paragraph("<b>Resultados del Análisis:</b>", styles['CenturyGothicBold']))
-    elements.append(Spacer(1, 0.2 * inch))
     
     doc.build(elements)
 
