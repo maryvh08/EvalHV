@@ -1279,43 +1279,52 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         styles['CenturyGothic']
     ))
 
-    # **1️⃣ CREAR PORTADA**
+    # **📌 1️⃣ CONFIGURAR DOCUMENTO**
+    report_path = f"Reporte_analisis_cargo_{candidate_name}.pdf"
+    doc = BaseDocTemplate(report_path, pagesize=letter)
+
+    # **📌 2️⃣ LISTA DE ELEMENTOS**
     elements = []
 
-    # Agregar imagen de portada 
-    portada_path = "Portada Analizador.png"
-    
+    # **📌 3️⃣ AGREGAR PORTADA**
     img = ImageReader(portada_path)
-  
-    # Agregar la portada con el tamaño ajustado
-    elements.append(RLImage(portada_path, width=letter[0], height=letter[1]))
+    img_width, img_height = img.getSize()
 
-    # Agregar título del reporte en la portada
-    title_style = ParagraphStyle(
-        name="Title",
-        fontName="CenturyGothicBold",
-        fontSize=24,
-        alignment=1,  # Centrado
-        textColor=colors.black,
-    )
+    # Ajustar tamaño proporcionalmente
+    max_width = letter[0]
+    max_height = letter[1]
+    scale_factor = min(max_width / img_width, max_height / img_height)
 
-    elements.append(Spacer(1, 0.5 * inch))
+    new_width = img_width * scale_factor
+    new_height = img_height * scale_factor
+
+    elements.append(RLImage(portada_path, width=new_width, height=new_height))
+
+    # **📌 AGREGAR TÍTULO EN LA PORTADA**
+    title_style = ParagraphStyle(name="Title", fontName="CenturyGothicBold", fontSize=24, alignment=1)
+    elements.append(Spacer(1, 1 * inch))
     elements.append(Paragraph(f"REPORTE DE ANÁLISIS", title_style))
     elements.append(Paragraph(f"{candidate_name.upper()}", title_style))
     elements.append(Paragraph(f"CARGO: {position.upper()}", title_style))
-    elements.append(Spacer(1, 1 * inch))
+    elements.append(PageBreak())  # Salto de página para empezar el contenido
 
-    # **2️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
-    def on_first_page(canvas, doc):
-        """Deja la primera página sin fondo."""
-        pass
-
+    # **📌 4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
     def on_later_pages(canvas, doc):
-        """Añade el fondo en páginas posteriores."""
+        """Añade el fondo en páginas posteriores a la portada."""
         add_background(canvas, background_path)
 
-    # **3️⃣ CONSTRUIR EL PDF**
-    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
+    # **📌 5️⃣ CONFIGURAR TEMPLATE DE PÁGINAS**
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="content_frame")
+    template_with_background = PageTemplate(id="background_template", frames=frame, onPage=on_later_pages)
+    template_no_background = PageTemplate(id="cover_template", frames=frame)
+
+    doc.addPageTemplates([template_no_background, template_with_background])
+
+    # **📌 6️⃣ AGREGAR CONTENIDO DEL REPORTE**
+    elements.append(Paragraph("<b>Resultados del Análisis:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+
+    doc.build(elements)
 
     # Descargar el reporte desde Streamlit
     with open(report_path, "rb") as file:
