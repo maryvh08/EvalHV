@@ -1577,14 +1577,14 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     
         return round(((total_words - len(misspelled)) / total_words) * 100, 2)
 
-        # Función para evaluar capitalización
-        def evaluate_capitalization(text):
-            sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
-            sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
-            correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
-            if not sentences:
-                return 100  # Si no hay oraciones, asumimos puntaje perfecto
-            return (correct_caps / len(sentences)) * 100
+    # Función para evaluar capitalización
+    def evaluate_capitalization(text):
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
+        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
+        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
+        if not sentences:
+            return 100  # Si no hay oraciones, asumimos puntaje perfecto
+        return (correct_caps / len(sentences)) * 100
 
     # Función para evaluar coherencia de las frases
     def evaluate_sentence_coherence(text):
@@ -1848,19 +1848,46 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
     
     def evaluate_capitalization(text):
-        """Evalúa si las frases comienzan con mayúscula y si nombres propios están bien capitalizados."""
+        """Evalúa la gramática del texto y retorna un puntaje entre 0 y 100."""
         if not text or not isinstance(text, str) or len(text.strip()) == 0:
-            return 100  
+            return 100  # Texto vacío se asume como correcto.
     
         sentences = re.split(r'[.!?]\s*', text.strip())[:20]  # Limitar a 20 frases para optimizar rendimiento
-        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
-    
         total_sentences = len(sentences)
-        if total_sentences == 0:
-            return 100  
     
-        capitalization_score = (correct_caps / total_sentences) * 100
-        return round(capitalization_score, 2)
+        if total_sentences == 0:
+            return 100  # Evitar división por 0.
+    
+        # 📌 **1️⃣ Verificar errores de concordancia sujeto-verbo**
+        subject_verb_errors = 0
+        for sentence in sentences:
+            words = sentence.split()
+            if len(words) >= 2 and words[0].lower() in ["yo", "tú", "él", "ella", "nosotros", "ustedes", "ellos"]:
+                verb = words[1]
+                if not verb.endswith(("o", "as", "a", "amos", "an")):
+                    subject_verb_errors += 1  # Verificar si el verbo concuerda con el sujeto.
+    
+        # 📌 **2️⃣ Detectar frases sin verbo principal (frases incompletas)**
+        incomplete_sentences = sum(1 for sentence in sentences if not any(verb.endswith(("ar", "er", "ir")) for verb in sentence.split()))
+    
+        # 📌 **3️⃣ Evaluar redundancias (ej. "subir arriba", "bajar abajo")**
+        redundancy_patterns = ["subir arriba", "bajar abajo", "salir afuera", "entrar adentro"]
+        redundancy_errors = sum(1 for phrase in redundancy_patterns if phrase in text.lower())
+    
+        # 📌 **4️⃣ Evaluar errores de puntuación (frases mal estructuradas)**
+        punctuation_errors = sum(1 for sentence in sentences if sentence.endswith(","))
+    
+        # 📌 **5️⃣ Aplicar penalización con ponderaciones optimizadas**
+        grammar_penalty = (
+            (subject_verb_errors * 5) +
+            (incomplete_sentences * 7) +
+            (redundancy_errors * 3) +
+            (punctuation_errors * 4)
+        ) / total_sentences
+    
+        grammar_score = max(0, 100 - grammar_penalty * 10)  # Ajustar la penalización.
+    
+        return round(grammar_score, 2)
     
     
     def evaluate_sentence_coherence(text):
