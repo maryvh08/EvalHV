@@ -1859,6 +1859,13 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
         if total_sentences == 0 or total_words == 0:
             return 100  # Evitar división por 0
+
+        # 📌 **1️⃣ Concordancia de tiempos verbales**
+        verb_tenses = {
+            "presente": ["es", "tiene", "hace", "puede", "debe", "quiere", "está"],
+            "pasado": ["fue", "tuvo", "hizo", "pudo", "debía", "quiso", "estaba"],
+            "futuro": ["será", "tendrá", "hará", "podrá", "deberá", "querrá", "estará"]
+        }
     
         # 📌 **1️⃣ Concordancia de tiempos verbales**
         verb_counts = {tense: sum(1 for word in words if word in verb_tenses[tense]) for tense in verb_tenses}
