@@ -1902,41 +1902,76 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
     
     def evaluate_sentence_coherence(text):
-        """Evalúa la coherencia basada en conectores y estructura de oraciones, limitando el análisis para optimizar rendimiento."""
-        if not text or not isinstance(text, str) or len(text.strip()) == 0:
-            return 50  
+        """
+        Evalúa la coherencia del texto en función de conectores lógicos, longitud de frases, transiciones,
+        repetición de ideas y la estructura sintáctica.
+        :param text: Texto a evaluar.
+        :return: Puntaje de coherencia entre 0 y 100.
+        """
+        if not text or not isinstance(text, str):
+            return 50  # Devolver un puntaje intermedio si el texto está vacío o no es válido
     
-        sentences = re.split(r'[.!?]\s*', text.strip())[:20]  # Limitar a 20 frases para optimizar rendimiento
-        words = re.findall(r'\b\w+\b', text.lower())
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
+        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
         total_sentences = len(sentences)
+    
+        words = text.split()
         total_words = len(words)
     
         if total_words == 0 or total_sentences == 0:
-            return 100  
+            return 100  # Si no hay texto, asumimos coherencia perfecta
     
-        logical_connectors = {"porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque",
-                              "por consiguiente", "en consecuencia", "en cambio", "de hecho", "a pesar de"}
-        connector_count = sum(1 for word in words if word in logical_connectors)
-    
+        # **1️⃣ Uso de conectores lógicos (Evaluación de cohesión)**
+        logical_connectors = {
+            "adición": ["además", "también", "igualmente", "asimismo"],
+            "causa": ["porque", "ya que", "debido a", "dado que"],
+            "consecuencia": ["por lo tanto", "así que", "en consecuencia", "de modo que"],
+            "contraste": ["sin embargo", "pero", "aunque", "no obstante"],
+            "condición": ["si", "en caso de", "a menos que"],
+            "tiempo": ["mientras", "cuando", "después de", "antes de"],
+        }
+        
+        connector_count = sum(
+            1 for word in words if any(word.lower() in group for group in logical_connectors.values())
+        )
         connector_ratio = connector_count / total_sentences if total_sentences > 0 else 0
-        connector_score = min(100, connector_ratio * 150)  
+        connector_score = min(100, connector_ratio * 200)  # Escalar a 100
     
-        # **📌 Evaluar variabilidad en longitud de frases**
+        # **2️⃣ Consistencia en la longitud de frases**
         sentence_lengths = [len(sentence.split()) for sentence in sentences]
         avg_length = sum(sentence_lengths) / total_sentences
         length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences
-        length_variance_penalty = max(0, 100 - length_variance * 4)
+        length_variance_penalty = max(0, 100 - length_variance * 5)  # Penalización por variabilidad excesiva
     
-        # **📌 Evaluación de transiciones**
-        transition_words = {"entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"}
-        transition_count = sum(1 for sentence in sentences if any(word in sentence.lower() for word in transition_words))
+        # **3️⃣ Transiciones entre frases**
+        transition_words = ["entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"]
+        transition_count = sum(
+            1 for sentence in sentences if any(word in sentence.lower() for word in transition_words)
+        )
         transition_score = (transition_count / total_sentences) * 100 if total_sentences > 0 else 0
     
-        # **📌 Puntaje Final de Coherencia**
-        coherence_score = round((connector_score + length_variance_penalty + transition_score) / 3, 2)
-        
-        return coherence_score
+        # **4️⃣ Evitar repeticiones excesivas de palabras clave**
+        word_counts = Counter(words)
+        repeated_words = {word: count for word, count in word_counts.items() if count > 3}
+        repeated_ratio = sum(repeated_words.values()) / total_words if total_words > 0 else 0
+        repetition_penalty = min(100, repeated_ratio * 200)  # Penalización basada en la repetición excesiva
     
+        # **5️⃣ Evaluación de variabilidad léxica**
+        unique_words = len(set(words))
+        lexical_diversity = (unique_words / total_words) * 100 if total_words > 0 else 100
+        lexical_score = max(0, min(100, lexical_diversity))
+    
+        # **📌 Ponderación de los factores**
+        coherence_score = (
+            (connector_score * 0.3) +  # Uso de conectores
+            (length_variance_penalty * 0.2) +  # Consistencia en la longitud de frases
+            (transition_score * 0.2) +  # Uso de transiciones
+            ((100 - repetition_penalty) * 0.2) +  # Penalización por repeticiones
+            (lexical_score * 0.1)  # Variedad léxica
+        )
+    
+        return round(coherence_score, 2)
+
     
     # 📌 **Evaluación por encabezado y detalles**
     presentation_results = {}
