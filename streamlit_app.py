@@ -1896,7 +1896,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         redundancy_score = max(0, 100 - redundant_count * 25)
     
         # 📌 **Puntaje Final de Gramática**
-        capitalization_score = round((tense_score + structure_score + redundancy_score) / 3, 2)
+        capitalization_score = round((tense_score + structure_score + redundancy_score), 2)
         
         return capitalization_score
     
