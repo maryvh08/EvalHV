@@ -1896,7 +1896,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         redundancy_score = max(0, 100 - redundant_count * 25)
     
         # 📌 **Puntaje Final de Gramática**
-        capitalization_score = round((tense_score + structure_score + redundancy_score), 2)
+        capitalization_score = round((tense_score + structure_score + redundancy_score)/3, 2)
         
         return capitalization_score
     
@@ -2250,9 +2250,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     round_overall_score = round((average_overall_score / 100) * 5, 2) 
     
     # Agregar los puntajes combinados a la tabla
-    presentation_table_data.append(["Coherencia", f"{round_spelling_score:.2f}"])
-    presentation_table_data.append(["Ortografía", f"{round_capitalization_score:.2f}"])
-    presentation_table_data.append(["Gramática", f"{round_coherence_score:.2f}"])
+    presentation_table_data.append(["Ortografía", f"{round_spelling_score:.2f}"])
+    presentation_table_data.append(["Gramática", f"{round_capitalization_score:.2f}"])
+    presentation_table_data.append(["Coherencia", f"{round_coherence_score:.2f}"])
     presentation_table_data.append(["Puntaje Total", f"{round_overall_score:.2f}"])
     
     # Crear la tabla con ancho ajustado para las columnas
