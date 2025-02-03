@@ -1879,7 +1879,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             "facilitará", "desarrollará", "analizará"
         ]
     }
-        }
     
         # 📌 **1️⃣ Concordancia de tiempos verbales**
         verb_counts = {tense: sum(1 for word in words if word in verb_tenses[tense]) for tense in verb_tenses}
