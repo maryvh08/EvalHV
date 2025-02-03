@@ -1862,10 +1862,29 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
         # 📌 **1️⃣ Concordancia de tiempos verbales**
         verb_tenses = {
-            "presente": ["es", "tiene", "hace", "puede", "debe", "quiere", "está"],
-            "pasado": ["fue", "tuvo", "hizo", "pudo", "debía", "quiso", "estaba"],
-            "futuro": ["será", "tendrá", "hará", "podrá", "deberá", "querrá", "estará"]
-        }
+        "presente": [
+            "es", "tiene", "hace", "puede", "debe", "quiere", "está", "dirige", "coordina", "lidera", "organiza",
+            "gestiona", "analiza", "desarrolla", "optimiza", "implementa", "innova", "colabora", "asesora", "planea",
+            "ejecuta", "administra", "supervisa", "controla", "entrega", "facilita", "negocia", "maneja", "interactúa",
+            "resuelve", "capacita", "diseña", "sostiene", "evalúa", "construye", "promueve", "inspira", "enseña",
+            "participa", "aplica", "aprueba", "conduce"
+        ],
+        "pasado": [
+            "fue", "tuvo", "hizo", "pudo", "debía", "quiso", "estaba", "dirigió", "coordinó", "lideró", "organizó",
+            "gestionó", "analizó", "desarrolló", "optimizó", "implementó", "innovó", "colaboró", "asesoró", "planeó",
+            "ejecutó", "administró", "supervisó", "controló", "entregó", "facilitó", "negoció", "manejó", "interactuó",
+            "resolvió", "capacitó", "diseñó", "sostuvo", "evaluó", "construyó", "promovió", "inspiró", "enseñó",
+            "participó", "aplicó", "aprobó", "condujo"
+        ],
+        "futuro": [
+            "será", "tendrá", "hará", "podrá", "deberá", "querrá", "estará", "dirigirá", "coordinará", "liderará",
+            "organizará", "gestionará", "analizará", "desarrollará", "optimizará", "implementará", "innovará",
+            "colaborará", "asesorará", "planeará", "ejecutará", "administrará", "supervisará", "controlará",
+            "entregará", "facilitará", "negociará", "manejará", "interactuará", "resolverá", "capacitará", "diseñará",
+            "sostendrá", "evaluará", "construirá", "promoverá", "inspirará", "enseñará", "participará", "aplicará",
+            "aprobará", "conducirá"
+        ]
+    }
     
         # 📌 **1️⃣ Concordancia de tiempos verbales**
         verb_counts = {tense: sum(1 for word in words if word in verb_tenses[tense]) for tense in verb_tenses}
