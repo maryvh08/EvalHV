@@ -764,7 +764,55 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         :return: Puntaje de fluidez de las oraciones entre 0 y 1.
         """
         # Lista de conectores lógicos comunes
-        logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque"]
+        logical_connectors = {
+        "adición": [
+            "además", "también", "asimismo", "igualmente", "de igual manera",
+            "por otro lado", "de la misma forma", "junto con"
+        ],
+        "causa": [
+            "porque", "ya que", "debido a", "dado que", "por motivo de",
+            "gracias a", "en razón de", "a causa de"
+        ],
+        "consecuencia": [
+            "por lo tanto", "así que", "en consecuencia", "como resultado",
+            "por esta razón", "de modo que", "lo que permitió", "de ahí que"
+        ],
+        "contraste": [
+            "sin embargo", "pero", "aunque", "no obstante", "a pesar de",
+            "por el contrario", "en cambio", "si bien", "mientras que"
+        ],
+        "condición": [
+            "si", "en caso de", "a menos que", "siempre que", "con la condición de",
+            "a no ser que", "en el supuesto de que"
+        ],
+        "tiempo": [
+            "mientras", "cuando", "después de", "antes de", "al mismo tiempo",
+            "posteriormente", "una vez que", "simultáneamente", "en el transcurso de"
+        ],
+        "descripción de funciones": [
+            "encargado de", "responsable de", "mis funciones incluían",
+            "lideré", "gestioné", "coordiné", "dirigí", "supervisé",
+            "desarrollé", "planifiqué", "ejecuté", "implementé", "organicé"
+        ],
+        "logros y resultados": [
+            "logré", "alcancé", "conseguí", "incrementé", "reduje",
+            "optimizé", "mejoré", "aumenté", "potencié", "maximicé",
+            "contribuí a", "obtuve", "permitió mejorar", "impactó positivamente en"
+        ],
+        "secuencia": [
+            "primero", "en primer lugar", "a continuación", "luego", "después",
+            "seguidamente", "posteriormente", "finalmente", "por último"
+        ],
+        "énfasis": [
+            "sobre todo", "en particular", "especialmente", "principalmente",
+            "específicamente", "vale la pena destacar", "conviene resaltar",
+            "cabe mencionar", "es importante señalar"
+        ],
+        "conclusión": [
+            "en resumen", "para concluir", "en definitiva", "en síntesis",
+            "como conclusión", "por ende", "por consiguiente", "para finalizar"
+        ]
+    }
         connector_count = 0
         total_lines = len(pres_cleaned_lines)
     
