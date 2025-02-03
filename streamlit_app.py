@@ -1848,46 +1848,37 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
     
     def evaluate_capitalization(text):
-        """Evalúa la gramática del texto y retorna un puntaje entre 0 y 100."""
+        """Evalúa la gramática basándose en concordancia de tiempos verbales, estructura de oraciones y redundancias."""
         if not text or not isinstance(text, str) or len(text.strip()) == 0:
-            return 100  # Texto vacío se asume como correcto.
+            return 100  # Si no hay texto, asumimos puntaje perfecto
     
         sentences = re.split(r'[.!?]\s*', text.strip())[:20]  # Limitar a 20 frases para optimizar rendimiento
+        words = re.findall(r'\b\w+\b', text.lower())
         total_sentences = len(sentences)
+        total_words = len(words)
     
-        if total_sentences == 0:
-            return 100  # Evitar división por 0.
+        if total_sentences == 0 or total_words == 0:
+            return 100  # Evitar división por 0
     
-        # 📌 **1️⃣ Verificar errores de concordancia sujeto-verbo**
-        subject_verb_errors = 0
-        for sentence in sentences:
-            words = sentence.split()
-            if len(words) >= 2 and words[0].lower() in ["yo", "tú", "él", "ella", "nosotros", "ustedes", "ellos"]:
-                verb = words[1]
-                if not verb.endswith(("o", "as", "a", "amos", "an")):
-                    subject_verb_errors += 1  # Verificar si el verbo concuerda con el sujeto.
+        # 📌 **1️⃣ Concordancia de tiempos verbales**
+        verb_counts = {tense: sum(1 for word in words if word in verb_tenses[tense]) for tense in verb_tenses}
+        max_tense_count = max(verb_counts.values(), default=1)
+        inconsistent_tenses = sum(1 for tense in verb_tenses if verb_counts[tense] > 0 and verb_counts[tense] < max_tense_count * 0.3)
+        tense_score = max(0, 100 - inconsistent_tenses * 20)  # Penaliza si hay cambios abruptos de tiempos verbales
     
-        # 📌 **2️⃣ Detectar frases sin verbo principal (frases incompletas)**
-        incomplete_sentences = sum(1 for sentence in sentences if not any(verb.endswith(("ar", "er", "ir")) for verb in sentence.split()))
+        # 📌 **2️⃣ Evaluación de estructura de oraciones**
+        structure_errors = sum(1 for sentence in sentences if not re.search(r"\b\w+\b\s+\b\w+\b", sentence))
+        structure_score = max(0, 100 - (structure_errors / total_sentences) * 100)
     
-        # 📌 **3️⃣ Evaluar redundancias (ej. "subir arriba", "bajar abajo")**
-        redundancy_patterns = ["subir arriba", "bajar abajo", "salir afuera", "entrar adentro"]
-        redundancy_errors = sum(1 for phrase in redundancy_patterns if phrase in text.lower())
+        # 📌 **3️⃣ Identificación de redundancias**
+        redundant_phrases = {"además también", "pero sin embargo", "subir arriba", "bajar abajo"}
+        redundant_count = sum(1 for phrase in redundant_phrases if phrase in text.lower())
+        redundancy_score = max(0, 100 - redundant_count * 25)
     
-        # 📌 **4️⃣ Evaluar errores de puntuación (frases mal estructuradas)**
-        punctuation_errors = sum(1 for sentence in sentences if sentence.endswith(","))
-    
-        # 📌 **5️⃣ Aplicar penalización con ponderaciones optimizadas**
-        grammar_penalty = (
-            (subject_verb_errors * 5) +
-            (incomplete_sentences * 7) +
-            (redundancy_errors * 3) +
-            (punctuation_errors * 4)
-        ) / total_sentences
-    
-        grammar_score = max(0, 100 - grammar_penalty * 10)  # Ajustar la penalización.
-    
-        return round(grammar_score, 2)
+        # 📌 **Puntaje Final de Gramática**
+        grammar_score = round((tense_score + structure_score + redundancy_score) / 3, 2)
+        
+        return grammar_score
     
     
     def evaluate_sentence_coherence(text):
