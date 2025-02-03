@@ -2241,7 +2241,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     average_spelling_score = total_spelling_score / total_sections if total_sections > 0 else 0
     average_capitalization_score = total_capitalization_score / total_sections if total_sections > 0 else 0
     average_coherence_score = total_coherence_score / total_sections if total_sections > 0 else 0
-    average_overall_score = total_overall_score / total_sections if total_sections > 0 else 0
+    average_overall_score = (average_spelling_score+ average_capitalization_score + average_coherence_score)/3
 
     # Calcular puntajes ajustados
     round_spelling_score = round((average_spelling_score / 100) * 5, 2) 
