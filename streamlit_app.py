@@ -50,13 +50,13 @@ def load_advice(filepath="advice.json"):
 indicators = load_indicators()
 advice = load_advice()
 
-def remove_duplicates_from_categories(indicators_dict):
+def remove_duplicates_from_categories(indicators):
     """
     Elimina palabras duplicadas dentro de cada subcategoría, pero mantiene si están en distintas categorías.
     """
     cleaned_dict = {}
 
-    for main_category, subcategories in indicators_dict.items():
+    for main_category, subcategories in indicators.items():
         cleaned_dict[main_category] = {}
 
         for subcategory, words in subcategories.items():
@@ -66,7 +66,7 @@ def remove_duplicates_from_categories(indicators_dict):
     return cleaned_dict
 
 # Aplicar limpieza al JSON
-cleaned_indicators_dict = remove_duplicates_from_categories(indicators_dict)
+cleaned_indicators = remove_duplicates_from_categories(indicators)
 
 # Uso del código
 background_path = "Fondo reporte.png"
