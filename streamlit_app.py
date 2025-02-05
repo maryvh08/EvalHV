@@ -77,6 +77,7 @@ cleaned_indicators_dict = remove_duplicates_from_categories(indicators_dict)
 with open("indicators.json", "w", encoding="utf-8") as file:
     json.dump(cleaned_indicators_dict, file, indent=4, ensure_ascii=False)
 
+
 # Uso del código
 background_path = "Fondo reporte.png"
 portada_path= "Portada Analizador.png"
