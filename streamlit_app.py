@@ -50,11 +50,6 @@ def load_advice(filepath="advice.json"):
 indicators = load_indicators()
 advice = load_advice()
 
-# 📌 **1️⃣ Cargar archivo JSON con indicadores**
-with open("indicators.json", "r", encoding="utf-8") as file:
-    indicators_dict = json.load(file)
-
-# 📌 **2️⃣ Función para eliminar duplicados dentro de cada subcategoría**
 def remove_duplicates_from_categories(indicators_dict):
     """
     Elimina palabras duplicadas dentro de cada subcategoría, pero mantiene si están en distintas categorías.
@@ -70,13 +65,12 @@ def remove_duplicates_from_categories(indicators_dict):
 
     return cleaned_dict
 
-# 📌 **3️⃣ Aplicar limpieza al JSON**
+# Aplicar limpieza al JSON
 cleaned_indicators_dict = remove_duplicates_from_categories(indicators_dict)
 
-# 📌 **4️⃣ Guardar el archivo optimizado de vuelta**
+# Guardar el archivo optimizado de vuelta
 with open("indicators.json", "w", encoding="utf-8") as file:
     json.dump(cleaned_indicators_dict, file, indent=4, ensure_ascii=False)
-
 
 # Uso del código
 background_path = "Fondo reporte.png"
