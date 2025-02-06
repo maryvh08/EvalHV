@@ -3,25 +3,28 @@ name: OCR Workflow
 on:
   push:
     branches:
-      - main  # Esto significa que se ejecutará cuando se haga un push en la rama 'main'
+      - main
 
 jobs:
   ocr_job:
-    runs-on: ubuntu-latest  # Usaremos un entorno de Ubuntu para ejecutar el código
+    runs-on: ubuntu-latest
 
     steps:
-      # Paso 1: Checkout del código
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Paso 2: Instalar Tesseract y las dependencias
       - name: Install Tesseract and dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y tesseract-ocr  # Instalar Tesseract
-          pip install -r requirements.txt  # Instalar las dependencias de Python
+          sudo apt-get install -y tesseract-ocr || exit 1
+          tesseract --version  # Verifica que Tesseract se haya instalado correctamente
+          pip install -r requirements.txt
 
-      # Paso 3: Ejecutar tu código
+      - name: Verify Python environment
+        run: |
+          python --version
+          pip show pytesseract
+
       - name: Run OCR code
         run: |
-          python tu_codigo.py  # Sustituye 'tu_codigo.py' por el nombre de tu archivo de Python
+          python tu_codigo.py  # Reemplaza por el nombre de tu archivo
