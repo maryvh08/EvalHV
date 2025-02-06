@@ -359,7 +359,7 @@ def extract_experience_section_with_ocr(pdf_path):
 
 def extract_event_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR, limpiando y normalizando el texto.
+    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR, asegurando una identificación precisa y limpieza del texto.
     
     :param pdf_path: Ruta del archivo PDF.
     :return: Texto limpio de la sección 'EVENTOS ORGANIZADOS'.
@@ -367,20 +367,27 @@ def extract_event_section_with_ocr(pdf_path):
     text = extract_text_with_ocr(pdf_path)
 
     # 📌 **Palabras clave para identificar inicio y fin de la sección**
-    start_keyword = "EVENTOS ORGANIZADOS"
-    end_keywords = ["EXPERIENCIA LABORAL", "FIRMA"]
+    start_keywords = [r"\bEVENTOS ORGANIZADOS\b"]
+    end_keywords = [r"\bEXPERIENCIA LABORAL\b", r"\bFIRMA\b", r"\bCERTIFICACIONES\b"]
 
-    # 📌 **Encontrar índice de inicio**
-    start_idx = text.lower().find(start_keyword.lower())
-    if start_idx == -1:
+    # 📌 **Buscar el inicio de la sección usando expresiones regulares**
+    start_idx = None
+    for pattern in start_keywords:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            start_idx = match.start()
+            break  # Detener la búsqueda cuando se encuentre la primera coincidencia
+
+    if start_idx is None:
         return None  # No se encontró la sección
 
-    # 📌 **Encontrar índice más cercano de fin basado en palabras clave**
+    # 📌 **Buscar el final de la sección usando expresiones regulares**
     end_idx = len(text)  # Por defecto, tomar hasta el final del documento
-    for keyword in end_keywords:
-        idx = text.lower().find(keyword.lower(), start_idx)
-        if idx != -1:
-            end_idx = min(end_idx, idx)
+    for pattern in end_keywords:
+        match = re.search(pattern, text[start_idx:], re.IGNORECASE)
+        if match:
+            end_idx = start_idx + match.start()
+            break  # Detener la búsqueda cuando se encuentre la primera coincidencia
 
     # 📌 **Extraer la sección entre inicio y fin**
     org_text = text[start_idx:end_idx].strip()
@@ -391,16 +398,15 @@ def extract_event_section_with_ocr(pdf_path):
         "capitular", "seccional", "nacional"
     }
     org_cleaned_lines = []
-    
+
     for line in org_text.split("\n"):
         line = line.strip()
         line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
         normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        
+
         # 📌 **Filtrar líneas vacías, palabras clave y texto excluido**
-        if normalized_line and normalized_line not in org_exclude_lines and normalized_line != start_keyword.lower():
-            if not any(normalized_line.startswith(end.lower()) for end in end_keywords):
-                org_cleaned_lines.append(line)
+        if normalized_line and normalized_line not in org_exclude_lines and not any(re.search(end.lower(), normalized_line) for end in end_keywords):
+            org_cleaned_lines.append(line)
 
     # 📌 **Unir líneas y devolver el texto limpio**
     cleaned_text = "\n".join(org_cleaned_lines)
