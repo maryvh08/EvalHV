@@ -368,8 +368,8 @@ def extract_event_section_with_ocr(pdf_path):
     text = extract_text_with_ocr(pdf_path)
 
     # 📌 **Definir palabras clave para detectar el inicio y el fin de la sección**
-    start_keywords = [r"\bEVENTOS ORGANIZADOS\b"]
-    end_keywords = [r"\bEXPERIENCIA LABORAL\b", r"\bFIRMA\b", r"\bCERTIFICACIONES\b"]
+    start_keywords = ["EVENTOS ORGANIZADOS"]
+    end_keywords = ["EXPERIENCIA LABORAL", "FIRMA", "CERTIFICACIONES"]
 
     # 📌 **Buscar el inicio de la sección con expresiones regulares**
     start_idx = None
