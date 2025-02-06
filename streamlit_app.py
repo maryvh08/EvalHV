@@ -359,14 +359,14 @@ def extract_experience_section_with_ocr(pdf_path):
 
 def extract_event_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR, asegurando una identificación precisa y limpieza del texto.
+    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR, detectando correctamente los ítems.
     
     :param pdf_path: Ruta del archivo PDF.
-    :return: Texto limpio de la sección 'EVENTOS ORGANIZADOS'.
+    :return: Lista de eventos organizados en la sección 'EVENTOS ORGANIZADOS'.
     """
     text = extract_text_with_ocr(pdf_path)
 
-    # 📌 **Palabras clave para identificar inicio y fin de la sección**
+    # 📌 **Definir palabras clave de inicio y fin de la sección**
     start_keywords = [r"\bEVENTOS ORGANIZADOS\b"]
     end_keywords = [r"\bEXPERIENCIA LABORAL\b", r"\bFIRMA\b", r"\bCERTIFICACIONES\b"]
 
@@ -376,7 +376,7 @@ def extract_event_section_with_ocr(pdf_path):
         match = re.search(pattern, text, re.IGNORECASE)
         if match:
             start_idx = match.start()
-            break  # Detener la búsqueda cuando se encuentre la primera coincidencia
+            break  # Se detiene al encontrar la primera coincidencia
 
     if start_idx is None:
         return None  # No se encontró la sección
@@ -387,18 +387,21 @@ def extract_event_section_with_ocr(pdf_path):
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
         if match:
             end_idx = start_idx + match.start()
-            break  # Detener la búsqueda cuando se encuentre la primera coincidencia
+            break  # Se detiene al encontrar la primera coincidencia
 
     # 📌 **Extraer la sección entre inicio y fin**
     org_text = text[start_idx:end_idx].strip()
 
-    # 📌 **Eliminar líneas irrelevantes o ruido**
+    # 📌 **Excluir términos irrelevantes y normalizar texto**
     org_exclude_lines = {
+        "eventos organizados",  # Excluir el título de la sección
         "a nivel capitular", "a nivel nacional", "a nivel seccional",
         "capitular", "seccional", "nacional"
     }
+    
     org_cleaned_lines = []
 
+    # 📌 **Detectar y limpiar los ítems dentro de la sección**
     for line in org_text.split("\n"):
         line = line.strip()
         line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
@@ -408,15 +411,15 @@ def extract_event_section_with_ocr(pdf_path):
         if normalized_line and normalized_line not in org_exclude_lines and not any(re.search(end.lower(), normalized_line) for end in end_keywords):
             org_cleaned_lines.append(line)
 
-    # 📌 **Unir líneas y devolver el texto limpio**
-    cleaned_text = "\n".join(org_cleaned_lines)
+    # 📌 **Convertir la sección en una lista estructurada de eventos**
+    events_list = [event.strip() for event in org_cleaned_lines if event]
 
-    # 📌 **Debugging: Imprimir líneas procesadas**
-    print("🔍 Líneas extraídas de 'EVENTOS ORGANIZADOS':")
-    for line in org_cleaned_lines:
-        print(f" - {line}")
+    # 📌 **Debugging: Imprimir eventos extraídos**
+    print("🔍 Eventos organizados extraídos:")
+    for event in events_list:
+        print(f" - {event}")
 
-    return cleaned_text
+    return events_list
 
 def evaluate_cv_presentation(pdf_path):
     """
