@@ -360,68 +360,69 @@ def extract_experience_section_with_ocr(pdf_path):
 def extract_event_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
-    detectando correctamente los ítems como una lista de eventos organizados.
+    asegurando que los ítems sean correctamente identificados.
 
     :param pdf_path: Ruta del archivo PDF.
-    :return: Lista de eventos organizados en la sección 'EVENTOS ORGANIZADOS'.
+    :return: Lista de eventos organizados detectados en la sección.
     """
     text = extract_text_with_ocr(pdf_path)
 
-    # 📌 **Definir palabras clave para detectar el inicio y el fin de la sección**
-    start_keywords = ["EVENTOS ORGANIZADOS"]
-    end_keywords = ["EXPERIENCIA LABORAL", "FIRMA", "CERTIFICACIONES"]
+    # 📌 **Detectar el inicio y el fin de la sección con expresiones regulares**
+    start_pattern = r"(?:\bEVENTOS ORGANIZADOS\b)"
+    end_patterns = [r"(?:\bEXPERIENCIA LABORAL\b)", r"(?:\bFIRMA\b)", r"(?:\bCERTIFICACIONES\b)"]
 
-    # 📌 **Buscar el inicio de la sección con expresiones regulares**
-    start_idx = None
-    for pattern in start_keywords:
-        match = re.search(pattern, text, re.IGNORECASE)
-        if match:
-            start_idx = match.start()
-            break  # Se detiene en la primera coincidencia encontrada
-
-    if start_idx is None:
+    # 📌 **Encontrar inicio de la sección**
+    start_match = re.search(start_pattern, text, re.IGNORECASE)
+    if not start_match:
         return None  # No se encontró la sección
 
-    # 📌 **Buscar el final de la sección**
-    end_idx = len(text)  # Por defecto, tomar hasta el final
-    for pattern in end_keywords:
+    start_idx = start_match.start()
+
+    # 📌 **Encontrar el final de la sección**
+    end_idx = len(text)
+    for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
         if match:
             end_idx = start_idx + match.start()
             break  # Se detiene en la primera coincidencia encontrada
 
-    # 📌 **Extraer el texto de la sección "EVENTOS ORGANIZADOS"**
+    # 📌 **Extraer y limpiar la sección de "EVENTOS ORGANIZADOS"**
     org_text = text[start_idx:end_idx].strip()
 
-    # 📌 **Excluir términos irrelevantes**
+    # 📌 **Eliminar frases irrelevantes y normalizar el texto**
     org_exclude_lines = {
-        "eventos organizados",  # Excluir el título de la sección
-        "a nivel capitular", "a nivel nacional", "a nivel seccional",
-        "capitular", "seccional", "nacional"
+        "eventos organizados", "firma", "certificaciones", "experiencia laboral"
     }
 
-    # 📌 **Detectar eventos organizados como ítems de una lista**
-    org_cleaned_lines = []
+    # 📌 **Detectar y limpiar eventos organizados en formato de lista o párrafos**
     event_items = []
+    buffer = []
 
     for line in org_text.split("\n"):
         line = line.strip()
         line = re.sub(r"[^\w\s\-\(\)–•]", "", line)  # Eliminar caracteres no alfanuméricos excepto guiones y viñetas
         normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
 
-        # 📌 **Filtrar líneas vacías, palabras clave y contenido irrelevante**
+        # 📌 **Filtrar contenido irrelevante**
         if not normalized_line or normalized_line in org_exclude_lines:
             continue
 
-        # 📌 **Detectar eventos organizados como listas**
-        if re.match(r"^(\d+\.|\-|\•|–|\*)\s+", line):  # Si la línea comienza con un número, guión o viñeta
-            event_items.append(line)  # Agregarlo a la lista de eventos organizados
+        # 📌 **Detectar listas de eventos organizados**
+        if re.match(r"^(\d+\.|\-|\•|–|\*)\s+", line):  # Si empieza con número, guión o viñeta
+            if buffer:
+                event_items.append(" ".join(buffer))  # Agregar el evento previo antes de iniciar otro
+                buffer = []
+            buffer.append(line)
         else:
-            # 📌 **Si no tiene formato de lista, concatenarlo al último evento detectado**
-            if event_items:
-                event_items[-1] += f" {line}"
+            # 📌 **Concatenar líneas que no sean un nuevo ítem**
+            if buffer:
+                buffer.append(line)
             else:
-                event_items.append(line)  # Agregarlo como un nuevo evento si es la primera línea relevante
+                buffer.append(line)
+
+    # 📌 **Agregar el último evento detectado**
+    if buffer:
+        event_items.append(" ".join(buffer))
 
     # 📌 **Debugging: Imprimir eventos organizados extraídos**
     print("🔍 Eventos organizados extraídos:")
