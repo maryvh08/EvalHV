@@ -27,4 +27,4 @@ jobs:
 
       - name: Run OCR code
         run: |
-          python tu_codigo.py  # Reemplaza por el nombre de tu archivo
+          python streamlit_app.py  
