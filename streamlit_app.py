@@ -359,65 +359,58 @@ def extract_experience_section_with_ocr(pdf_path):
 
 def extract_event_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con soporte de OCR.
+    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR, limpiando y normalizando el texto.
+    
     :param pdf_path: Ruta del archivo PDF.
-    :return: Texto de la sección 'EVENTOS ORGANIZADOS'.
+    :return: Texto limpio de la sección 'EVENTOS ORGANIZADOS'.
     """
     text = extract_text_with_ocr(pdf_path)
 
-    # Palabras clave para identificar inicio y fin de la sección
+    # 📌 **Palabras clave para identificar inicio y fin de la sección**
     start_keyword = "EVENTOS ORGANIZADOS"
-    end_keywords = [
-        "EXPERIENCIA LABORAL",
-        "FIRMA",
-    ]
+    end_keywords = ["EXPERIENCIA LABORAL", "FIRMA"]
 
-    # Encontrar índice de inicio
+    # 📌 **Encontrar índice de inicio**
     start_idx = text.lower().find(start_keyword.lower())
     if start_idx == -1:
         return None  # No se encontró la sección
 
-    # Encontrar índice más cercano de fin basado en palabras clave
-    end_idx = len(text)  # Por defecto, tomar hasta el final
+    # 📌 **Encontrar índice más cercano de fin basado en palabras clave**
+    end_idx = len(text)  # Por defecto, tomar hasta el final del documento
     for keyword in end_keywords:
         idx = text.lower().find(keyword.lower(), start_idx)
         if idx != -1:
             end_idx = min(end_idx, idx)
 
-    # Extraer la sección entre inicio y fin
+    # 📌 **Extraer la sección entre inicio y fin**
     org_text = text[start_idx:end_idx].strip()
 
-    # Filtrar y limpiar texto
-    org_exclude_lines = [
-        "a nivel capitular",
-        "a nivel nacional",
-        "a nivel seccional",
-        "capitular",
-        "seccional",
-        "nacional",
-    ]
-    org_lines = org_text.split("\n")
+    # 📌 **Eliminar líneas irrelevantes o ruido**
+    org_exclude_lines = {
+        "a nivel capitular", "a nivel nacional", "a nivel seccional",
+        "capitular", "seccional", "nacional"
+    }
     org_cleaned_lines = []
-    for line in org_lines:
+    
+    for line in org_text.split("\n"):
         line = line.strip()
         line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
-        normalized_org_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        if (
-            normalized_org_line
-            and normalized_org_line not in org_exclude_lines
-            and normalized_org_line != start_keyword.lower()
-            and normalized_org_line not in [kw.lower() for kw in end_keywords]
-        ):
-            org_cleaned_lines.append(line)
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
+        
+        # 📌 **Filtrar líneas vacías, palabras clave y texto excluido**
+        if normalized_line and normalized_line not in org_exclude_lines and normalized_line != start_keyword.lower():
+            if not any(normalized_line.startswith(end.lower()) for end in end_keywords):
+                org_cleaned_lines.append(line)
 
-    return "\n".join(org_cleaned_lines)
-    
-    # Debugging: Imprime líneas procesadas
-    print("Líneas procesadas:")
+    # 📌 **Unir líneas y devolver el texto limpio**
+    cleaned_text = "\n".join(org_cleaned_lines)
+
+    # 📌 **Debugging: Imprimir líneas procesadas**
+    print("🔍 Líneas extraídas de 'EVENTOS ORGANIZADOS':")
     for line in org_cleaned_lines:
-        print(f"- {line}")
-    
-    return "\n".join(org_cleaned_lines)
+        print(f" - {line}")
+
+    return cleaned_text
 
 def evaluate_cv_presentation(pdf_path):
     """
