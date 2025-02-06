@@ -50,6 +50,28 @@ def load_advice(filepath="advice.json"):
 indicators = load_indicators()
 advice = load_advice()
 
+def remove_duplicates_from_categories(indicators):
+    """
+    Elimina palabras duplicadas dentro de cada subcategoría, pero mantiene si están en distintas categorías.
+    """
+    cleaned_dict = {}
+
+    for main_category, subcategories in indicators.items():
+        cleaned_dict[main_category] = {}
+
+        for subcategory, words in subcategories.items():
+            # Usar dict.fromkeys() para eliminar duplicados manteniendo el orden
+            cleaned_dict[main_category][subcategory] = list(dict.fromkeys(words))
+
+    return cleaned_dict
+
+# 📌 **3️⃣ Aplicar limpieza al JSON**
+cleaned_indicators = remove_duplicates_from_categories(indicators)
+
+# 📌 **4️⃣ Guardar el archivo optimizado de vuelta**
+with open("indicators.json", "w", encoding="utf-8") as file:
+    json.dump(cleaned_indicators, file, indent=4, ensure_ascii=False)
+
 # Uso del código
 background_path = "Fondo reporte.png"
 portada_path= "Portada Analizador.png"
@@ -764,7 +786,55 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         :return: Puntaje de fluidez de las oraciones entre 0 y 1.
         """
         # Lista de conectores lógicos comunes
-        logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque"]
+        logical_connectors = {
+        "adición": [
+            "además", "también", "asimismo", "igualmente", "de igual manera",
+            "por otro lado", "de la misma forma", "junto con"
+        ],
+        "causa": [
+            "porque", "ya que", "debido a", "dado que", "por motivo de",
+            "gracias a", "en razón de", "a causa de"
+        ],
+        "consecuencia": [
+            "por lo tanto", "así que", "en consecuencia", "como resultado",
+            "por esta razón", "de modo que", "lo que permitió", "de ahí que"
+        ],
+        "contraste": [
+            "sin embargo", "pero", "aunque", "no obstante", "a pesar de",
+            "por el contrario", "en cambio", "si bien", "mientras que"
+        ],
+        "condición": [
+            "si", "en caso de", "a menos que", "siempre que", "con la condición de",
+            "a no ser que", "en el supuesto de que"
+        ],
+        "tiempo": [
+            "mientras", "cuando", "después de", "antes de", "al mismo tiempo",
+            "posteriormente", "una vez que", "simultáneamente", "en el transcurso de"
+        ],
+        "descripción de funciones": [
+            "encargado de", "responsable de", "mis funciones incluían",
+            "lideré", "gestioné", "coordiné", "dirigí", "supervisé",
+            "desarrollé", "planifiqué", "ejecuté", "implementé", "organicé"
+        ],
+        "logros y resultados": [
+            "logré", "alcancé", "conseguí", "incrementé", "reduje",
+            "optimizé", "mejoré", "aumenté", "potencié", "maximicé",
+            "contribuí a", "obtuve", "permitió mejorar", "impactó positivamente en"
+        ],
+        "secuencia": [
+            "primero", "en primer lugar", "a continuación", "luego", "después",
+            "seguidamente", "posteriormente", "finalmente", "por último"
+        ],
+        "énfasis": [
+            "sobre todo", "en particular", "especialmente", "principalmente",
+            "específicamente", "vale la pena destacar", "conviene resaltar",
+            "cabe mencionar", "es importante señalar"
+        ],
+        "conclusión": [
+            "en resumen", "para concluir", "en definitiva", "en síntesis",
+            "como conclusión", "por ende", "por consiguiente", "para finalizar"
+        ]
+    }
         connector_count = 0
         total_lines = len(pres_cleaned_lines)
     
@@ -1221,12 +1291,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             f" Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.",
             styles['CenturyGothic']
         ))
-    elif 60 <= global_profile_match <= 75 or 60 <= global_func_match <= 75:
+    elif 60 <= global_profile_match <= 75 and 60 <= global_func_match <= 75:
         elements.append(Paragraph(
             f" Buena Concordancia (> 0.60): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.",
             styles['CenturyGothic']
         ))
-    elif 60 < global_profile_match and 60 < global_func_match:
+    elif 60 < global_profile_match or 60 < global_func_match:
         elements.append(Paragraph(
             f" Baja Concordancia (< 0.60): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.",
             styles['CenturyGothic']
@@ -1577,14 +1647,14 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     
         return round(((total_words - len(misspelled)) / total_words) * 100, 2)
 
-        # Función para evaluar capitalización
-        def evaluate_capitalization(text):
-            sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
-            sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
-            correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
-            if not sentences:
-                return 100  # Si no hay oraciones, asumimos puntaje perfecto
-            return (correct_caps / len(sentences)) * 100
+    # Función para evaluar capitalización
+    def evaluate_capitalization(text):
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
+        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
+        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
+        if not sentences:
+            return 100  # Si no hay oraciones, asumimos puntaje perfecto
+        return (correct_caps / len(sentences)) * 100
 
     # Función para evaluar coherencia de las frases
     def evaluate_sentence_coherence(text):
@@ -1816,189 +1886,198 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         parcial_att_func_match = 0
         parcial_att_profile_match = 0
 
-
     # Extraer texto del PDF con encabezados y detalles
-    text_data = extract_text_with_headers_and_details(pdf_path)
+    text_data = extract_text_with_headers_and_details(pdf_path)  # Asegúrate de tener esta función definida
 
-   # Verificar si se extrajo correctamente el texto
     if not text_data:
         st.error("No se pudo extraer texto del archivo PDF.")
         return None
-    
-    # Inicializar corrector ortográfico
+
+    # Instanciar el corrector ortográfico
     spell = SpellChecker()
-    
-    # Conectores lógicos comunes
-    logical_connectors = ["porque", "sin embargo", "además", "por lo tanto", "mientras", "aunque"]
-    
+
+    # 📌 **Evaluación avanzada de presentación**
     def evaluate_spelling(text):
-        """Evalúa la ortografía del texto y retorna un puntaje entre 0 y 100."""
-        if not text or not isinstance(text, str):
-            return 100  # Si no hay texto, asumimos puntaje perfecto
+        """Evalúa la ortografía y devuelve un puntaje entre 0 y 100, optimizando la búsqueda."""
+        if not text or not isinstance(text, str) or len(text.strip()) == 0:
+            return 100  
     
-        words = text.split()
-        if len(words) < 2:
-            return 100  # Evitar dividir por 0 si hay muy pocas palabras
-    
-        misspelled = spell.unknown(words)
+        words = re.findall(r'\b\w+\b', text.lower())  # Extraer palabras sin puntuación
         total_words = len(words)
-
-        # Identificar palabras mal escritas
-        misspelled_words = spell.unknown(words)
-        misspelled_count = len(misspelled_words)
-
-        # **1. Verificar si hay palabras corregibles**
-        correctable_errors = 0
-        for word in misspelled_words:
-            if spell.correction(word):  # Si existe una corrección válida, cuenta como error corregible
-                correctable_errors += 1
     
-        # **2. Aplicar penalización a palabras no corregibles**
-        non_correctable_errors = misspelled_count - correctable_errors
-
-        # **3. Verificar si hay siglas o palabras cortas para evitar penalización**
-        acronyms_or_short_words = sum(1 for word in misspelled_words if len(word) <= 2)
-
-        correct_score = (correctable_errors + non_correctable_errors - acronyms_or_short_words) / 3
-
-        return round(((correct_score) / total_words) * 100, 2)
-
+        if total_words < 5:  
+            return 100  
+    
+        misspelled_words = set(spell.unknown(words))  # Usar set() para búsquedas rápidas
+        misspelled_count = len(misspelled_words)
+    
+        # **📌 Aplicar penalización con ponderación menor**
+        spelling_score = max(0, 100 - (misspelled_count / total_words) * 150)
+    
+        return round(spelling_score, 2)
+    
+    
     def evaluate_capitalization(text):
-        """Evalúa si las frases comienzan con mayúscula y si nombres propios están bien capitalizados."""
-        if not text or not isinstance(text, str):
+        """Evalúa la gramática basándose en concordancia de tiempos verbales, estructura de oraciones y redundancias."""
+        if not text or not isinstance(text, str) or len(text.strip()) == 0:
             return 100  # Si no hay texto, asumimos puntaje perfecto
     
-        sentences = re.split(r'[.!?]\s*', text.strip())
-        sentences = [sentence.strip() for sentence in sentences if sentence]
+        sentences = re.split(r'[.!?]\s*', text.strip())[:20]  # Limitar a 20 frases para optimizar rendimiento
+        words = re.findall(r'\b\w+\b', text.lower())
+        total_sentences = len(sentences)
+        total_words = len(words)
     
-        if len(sentences) == 0:
-            return 100  # Evitar dividir por 0
+        if total_sentences == 0 or total_words == 0:
+            return 100  # Evitar división por 0
+
+        # 📌 **1️⃣ Concordancia de tiempos verbales**
+        verb_tenses = {
+        "presente": [
+            "es", "tiene", "hace", "puede", "debe", "quiere", "está", "lidera", "coordina", "organiza",
+            "gestiona", "asiste", "supervisa", "evalúa", "dirige", "crea", "redacta", "contacta",
+            "realiza", "participa", "documenta", "establece", "facilita", "desarrolla", "analiza"
+        ],
+        "pasado": [
+            "fue", "tuvo", "hizo", "pudo", "debía", "quiso", "estaba", "lideró", "coordinó", "organizó",
+            "gestionó", "asistió", "supervisó", "evaluó", "dirigió", "creó", "redactó", "contactó",
+            "realizó", "participó", "documentó", "estableció", "facilitó", "desarrolló", "analizó"
+        ],
+        "futuro": [
+            "será", "tendrá", "hará", "podrá", "deberá", "querrá", "estará", "liderará", "coordinará",
+            "organizará", "gestionará", "asistirá", "supervisará", "evaluará", "dirigirá", "creará",
+            "redactará", "contactará", "realizará", "participará", "documentará", "establecerá",
+            "facilitará", "desarrollará", "analizará"
+        ]
+    }
     
-        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
+        # 📌 **1️⃣ Concordancia de tiempos verbales**
+        verb_counts = {tense: sum(1 for word in words if word in verb_tenses[tense]) for tense in verb_tenses}
+        max_tense_count = max(verb_counts.values(), default=1)
+        inconsistent_tenses = sum(1 for tense in verb_tenses if verb_counts[tense] > 0 and verb_counts[tense] < max_tense_count * 0.3)
+        tense_score = max(0, 100 - inconsistent_tenses * 20)  # Penaliza si hay cambios abruptos de tiempos verbales
     
-        return round((correct_caps / len(sentences)) * 100, 2)
+        # 📌 **2️⃣ Evaluación de estructura de oraciones**
+        structure_errors = sum(1 for sentence in sentences if not re.search(r"\b\w+\b\s+\b\w+\b", sentence))
+        structure_score = max(0, 100 - (structure_errors / total_sentences) * 100)
+    
+        # 📌 **3️⃣ Identificación de redundancias**
+        redundant_phrases = {"además también", "pero sin embargo", "subir arriba", "bajar abajo"}
+        redundant_count = sum(1 for phrase in redundant_phrases if phrase in text.lower())
+        redundancy_score = max(0, 100 - redundant_count * 25)
+    
+        # 📌 **Puntaje Final de Gramática**
+        capitalization_score = round((tense_score + structure_score + redundancy_score)/3, 2)
+        
+        return capitalization_score
+    
     
     def evaluate_sentence_coherence(text):
-        """Evalúa la coherencia basada en conectores, estructura de oraciones y transiciones lógicas."""
+        """
+        Evalúa la coherencia del texto en función de conectores lógicos, longitud de frases, transiciones,
+        repetición de ideas y la estructura sintáctica.
+        :param text: Texto a evaluar.
+        :return: Puntaje de coherencia entre 0 y 100.
+        """
         if not text or not isinstance(text, str):
-            return 50  # Si no hay texto válido, devolver un puntaje medio
+            return 50  # Devolver un puntaje intermedio si el texto está vacío o no es válido
     
-        sentences = re.split(r'[.!?]\s*', text.strip())
-        sentences = [sentence for sentence in sentences if sentence]
+        sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones
+        sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
         total_sentences = len(sentences)
     
         words = text.split()
         total_words = len(words)
     
         if total_words == 0 or total_sentences == 0:
-            return 100  # Evitar dividir por 0
+            return 100  # Si no hay texto, asumimos coherencia perfecta
     
-        # **Uso de conectores lógicos**
-        connector_count = sum(1 for word in words if word.lower() in logical_connectors)
+        # **1️⃣ Uso de conectores lógicos (Evaluación de cohesión)**
+        logical_connectors = {
+            "adición": ["además", "también", "igualmente", "asimismo"],
+            "causa": ["porque", "ya que", "debido a", "dado que"],
+            "consecuencia": ["por lo tanto", "así que", "en consecuencia", "de modo que"],
+            "contraste": ["sin embargo", "pero", "aunque", "no obstante"],
+            "condición": ["si", "en caso de", "a menos que"],
+            "tiempo": ["mientras", "cuando", "después de", "antes de"],
+        }
+        
+        connector_count = sum(
+            1 for word in words if any(word.lower() in group for group in logical_connectors.values())
+        )
         connector_ratio = connector_count / total_sentences if total_sentences > 0 else 0
-        connector_score = min(100, connector_ratio * 200)  
+        connector_score = min(100, connector_ratio * 200)  # Escalar a 100
     
-        # **Consistencia en la longitud de frases**
+        # **2️⃣ Consistencia en la longitud de frases**
         sentence_lengths = [len(sentence.split()) for sentence in sentences]
         avg_length = sum(sentence_lengths) / total_sentences
         length_variance = sum((len(sentence.split()) - avg_length) ** 2 for sentence in sentences) / total_sentences
-        length_variance_penalty = max(0, 100 - length_variance * 5)
+        length_variance_penalty = max(0, 100 - length_variance * 5)  # Penalización por variabilidad excesiva
     
-        # **Transiciones entre frases**
-        transition_words = {"entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"}
-        transition_count = sum(1 for sentence in sentences if any(word in sentence.lower() for word in transition_words))
+        # **3️⃣ Transiciones entre frases**
+        transition_words = ["entonces", "así", "por otro lado", "de esta manera", "en este sentido", "por ende"]
+        transition_count = sum(
+            1 for sentence in sentences if any(word in sentence.lower() for word in transition_words)
+        )
         transition_score = (transition_count / total_sentences) * 100 if total_sentences > 0 else 0
     
-        coherence_score = round((connector_score + length_variance_penalty + transition_score) / 3, 2)
-        return coherence_score
-    
-    def calculate_repetition_score(text):
-        """Evalúa la repetición de palabras y devuelve un puntaje de 0 a 100."""
-        if not text or not isinstance(text, str):
-            return 100  
-    
-        words = text.lower().split()
-        total_words = len(words)
-    
-        if total_words < 5:
-            return 100  
-    
+        # **4️⃣ Evitar repeticiones excesivas de palabras clave**
         word_counts = Counter(words)
-        repeated_words = {word: count for word, count in word_counts.items() if count > 1}
+        repeated_words = {word: count for word, count in word_counts.items() if count > 3}
+        repeated_ratio = sum(repeated_words.values()) / total_words if total_words > 0 else 0
+        repetition_penalty = min(100, repeated_ratio * 200)  # Penalización basada en la repetición excesiva
     
-        repeated_ratio = sum(repeated_words.values()) / total_words
-        repetition_penalty = min(100, repeated_ratio * 200)  
+        # **5️⃣ Evaluación de variabilidad léxica**
+        unique_words = len(set(words))
+        lexical_diversity = (unique_words / total_words) * 100 if total_words > 0 else 100
+        lexical_score = max(0, min(100, lexical_diversity))
     
-        last_seen = {}
-        repetition_distances = []
-        for index, word in enumerate(words):
-            if word in last_seen:
-                repetition_distances.append(index - last_seen[word])
-            last_seen[word] = index
+        # **📌 Ponderación de los factores**
+        coherence_score = (
+            (connector_score * 0.3) +  # Uso de conectores
+            (length_variance_penalty * 0.2) +  # Consistencia en la longitud de frases
+            (transition_score * 0.2) +  # Uso de transiciones
+            ((100 - repetition_penalty) * 0.2) +  # Penalización por repeticiones
+            (lexical_score * 0.1)  # Variedad léxica
+        )
     
-        avg_distance = sum(repetition_distances) / len(repetition_distances) if repetition_distances else 100
-        distance_penalty = max(0, min(100, avg_distance))
+        return round(coherence_score, 2)
+
     
-        repetition_score = round((distance_penalty + (100 - repetition_penalty)) / 2, 2)
-        return repetition_score
-    
-    def calculate_punctuation_score(text):
-        """Evalúa el uso de puntuación en el texto."""
-        if not text or not isinstance(text, str):
-            return 100  
-    
-        punctuation_marks = [".", ",", ";", ":", "!", "?"]
-        sentences = re.split(r'[.!?]\s*', text.strip())
-        sentences = [sentence for sentence in sentences if sentence]
-    
-        total_sentences = len(sentences)
-        punctuation_count = sum(text.count(mark) for mark in punctuation_marks)
-    
-        punctuation_per_sentence = punctuation_count / total_sentences if total_sentences > 0 else 0
-        expected_punctuation = 1.5  
-        penalty = max(0, expected_punctuation - punctuation_per_sentence)
-    
-        punctuation_score = max(0, 100 - (penalty * 20))
-        return round(punctuation_score, 2)
-    
-    # **Evaluación por encabezado y detalles**
+    # 📌 **Evaluación por encabezado y detalles**
     presentation_results = {}
     for header, details in text_data.items():
         details_text = " ".join(details)
     
+        # 📌 **Evaluar encabezado**
         header_spelling = evaluate_spelling(header)
         header_capitalization = evaluate_capitalization(header)
         header_coherence = evaluate_sentence_coherence(header)
-        header_punctuation = calculate_punctuation_score(header)
-        header_repetition = calculate_repetition_score(header)
-        header_overall = round((header_spelling + ((header_capitalization+ header_punctuation)/2) + (header_coherence+ header_repetition)) /3, 2)
     
+        header_overall = round((header_spelling + header_capitalization + header_coherence) / 3, 2)
+    
+        # 📌 **Evaluar detalles**
         details_spelling = evaluate_spelling(details_text)
         details_capitalization = evaluate_capitalization(details_text)
         details_coherence = evaluate_sentence_coherence(details_text)
-        details_punctuation = calculate_punctuation_score(details_text)
-        details_repetition = calculate_repetition_score(details_text)
-        details_overall = round((details_spelling + ((details_capitalization + details_punctuation)/2) + ((details_coherence+ details_repetition))) / 3, 2)
     
+        details_overall = round((details_spelling + details_capitalization + details_coherence) / 3, 2)
+    
+        # 📌 **Guardar resultados en la estructura final**
         presentation_results[header] = {
             "header_score": {
-                "spelling_score": round(header_spelling, 2),
-                "capitalization_score": round(header_capitalization, 2),
-                "coherence_score": round(header_coherence, 2),
-                "punctuation_score": round(header_punctuation, 2),
-                "repetition_score": round(header_repetition, 2),
+                "spelling_score": header_spelling,
+                "capitalization_score": header_capitalization,
+                "coherence_score": header_coherence,
                 "overall_score": header_overall,
             },
             "details_score": {
-                "spelling_score": round(details_spelling, 2),
-                "capitalization_score": round(details_capitalization, 2),
-                "coherence_score": round(details_coherence, 2),
-                "punctuation_score": round(details_punctuation, 2),
-                "repetition_score": round(details_repetition, 2),
+                "spelling_score": details_spelling,
+                "capitalization_score": details_capitalization,
+                "coherence_score": details_coherence,
                 "overall_score": details_overall,
             },
         }
-
+    
     # Calculo puntajes parciales
     exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
     exp_profile_score = round((parcial_exp_profile_match * 5) / 100, 2)
@@ -2267,7 +2346,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     average_spelling_score = total_spelling_score / total_sections if total_sections > 0 else 0
     average_capitalization_score = total_capitalization_score / total_sections if total_sections > 0 else 0
     average_coherence_score = total_coherence_score / total_sections if total_sections > 0 else 0
-    average_overall_score = total_overall_score / total_sections if total_sections > 0 else 0
+    average_overall_score = (average_spelling_score+ average_capitalization_score + average_coherence_score)/3
 
     # Calcular puntajes ajustados
     round_spelling_score = round((average_spelling_score / 100) * 5, 2) 
@@ -2276,9 +2355,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     round_overall_score = round((average_overall_score / 100) * 5, 2) 
     
     # Agregar los puntajes combinados a la tabla
-    presentation_table_data.append(["Coherencia", f"{round_spelling_score:.2f}"])
-    presentation_table_data.append(["Ortografía", f"{round_capitalization_score:.2f}"])
-    presentation_table_data.append(["Gramática", f"{round_coherence_score:.2f}"])
+    presentation_table_data.append(["Ortografía", f"{round_spelling_score:.2f}"])
+    presentation_table_data.append(["Gramática", f"{round_capitalization_score:.2f}"])
+    presentation_table_data.append(["Coherencia", f"{round_coherence_score:.2f}"])
     presentation_table_data.append(["Puntaje Total", f"{round_overall_score:.2f}"])
     
     # Crear la tabla con ancho ajustado para las columnas
@@ -2563,7 +2642,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         f"Gracias, {candidate_name}, por tu interés en el cargo de {position} ¡Éxitos en tu proceso!",
         styles['CenturyGothic']
     ))
-
 
     def on_later_pages(canvas, doc):
         add_background(canvas, background_path)
