@@ -429,6 +429,7 @@ def extract_event_section_with_ocr(pdf_path):
             org_items.append(re.sub(r"^(\d+\.|[-•])\s*", "", clean_line))  # Eliminar números y viñetas
 
     return "\n".join(org_items) if org_items else None 
+    
 def evaluate_cv_presentation(pdf_path):
     """
     Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
