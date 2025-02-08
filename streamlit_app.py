@@ -361,26 +361,23 @@ def extract_event_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
     asegurando que los ítems sean correctamente identificados.
-
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Lista de eventos organizados detectados en la sección.
     """
     text = extract_text_with_ocr(pdf_path)
+    if not text:
+        return ""  # Retorna texto vacío si no hay contenido
 
-    # 📌 **Patrones para detectar inicio y fin de la sección**
+    # 📌 Patrones para detectar inicio y fin de la sección
     start_pattern = r"\bEVENTOS ORGANIZADOS\b"
-    end_patterns = [
-        r"\bEXPERIENCIA LABORAL\b", r"\bFIRMA\b", r"\bCERTIFICACIONES\b", r"\bOTROS\b"
-    ]
+    end_patterns = [r"\bEXPERIENCIA LABORAL\b", r"\bFIRMA\b", r"\bCERTIFICACIONES\b", r"\bOTROS\b"]
 
-    # 📌 **Encontrar inicio de la sección**
+    # 📌 Encontrar inicio de la sección
     start_match = re.search(start_pattern, text, re.IGNORECASE)
     if not start_match:
-        return None  # No se encontró la sección
+        return ""  # Retorna texto vacío si no encuentra la sección
 
     start_idx = start_match.start()
 
-    # 📌 **Encontrar el final de la sección**
+    # 📌 Encontrar el final de la sección
     end_idx = len(text)
     for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
@@ -388,51 +385,13 @@ def extract_event_section_with_ocr(pdf_path):
             end_idx = start_idx + match.start()
             break  # Se detiene en la primera coincidencia encontrada
 
-    # 📌 **Extraer y limpiar la sección de "EVENTOS ORGANIZADOS"**
+    # 📌 Extraer la sección entre inicio y fin
     org_text = text[start_idx:end_idx].strip()
+    if not org_text:
+        return ""  # Retorna texto vacío si la sección no tiene contenido
 
-    # 📌 **Eliminar frases irrelevantes y encabezados redundantes**
-    org_exclude_lines = {
-        "eventos organizados", "firma", "certificaciones", "experiencia laboral", "otros"
-    }
+    return org_text
 
-    # 📌 **Detectar y limpiar eventos organizados en formato de lista o párrafos**
-    event_items = []
-    buffer = []
-
-    for line in org_text.split("\n"):
-        line = line.strip()
-        line = re.sub(r"[^\w\s\-•]", "", line)  # Eliminar caracteres no alfanuméricos excepto guiones y viñetas
-        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-
-        # 📌 **Filtrar encabezados irrelevantes**
-        if not normalized_line or normalized_line in org_exclude_lines:
-            continue
-
-        # 📌 **Detectar listas de eventos organizados**
-        if re.match(r"^(\d+\.\s+|\-|\•|\*)\s+", line):  # Si empieza con número, guión o viñeta
-            if buffer:
-                event_items.append(" ".join(buffer))  # Agregar evento previo antes de iniciar otro
-                buffer = []
-            buffer.append(line)
-        else:
-            # 📌 **Concatenar líneas que no sean un nuevo ítem**
-            if buffer:
-                buffer.append(line)
-            else:
-                buffer.append(line)
-
-    # 📌 **Agregar el último evento detectado**
-    if buffer:
-        event_items.append(" ".join(buffer))
-
-    # 📌 **Depuración: Imprimir eventos organizados extraídos**
-    print("🔍 Eventos organizados extraídos:")
-    for event in event_items:
-        print(f" - {event}")
-
-    return event_items
-    
 def evaluate_cv_presentation(pdf_path):
     """
     Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
