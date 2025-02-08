@@ -171,6 +171,12 @@ def calculate_indicators_for_report(lines, position_indicators):
     return indicator_results
 
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
+def clean_text(text):
+    """Limpia el texto eliminando caracteres especiales y espacios extra."""
+    text = re.sub(r"[^\w\s]", "", text)  # Elimina puntuación
+    text = re.sub(r"\s+", " ", text).strip().lower()  # Espacios y minúsculas
+    return text
+
 def calculate_similarity(text1, text2):
     """
     Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno.
@@ -178,13 +184,18 @@ def calculate_similarity(text1, text2):
     :param text2: Segundo texto.
     :return: Porcentaje de similitud.
     """
-    if not text1.strip() or not text2.strip():  # Evitar problemas con entradas vacías
+    text1, text2 = clean_text(text1), clean_text(text2)
+
+    if not text1 or not text2:  # Evitar problemas con entradas vacías
         return 0
 
-    vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform([text1, text2])
-    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-    return similarity * 100
+    try:
+        vectorizer = TfidfVectorizer(ngram_range=(1,2), stop_words="english")  # Mejora precisión
+        tfidf_matrix = vectorizer.fit_transform([text1, text2])
+        similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+        return round(similarity * 100, 2)  # Redondear a 2 decimales
+    except:
+        return 0  # Manejo de errores
 
 def calculate_presence(texts, keywords):
     """
@@ -193,12 +204,18 @@ def calculate_presence(texts, keywords):
     :param keywords: Lista de palabras clave a buscar.
     :return: Porcentaje de coincidencia.
     """
-    total_keywords = len(keywords)
-    if total_keywords == 0:  # Evitar división por cero
-        return 0
+    if not texts or not keywords:
+        return 0  # Evitar división por cero
 
-    matches = sum(1 for text in texts for keyword in keywords if keyword.lower() in text.lower())
-    return (matches / total_keywords) * 100
+    keywords = set(map(str.lower, keywords))  # Convertir palabras clave a minúsculas
+    matches = 0
+
+    for text in texts:
+        words = set(re.findall(r"\b\w+\b", text.lower()))  # Extraer palabras únicas en minúsculas
+        matches += sum(1 for keyword in keywords if keyword in words)
+
+    return round((matches / len(keywords)) * 100, 2)  # Redondear a 2 decimales
+
 
 def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     """
