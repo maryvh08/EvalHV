@@ -50,28 +50,6 @@ def load_advice(filepath="advice.json"):
 indicators = load_indicators()
 advice = load_advice()
 
-def remove_duplicates_from_categories(indicators):
-    """
-    Elimina palabras duplicadas dentro de cada subcategoría, pero mantiene si están en distintas categorías.
-    """
-    cleaned_dict = {}
-
-    for main_category, subcategories in indicators.items():
-        cleaned_dict[main_category] = {}
-
-        for subcategory, words in subcategories.items():
-            # Usar dict.fromkeys() para eliminar duplicados manteniendo el orden
-            cleaned_dict[main_category][subcategory] = list(dict.fromkeys(words))
-
-    return cleaned_dict
-
-# 📌 **3️⃣ Aplicar limpieza al JSON**
-cleaned_indicators = remove_duplicates_from_categories(indicators)
-
-# 📌 **4️⃣ Guardar el archivo optimizado de vuelta**
-with open("indicators.json", "w", encoding="utf-8") as file:
-    json.dump(cleaned_indicators, file, indent=4, ensure_ascii=False)
-
 # Uso del código
 background_path = "Fondo reporte.png"
 portada_path= "Portada Analizador.png"
@@ -96,23 +74,34 @@ def preprocess_image(image):
 
 def extract_text_with_ocr(pdf_path):
     """
-    Extrae texto de un PDF utilizando OCR con preprocesamiento.
+    Extrae texto de un PDF utilizando PyMuPDF y OCR con preprocesamiento optimizado.
     :param pdf_path: Ruta del archivo PDF.
     :return: Texto extraído del PDF.
     """
-    text = ""
+    extracted_text = []
+
     with fitz.open(pdf_path) as doc:
         for page in doc:
-            # Intentar extraer texto con PyMuPDF
-            page_text = page.get_text()
-            if not page_text.strip():  # Si no hay texto, usar OCR
-                pix = page.get_pixmap()
+            # 📌 **1️⃣ Intentar extraer texto directamente**
+            page_text = page.get_text("text").strip()
+            
+            if not page_text:  # Si no hay texto, usar OCR
+                pix = page.get_pixmap(dpi=300)  # Aumentar DPI para mejorar OCR
                 img = Image.open(io.BytesIO(pix.tobytes(output="png")))
-                img = preprocess_image(img)  # Preprocesar imagen
-                page_text = pytesseract.image_to_string(img, config="--psm 6")  # Configuración personalizada
-            text += page_text
-    return text
-    
+                
+                # 📌 **2️⃣ Preprocesamiento de imagen**
+                img = img.convert("L")  # Convertir a escala de grises
+                img = img.filter(ImageFilter.MedianFilter())  # Reducir ruido
+                enhancer = ImageEnhance.Contrast(img)
+                img = enhancer.enhance(2)  # Aumentar contraste
+                
+                # 📌 **3️⃣ Aplicar OCR**
+                page_text = pytesseract.image_to_string(img, config="--psm 3").strip()
+            
+            extracted_text.append(page_text)
+
+    return "\n".join(extracted_text) 
+
 def extract_cleaned_lines(text):
     """
     Limpia y filtra las líneas de un texto.
@@ -120,7 +109,26 @@ def extract_cleaned_lines(text):
     :return: Lista de líneas limpias.
     """
     lines = text.split("\n")
-    return [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías y espacios.
+    cleaned_lines = []
+    
+    for line in lines:
+        line = line.strip()
+        
+        # 📌 **1️⃣ Filtrar líneas vacías y no imprimibles**
+        if not line or not any(char.isalnum() for char in line):
+            continue  # Ignorar líneas sin caracteres alfanuméricos
+        
+        # 📌 **2️⃣ Remover líneas con solo números (ejemplo: números de página)**
+        if re.fullmatch(r"\d+", line):
+            continue
+        
+        # 📌 **3️⃣ Ignorar líneas con muy pocos caracteres (posibles errores OCR)**
+        if len(line) < 3:
+            continue
+
+        cleaned_lines.append(line)
+
+    return cleaned_lines
 
 def calculate_all_indicators(lines, position_indicators):
     """
