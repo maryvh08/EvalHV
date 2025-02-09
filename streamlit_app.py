@@ -386,49 +386,55 @@ def extract_event_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
     asegurando que los ítems sean correctamente identificados.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Texto limpio de la sección 'EVENTOS ORGANIZADOS'.
     """
     text = extract_text_with_ocr(pdf_path)
     if not text:
-        return None  # Retorna None si no hay contenido
+        return ""  # Retorna texto vacío si no hay contenido
 
-    # 📌 **Patrones para detectar inicio y fin de la sección**
+    # 📌 Patrones para detectar inicio y fin de la sección
     start_pattern = "EVENTOS ORGANIZADOS"
     end_patterns = ["EXPERIENCIA LABORAL", "FIRMA"]
 
-    # 📌 **Encontrar inicio de la sección**
+    # 📌 Encontrar inicio de la sección
     start_match = re.search(start_pattern, text, re.IGNORECASE)
     if not start_match:
-        return None  # Retorna None si no encuentra la sección
+        return ""  # Retorna texto vacío si no encuentra la sección
 
-    start_idx = start_match.end()  # Inicia después del encabezado
+    start_idx = start_match.start()
 
-    # 📌 **Encontrar el final de la sección**
-    end_idx = len(text)  # Por defecto, tomamos hasta el final
+    # 📌 Encontrar el final de la sección
+    end_idx = len(text)
     for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
         if match:
             end_idx = start_idx + match.start()
             break  # Se detiene en la primera coincidencia encontrada
 
-    # 📌 **Extraer la sección entre inicio y fin**
+    # 📌 Extraer la sección entre inicio y fin
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
-        return None  # Retorna None si la sección no tiene contenido
+        return ""  # Retorna texto vacío si la sección no tiene contenido
 
-    # 📌 **Limpieza del texto**
-    org_text = re.sub(r"[^\w\s\n\-•]", "", org_text)  # Eliminar caracteres no deseados
-    org_text = re.sub(r"\n+", "\n", org_text).strip()  # Eliminar líneas vacías extra
+    # 📌 Filtrar líneas repetitivas y limpiar texto
+    org_lines = org_text.split("\n")
+    cleaned_lines = []
+    seen_items = set()
 
-    # 📌 **Extraer ítems (listas y numeraciones)**
-    org_items = []
-    for line in org_text.split("\n"):
-        clean_line = line.strip()
-        if clean_line and re.match(r"^(\d+\.|[-•])\s*", clean_line):  # Detectar listas numeradas o con viñetas
-            org_items.append(re.sub(r"^(\d+\.|[-•])\s*", "", clean_line))  # Eliminar números y viñetas
+    for line in org_lines:
+        line = line.strip()
+        line = re.sub(r"[^\w\s]", "", line)  # Elimina caracteres especiales
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normaliza espacios y minúsculas
+        
+        # Excluir encabezados repetidos y líneas vacías
+        if not normalized_line or normalized_line == "eventos organizados":
+            continue
+        
+        # Evitar duplicados
+        if normalized_line not in seen_items:
+            cleaned_lines.append(line)
+            seen_items.add(normalized_line)
 
-    return "\n".join(org_items) if org_items else None 
+    return org_text
     
 def evaluate_cv_presentation(pdf_path):
     """
