@@ -2699,7 +2699,7 @@ def home_page():
 
     with col1:
         st.subheader("▶️ Versión Actual")
-        st.write("Esta versión analiza la Hoja de Vida ANEIAP en su formato tradicional.")
+        st.write("Esta versión analiza la hoja de vida de forma mucho más rápida evaluando cada una de las experiencias como listado.")
         imagen_primary = 'Analizador Versión Actual.jpg'
         st.image(imagen_primary, use_container_width=True)
         st.markdown("**Recomendaciones a tener en cuenta ✅**")
@@ -2714,7 +2714,7 @@ def home_page():
 
     with col2:
         st.subheader("⏩ Versión Descriptiva")
-        st.write("Esta versión permite analizar la Hoja de Vida en un formato descriptivo.")
+        st.write("Esta versión es más cercana al entorno profesional permitiendo analizar la descripción de cada una de las experiencia de la hoja de vida")
         imagen_secundary = 'Analizador Versión Descriptiva.jpg'
         st.image(imagen_secundary, use_container_width=True)
         st.markdown("**Recomendaciones a tener en cuenta ✅**")
