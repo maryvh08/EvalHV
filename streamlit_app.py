@@ -2843,8 +2843,8 @@ def secondary():
     ])
 
     if st.button("Generar Reporte PDF"):
-        if detailed_uploaded_file is not None:
-            with open("detailed_uploaded_cv.pdf", "wb") as f:
+        if uploaded_file is not None:
+            with open("uploaded_file.pdf", "wb") as f:
                 f.write(detailed_uploaded_file.read())
             
             # Llamar a la nueva función unificada
