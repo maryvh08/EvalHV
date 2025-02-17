@@ -2702,6 +2702,13 @@ def home_page():
         st.write("Esta versión analiza la Hoja de Vida ANEIAP en su formato tradicional.")
         imagen_primary = 'Analizador Versión Actual.jpg'
         st.image(imagen_primary, use_container_width=True)
+            st.subheader("Recomendaciones a tener en cuenta ✅")
+        st.markdown("""
+        - Es preferible que la HV no haya sido cambiada de formato varias veces, ya que esto puede complicar la lectura y extracción del texto.
+        - La EXPERIENCIA EN ANEIAP debe estar enumerada para facilitar el análisis de la misma.
+        - El análisis puede presentar inconsistencias si la HV no está debidamente separada en subtítulos.
+        - Si la sección de EXPERIENCIA EN ANEIAP está dispuesta como tabla, la herramienta puede fallar.
+        """)
         if st.button("Ir a Evaluador Actual"):
             st.session_state.page = "primary"
 
@@ -2710,6 +2717,12 @@ def home_page():
         st.write("Esta versión permite analizar la Hoja de Vida en un formato descriptivo.")
         imagen_secundary = 'Analizador Versión Descriptiva.jpg'
         st.image(imagen_secundary, use_container_width=True)
+        st.subheader("Recomendaciones a tener en cuenta ✅")
+        st.markdown("""
+        - Organiza tu HV en formato descriptivo para cada cargo o proyecto.
+        - Usa viñetas para detallar las acciones realizadas en cada ítem.
+        - Evita usar tablas para la sección de experiencia, ya que esto dificulta la extracción de datos.
+        """)
         if st.button("Ir a Evaluador Descriptivo"):
             st.session_state.page = "secondary"
 
@@ -2789,16 +2802,6 @@ def primary():
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
     
-    st.write(f"---")
-    
-    st.subheader("Recomendaciones a tener en cuenta ✅")
-    st.markdown("""
-    - Es preferible que la HV no haya sido cambiada de formato varias veces, ya que esto puede complicar la lectura y extracción del texto.
-    - La EXPERIENCIA EN ANEIAP debe estar enumerada para facilitar el análisis de la misma.
-    - El análisis puede presentar inconsistencias si la HV no está debidamente separada en subtítulos.
-    - Si la sección de EXPERIENCIA EN ANEIAP está dispuesta como tabla, la herramienta puede fallar.
-    """)
-    
     st.write("---")
     
     st.markdown(
@@ -2840,15 +2843,6 @@ def secondary():
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
 
-
-    st.write(f"---")
-
-    st.subheader("Recomendaciones a tener en cuenta ✅")
-    st.markdown("""
-    - Organiza tu HV en formato descriptivo para cada cargo o proyecto.
-    - Usa viñetas para detallar las acciones realizadas en cada ítem.
-    - Evita usar tablas para la sección de experiencia, ya que esto dificulta la extracción de datos.
-    """)
     st.write("---")
 
     st.markdown(
