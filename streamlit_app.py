@@ -2862,7 +2862,7 @@ def secondary():
         candidate_name = st.session_state["candidate_name"]
         position = st.session_state["position"]
         chapter = st.session_state["chapter"]
-  else:
+    else:
     st.error("No se ha subido un archivo el archivo PDF. Por favor, sube un archivo primero.")
 
 
