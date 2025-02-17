@@ -2151,9 +2151,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(PageBreak())
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
-    tittle_chapter= chapter.upper
+    tittle_chapter= chapter.upper()
 
-    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position} CAPÍTULO {tittle_chapter}", title_style))
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position} {tittle_chapter}", title_style))
 
     elements.append(Spacer(1, 0.2 * inch))
 
