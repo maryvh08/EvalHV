@@ -960,7 +960,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     title_position = position.upper()
     tittle_chapter= chapter.upper
 
-    elements.append(Paragraph(f"REPORTE DE ANÁLISIS {title_candidate_name} CARGO {title_position} CAPÍTULO {tittle_chapter}", title_style))
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS {title_candidate_name} CARGO {title_position} {tittle_chapter}", title_style))
 
     elements.append(Spacer(1, 0.2 * inch))
 
