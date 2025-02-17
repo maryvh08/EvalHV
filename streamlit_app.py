@@ -2690,6 +2690,29 @@ def home_page():
     st.write("Esta fue diseñada para apoyar en el proceso de convocatoria a los evaluadores para calificar las hojas de vida de los aspirantes.")
     st.write("Como resultado de este análisis se generará un reporte PDF descargable.")
 
+    st.write("")
+
+    # Split Page
+    st.write("## 🔍 Selecciona el tipo de evaluación de Hoja de Vida")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("▶️ Versión Actual")
+        st.write("Esta versión analiza la Hoja de Vida ANEIAP en su formato tradicional.")
+        imagen_primary = 'Analizador Versión Actual.jpg'
+        st.image(imagen_primary, use_container_width=True)
+        if st.button("Ir a Evaluador Actual"):
+            st.session_state.page = "primary"
+
+    with col2:
+        st.subheader("⏩ Versión Descriptiva")
+        st.write("Esta versión permite analizar la Hoja de Vida en un formato descriptivo.")
+        imagen_secundary = 'Analizador Versión Descriptiva.jpg'
+        st.image(imagen_secundary, use_container_width=True)
+        if st.button("Ir a Evaluador Descriptivo"):
+            st.session_state.page = "secondary"
+
     st.write("---") 
 
     st.write("ℹ️ Aquí puedes encontrar información si quieres saber un poco más") 
@@ -2740,29 +2763,6 @@ def home_page():
         La herramienta tiene disponible dos versiones, de modo que se pueda evaluar la HV con el formato actual y una propuesta para incluir descripciones de los proyectos/cargos ocupados.
         </div>
         """, unsafe_allow_html=True)
-
-    st.write("")
-
-    # Split Page
-    st.write("## 🔍 Selecciona el tipo de evaluación de Hoja de Vida")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("▶️ Versión Actual")
-        st.write("Esta versión analiza la Hoja de Vida ANEIAP en su formato tradicional.")
-        imagen_primary = 'Analizador Versión Actual.jpg'
-        st.image(imagen_primary, use_container_width=True)
-        if st.button("Ir a Evaluador Actual"):
-            st.session_state.page = "primary"
-
-    with col2:
-        st.subheader("⏩ Versión Descriptiva")
-        st.write("Esta versión permite analizar la Hoja de Vida en un formato descriptivo.")
-        imagen_secundary = 'Analizador Versión Descriptiva.jpg'
-        st.image(imagen_secundary, use_container_width=True)
-        if st.button("Ir a Evaluador Descriptivo"):
-            st.session_state.page = "secondary"
 
 def primary():
     imagen_primary= 'Analizador Versión Actual.jpg'
