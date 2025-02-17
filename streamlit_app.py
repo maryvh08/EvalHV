@@ -952,7 +952,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         draw_full_page_cover(canvas, portada_path, candidate_name, position)
 
     # Título del reporte centrado
-    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position} CAPÍTULO {tittle_chapter}", title_style))
+    title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
                                 )
     # Convertir texto a mayúsculas
     elements.append(PageBreak())
@@ -960,7 +960,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     title_position = position.upper()
     tittle_chapter= chapter.upper
 
-    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position}" CAPÍTULO {tittle_chapter}, title_style))
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position} CAPÍTULO {tittle_chapter}", title_style))
 
     elements.append(Spacer(1, 0.2 * inch))
 
