@@ -173,29 +173,36 @@ def calculate_indicators_for_report(lines, position_indicators):
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def clean_text(text):
     """Limpia el texto eliminando caracteres especiales y espacios extra."""
+    
+    if not isinstance(text, str):  # Si no es una cadena de texto, manejar el error
+        print(f"⚠️ Error en clean_text: Se esperaba str, pero se recibió {type(text)} -> {text}")
+        return ""  # Evita que falle devolviendo una cadena vacía
+    
     text = re.sub(r"[^\w\s]", "", text)  # Elimina puntuación
-    text = re.sub(r"\s+", " ", text).strip().lower()  # Espacios y minúsculas
+    text = re.sub(r"\s+", " ", text).strip().lower()  # Normaliza espacios y minúsculas
     return text
 
 def calculate_similarity(text1, text2):
-    """
-    Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno.
-    :param text1: Primer texto.
-    :param text2: Segundo texto.
-    :return: Porcentaje de similitud.
-    """
+    """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
+    
+    if not isinstance(text1, str) or not isinstance(text2, str):
+        print(f"⚠️ Error en calculate_similarity: text1 ({type(text1)}) = {text1}, text2 ({type(text2)}) = {text2}")
+        return 0  # Evita errores si los valores son incorrectos
+
     text1, text2 = clean_text(text1), clean_text(text2)
 
-    if not text1 or not text2:  # Evitar problemas con entradas vacías
+    if not text1 or not text2:  # Si después de limpiar los textos están vacíos
+        print(f"⚠️ Textos vacíos después de limpieza: text1='{text1}', text2='{text2}'")
         return 0
 
     try:
-        vectorizer = TfidfVectorizer(ngram_range=(1,2), stop_words="english")  # Mejora precisión
+        vectorizer = TfidfVectorizer(ngram_range=(1,2), stop_words="english")
         tfidf_matrix = vectorizer.fit_transform([text1, text2])
         similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-        return round(similarity * 100, 2)  # Redondear a 2 decimales
-    except:
-        return 0  # Manejo de errores
+        return round(similarity * 100, 2)
+    except Exception as e:
+        print(f"⚠️ Error en calculate_similarity: {e}")
+        return 0
 
 def calculate_presence(texts, keywords):
     """
