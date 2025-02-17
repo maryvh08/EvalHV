@@ -2857,19 +2857,31 @@ def secondary():
         "UNIGUAJIRA", "UNIMAGDALENA", "UNINORTE", "UNIATLÁNTICO", "CUC", "UNISIMÓN", "LIBREQUILLA", "UTB", "UFPS", "UNALMED", "UPBMED", "UDEA", "UTP", "UNALMA", "LIBRECALI", "UNIVALLE", "ICESI", "USC", "UDISTRITAL", "UNALBOG", "UPBMONTERÍA", "AREANDINA", "UNICÓDOBA"
     ])
 
-    if "pdf_path" in st.session_state:
-        pdf_path = st.session_state["pdf_path"]
-        candidate_name = st.session_state["candidate_name"]
-        position = st.session_state["position"]
-        chapter = st.session_state["chapter"]
-    else:
-        st.error("No se ha subido un archivo el archivo PDF. Por favor, sube un archivo primero.")
+    if uploaded_file is not None:
+        # Guarda el archivo en una carpeta temporal
+        pdf_path = os.path.join("temp", uploaded_file.name)
+        os.makedirs("temp", exist_ok=True)  # Asegura que la carpeta existe
+        with open(pdf_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
 
+        # Guarda la ruta del archivo en session_state
+        st.session_state["pdf_path_secondary"] = pdf_path
+        st.session_state["candidate_name_secondary"] = candidate_name
+        st.session_state["position_secondary"] = position
+        st.session_state["chapter_secondary"] = chapter
 
     if st.button("Generar Reporte PDF"):
-        analyze_and_generate_descriptive_report_with_background(
-            pdf_path, position, candidate_name, advice, indicators, background_path, chapter
-        )
+        if "pdf_path_secondary" in st.session_state:
+            analyze_and_generate_descriptive_report_with_background(
+                st.session_state["pdf_path_secondary"],
+                st.session_state["position_secondary"],
+                st.session_state["candidate_name_secondary"],
+                advice, indicators, background_path,
+                st.session_state["chapter_secondary"]
+            )
+        else:
+            st.error("Por favor, sube un archivo PDF para continuar.")
+
   
     st.write("---")
 
