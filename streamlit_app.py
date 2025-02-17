@@ -584,13 +584,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Dividir los eventos en líneas
     org_lines = extract_cleaned_lines(org_text)#Extraer texto del perfil
-    profile_text = extract_profile_section_with_ocr(pdf_path)
-    if not profile_text:
-        st.warning("No se encontró la sección 'Perfil' en el PDF.")
-        return None
     org_lines= org_text.split("\n")
     org_lines = [line.strip() for line in org_lines if line.strip()]  # Eliminar líneas vacías
-
+    candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
+    candidate_profile_lines= candidate_profile_text.split("\n")
+    candidate_profile_lines= [line.strip() for line in candidate_profile_lines if line.strip()] 
+    
     # Dividir la asistencia en líneas
     att_lines = extract_cleaned_lines(att_text)
     att_lines= att_text.split("\n")
@@ -711,8 +710,24 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             att_line_results.append((line, att_func_match, att_profile_match))
 
     # Calcular concordancia de funciones y perfil del cargo con perfil de aspirante
-    profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
-    profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
+    for line in candidate_profile_lines:
+        line = line.strip()
+        if not line:  # Ignorar líneas vacías
+            continue
+
+        # Dividir los eventos en líneas
+        candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
+        candidate_profile_lines= org_text.split("\n")
+        candidate_profile_lines = [line.strip() for line in candidate_profile_lines if line.strip]
+
+        # Evaluación general de concordancia
+        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+            profile_func_match = 100.0
+            profile_profile_match = 100.0
+        else:
+            # Calcular similitud
+            profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
+            profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
     
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
