@@ -217,7 +217,7 @@ def calculate_presence(texts, keywords):
     return round((matches / len(keywords)) * 100, 2)  # Redondear a 2 decimales
 
 
-def draw_full_page_cover(canvas, portada_path, candidate_name, position,chaper):
+def draw_full_page_cover(canvas, portada_path, candidate_name, position,chapter):
     """
     Dibuja la portada con una imagen a página completa y el título del reporte completamente centrado.
     :param canvas: Lienzo de ReportLab.
@@ -248,7 +248,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position,chaper):
     # 📌 **AGREGAR EL TÍTULO DEL REPORTE EN EL CENTRO**
     title_style = ParagraphStyle(name="Title", fontName="CenturyGothicBold", fontSize=48, textColor=colors.black, alignment=1,)
 
-    title_text = f"REPORTE DE ANÁLISIS\n{candidate_name.upper()}\nCARGO: {position.upper()} {chapter.upper()}"
+    title_text = f"REPORTE DE ANÁLISIS\n{candidate_name.upper()}\nCARGO: {position.upper()}\nCAPÍTULO:{chapter.upper()}"
 
     # 📌 Configurar fuente y color del texto
     canvas.setFont("CenturyGothicBold", 36)
