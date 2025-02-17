@@ -2700,7 +2700,7 @@ def home_page():
     with col1:
         st.subheader("▶️ Versión Actual")
         st.write("Esta versión analiza la hoja de vida de forma mucho más rápida evaluando cada una de las experiencias como listado.")
-        imagen_primary = 'Analizador Versión Actual.jpg'
+        imagen_primary = 'Split actual.jpg'
         st.image(imagen_primary, use_container_width=True)
         st.markdown("**Recomendaciones a tener en cuenta ✅**")
         st.markdown("""
@@ -2715,7 +2715,7 @@ def home_page():
     with col2:
         st.subheader("⏩ Versión Descriptiva")
         st.write("Esta versión es más cercana al entorno profesional permitiendo analizar la descripción de cada una de las experiencia de la hoja de vida")
-        imagen_secundary = 'Analizador Versión Descriptiva.jpg'
+        imagen_secundary = 'Split descriptivo.jpg'
         st.image(imagen_secundary, use_container_width=True)
         st.markdown("**Recomendaciones a tener en cuenta ✅**")
         st.markdown("""
