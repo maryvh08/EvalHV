@@ -2702,7 +2702,7 @@ def home_page():
         st.write("Esta versión analiza la Hoja de Vida ANEIAP en su formato tradicional.")
         imagen_primary = 'Analizador Versión Actual.jpg'
         st.image(imagen_primary, use_container_width=True)
-        st.subheader("Recomendaciones a tener en cuenta ✅")
+        st.markdown("**Recomendaciones a tener en cuenta ✅**")
         st.markdown("""
         - Es preferible que la HV no haya sido cambiada de formato varias veces, ya que esto puede complicar la lectura y extracción del texto.
         - La EXPERIENCIA EN ANEIAP debe estar enumerada para facilitar el análisis de la misma.
@@ -2717,7 +2717,7 @@ def home_page():
         st.write("Esta versión permite analizar la Hoja de Vida en un formato descriptivo.")
         imagen_secundary = 'Analizador Versión Descriptiva.jpg'
         st.image(imagen_secundary, use_container_width=True)
-        st.subheader("Recomendaciones a tener en cuenta ✅")
+        st.markdown("**Recomendaciones a tener en cuenta ✅**")
         st.markdown("""
         - Organiza tu HV en formato descriptivo para cada cargo o proyecto.
         - Usa viñetas para detallar las acciones realizadas en cada ítem.
