@@ -1614,39 +1614,40 @@ def extract_asistencia_items_with_details(pdf_path):
     return items
 
 def extract_profile_section_with_details(pdf_path):
-    """
-    Extrae el texto de la sección 'Perfil' de un archivo PDF, incluyendo encabezados y detalles.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Texto completo de la sección 'Perfil'.
-    """
-    candidate_profile_text = ""
-    in_profile_section = False
+    """ Extrae la sección 'Perfil' de un archivo PDF """
+    try:
+        candidate_profile_text = ""
+        in_profile_section = False
 
-    with fitz.open(pdf_path) as doc:
-        for page in doc:
-            blocks = page.get_text("dict")["blocks"]
-            for block in blocks:
-                if "lines" not in block:
-                    continue
+        with fitz.open(pdf_path) as doc:
+            for page in doc:
+                blocks = page.get_text("dict")["blocks"]
+                for block in blocks:
+                    if "lines" not in block:
+                        continue
 
-                for line in block["lines"]:
-                    for span in line["spans"]:
-                        text = span["text"].strip()
-                        if not text:
-                            continue
+                    for line in block["lines"]:
+                        for span in line["spans"]:
+                            text = span["text"].strip()
+                            if not text:
+                                continue
 
-                        # Detectar inicio y fin de la sección
-                        if "perfil" in text.lower():
-                            in_profile_section = True
-                            continue
-                        elif any(key in text.lower() for key in ["asistencia a eventos aneiap", "actualización profesional"]):
-                            in_profile_section = False
-                            break
+                            # Detectar inicio y fin de la sección
+                            if "perfil" in text.lower():
+                                in_profile_section = True
+                                continue
+                            elif any(key in text.lower() for key in ["asistencia a eventos aneiap", "actualización profesional"]):
+                                in_profile_section = False
+                                break
 
-                        if in_profile_section:
-                            candidate_profile_text += text + " "
+                            if in_profile_section:
+                                candidate_profile_text += text + " "
 
-    return candidate_profile_text.strip
+        return candidate_profile_text.strip()
+    
+    except Exception as e:
+        print(f"⚠️ Error en extract_profile_section_with_details: {e}")
+        return ""
 
 def evaluate_cv_presentation_with_headers(pdf_path):
     """
