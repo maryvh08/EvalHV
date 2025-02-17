@@ -2790,6 +2790,9 @@ def primary():
     position = st.selectbox("Selecciona el cargo al que aspiras:", [
         "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
     ])
+    position = st.selectbox("Selecciona el Capítulo al que perteneces:", [
+        "UNIGUAJIRA", "UNIMAGDALENA", "UNINORTE", "UNIATLÁNTICO", "CUC", "UNISIMÓN", "LIBRE BARRANQUILLA", "UTB", "UFPS", "NACIONAL MED", "UPB MEDELLÍN", "UDEA", "UTP", "NACIONAL MAN", "LIBRE CALI", "UNIVALLE", "ICESI", "USC", "U DISTRITAL", "UNALBOG", "UPB MONT", "AREANDINA VALLEDUPAR", "UNICÓDOBA"
+    ])
     
     # Configuración BOTÓN GENERAR REPORTE
     if st.button("Generar Reporte PDF"):
