@@ -2790,8 +2790,8 @@ def primary():
     position = st.selectbox("Selecciona el cargo al que aspiras:", [
         "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
     ])
-    position = st.selectbox("Selecciona el Capítulo al que perteneces:", [
-        "UNIGUAJIRA", "UNIMAGDALENA", "UNINORTE", "UNIATLÁNTICO", "CUC", "UNISIMÓN", "LIBRE BARRANQUILLA", "UTB", "UFPS", "NACIONAL MED", "UPB MEDELLÍN", "UDEA", "UTP", "NACIONAL MAN", "LIBRE CALI", "UNIVALLE", "ICESI", "USC", "U DISTRITAL", "UNALBOG", "UPB MONT", "AREANDINA VALLEDUPAR", "UNICÓDOBA"
+    chapter = st.selectbox("Selecciona el Capítulo al que perteneces:", [
+        "UNIGUAJIRA", "UNIMAGDALENA", "UNINORTE", "UNIATLÁNTICO", "CUC", "UNISIMÓN", "LIBREQUILLA", "UTB", "UFPS", "UNALMED", "UPBMED", "UDEA", "UTP", "UNALMA", "LIBRECALI", "UNIVALLE", "ICESI", "USC", "UDISTRITAL", "UNALBOG", "UPBMONTERÍA", "AREANDINA", "UNICÓDOBA"
     ])
     
     # Configuración BOTÓN GENERAR REPORTE
@@ -2832,6 +2832,9 @@ def secondary():
     detailed_uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
     position = st.selectbox("Selecciona el cargo al que aspiras:", [
         "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
+    ])
+    chapter = st.selectbox("Selecciona el Capítulo al que perteneces:", [
+        "UNIGUAJIRA", "UNIMAGDALENA", "UNINORTE", "UNIATLÁNTICO", "CUC", "UNISIMÓN", "LIBREQUILLA", "UTB", "UFPS", "UNALMED", "UPBMED", "UDEA", "UTP", "UNALMA", "LIBRECALI", "UNIVALLE", "ICESI", "USC", "UDISTRITAL", "UNALBOG", "UPBMONTERÍA", "AREANDINA", "UNICÓDOBA"
     ])
 
     if st.button("Generar Reporte PDF"):
