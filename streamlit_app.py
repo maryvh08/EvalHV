@@ -2809,6 +2809,9 @@ def primary():
     """,
     unsafe_allow_html=True
     )
+
+    if st.button("Ir a Inicio"):
+            st.session_state.page = "home_page"
     
 def secondary():
     imagen_secundary= 'Analizador Versión Descriptiva.jpg'
@@ -2891,6 +2894,9 @@ def secondary():
         """,
         unsafe_allow_html=True
     )
+
+    if st.button("Ir a Inicio"):
+        st.session_state.page = "home_page"
 
 # Configuración del estado inicial de la sesión
 if "page" not in st.session_state:
