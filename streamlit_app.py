@@ -2862,14 +2862,15 @@ def secondary():
         candidate_name = st.session_state["candidate_name"]
         position = st.session_state["position"]
         chapter = st.session_state["chapter"]
+  else:
+    st.error("No se ha subido un archivo el archivo PDF. Por favor, sube un archivo primero.")
 
-        if st.button("Generar Reporte PDF"):
-            analyze_and_generate_descriptive_report_with_background(
-                pdf_path, position, candidate_name, advice, indicators, background_path, chapter
-            )
-    else:
-        st.error("No se ha subido un archivo el archivo PDF. Por favor, sube un archivo primero.")
 
+    if st.button("Generar Reporte PDF"):
+        analyze_and_generate_descriptive_report_with_background(
+            pdf_path, position, candidate_name, advice, indicators, background_path, chapter
+        )
+  
     st.write("---")
 
     st.markdown(
