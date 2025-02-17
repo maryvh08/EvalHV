@@ -950,7 +950,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
     def on_first_page(canvas, doc):
         """Dibuja una portada que ocupa toda la página."""
-        draw_full_page_cover(canvas, portada_path, candidate_name, position)
+        draw_full_page_cover(canvas, portada_path, candidate_name, position, chapter)
 
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
