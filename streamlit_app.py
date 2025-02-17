@@ -2845,7 +2845,7 @@ def secondary():
     if st.button("Generar Reporte PDF"):
         if uploaded_file is not None:
             with open("uploaded_file.pdf", "wb") as f:
-                f.write(detailed_uploaded_file.read())
+                f.write(uploaded_file.read())
             
             # Llamar a la nueva función unificada
             analyze_and_generate_descriptive_report_with_background(uploaded_file, position, candidate_name, advice, indicators, background_path, chapter)
