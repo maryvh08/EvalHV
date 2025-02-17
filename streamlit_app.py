@@ -2700,8 +2700,8 @@ def home_page():
     with col1:
         st.subheader("▶️ Versión Actual")
         st.write("Esta versión analiza la hoja de vida de forma mucho más rápida evaluando cada una de las experiencias como listado.")
-        imagen_primary = 'Split actual.jpg'
-        st.image(imagen_primary, use_container_width=True)
+        option_primary = 'Split actual.jpg'
+        st.image(option_primary, use_container_width=True)
         st.markdown("**Recomendaciones a tener en cuenta ✅**")
         st.markdown("""
         - Es preferible que la HV no haya sido cambiada de formato varias veces, ya que esto puede complicar la lectura y extracción del texto.
@@ -2715,8 +2715,8 @@ def home_page():
     with col2:
         st.subheader("⏩ Versión Descriptiva")
         st.write("Esta versión es más cercana al entorno profesional permitiendo analizar la descripción de cada una de las experiencia de la hoja de vida")
-        imagen_secundary = 'Split descriptivo.jpg'
-        st.image(imagen_secundary, use_container_width=True)
+        option_secundary = 'Split descriptivo.jpg'
+        st.image(option_secundary, use_container_width=True)
         st.markdown("**Recomendaciones a tener en cuenta ✅**")
         st.markdown("""
         - Organiza tu HV en formato descriptivo para cada cargo o proyecto.
