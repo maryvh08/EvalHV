@@ -940,7 +940,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14, alignment=TA_JUSTIFY))
 
     # Crear el documento PDF
-    report_path = f"Reporte_analisis_cargo_{candidate_name}_{position}.pdf"
+    report_path = f"Reporte_analisis_cargo_{candidate_name}_{position}_{chapter}.pdf"
     doc = SimpleDocTemplate(report_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
 
     # Lista de elementos para el reporte
@@ -960,7 +960,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     title_position = position.upper()
     tittle_chapter= chapter.upper
 
-    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position} CAPÍTULO {tittle_chapter}", title_style))
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS {title_candidate_name} CARGO {title_position} CAPÍTULO {tittle_chapter}", title_style))
 
     elements.append(Spacer(1, 0.2 * inch))
 
@@ -2833,7 +2833,7 @@ def secondary():
 
     # Entrada de datos del usuario
     candidate_name = st.text_input("Nombre del candidato:")
-    detailed_uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
+    uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
     position = st.selectbox("Selecciona el cargo al que aspiras:", [
         "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
     ])
@@ -2847,7 +2847,7 @@ def secondary():
                 f.write(detailed_uploaded_file.read())
             
             # Llamar a la nueva función unificada
-            analyze_and_generate_descriptive_report_with_background(detailed_uploaded_file, position, candidate_name, advice, indicators, background_path, chapter)
+            analyze_and_generate_descriptive_report_with_background(uploaded_file, position, candidate_name, advice, indicators, background_path, chapter)
 
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
