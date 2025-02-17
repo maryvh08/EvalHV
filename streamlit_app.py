@@ -293,7 +293,11 @@ def extract_profile_section_with_ocr(pdf_path):
     :param pdf_path: Ruta del archivo PDF.
     :return: Texto de la sección 'Perfil'.
     """
-    text = extract_text_with_ocr(pdf_path)  # Extraer texto completo del PDF utilizando OCR
+    text = extract_text_with_ocr(pdf_path)
+
+    if not text or len(text.strip()) == 0:
+        print("⚠️ No se pudo extraer texto del PDF.")
+        return ""
 
     # Palabras clave para identificar el inicio y fin de la sección
     start_keyword = "Perfil"
@@ -302,13 +306,14 @@ def extract_profile_section_with_ocr(pdf_path):
         "Actualización profesional",
     ]
 
-    # Encontrar índice de inicio
+    # Buscar la palabra clave de inicio
     start_idx = text.lower().find(start_keyword.lower())
     if start_idx == -1:
-        return None  # No se encontró la sección "Perfil"
+        print("⚠️ No se encontró la sección 'Perfil'.")
+        return ""
 
-    # Encontrar índice más cercano de fin basado en palabras clave
-    end_idx = len(text)  # Por defecto, tomar hasta el final
+    # Encontrar el índice más cercano de las palabras clave de fin
+    end_idx = len(text)
     for keyword in end_keywords:
         idx = text.lower().find(keyword.lower(), start_idx)
         if idx != -1:
@@ -317,9 +322,9 @@ def extract_profile_section_with_ocr(pdf_path):
     # Extraer la sección entre inicio y fin
     candidate_profile_text = text[start_idx:end_idx].strip()
 
-    # Limpieza adicional del texto
-    cleaned_profile_text = re.sub(r"[^\w\s.,;:]", "", candidate_profile_text)  # Eliminar caracteres no deseados
-    cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normalizar espacios
+    # Depuración del texto extraído
+    cleaned_profile_text = re.sub(r"[^\w\s.,;:()\-]", "", candidate_profile_text)  # Mantiene paréntesis y guiones
+    cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normaliza espacios
 
     return cleaned_profile_text
 
