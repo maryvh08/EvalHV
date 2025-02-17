@@ -315,10 +315,10 @@ def extract_profile_section_with_ocr(pdf_path):
             end_idx = min(end_idx, idx)
 
     # Extraer la sección entre inicio y fin
-    profile_profile_text = text[start_idx:end_idx].strip()
+    candidate_profile_text = text[start_idx:end_idx].strip()
 
     # Limpieza adicional del texto
-    cleaned_profile_text = re.sub(r"[^\w\s.,;:]", "", profile_profile_text)  # Eliminar caracteres no deseados
+    cleaned_profile_text = re.sub(r"[^\w\s.,;:]", "", candidate_profile_text)  # Eliminar caracteres no deseados
     cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normalizar espacios
 
     return cleaned_profile_text
@@ -567,8 +567,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         st.error("No se encontró el texto de la hoja de vida")
         return
 
-    profile_profile_text= extract_profile_section_with_ocr(pdf_path)
-    if not profile_profile_text:
+    candidate_profile_text= extract_profile_section_with_ocr(pdf_path)
+    if not candidate_profile_text:
         st.error("No se encontró la sección 'Perfil' en el PDF.")
         return
     
@@ -706,8 +706,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             att_line_results.append((line, att_func_match, att_profile_match))
 
     # Calcular concordancia de funciones y perfil del cargo con perfil de aspirante
-    profile_func_match = calculate_similarity(profile_profile_text, functions_text)
-    profile_profile_match = calculate_similarity(profile_profile_text, profile_text)
+    profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
+    profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
     
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
@@ -1619,7 +1619,7 @@ def extract_profile_section_with_details(pdf_path):
     :param pdf_path: Ruta del archivo PDF.
     :return: Texto completo de la sección 'Perfil'.
     """
-    profile_profile_text = ""
+    candidate_profile_text = ""
     in_profile_section = False
 
     with fitz.open(pdf_path) as doc:
@@ -1644,9 +1644,9 @@ def extract_profile_section_with_details(pdf_path):
                             break
 
                         if in_profile_section:
-                            profile_profile_text += text + " "
+                            candidate_profile_text += text + " "
 
-    return profile_profile_text.strip
+    return candidate_profile_text.strip
 
 def evaluate_cv_presentation_with_headers(pdf_path):
     """
@@ -1733,8 +1733,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     """
 
     # Extraer la sección 'Perfil'
-    profile_profile_text = extract_profile_section_with_details(pdf_path)
-    if not profile_profile_text:
+    candidate_profile_text = extract_profile_section_with_details(pdf_path)
+    if not candidate_profile_text:
         st.error("No se encontró la sección 'Perfil' en el PDF.")
         return
 
@@ -1781,8 +1781,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
     # Análisis de la sección de perfil
-    profile_func_match = calculate_similarity(profile_profile_text, functions_text)
-    profile_profile_match = calculate_similarity(profile_profile_text, profile_text)
+    profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
+    profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
 
     #EXPERIENCIA EN ANEIAP
     for header, details in items.items():
