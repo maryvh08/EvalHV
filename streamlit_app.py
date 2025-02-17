@@ -2863,7 +2863,7 @@ def secondary():
         position = st.session_state["position"]
         chapter = st.session_state["chapter"]
     else:
-    st.error("No se ha subido un archivo el archivo PDF. Por favor, sube un archivo primero.")
+        st.error("No se ha subido un archivo el archivo PDF. Por favor, sube un archivo primero.")
 
 
     if st.button("Generar Reporte PDF"):
