@@ -1743,7 +1743,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         st.error("No se encontraron encabezados y detalles de eventos para analizar.")
         return
 
-    # Extraer texto de la sección EVENTOS ORGANIZADOS
+    # Extraer texto de la sección Asistencia a eventos
     att_items = extract_asistencia_items_with_details(pdf_path)
     if not att_items:
         st.error("No se encontraron encabezados y detalles de asistencias para analizar.")
