@@ -2805,7 +2805,7 @@ def primary():
                 f.write(uploaded_file.read())
             
             # Llamar a la función para generar el reporte con fondo
-            generate_report_with_background("uploaded_cv.pdf", position, candidate_name, background_path)
+            generate_report_with_background("uploaded_cv.pdf", position, candidate_name, background_path, chapter)
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
     
@@ -2847,7 +2847,7 @@ def secondary():
                 f.write(detailed_uploaded_file.read())
             
             # Llamar a la nueva función unificada
-            analyze_and_generate_descriptive_report_with_background("detailed_uploaded_cv.pdf", position, candidate_name, advice, indicators, background_path)
+            analyze_and_generate_descriptive_report_with_background("detailed_uploaded_cv.pdf", position, candidate_name, advice, indicators, background_path, chapter)
 
 
         else:
