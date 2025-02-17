@@ -2677,31 +2677,29 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         )
 
 # Interfaz en Streamlit
+import streamlit as st
+
+# Página de Inicio (Home)
 def home_page():
     st.title("Bienvenido a EvalHVAN")
-    
+
     st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁") 
     imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP.jpg'
     st.image(imagen_aneiap, use_container_width=True)
-    st.write("Esta herramienta analiza el contenido de la hoja de vida ANEIAP, comparandola con las funciones y perfil del cargo al que aspira, evaluando por medio de indicadores los aspectos puntuales en los cuales se hace necesario el aspirante enfatice para asegurar que este se encuentre preparado.") 
+    st.write("Esta herramienta analiza el contenido de la hoja de vida ANEIAP, comparándola con las funciones y perfil del cargo al que aspira, evaluando por medio de indicadores los aspectos puntuales en los cuales se hace necesario el aspirante enfatice para asegurar que este se encuentre preparado.") 
     st.write("Esta fue diseñada para apoyar en el proceso de convocatoria a los evaluadores para calificar las hojas de vida de los aspirantes.")
-    st.write("Como resultado de este análisis se generará un reporte PDF descargable")
-    
+    st.write("Como resultado de este análisis se generará un reporte PDF descargable.")
+
     st.write("---") 
-    
+
     st.write("ℹ️ Aquí puedes encontrar información si quieres saber un poco más") 
-    
-    st.write("") 
-    
-    # Configuración del enlace CARGOS
+
+    # Botones de información
     link_url_cargos = "https://drive.google.com/drive/folders/1hSUChvaYymUJ6g-IEfiY4hYqikePsQ9P?usp=drive_link"
     link_label_cargos = "Info cargos"
-    
-    # Configuración del enlace INDICADORES
     link_url_indicadores = "https://docs.google.com/document/d/1BM07wuVaXEWcdurTRr8xBzjsB1fiWt6wGqOzLiyQBs8/edit?usp=drive_link"
     link_label_indicadores = "Info indicadores"
-    
-    # Contenedor para centrar los botones
+
     st.markdown(f"""
         <div style="display: flex; justify-content: center; gap: 20px;">
             <a href="{link_url_cargos}" target="_blank" style="text-decoration:none;">
@@ -2734,18 +2732,37 @@ def home_page():
             </a>
         </div>
         """, unsafe_allow_html=True)
-    
-    st.write("---")
-    
-    st.markdown(
-    """
-    <div style="text-align: center; font-weight: bold; font-size: 20px;">
-    La herramienta tiene disponible dos versiones, de modo se pueda evaluar la HV con el formato actual y una propuesta para incluir descripciones de los proyectos/cargos ocupados.
-    </div>
-    """,
-    unsafe_allow_html=True
-    )
 
+    st.write("---")
+
+    st.markdown("""
+        <div style="text-align: center; font-weight: bold; font-size: 20px;">
+        La herramienta tiene disponible dos versiones, de modo que se pueda evaluar la HV con el formato actual y una propuesta para incluir descripciones de los proyectos/cargos ocupados.
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.write("")
+
+    # Split Page
+    st.write("## 🔍 Selecciona el tipo de evaluación de Hoja de Vida")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("▶️ Versión Actual")
+        st.write("Esta versión analiza la Hoja de Vida ANEIAP en su formato tradicional.")
+        imagen_primary = 'Analizador Versión Actual.jpg'
+        st.image(imagen_primary, use_container_width=True)
+        if st.button("Ir a Evaluador Actual"):
+            st.session_state.page = "primary"
+
+    with col2:
+        st.subheader("⏩ Versión Descriptiva")
+        st.write("Esta versión permite analizar la Hoja de Vida en un formato descriptivo.")
+        imagen_secundary = 'Analizador Versión Descriptiva.jpg'
+        st.image(imagen_secundary, use_container_width=True)
+        if st.button("Ir a Evaluador Descriptivo"):
+            st.session_state.page = "secondary"
 
 def primary():
     imagen_primary= 'Analizador Versión Actual.jpg'
@@ -2875,16 +2892,14 @@ def secondary():
         unsafe_allow_html=True
     )
 
-# Diccionario de páginas
-pages = {
-    "🏠 Inicio": home_page,
-    "✳️ Versión actual": primary,
-    "🚀 Analizador descriptivo": secondary,
-}
+# Configuración del estado inicial de la sesión
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
-# Sidebar para seleccionar página
-st.sidebar.title("Menú")
-selected_page = st.sidebar.radio("Ir a", list(pages.keys()))
-
-# Renderiza la página seleccionada
-pages[selected_page]()
+# Renderizado de la página según el estado
+if st.session_state.page == "home":
+    home_page()
+elif st.session_state.page == "primary":
+    primary()
+elif st.session_state.page == "secondary":
+    secondary()
