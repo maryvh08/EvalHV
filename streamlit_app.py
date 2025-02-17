@@ -530,13 +530,14 @@ def extract_attendance_section_with_ocr(pdf_path):
     
     return "\n".join(att_cleaned_lines)
 
-def generate_report_with_background(pdf_path, position, candidate_name,background_path):
+def generate_report_with_background(pdf_path, position, candidate_name,background_path, chapter):
     """
     Genera un reporte con un fondo en cada página.
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
     :param background_path: Ruta de la imagen de fondo.
+    :param chapter: Capítulo del Candidato
     """
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
@@ -957,8 +958,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(PageBreak())
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
-    
-    elements.append(Paragraph(f"REPORTE DE ANÁLISIS {title_candidate_name} CARGO {title_position}", title_style))
+    tittle_chapter= chapter.upper
+
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position}" CAPÍTULO {tittle_chapter}, title_style))
 
     elements.append(Spacer(1, 0.2 * inch))
 
@@ -1705,7 +1707,7 @@ def evaluate_cv_presentation_with_headers(pdf_path):
         }
 
 # Función principal para generar el reporte descriptivo
-def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
+def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path, chapter):
     """
     Analiza un CV descriptivo y genera un reporte PDF con un fondo en cada página.
     :param pdf_path: Ruta del PDF.
@@ -1714,6 +1716,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     :param advice: Diccionario con consejos.
     :param indicators: Diccionario con indicadores y palabras clave.
     :param background_path: Ruta de la imagen de fondo.
+    :param chapter: Capitulo del candidato.
     """
 
     # Extraer la sección 'Perfil'
@@ -2129,7 +2132,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14, alignment=TA_JUSTIFY))
 
     # Crear el documento PDF
-    output_path = f"Reporte_descriptivo_cargo_{candidate_name}_{position}.pdf"
+    output_path = f"Reporte_descriptivo_cargo_{candidate_name}_{position}_{chapter}.pdf"
     doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
 
     # Lista de elementos para el reporte
@@ -2138,7 +2141,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
     def on_first_page(canvas, doc):
         """Dibuja una portada que ocupa toda la página."""
-        draw_full_page_cover(canvas, portada_path, candidate_name, position)
+        draw_full_page_cover(canvas, portada_path, candidate_name, position, chapter)
 
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
@@ -2147,8 +2150,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(PageBreak())
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
+    tittle_chapter= chapter.upper
 
-    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position}", title_style))
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position}" CAPÍTULO {tittle_chapter}, title_style))
 
     elements.append(Spacer(1, 0.2 * inch))
 
