@@ -173,29 +173,36 @@ def calculate_indicators_for_report(lines, position_indicators):
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def clean_text(text):
     """Limpia el texto eliminando caracteres especiales y espacios extra."""
+    
+    if not isinstance(text, str):  # Si no es una cadena de texto, manejar el error
+        print(f"⚠️ Error en clean_text: Se esperaba str, pero se recibió {type(text)} -> {text}")
+        return ""  # Evita que falle devolviendo una cadena vacía
+    
     text = re.sub(r"[^\w\s]", "", text)  # Elimina puntuación
-    text = re.sub(r"\s+", " ", text).strip().lower()  # Espacios y minúsculas
+    text = re.sub(r"\s+", " ", text).strip().lower()  # Normaliza espacios y minúsculas
     return text
 
 def calculate_similarity(text1, text2):
-    """
-    Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno.
-    :param text1: Primer texto.
-    :param text2: Segundo texto.
-    :return: Porcentaje de similitud.
-    """
+    """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
+    
+    if not isinstance(text1, str) or not isinstance(text2, str):
+        print(f"⚠️ Error en calculate_similarity: text1 ({type(text1)}) = {text1}, text2 ({type(text2)}) = {text2}")
+        return 0  # Evita errores si los valores son incorrectos
+
     text1, text2 = clean_text(text1), clean_text(text2)
 
-    if not text1 or not text2:  # Evitar problemas con entradas vacías
+    if not text1 or not text2:  # Si después de limpiar los textos están vacíos
+        print(f"⚠️ Textos vacíos después de limpieza: text1='{text1}', text2='{text2}'")
         return 0
 
     try:
-        vectorizer = TfidfVectorizer(ngram_range=(1,2), stop_words="english")  # Mejora precisión
+        vectorizer = TfidfVectorizer(ngram_range=(1,2), stop_words="english")
         tfidf_matrix = vectorizer.fit_transform([text1, text2])
         similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-        return round(similarity * 100, 2)  # Redondear a 2 decimales
-    except:
-        return 0  # Manejo de errores
+        return round(similarity * 100, 2)
+    except Exception as e:
+        print(f"⚠️ Error en calculate_similarity: {e}")
+        return 0
 
 def calculate_presence(texts, keywords):
     """
@@ -217,13 +224,14 @@ def calculate_presence(texts, keywords):
     return round((matches / len(keywords)) * 100, 2)  # Redondear a 2 decimales
 
 
-def draw_full_page_cover(canvas, portada_path, candidate_name, position):
+def draw_full_page_cover(canvas, portada_path, candidate_name, position,chapter):
     """
     Dibuja la portada con una imagen a página completa y el título del reporte completamente centrado.
     :param canvas: Lienzo de ReportLab.
     :param portada_path: Ruta de la imagen de la portada.
     :param candidate_name: Nombre del candidato.
     :param position: Cargo al que aspira.
+    :param chapter: Capítulo del Candidato
     """
     # 📌 Obtener el tamaño de la página (Carta)
     page_width, page_height = letter
@@ -247,7 +255,7 @@ def draw_full_page_cover(canvas, portada_path, candidate_name, position):
     # 📌 **AGREGAR EL TÍTULO DEL REPORTE EN EL CENTRO**
     title_style = ParagraphStyle(name="Title", fontName="CenturyGothicBold", fontSize=48, textColor=colors.black, alignment=1,)
 
-    title_text = f"REPORTE DE ANÁLISIS\n{candidate_name.upper()}\nCARGO: {position.upper()}"
+    title_text = f"REPORTE DE ANÁLISIS\n{candidate_name.upper()}\nCARGO: {position.upper()}\nCAPÍTULO:{chapter.upper()}"
 
     # 📌 Configurar fuente y color del texto
     canvas.setFont("CenturyGothicBold", 36)
@@ -285,7 +293,11 @@ def extract_profile_section_with_ocr(pdf_path):
     :param pdf_path: Ruta del archivo PDF.
     :return: Texto de la sección 'Perfil'.
     """
-    text = extract_text_with_ocr(pdf_path)  # Extraer texto completo del PDF utilizando OCR
+    text = extract_text_with_ocr(pdf_path)
+
+    if not text or len(text.strip()) == 0:
+        print("⚠️ No se pudo extraer texto del PDF.")
+        return ""
 
     # Palabras clave para identificar el inicio y fin de la sección
     start_keyword = "Perfil"
@@ -294,24 +306,25 @@ def extract_profile_section_with_ocr(pdf_path):
         "Actualización profesional",
     ]
 
-    # Encontrar índice de inicio
+    # Buscar la palabra clave de inicio
     start_idx = text.lower().find(start_keyword.lower())
     if start_idx == -1:
-        return None  # No se encontró la sección "Perfil"
+        print("⚠️ No se encontró la sección 'Perfil'.")
+        return ""
 
-    # Encontrar índice más cercano de fin basado en palabras clave
-    end_idx = len(text)  # Por defecto, tomar hasta el final
+    # Encontrar el índice más cercano de las palabras clave de fin
+    end_idx = len(text)
     for keyword in end_keywords:
         idx = text.lower().find(keyword.lower(), start_idx)
         if idx != -1:
             end_idx = min(end_idx, idx)
 
     # Extraer la sección entre inicio y fin
-    profile_text = text[start_idx:end_idx].strip()
+    candidate_profile_text = text[start_idx:end_idx].strip()
 
-    # Limpieza adicional del texto
-    cleaned_profile_text = re.sub(r"[^\w\s.,;:]", "", profile_text)  # Eliminar caracteres no deseados
-    cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normalizar espacios
+    # Depuración del texto extraído
+    cleaned_profile_text = re.sub(r"[^\w\s.,;:()\-]", "", candidate_profile_text)  # Mantiene paréntesis y guiones
+    cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normaliza espacios
 
     return cleaned_profile_text
 
@@ -530,13 +543,14 @@ def extract_attendance_section_with_ocr(pdf_path):
     
     return "\n".join(att_cleaned_lines)
 
-def generate_report_with_background(pdf_path, position, candidate_name,background_path):
+def generate_report_with_background(pdf_path, position, candidate_name,background_path, chapter):
     """
     Genera un reporte con un fondo en cada página.
     :param pdf_path: Ruta del PDF.
     :param position: Cargo al que aspira.
     :param candidate_name: Nombre del candidato.
     :param background_path: Ruta de la imagen de fondo.
+    :param chapter: Capítulo del Candidato
     """
     experience_text = extract_experience_section_with_ocr(pdf_path)
     if not experience_text:
@@ -557,6 +571,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if not resume_text:
         st.error("No se encontró el texto de la hoja de vida")
         return
+
+    candidate_profile_text= extract_profile_section_with_ocr(pdf_path)
+    if not candidate_profile_text:
+        st.error("No se encontró la sección 'Perfil' en el PDF.")
+        return
     
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
@@ -565,13 +584,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Dividir los eventos en líneas
     org_lines = extract_cleaned_lines(org_text)#Extraer texto del perfil
-    profile_text = extract_profile_section_with_ocr(pdf_path)
-    if not profile_text:
-        st.warning("No se encontró la sección 'Perfil' en el PDF.")
-        return None
     org_lines= org_text.split("\n")
     org_lines = [line.strip() for line in org_lines if line.strip()]  # Eliminar líneas vacías
-
+    candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
+    candidate_profile_lines= candidate_profile_text.split("\n")
+    candidate_profile_lines= [line.strip() for line in candidate_profile_lines if line.strip()] 
+    
     # Dividir la asistencia en líneas
     att_lines = extract_cleaned_lines(att_text)
     att_lines= att_text.split("\n")
@@ -692,8 +710,24 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             att_line_results.append((line, att_func_match, att_profile_match))
 
     # Calcular concordancia de funciones y perfil del cargo con perfil de aspirante
-    profile_func_match = calculate_similarity(profile_text, functions_text)
-    profile_profile_match = calculate_similarity(profile_text, profile_text)
+    for line in candidate_profile_lines:
+        line = line.strip()
+        if not line:  # Ignorar líneas vacías
+            continue
+
+        # Dividir los eventos en líneas
+        candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
+        candidate_profile_lines= candidate_profile_text.split("\n")
+        candidate_profile_lines = [line.strip() for line in candidate_profile_lines if line.strip]
+
+        # Evaluación general de concordancia
+        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+            profile_func_match = 100.0
+            profile_profile_match = 100.0
+        else:
+            # Calcular similitud
+            profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
+            profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
     
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
@@ -939,7 +973,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14, alignment=TA_JUSTIFY))
 
     # Crear el documento PDF
-    report_path = f"Reporte_analisis_cargo_{candidate_name}_{position}.pdf"
+    report_path = f"Reporte_analisis_cargo_{candidate_name}_{position}_{chapter}.pdf"
     doc = SimpleDocTemplate(report_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
 
     # Lista de elementos para el reporte
@@ -948,7 +982,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
     def on_first_page(canvas, doc):
         """Dibuja una portada que ocupa toda la página."""
-        draw_full_page_cover(canvas, portada_path, candidate_name, position)
+        draw_full_page_cover(canvas, portada_path, candidate_name, position, chapter)
 
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
@@ -957,8 +991,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(PageBreak())
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
-    
-    elements.append(Paragraph(f"REPORTE DE ANÁLISIS {title_candidate_name} CARGO {title_position}", title_style))
+    tittle_chapter= chapter.upper()
+
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS {title_candidate_name} CARGO {title_position} {tittle_chapter}", title_style))
 
     elements.append(Spacer(1, 0.2 * inch))
 
@@ -1599,39 +1634,40 @@ def extract_asistencia_items_with_details(pdf_path):
     return items
 
 def extract_profile_section_with_details(pdf_path):
-    """
-    Extrae el texto de la sección 'Perfil' de un archivo PDF, incluyendo encabezados y detalles.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Texto completo de la sección 'Perfil'.
-    """
-    profile_text = ""
-    in_profile_section = False
+    """ Extrae la sección 'Perfil' de un archivo PDF """
+    try:
+        candidate_profile_text = ""
+        in_profile_section = False
 
-    with fitz.open(pdf_path) as doc:
-        for page in doc:
-            blocks = page.get_text("dict")["blocks"]
-            for block in blocks:
-                if "lines" not in block:
-                    continue
+        with fitz.open(pdf_path) as doc:
+            for page in doc:
+                blocks = page.get_text("dict")["blocks"]
+                for block in blocks:
+                    if "lines" not in block:
+                        continue
 
-                for line in block["lines"]:
-                    for span in line["spans"]:
-                        text = span["text"].strip()
-                        if not text:
-                            continue
+                    for line in block["lines"]:
+                        for span in line["spans"]:
+                            text = span["text"].strip()
+                            if not text:
+                                continue
 
-                        # Detectar inicio y fin de la sección
-                        if "perfil" in text.lower():
-                            in_profile_section = True
-                            continue
-                        elif any(key in text.lower() for key in ["asistencia a eventos aneiap", "actualización profesional"]):
-                            in_profile_section = False
-                            break
+                            # Detectar inicio y fin de la sección
+                            if "perfil" in text.lower():
+                                in_profile_section = True
+                                continue
+                            elif any(key in text.lower() for key in ["asistencia a eventos aneiap", "actualización profesional"]):
+                                in_profile_section = False
+                                break
 
-                        if in_profile_section:
-                            profile_text += text + " "
+                            if in_profile_section:
+                                candidate_profile_text += text + " "
 
-    return profile_text.strip
+        return candidate_profile_text.strip()
+    
+    except Exception as e:
+        print(f"⚠️ Error en extract_profile_section_with_details: {e}")
+        return ""
 
 def evaluate_cv_presentation_with_headers(pdf_path):
     """
@@ -1705,7 +1741,7 @@ def evaluate_cv_presentation_with_headers(pdf_path):
         }
 
 # Función principal para generar el reporte descriptivo
-def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path):
+def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path, chapter):
     """
     Analiza un CV descriptivo y genera un reporte PDF con un fondo en cada página.
     :param pdf_path: Ruta del PDF.
@@ -1714,11 +1750,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     :param advice: Diccionario con consejos.
     :param indicators: Diccionario con indicadores y palabras clave.
     :param background_path: Ruta de la imagen de fondo.
+    :param chapter: Capitulo del candidato.
     """
 
     # Extraer la sección 'Perfil'
-    profile_text = extract_profile_section_with_details(pdf_path)
-    if not profile_text:
+    candidate_profile_text = extract_profile_section_with_details(pdf_path)
+    if not candidate_profile_text:
         st.error("No se encontró la sección 'Perfil' en el PDF.")
         return
 
@@ -1734,7 +1771,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         st.error("No se encontraron encabezados y detalles de eventos para analizar.")
         return
 
-    # Extraer texto de la sección EVENTOS ORGANIZADOS
+    # Extraer texto de la sección Asistencia a eventos
     att_items = extract_asistencia_items_with_details(pdf_path)
     if not att_items:
         st.error("No se encontraron encabezados y detalles de asistencias para analizar.")
@@ -1760,13 +1797,26 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     item_results = {}
     org_item_results = {}
     att_item_results = {}
+    prof_item_results= {}
 
     # Calcular la cantidad de ítems relacionados para cada indicador
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
-    # Análisis de la sección de perfil
-    profile_func_match = calculate_similarity(profile_text, functions_text)
-    profile_profile_match = calculate_similarity(profile_text, profile_text)
+    # PERFIL CANDIDATO
+    for item in candidate_profile_text:
+        item= item.split
+
+        # Revisar palabras clave en el encabezado
+        profile_contains_keywords = any(
+            keyword.lower() in candidate_profile_text.lower() for keywords in position_indicators.values() for keyword in keywords
+        )
+        # Determinar concordancia en funciones y perfil
+        if profile_contains_keywords:
+            profile_func_match = 100
+            profile_profile_match = 100
+        else:
+            profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
+            profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
 
     #EXPERIENCIA EN ANEIAP
     for header, details in items.items():
@@ -2129,7 +2179,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14, alignment=TA_JUSTIFY))
 
     # Crear el documento PDF
-    output_path = f"Reporte_descriptivo_cargo_{candidate_name}_{position}.pdf"
+    output_path = f"Reporte_descriptivo_cargo_{candidate_name}_{position}_{chapter}.pdf"
     doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
 
     # Lista de elementos para el reporte
@@ -2138,7 +2188,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
     def on_first_page(canvas, doc):
         """Dibuja una portada que ocupa toda la página."""
-        draw_full_page_cover(canvas, portada_path, candidate_name, position)
+        draw_full_page_cover(canvas, portada_path, candidate_name, position, chapter)
 
     # Título del reporte centrado
     title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
@@ -2147,8 +2197,9 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     elements.append(PageBreak())
     title_candidate_name = candidate_name.upper()
     title_position = position.upper()
+    tittle_chapter= chapter.upper()
 
-    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position}", title_style))
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS DESCRIPTIVO {title_candidate_name} CARGO {title_position} {tittle_chapter}", title_style))
 
     elements.append(Spacer(1, 0.2 * inch))
 
@@ -2793,15 +2844,30 @@ def primary():
     chapter = st.selectbox("Selecciona el Capítulo al que perteneces:", [
         "UNIGUAJIRA", "UNIMAGDALENA", "UNINORTE", "UNIATLÁNTICO", "CUC", "UNISIMÓN", "LIBREQUILLA", "UTB", "UFPS", "UNALMED", "UPBMED", "UDEA", "UTP", "UNALMA", "LIBRECALI", "UNIVALLE", "ICESI", "USC", "UDISTRITAL", "UNALBOG", "UPBMONTERÍA", "AREANDINA", "UNICÓDOBA"
     ])
-    
-    # Configuración BOTÓN GENERAR REPORTE
+
+    #CONFIGURACIÓN BOTÓN GENERAR REPORTE
+    if uploaded_file is not None:
+        # Guarda el archivo en una carpeta temporal
+        pdf_path = os.path.join("temp", uploaded_file.name)
+        os.makedirs("temp", exist_ok=True)  # Asegura que la carpeta existe
+        with open(pdf_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+
+        # Guarda la información en session_state para compartirla con secondary()
+        st.session_state["pdf_path"] = pdf_path
+        st.session_state["candidate_name"] = candidate_name
+        st.session_state["position"] = position
+        st.session_state["chapter"] = chapter
+
     if st.button("Generar Reporte PDF"):
-        if uploaded_file is not None:
-            with open("uploaded_cv.pdf", "wb") as f:
-                f.write(uploaded_file.read())
-            
-            # Llamar a la función para generar el reporte con fondo
-            generate_report_with_background("uploaded_cv.pdf", position, candidate_name, background_path)
+        if "pdf_path" in st.session_state:
+            generate_report_with_background(
+                st.session_state["pdf_path"],
+                st.session_state["position"],
+                st.session_state["candidate_name"],
+                background_path,
+                st.session_state["chapter"]
+            )
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
     
@@ -2829,7 +2895,7 @@ def secondary():
 
     # Entrada de datos del usuario
     candidate_name = st.text_input("Nombre del candidato:")
-    detailed_uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
+    uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
     position = st.selectbox("Selecciona el cargo al que aspiras:", [
         "DCA", "DCC", "DCD", "DCF", "DCM", "CCP", "IC", "PC"
     ])
@@ -2837,18 +2903,32 @@ def secondary():
         "UNIGUAJIRA", "UNIMAGDALENA", "UNINORTE", "UNIATLÁNTICO", "CUC", "UNISIMÓN", "LIBREQUILLA", "UTB", "UFPS", "UNALMED", "UPBMED", "UDEA", "UTP", "UNALMA", "LIBRECALI", "UNIVALLE", "ICESI", "USC", "UDISTRITAL", "UNALBOG", "UPBMONTERÍA", "AREANDINA", "UNICÓDOBA"
     ])
 
+    if uploaded_file is not None:
+        # Guarda el archivo en una carpeta temporal
+        pdf_path = os.path.join("temp", uploaded_file.name)
+        os.makedirs("temp", exist_ok=True)  # Asegura que la carpeta existe
+        with open(pdf_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+
+        # Guarda la ruta del archivo en session_state
+        st.session_state["pdf_path_secondary"] = pdf_path
+        st.session_state["candidate_name_secondary"] = candidate_name
+        st.session_state["position_secondary"] = position
+        st.session_state["chapter_secondary"] = chapter
+
     if st.button("Generar Reporte PDF"):
-        if detailed_uploaded_file is not None:
-            with open("detailed_uploaded_cv.pdf", "wb") as f:
-                f.write(detailed_uploaded_file.read())
-            
-            # Llamar a la nueva función unificada
-            analyze_and_generate_descriptive_report_with_background("detailed_uploaded_cv.pdf", position, candidate_name, advice, indicators, background_path)
-
-
+        if "pdf_path_secondary" in st.session_state:
+            analyze_and_generate_descriptive_report_with_background(
+                st.session_state["pdf_path_secondary"],
+                st.session_state["position_secondary"],
+                st.session_state["candidate_name_secondary"],
+                advice, indicators, background_path,
+                st.session_state["chapter_secondary"]
+            )
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
 
+  
     st.write("---")
 
     st.markdown(
