@@ -738,8 +738,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         profile_profile_match = 100.0
     else:
         # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
-        profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
-        profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
+        prof_func_match = calculate_similarity(candidate_profile_text, functions_text)
+        prof_profile_match = calculate_similarity(candidate_profile_text, profile_text)
+        profile_func_match = keyword_match_percentage + prof_func_match
+        profile_profile_match = keyword_match_percentage + prof_profile_match
         
         # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
         if line_results:  # Evitar división por cero si no hay ítems válidos
