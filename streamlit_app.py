@@ -57,6 +57,12 @@ advice = load_advice()
 background_path = "Fondo reporte.png"
 portada_path= "Portada Analizador.png"
 
+# Asegurar que las dependencias de NLTK estén descargadas
+import nltk
+nltk.download("punkt")
+nltk.download("wordnet")
+nltk.download("stopwords")
+
 def preprocess_image(image):
     """
     Preprocesa una imagen antes de aplicar OCR.
