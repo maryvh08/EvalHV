@@ -737,14 +737,18 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             att_line_results.append((line, att_func_match, att_profile_match))
 
     # Calcular porcentajes de concordancia con perfil de candidato
-    words = re.findall(r"\b\w+\b", candidate_profile_text.lower())  # Tokeniza el texto del perfil
-    total_words = len(words)
+    candidate_profile_words = clean_text(candidate_profile_text)  # Limpiar y tokenizar el perfil
+    total_words = len(candidate_profile_words)
     
-    # Contar las ocurrencias de las palabras en el texto
-    word_freq = Counter(words)
+    # Revisar las palabras clave (limpiar también las palabras clave)
+    position_indicators_cleaned = {key: [re.sub(r"[^\w\s]", "", word.lower()) for word in value] 
+                                   for key, value in position_indicators.items()}
     
     # Contar coincidencias con palabras clave
-    keyword_count = sum(word_freq[word] for kw_set in position_indicators.values() for word in kw_set if word in word_freq)
+    keyword_count = 0
+    for kw_set in position_indicators_cleaned.values():
+        for keyword in kw_set:
+            keyword_count += candidate_profile_words.count(keyword)
     
     # Evitar división por cero
     keyword_match_percentage = (keyword_count / total_words) * 100 if total_words > 0 else 0
