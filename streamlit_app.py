@@ -293,7 +293,7 @@ def add_background(canvas, background_path):
     canvas.restoreState()
 
 # FUNCIONES PARA PRIMARY
-def count_matching_keywords(text, keyword_sets):
+def count_matching_keywords(text, keywords):
     """
     Cuenta cuántas palabras clave aparecen en un texto y calcula su peso relativo.
     :param text: Texto de la sección "Perfil".
@@ -307,7 +307,7 @@ def count_matching_keywords(text, keyword_sets):
     word_freq = Counter(words)
 
     # Contar coincidencias con palabras clave
-    keyword_count = sum(word_freq[word] for kw_set in keyword_sets.values() for word in kw_set if word in word_freq)
+    keyword_count = sum(word_freq[word] for kw_set in keywords.values() for word in kw_set if word in word_freq)
 
     # Evitar división por cero
     match_percentage = (keyword_count / total_words) * 100 if total_words > 0 else 0
@@ -738,7 +738,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular porcentajes de concordancia con perfil de candidato
     for words in candidate_profile_text:
-        words = re.findall(r"\b\w+\b", candidate_profile_text.lower())  # Tokeniza sin usar NLTK
+        words = re.findall(r"\b\w+\b", candidate_profile_text.lower()) 
         total_words = len(words)
     
         # Crear un contador de palabras en el texto
