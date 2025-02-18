@@ -35,6 +35,9 @@ from spellchecker import SpellChecker
 import re
 from PIL import Image as PILImage
 from PIL import Image, ImageFilter, ImageOps, ImageEnhance
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
 
 #Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app
 
@@ -287,6 +290,21 @@ def add_background(canvas, background_path):
     canvas.restoreState()
 
 # FUNCIONES PARA PRIMARY
+lemmatizer = WordNetLemmatizer()
+stop_words = set(stopwords.words("spanish"))  # Filtrar palabras comunes irrelevantes
+
+def preprocess_text(text):
+    """
+    Preprocesa el texto: tokeniza, lematiza y filtra palabras vacías.
+    :param text: Texto a limpiar y normalizar.
+    :return: Lista de palabras procesadas.
+    """
+    text = text.lower()  # Convertir a minúsculas
+    text = re.sub(r"[^\w\s]", "", text)  # Eliminar puntuación
+    words = word_tokenize(text)  # Tokenizar
+    words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words]  # Lematizar y filtrar
+    return words
+
 def count_matching_keywords(text, keyword_sets):
     """
     Cuenta cuántas palabras clave aparecen en un texto.
@@ -294,10 +312,14 @@ def count_matching_keywords(text, keyword_sets):
     :param keyword_sets: Diccionario con listas de palabras clave agrupadas por categoría.
     :return: Cantidad total de palabras en el perfil y número de coincidencias con palabras clave.
     """
-    words = text.lower().split()  # Divide el texto en palabras
+    words = preprocess_text(text)
     total_words = len(words)
 
-    keyword_count = sum(1 for word in words if any(word in kw_set for kw_set in keyword_sets.values()))
+    # Construir un set de palabras clave preprocesadas para mejor comparación
+    keyword_list = {lemmatizer.lemmatize(keyword.lower()) for kw_set in keyword_sets.values() for keyword in kw_set}
+
+    # Contar cuántas palabras del perfil coinciden con las palabras clave
+    keyword_count = sum(1 for word in words if word in keyword_list)
 
     return total_words, keyword_count
 
@@ -723,33 +745,30 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         if att_func_match > 0 or att_profile_match > 0:
             att_line_results.append((line, att_func_match, att_profile_match))
 
-    # Calcular cantidad de palabras y palabras clave coincidentes
+    # Calcular porcentajes de concordancia con perfil de candidato
     total_words, keyword_count = count_matching_keywords(candidate_profile_text, position_indicators)
     
-    # Definir un umbral de coincidencia basado en palabras clave
-    if total_words > 0:
-        keyword_match_percentage = (keyword_count / total_words) * 100
-    else:
-        keyword_match_percentage = 0
+    # Evitar error de división por cero
+    keyword_match_percentage = (keyword_count / total_words) * 100 if total_words > 0 else 0
     
-    # Calcular concordancia de funciones y perfil del cargo con perfil de aspirante
-    if keyword_match_percentage >= 75:  
+    # Evaluación de concordancia basada en palabras clave
+    if keyword_match_percentage >= 20:  # Umbral ajustable (ejemplo: 20%)
         profile_func_match = 100.0
         profile_profile_match = 100.0
     else:
         # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
-        prof_func_match = calculate_similarity(candidate_profile_text, functions_text)
-        prof_profile_match = calculate_similarity(candidate_profile_text, profile_text)
+        profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
+        profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
         profile_func_match = keyword_match_percentage + prof_func_match
         profile_profile_match = keyword_match_percentage + prof_profile_match
         
-        # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
-        if line_results:  # Evitar división por cero si no hay ítems válidos
-            parcial_exp_func_match = sum([res[1] for res in line_results]) / len(line_results)
-            parcial_exp_profile_match = sum([res[2] for res in line_results]) / len(line_results)
-        else:
-            parcial_exp_func_match = 0
-            parcial_exp_profile_match = 0
+    # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
+    if line_results:  # Evitar división por cero si no hay ítems válidos
+        parcial_exp_func_match = sum([res[1] for res in line_results]) / len(line_results)
+        parcial_exp_profile_match = sum([res[2] for res in line_results]) / len(line_results)
+    else:
+        parcial_exp_func_match = 0
+        parcial_exp_profile_match = 0
   
     # Calcular porcentajes parciales respecto a los Eventos ANEIAP
     if org_line_results:  # Evitar división por cero si no hay ítems válidos
