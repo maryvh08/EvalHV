@@ -751,10 +751,19 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             keyword_count += candidate_profile_words.count(keyword)
     
     # Evitar división por cero
-    keyword_match_percentage = (keyword_count / total_words) * 100 if total_words > 0 else 0
+    if keyword_count<= 2:
+        keyword_match_percentage = 0
+    elif 2 <keyword_count <= 5:
+        keyword_match_percentage == 25
+    elif 5 <keyword_count <= 15:
+        keyword_match_percentage == 50
+    elif 15 <keyword_count <= 25:
+        keyword_match_percentage == 75
+    else:
+        keyword_match_percentage == 100        
     
     # Evaluación de concordancia basada en palabras clave
-    if keyword_match_percentage >= 20:
+    if keyword_match_percentage == 100:
         profile_func_match = 100.0
         profile_profile_match = 100.0
     else:
