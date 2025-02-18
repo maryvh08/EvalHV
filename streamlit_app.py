@@ -1803,7 +1803,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
     # PERFIL CANDIDATO
-    for item in candidate_profile_text.items():
+    for item in candidate_profile_text:
         item= item.split
 
         # Revisar palabras clave en el encabezado
