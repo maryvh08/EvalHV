@@ -737,27 +737,29 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             att_line_results.append((line, att_func_match, att_profile_match))
 
     # Calcular porcentajes de concordancia con perfil de candidato
-    for words in candidate_profile_text:
-        words = re.findall(r"\b\w+\b", candidate_profile_text.lower()) 
-        total_words = len(words)
+    words = re.findall(r"\b\w+\b", candidate_profile_text.lower())  # Tokeniza el texto del perfil
+    total_words = len(words)
     
-        # Contar coincidencias con palabras clave
-        keyword_count = sum(total_words[word] for kw_set in position_indicators.values() for word in kw_set)
+    # Contar las ocurrencias de las palabras en el texto
+    word_freq = Counter(words)
     
-        # Evitar división por cero
-        keyword_match_percentage = (keyword_count / total_words) * 100 
-        
-        # Evaluación de concordancia basada en palabras clave
-        if keyword_match_percentage >= 20:
-            profile_func_match = 100.0
-            profile_profile_match = 100.0
-        else:
-            # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
-            prof_func_match = calculate_similarity(candidate_profile_text, functions_text)
-            prof_profile_match = calculate_similarity(candidate_profile_text, profile_text)
-            profile_func_match = keyword_match_percentage + prof_func_match
-            profile_profile_match = keyword_match_percentage + prof_profile_match
-            
+    # Contar coincidencias con palabras clave
+    keyword_count = sum(word_freq[word] for kw_set in position_indicators.values() for word in kw_set if word in word_freq)
+    
+    # Evitar división por cero
+    keyword_match_percentage = (keyword_count / total_words) * 100 if total_words > 0 else 0
+    
+    # Evaluación de concordancia basada en palabras clave
+    if keyword_match_percentage >= 20:
+        profile_func_match = 100.0
+        profile_profile_match = 100.0
+    else:
+        # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
+        prof_func_match = calculate_similarity(candidate_profile_text, functions_text)
+        prof_profile_match = calculate_similarity(candidate_profile_text, profile_text)
+        profile_func_match = keyword_match_percentage + prof_func_match
+        profile_profile_match = keyword_match_percentage + prof_profile_match
+    
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
         parcial_exp_func_match = sum([res[1] for res in line_results]) / len(line_results)
