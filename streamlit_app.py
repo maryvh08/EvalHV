@@ -717,7 +717,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
         # Dividir los eventos en líneas
         candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
-        candidate_profile_lines= org_text.split("\n")
+        candidate_profile_lines= candidate_profile_text.split("\n")
         candidate_profile_lines = [line.strip() for line in candidate_profile_lines if line.strip]
 
         # Evaluación general de concordancia
@@ -1797,13 +1797,26 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     item_results = {}
     org_item_results = {}
     att_item_results = {}
+    prof_item_results= {}
 
     # Calcular la cantidad de ítems relacionados para cada indicador
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
-    # Análisis de la sección de perfil
-    profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
-    profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
+    # PERFIL CANDIDATO
+    for item in candidate_profile_text.items():
+        item= item.split
+
+        # Revisar palabras clave en el encabezado
+        profile_contains_keywords = any(
+            keyword.lower() in header.lower() for keywords in position_indicators.values() for keyword in keywords
+        )
+        # Determinar concordancia en funciones y perfil
+        if profile_contains_keywords:
+            profile_func_match = 100
+            profile_profile_match = 100
+        else:
+            profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
+            profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
 
     #EXPERIENCIA EN ANEIAP
     for header, details in items.items():
