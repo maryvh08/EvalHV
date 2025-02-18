@@ -748,13 +748,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         keyword_count = sum(word_freq[word] for kw_set in position_indicators.values() for words in kw_set if words in word_freq)
     
         # Evitar división por cero
-        keyword_match_percentage = (keyword_count / total_words) * 100 if total_words > 0 else 0
-        
-        # Ajuste del umbral basado en la cantidad de palabras
-        dynamic_threshold = max(10, total_words * 0.15)  # Umbral dinámico: 15% de las palabras totales o mínimo 10
+        keyword_match_percentage = (keyword_count / total_words) * 100 
         
         # Evaluación de concordancia basada en palabras clave
-        if keyword_count >= dynamic_threshold:
+        if keyword_match_percentage >= 20:
             profile_func_match = 100.0
             profile_profile_match = 100.0
         else:
