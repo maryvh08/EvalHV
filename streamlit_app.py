@@ -749,15 +749,17 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     for kw_set in position_indicators_cleaned.values():
         for keyword in kw_set:
             keyword_count += candidate_profile_words.count(keyword)
+
+    prop_keyword= keyword_count/total_words
     
     # Evitar división por cero
-    if keyword_count<= 2:
+    if prop_keyword<= 0.05:
         keyword_match_percentage = 0
-    elif 2 <keyword_count <= 5:
+    elif 0.05 <prop_keyword <= 0.15:
         keyword_match_percentage = 25
-    elif 5 <keyword_count <= 15:
+    elif 0.15 <prop_keyword <= 0.5:
         keyword_match_percentage = 50
-    elif 15 <keyword_count <= 25:
+    elif 0.5 <prop_keyword <= 0.75:
         keyword_match_percentage = 75
     else:
         keyword_match_percentage = 100        
