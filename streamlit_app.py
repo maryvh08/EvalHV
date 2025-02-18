@@ -738,6 +738,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular porcentajes de concordancia con perfil de candidato
     keyword_count = 0
+    total_words = len(words)
     for kw_set in position_indicators.values():
         for keyword in kw_set:
             keyword_count += candidate_profile_text.count(keyword)
