@@ -1808,7 +1808,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
 
         # Revisar palabras clave en el encabezado
         profile_contains_keywords = any(
-            keyword.lower() in header.lower() for keywords in position_indicators.values() for keyword in keywords
+            keyword.lower() in candidate_profile_text.lower() for keywords in position_indicators.values() for keyword in keywords
         )
         # Determinar concordancia en funciones y perfil
         if profile_contains_keywords:
