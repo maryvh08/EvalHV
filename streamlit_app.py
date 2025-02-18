@@ -59,9 +59,9 @@ portada_path= "Portada Analizador.png"
 
 # Asegurar que las dependencias de NLTK estén descargadas
 import nltk
-nltk.download("punkt")
+nltk.download('punkt')
+nltk.download('stopwords')
 nltk.download("wordnet")
-nltk.download("stopwords")
 
 def preprocess_image(image):
     """
