@@ -742,7 +742,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         total_words = len(words)
     
         # Contar coincidencias con palabras clave
-        keyword_count = sum(total_words[word] for kw_set in position_indicators.values() for keyword in kw_set)
+        keyword_count = sum(total_words[words] for kw_set in position_indicators.values() for keyword in kw_set)
     
         # Evitar división por cero
         keyword_match_percentage = (keyword_count / total_words) * 100 
