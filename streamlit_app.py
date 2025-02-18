@@ -295,17 +295,24 @@ def add_background(canvas, background_path):
 # FUNCIONES PARA PRIMARY
 def count_matching_keywords(text, keyword_sets):
     """
-    Cuenta cuántas palabras clave aparecen en un texto.
+    Cuenta cuántas palabras clave aparecen en un texto y calcula su peso relativo.
     :param text: Texto de la sección "Perfil".
     :param keyword_sets: Diccionario con listas de palabras clave agrupadas por categoría.
-    :return: Cantidad total de palabras en el perfil y número de coincidencias con palabras clave.
+    :return: Total de palabras en el perfil y porcentaje de coincidencia con palabras clave.
     """
-    words = text.lower().split()  # Divide el texto en palabras
+    words = re.findall(r"\b\w+\b", text.lower())  # Tokeniza sin usar NLTK
     total_words = len(words)
 
-    keyword_count = sum(1 for word in words if any(word in kw_set for kw_set in keyword_sets.values()))
+    # Crear un contador de palabras en el texto
+    word_freq = Counter(words)
 
-    return total_words, keyword_count
+    # Contar coincidencias con palabras clave
+    keyword_count = sum(word_freq[word] for kw_set in keyword_sets.values() for word in kw_set if word in word_freq)
+
+    # Evitar división por cero
+    match_percentage = (keyword_count / total_words) * 100 if total_words > 0 else 0
+
+    return total_words, keyword_count, match_percentage
 
 def extract_profile_section_with_ocr(pdf_path):
     """
