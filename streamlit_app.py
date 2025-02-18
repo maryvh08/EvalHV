@@ -741,11 +741,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         words = re.findall(r"\b\w+\b", candidate_profile_text.lower()) 
         total_words = len(words)
     
-        # Crear un contador de palabras en el texto
-        word_freq = Counter(words)
-    
         # Contar coincidencias con palabras clave
-        keyword_count = sum(word_freq[word] for kw_set in position_indicators.values() for words in kw_set if words in word_freq)
+        keyword_count = sum(total_words[word] for kw_set in position_indicators.values() for keyword in kw_set)
     
         # Evitar división por cero
         keyword_match_percentage = (keyword_count / total_words) * 100 
