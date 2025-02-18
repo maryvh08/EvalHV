@@ -730,16 +730,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             att_line_results.append((line, att_func_match, att_profile_match))
 
     # Calcular porcentajes de concordancia con perfil de candidato
-    total_words, keyword_count = count_matching_keywords(candidate_profile_text, position_indicators)
-
-    # Definir un umbral de coincidencia basado en palabras clave
-    if total_words > 0:
-        keyword_match_percentage = (keyword_count / total_words) * 100
-    else:
-        keyword_match_percentage = 0
+    total_words, keyword_count, keyword_match_percentage = count_matching_keywords(candidate_profile_text, position_indicators)
+    
+    # Ajuste del umbral basado en la cantidad de palabras
+    dynamic_threshold = max(10, total_words * 0.15)  # Umbral dinámico: 15% de las palabras totales o mínimo 10
     
     # Evaluación de concordancia basada en palabras clave
-    if keyword_match_percentage >= 20:  # Umbral ajustable (ejemplo: 20%)
+    if keyword_count >= dynamic_threshold:
         profile_func_match = 100.0
         profile_profile_match = 100.0
     else:
