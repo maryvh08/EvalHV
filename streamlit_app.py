@@ -287,6 +287,20 @@ def add_background(canvas, background_path):
     canvas.restoreState()
 
 # FUNCIONES PARA PRIMARY
+def count_matching_keywords(text, keyword_sets):
+    """
+    Cuenta cuántas palabras clave aparecen en un texto.
+    :param text: Texto de la sección "Perfil".
+    :param keyword_sets: Diccionario con listas de palabras clave agrupadas por categoría.
+    :return: Cantidad total de palabras en el perfil y número de coincidencias con palabras clave.
+    """
+    words = text.lower().split()  # Divide el texto en palabras
+    total_words = len(words)
+
+    keyword_count = sum(1 for word in words if any(word in kw_set for kw_set in keyword_sets.values()))
+
+    return total_words, keyword_count
+
 def extract_profile_section_with_ocr(pdf_path):
     """
     Extrae la sección 'Perfil' de un archivo PDF con soporte de OCR.
@@ -709,33 +723,31 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         if att_func_match > 0 or att_profile_match > 0:
             att_line_results.append((line, att_func_match, att_profile_match))
 
-    # Calcular concordancia de funciones y perfil del cargo con perfil de aspirante
-    for line in candidate_profile_lines:
-        line = line.strip()
-        if not line:  # Ignorar líneas vacías
-            continue
-
-        # Dividir los eventos en líneas
-        candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
-        candidate_profile_lines= candidate_profile_text.split("\n")
-        candidate_profile_lines = [line.strip() for line in candidate_profile_lines if line.strip]
-
-        # Evaluación general de concordancia
-        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
-            profile_func_match = 100.0
-            profile_profile_match = 100.0
-        else:
-            # Calcular similitud
-            profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
-            profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
+    # Calcular cantidad de palabras y palabras clave coincidentes
+    total_words, keyword_count = count_matching_keywords(candidate_profile_text, position_indicators)
     
-    # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
-    if line_results:  # Evitar división por cero si no hay ítems válidos
-        parcial_exp_func_match = sum([res[1] for res in line_results]) / len(line_results)
-        parcial_exp_profile_match = sum([res[2] for res in line_results]) / len(line_results)
+    # Definir un umbral de coincidencia basado en palabras clave
+    if total_words > 0:
+        keyword_match_percentage = (keyword_count / total_words) * 100
     else:
-        parcial_exp_func_match = 0
-        parcial_exp_profile_match = 0
+        keyword_match_percentage = 0
+    
+    # Calcular concordancia de funciones y perfil del cargo con perfil de aspirante
+    if keyword_match_percentage >= 75:  
+        profile_func_match = 100.0
+        profile_profile_match = 100.0
+    else:
+        # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
+        profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
+        profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
+        
+        # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
+        if line_results:  # Evitar división por cero si no hay ítems válidos
+            parcial_exp_func_match = sum([res[1] for res in line_results]) / len(line_results)
+            parcial_exp_profile_match = sum([res[2] for res in line_results]) / len(line_results)
+        else:
+            parcial_exp_func_match = 0
+            parcial_exp_profile_match = 0
   
     # Calcular porcentajes parciales respecto a los Eventos ANEIAP
     if org_line_results:  # Evitar división por cero si no hay ítems válidos
