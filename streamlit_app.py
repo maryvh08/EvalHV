@@ -35,9 +35,6 @@ from spellchecker import SpellChecker
 import re
 from PIL import Image as PILImage
 from PIL import Image, ImageFilter, ImageOps, ImageEnhance
-from nltk.tokenize import word_tokenize, sent_tokenize
-from nltk.stem import WordNetLemmatizer
-from nltk.corpus import stopwords
 
 #Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app
 
@@ -296,21 +293,6 @@ def add_background(canvas, background_path):
     canvas.restoreState()
 
 # FUNCIONES PARA PRIMARY
-lemmatizer = WordNetLemmatizer()
-stop_words = set(stopwords.words("spanish"))  # Filtrar palabras comunes irrelevantes
-
-def preprocess_text(text):
-    """
-    Preprocesa el texto: tokeniza, lematiza y filtra palabras vacías.
-    :param text: Texto a limpiar y normalizar.
-    :return: Lista de palabras procesadas.
-    """
-    text = text.lower()  # Convertir a minúsculas
-    text = re.sub(r"[^\w\s]", "", text)  # Eliminar puntuación
-    words = word_tokenize(text)  # Tokenizar
-    words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words]  # Lematizar y filtrar
-    return words
-
 def count_matching_keywords(text, keyword_sets):
     """
     Cuenta cuántas palabras clave aparecen en un texto.
@@ -318,14 +300,10 @@ def count_matching_keywords(text, keyword_sets):
     :param keyword_sets: Diccionario con listas de palabras clave agrupadas por categoría.
     :return: Cantidad total de palabras en el perfil y número de coincidencias con palabras clave.
     """
-    words = preprocess_text(text)
+    words = text.lower().split()  # Divide el texto en palabras
     total_words = len(words)
 
-    # Construir un set de palabras clave preprocesadas para mejor comparación
-    keyword_list = {lemmatizer.lemmatize(keyword.lower()) for kw_set in keyword_sets.values() for keyword in kw_set}
-
-    # Contar cuántas palabras del perfil coinciden con las palabras clave
-    keyword_count = sum(1 for word in words if word in keyword_list)
+    keyword_count = sum(1 for word in words if any(word in kw_set for kw_set in keyword_sets.values()))
 
     return total_words, keyword_count
 
@@ -369,7 +347,7 @@ def extract_profile_section_with_ocr(pdf_path):
     cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normaliza espacios
 
     return cleaned_profile_text
-
+    
 def extract_experience_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF con soporte de OCR.
@@ -753,9 +731,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular porcentajes de concordancia con perfil de candidato
     total_words, keyword_count = count_matching_keywords(candidate_profile_text, position_indicators)
-    
-    # Evitar error de división por cero
-    keyword_match_percentage = (keyword_count / total_words) * 100 if total_words > 0 else 0
+
+    # Definir un umbral de coincidencia basado en palabras clave
+    if total_words > 0:
+        keyword_match_percentage = (keyword_count / total_words) * 100
+    else:
+        keyword_match_percentage = 0
     
     # Evaluación de concordancia basada en palabras clave
     if keyword_match_percentage >= 20:  # Umbral ajustable (ejemplo: 20%)
@@ -763,8 +744,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         profile_profile_match = 100.0
     else:
         # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
-        profile_func_match = calculate_similarity(candidate_profile_text, functions_text)
-        profile_profile_match = calculate_similarity(candidate_profile_text, profile_text)
+        prof_func_match = calculate_similarity(candidate_profile_text, functions_text)
+        prof_profile_match = calculate_similarity(candidate_profile_text, profile_text)
         profile_func_match = keyword_match_percentage + prof_func_match
         profile_profile_match = keyword_match_percentage + prof_profile_match
         
