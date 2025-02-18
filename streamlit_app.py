@@ -738,7 +738,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Calcular porcentajes de concordancia con perfil de candidato
     for words in candidate_profile_text:
-        words = re.findall(r"\b\w+\b", text.lower())  # Tokeniza sin usar NLTK
+        words = re.findall(r"\b\w+\b", candidate_profile_text.lower())  # Tokeniza sin usar NLTK
         total_words = len(words)
     
         # Crear un contador de palabras en el texto
