@@ -754,13 +754,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if keyword_count<= 2:
         keyword_match_percentage = 0
     elif 2 <keyword_count <= 5:
-        keyword_match_percentage == 25
+        keyword_match_percentage = 25
     elif 5 <keyword_count <= 15:
-        keyword_match_percentage == 50
+        keyword_match_percentage = 50
     elif 15 <keyword_count <= 25:
-        keyword_match_percentage == 75
+        keyword_match_percentage = 75
     else:
-        keyword_match_percentage == 100        
+        keyword_match_percentage = 100        
     
     # Evaluación de concordancia basada en palabras clave
     if keyword_match_percentage == 100:
