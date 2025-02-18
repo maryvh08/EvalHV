@@ -737,34 +737,34 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             att_line_results.append((line, att_func_match, att_profile_match))
 
     def evaluate_candidate_profile(candidate_profile_text, functions_text, profile_text, keyword_sets):
-    """
-    Evalúa el perfil del candidato y calcula la concordancia con las palabras clave y los textos de referencia.
-    :param candidate_profile_text: Texto del perfil del candidato.
-    :param functions_text: Texto de las funciones del cargo.
-    :param profile_text: Texto del perfil del cargo.
-    :param keyword_sets: Diccionario con palabras clave para la evaluación.
-    :return: Concordancia de funciones y perfil con el perfil del candidato.
-    """
-    # Calcular cantidad de palabras y palabras clave coincidentes
-    total_words, keyword_count, keyword_match_percentage = count_matching_keywords(candidate_profile_text, keyword_sets)
-
-    # Ajuste del umbral basado en la cantidad de palabras
-    dynamic_threshold = max(10, total_words * 0.15)  # Umbral dinámico: 15% de las palabras totales o mínimo 10
-
-    # Evaluación de concordancia basada en palabras clave
-    if keyword_count >= dynamic_threshold:
-        profile_func_match = 100.0
-        profile_profile_match = 100.0
-    else:
-        # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
-        prof_func_match = calculate_similarity(candidate_profile_text, functions_text)
-        prof_profile_match = calculate_similarity(candidate_profile_text, profile_text)
-
-        # Combina las concordancias (palabras clave + similitud)
-        profile_func_match = keyword_match_percentage + prof_func_match
-        profile_profile_match = keyword_match_percentage + prof_profile_match
-
-    return profile_func_match, profile_profile_match
+        """
+        Evalúa el perfil del candidato y calcula la concordancia con las palabras clave y los textos de referencia.
+        :param candidate_profile_text: Texto del perfil del candidato.
+        :param functions_text: Texto de las funciones del cargo.
+        :param profile_text: Texto del perfil del cargo.
+        :param keyword_sets: Diccionario con palabras clave para la evaluación.
+        :return: Concordancia de funciones y perfil con el perfil del candidato.
+        """
+        # Calcular cantidad de palabras y palabras clave coincidentes
+        total_words, keyword_count, keyword_match_percentage = count_matching_keywords(candidate_profile_text, keyword_sets)
+    
+        # Ajuste del umbral basado en la cantidad de palabras
+        dynamic_threshold = max(10, total_words * 0.15)  # Umbral dinámico: 15% de las palabras totales o mínimo 10
+    
+        # Evaluación de concordancia basada en palabras clave
+        if keyword_count >= dynamic_threshold:
+            profile_func_match = 100.0
+            profile_profile_match = 100.0
+        else:
+            # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
+            prof_func_match = calculate_similarity(candidate_profile_text, functions_text)
+            prof_profile_match = calculate_similarity(candidate_profile_text, profile_text)
+    
+            # Combina las concordancias (palabras clave + similitud)
+            profile_func_match = keyword_match_percentage + prof_func_match
+            profile_profile_match = keyword_match_percentage + prof_profile_match
+    
+        return profile_func_match, profile_profile_match
         
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
