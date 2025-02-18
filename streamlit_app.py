@@ -35,7 +35,7 @@ from spellchecker import SpellChecker
 import re
 from PIL import Image as PILImage
 from PIL import Image, ImageFilter, ImageOps, ImageEnhance
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 
