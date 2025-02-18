@@ -749,7 +749,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
         # Evitar división por cero
         match_percentage = (keyword_count / total_words) * 100 if total_words > 0 else 0
-        keyword_match_percentage = count_matching_keywords(candidate_profile_text, keywords)
+        keyword_match_percentage = count_matching_keywords(text, keywords)
         
         # Ajuste del umbral basado en la cantidad de palabras
         dynamic_threshold = max(10, total_words * 0.15)  # Umbral dinámico: 15% de las palabras totales o mínimo 10
