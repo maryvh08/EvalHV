@@ -87,7 +87,7 @@
       "Profesional",
       "Seminario",
       "Simposio",
-      "Taller",
+      "Taller"
     ]
   },
   "DCC": {
@@ -168,7 +168,7 @@
     ]
   },
   "DCD": {
-   "Gestión de asociados": [
+    "Gestión de asociados": [
       "Acompañamiento",
       "Adaptación",
       "Perfil",
