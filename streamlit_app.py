@@ -1085,8 +1085,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             for indicator, descriptions in profile_data[position].items():
                 # Para cada indicador, se añade un párrafo que mencione el perfil enfocado en el indicador
                 for description in descriptions:
-                    elements.append(Paragraph(f"Perfil enfocado en: {indicator}", getSampleStyleSheet()['CenturyGothic']))
-                    elements.append(Paragraph(description, getSampleStyleSheet()['CenturyGothic']))
+                    elements.append(Paragraph(f"Perfil enfocado en: {indicator}", styles['CenturyGothic']))
+                    elements.append(Paragraph(description, styles['CenturyGothic']))
                     
     elements.append(Spacer(1, 0.2 * inch))
 
