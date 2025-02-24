@@ -1076,8 +1076,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Si los valores de match son menores al 60%, mostramos los ejemplos de perfil
     if prof_score < 60:
-        # Lista para almacenar los elementos del reporte
-        elements = []
     
         # Verificamos si la posición existe en los datos
         if position in profile_data:
