@@ -1079,7 +1079,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         elements = []
         
         # Agregar los ejemplos al reporte
-        for indicator in profile_example:
+        for indicator, example in profile_examples:
             elements.append(Paragraph(example, styles['CenturyGothic']))
             elements.append(Spacer(1, 12))
 
