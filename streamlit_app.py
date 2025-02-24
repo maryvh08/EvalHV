@@ -1082,7 +1082,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         total_lines = len(line_results)
         percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
         
-    max_performance_indicator = max(indicator_results.items(), key=lambda x: (x[1]['relevant_lines'] / x[1]['total_lines']) * 100)
+    max_performance_indicator = max(percentage, indicator_results.items)
     if max_performance_indicator:
         elements.append(Paragraph(f"A continuación puedes encontrar ejemplos para mejorar tu perfil dependiendo del enfoque", styles['CenturyGothic']))
         elements.append(Spacer(1, 0.1 * inch))
