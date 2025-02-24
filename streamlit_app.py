@@ -1074,8 +1074,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Si los valores de match son menores al 60%, mostramos los ejemplos de perfil
-    if prof_score < 60:
+    # Mostrar ejemplos de perfil
+    max_performance_indicator = max(indicator_results.items(), key=lambda x: (x[1]['relevant_lines'] / x[1]['total_lines']) * 100)
+    if max_performance_indicator:
         elements.append(Paragraph(f"A continuación puedes encontrar ejemplos para mejorar tu perfil dependiendo del enfoque", styles['CenturyGothic']))
         elements.append(Spacer(1, 0.1 * inch))
         #Verificamos si la posición existe en los datos
