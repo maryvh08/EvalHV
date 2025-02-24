@@ -1077,7 +1077,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Si los valores de match son menores al 60%, mostramos los ejemplos de perfil
     if prof_score < 60:
         elements.append(Paragraph(f"A continuación puedes encontrar ejemplos para mejorar tu perfil dependiendo del enfoque", styles['CenturyGothic']))
-        # Verificamos si la posición existe en los datos
+        elements.append(Spacer(1, 0.1 * inch))
+        #Verificamos si la posición existe en los datos
         if position in profile_data:
             # Recorremos cada indicador en la posición
             for indicator, descriptions in profile_data[position].items():
@@ -1085,6 +1086,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
                 for description in descriptions:
                     elements.append(Paragraph(f"Perfil enfocado en: {indicator}", styles['CenturyGothicBold']))
                     elements.append(Paragraph(description, styles['CenturyGothic']))
+                    elements.append(Spacer(1, 0.1 * inch))
                     
     elements.append(Spacer(1, 0.2 * inch))
 
