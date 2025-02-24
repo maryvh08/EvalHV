@@ -1075,13 +1075,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
 
     # Si alguno de los dos porcentajes es menor al 60%, mostrar los ejemplos
-    examples = profile_examples[position]["indicators"]
     if prof_score < 3.0:
         elements = []
         
         # Agregar los ejemplos al reporte
-        for example in examples:
-            elements.append(Paragraph(example, styles['Normal']))
+        for example, result in prof_score:
+            elements.append(Paragraph(example, styles['CenturyGothic']))
             elements.append(Spacer(1, 12))
 
     elements.append(Spacer(1, 0.2 * inch))
