@@ -45,10 +45,14 @@ def load_indicators(filepath="indicators.json"):
 def load_advice(filepath="advice.json"):
     with open(filepath, "r", encoding="utf-8") as file:
         return json.load(file)
+def load_profile_examples():
+    with open("profile.json", "r") as f:
+        return json.load(f)
 
 # Cargar indicadores y consejos al inicio del script
 indicators = load_indicators()
 advice = load_advice()
+profile_examples = load_profile_examples()
 
 # Uso del código
 background_path = "Fondo reporte.png"
@@ -1067,6 +1071,18 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     # Agregar tabla a los elementos
     elements.append(prof_item_table)
+
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Si alguno de los dos porcentajes es menor al 60%, mostrar los ejemplos
+    examples = profile_examples[position]["descriptions"]
+    if prof_score < 3.0:
+        elements = []
+        
+        # Agregar los ejemplos al reporte
+        for example in examples:
+            elements.append(Paragraph(example, styles['Normal']))
+            elements.append(Spacer(1, 12))
 
     elements.append(Spacer(1, 0.2 * inch))
 
