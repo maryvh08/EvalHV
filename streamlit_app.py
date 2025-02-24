@@ -1075,6 +1075,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elements.append(Spacer(1, 0.2 * inch))
 
     # Mostrar ejemplos de perfil
+    for indicator, data in indicator_results.items():
+        relevant_lines = sum(
+            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
+        )
+        total_lines = len(line_results)
+        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+        
     max_performance_indicator = max(indicator_results.items(), key=lambda x: (x[1]['relevant_lines'] / x[1]['total_lines']) * 100)
     if max_performance_indicator:
         elements.append(Paragraph(f"A continuación puedes encontrar ejemplos para mejorar tu perfil dependiendo del enfoque", styles['CenturyGothic']))
