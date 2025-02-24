@@ -52,7 +52,7 @@ def load_profile_examples():
 # Cargar indicadores y consejos al inicio del script
 indicators = load_indicators()
 advice = load_advice()
-profile_examples = load_profile_examples()
+profile_data = load_profile_examples()
 
 # Uso del código
 background_path = "Fondo reporte.png"
