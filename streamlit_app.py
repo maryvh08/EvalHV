@@ -52,7 +52,7 @@ def load_profile_examples():
 # Cargar indicadores y consejos al inicio del script
 indicators = load_indicators()
 advice = load_advice()
-profile_data = load_profile_examples()
+profile_examples = load_profile_examples()
 
 # Uso del código
 background_path = "Fondo reporte.png"
@@ -1072,30 +1072,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Agregar tabla a los elementos
     elements.append(prof_item_table)
 
-    elements.append(Spacer(1, 0.2 * inch))
-
-    # Mostrar ejemplos de perfil
-    for indicator, data in indicator_results.items():
-        relevant_lines = sum(
-            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
-        )
-        total_lines = len(line_results)
-        percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        
-    max_performance_indicator = max(percentage, indicator_results.items)
-    if max_performance_indicator:
-        elements.append(Paragraph(f"A continuación puedes encontrar ejemplos para mejorar tu perfil dependiendo del enfoque", styles['CenturyGothic']))
-        elements.append(Spacer(1, 0.1 * inch))
-        #Verificamos si la posición existe en los datos
-        if position in profile_data:
-            # Recorremos cada indicador en la posición
-            for indicator, descriptions in profile_data[position].items():
-                # Para cada indicador, se añade un párrafo que mencione el perfil enfocado en el indicador
-                for description in descriptions:
-                    elements.append(Paragraph(f"Perfil enfocado en: {indicator}", styles['CenturyGothicBold']))
-                    elements.append(Paragraph(description, styles['CenturyGothic']))
-                    elements.append(Spacer(1, 0.1 * inch))
-                    
     elements.append(Spacer(1, 0.2 * inch))
 
     # Concordancia de items organizada en tabla con ajuste de texto
