@@ -2815,7 +2815,8 @@ def home_page():
         st.markdown("**Recomendaciones a tener en cuenta ✅**")
         st.markdown("""
         - Organiza tu HV en formato descriptivo para cada cargo o proyecto.
-        - Usa viñetas para detallar las acciones realizadas en cada ítem.
+        - Utiliza negrita para identificar la experiencia.
+        - Usa guiones para detallar las acciones realizadas en cada ítem.
         - Evita usar tablas para la sección de experiencia, ya que esto dificulta la extracción de datos.
         """)
         if st.button("Ir a Evaluador Descriptivo"):
@@ -2873,7 +2874,7 @@ def home_page():
         """, unsafe_allow_html=True)
 
 def primary():
-    imagen_primary= 'Analizador Versión Actual.jpg'
+    imagen_primary= 'Analizador Versión Simpificada.jpg'
     st.title("Evaluador de Hoja de Vida ANEIAP")
     st.image(imagen_primary, use_container_width=True)
     st.subheader("Versión Simplificada Hoja de Vida ANEIAP▶️")
