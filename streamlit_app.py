@@ -2874,7 +2874,7 @@ def home_page():
         """, unsafe_allow_html=True)
 
 def primary():
-    imagen_primary= 'Analizador Versión Simpificada.jpg'
+    imagen_primary= 'Analizador Versión Simplificada.jpg'
     st.title("Evaluador de Hoja de Vida ANEIAP")
     st.image(imagen_primary, use_container_width=True)
     st.subheader("Versión Simplificada Hoja de Vida ANEIAP▶️")
