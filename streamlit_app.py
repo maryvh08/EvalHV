@@ -2793,7 +2793,7 @@ def home_page():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("▶️ Versión Actual")
+        st.subheader("▶️ Versión Simplificada")
         st.write("Esta versión analiza la hoja de vida de forma mucho más rápida evaluando cada una de las experiencias como listado.")
         option_primary = 'Split actual.jpg'
         st.image(option_primary, use_container_width=True)
@@ -2804,7 +2804,7 @@ def home_page():
         - El análisis puede presentar inconsistencias si la HV no está debidamente separada en subtítulos.
         - Si la sección de EXPERIENCIA EN ANEIAP está dispuesta como tabla, la herramienta puede fallar.
         """)
-        if st.button("Ir a Evaluador Actual"):
+        if st.button("Ir a Evaluador Simplificado"):
             st.session_state.page = "primary"
 
     with col2:
@@ -2876,7 +2876,7 @@ def primary():
     imagen_primary= 'Analizador Versión Actual.jpg'
     st.title("Evaluador de Hoja de Vida ANEIAP")
     st.image(imagen_primary, use_container_width=True)
-    st.subheader("Versión Actual Hoja de Vida ANEIAP▶️")
+    st.subheader("Versión Simplificada Hoja de Vida ANEIAP▶️")
     st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
     
     # Entrada de datos del usuario
