@@ -1,8 +1,8 @@
 {
   "DCA": {
-    "Diseño académico": ["Académica", "Académico", "Aprendizaje", "Blandas", "Capacidad", "Capítulo", "Certificación", "Conocimiento", "Contenido", "Currículo", "Desarrollo", "Directiva", "Dura", "EFI", "Escuela", "Estrategia", "Evaluación", "Experiencia", "Extensión", "FIC", "Feria", "Formación", "Gestión", "Habilidad", "Innovación", "Integración", "Metodología", "Olimpiada", "Planificación", "Reforma", "SIEA", "SIGEDA", "SÉ", "Skills", "Soporte", "Staff", "Subdirectora", "Subdirector", "Taller", "Tutoría"],
-    "Innovación e investigación": ["Académica", "Académico", "COEXPRO", "Consultoría", "Ciclo", "Diseño", "Entorno", "Estadística", "Experimentación", "Extensión", "Conocimiento", "Herramienta", "I+D+I", "Innovación", "Investigación", "Mentoría", "Soporte", "Staff"],
-    "Formación y capacitación": ["Actividad", "Acreditación", "Capacitación", "Charla", "Conferencia", "Consultoría", "Curso", "Desarrollo", "Director", "Entrenamiento", "Escuela", "Estrategia", "FIC", "EFI", "Formación", "Ingeolimpiada", "Liderazgo", "Mentoría", "Olimpiada", "Profesional", "Seminario", "Simposio", "Taller"]
+    "Diseño académico": ["Académica", "Académico", "Coordinador", "Blanda", "Capacitación", "Certificación", "Conocimiento", "Contenido", "Dura", "Evaluación", "Habilidad", "Staff", "Taller"],
+    "Innovación e investigación": ["Académica", "Académico", "Conocimiento", "Herramienta", "I+D+I", "Innovación", "Investigación"],
+    "Formación y capacitación": ["Actividad", "Capacitación", "Charla", "Conferencia", "Curso", "Entrenamiento", "Escuela", "Formación", "Seminario", "Taller"]
   },
   "DCC": {
     "Estrategia de comunicación": ["Alcance", "Campaña", "Comunicación", "Difusión", "Digital", "Estrategia", "Feedback", "Marca", "Comunicativa", "Impacto", "Imagen", "Interacción", "Manual", "Medios", "MIC", "Plan", "Posicionamiento", "Podcast", "Publicidad", "Red", "Relación", "Segmentación", "Sistema", "Youtube"],
