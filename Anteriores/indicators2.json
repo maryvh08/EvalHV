@@ -10,9 +10,9 @@
     "Gestión de documental": ["Almacenamiento", "Documental", "Archivo", "Digital", "Base", "Biblioteca", "Documental", "Documentación", "Integridad", "SIGEDA", "Sistema"]
   },
   "DCD": {
-    "Gestión de asociados": ["Acompañamiento", "Adaptación", "Perfil", "Bienestar", "Carnetización", "Capítulo", "Cultura", "Desarrollo", "Directiva", "Encuesta", "Expansión", "Fidelización", "Feedback", "Gala", "Gestión", "Inclusión", "Incentivo", "Legado", "Networking", "Persuasión", "Padrino", "Padrinazgo", "Afiliación", "Membresía", "Reclutamiento", "Representación", "Retención", "SÉ", "SRA", "Subdirector", "Subdirectora", "FRAN", "SRA", "ANEIAP DAY", "Gira"],
-    "Integración y bienestar": ["Acompañamiento", "Bienestar", "Clima", "Organizacional", "Conformación", "Convivencia", "Cultura", "Desarrollo", "Diversidad", "Encuentro", "FRAC", "FRAN", "FRAR", "FRAS", "Gala", "Gira", "Incentivo", "Integración", "Legado", "Liderazgo", "Madrina", "Padrinazgo", "Padrino", "Personal", "Plan", "Premios", "Relación", "Recurso", "Humano", "RRHH", "Salud mental", "Voluntariado", "Workshop", "SÉ", "SRA"],
-     "Sostenimiento y sociedad": ["Ambiente", "Ambiental", "Cooperación", "Comunitario", "Social", "Desarrollo", "Eco", "Ética", "Impacto", "Inclusión", "Iniciativa", "Parque", "Playa", "Comunitario", "Proyecto", "Intercultural", "Responsabilidad", "RSA", "Social", "Sostenibilidad", "Sustentabilidad"]
+    "Gestión de asociados": ["Acompañamiento", "Bienestar", "Carnetización", "Expansión", "Fidelización","Gala","Incentivo", "Padrino", "Membresía", "Reclutamiento", "SÉ", "SRA"],
+    "Integración y bienestar": ["Acompañamiento", "Bienestar", "Clima", "Cultura", "Desarrollo","FRAC", "FRAN", "FRAR", "FRAS", "Gala", "Gira", "Incentivo", "Integración", "Plan", "Relación", "RRHH", "Salud", "Voluntariado"],
+     "Sostenimiento y sociedad": ["Ambiente", "Ambiental", "Comunitario", "Social", "Responsabilidad", "RSA", "Sostenibilidad", "Sustentabilidad"]
   },
   "DCF": {
     "Gestión financiera": ["Ahorro", "Auditoría", "Balance", "Capitalización", "Contabilidad", "Consolidación", "Control", "Dashboard", "Egreso", "Financiero", "Finanzas", "Flujo", "Fondo", "Fuente", "Gestión", "Ingreso", "Liquidez", "Presupuestaria", "Indicadores", "Ingreso", "Monitoreo", "Plan", "Política", "Proyección", "Proyecciones", "Recurso", "Rendición", "Reporte", "Revisión", "Riesgo", "Solidez", "Sustentable"],
