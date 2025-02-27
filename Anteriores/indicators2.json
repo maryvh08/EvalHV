@@ -30,9 +30,9 @@
     "Relaciones y representación": ["Negociación", "Negociaciones", "Protocolo", "Relaciones", "Representante", "Representatividad", "Resolución"]
   },
   "CCP": {
-    "Gestión de proyectos": ["Alcance", "Ágil-Scrum", "Asesor", "Auditor", "Capacitación", "Capacitaciones", "Control", "Cronograma", "Desarrollo", "Gantt", "Estimaciones", "Ejecución", "Factibilidad", "Gestión", "Implementación", "Investigación", "Metodología", "PMI", "Modelo", "Monitoreo", "Plan", "Planificación", "Proyecto", "PIN", "Proceso", "Recurso", "Reforma", "Riesgo", "Sponsor", "Stakeholders", "Subcoordinadora", "Subcoordinador", "Viabilidad", "Vida", "PMO", "Project", "Modelo"],
-    "Innovación y creatividad": ["ALMA", "Analítica", "Asesor", "Cambio", "CNI", "Colaboración", "Creatividad", "Datos", "Departamento", "Disruptivo", "Entrenamiento", "Estructura", "Experimentación", "Gobierno", "GNP", "Implementación", "Innovación", "Innova", "Modelo", "Operatividad", "PM", "Proyecto", "Prototipo", "Reforma", "SIEA", "Sistema", "Sponsor", "Transversal", "Valores", "Validación", "Vinculación", "ANEIAP", "Bolsa", "END", "DTI"],
-    "Colaboración estratégica": ["Asesor", "Capacitación", "Capítulo", "CNI", "COEC", "Colaboración", "Colaboración remota", "Cultura", "Directiva", "ECP", "Equipo", "Estrategia", "Estratégico", "Evento", "Fraternidad", "GNP", "Indicadores", "Integración", "Integraciones", "Interdisciplinariedad", "Organización", "PEN", "PIN", "Proyecto", "Reclutamiento", "Sinergia", "Sponsor", "Staff"]
+    "Gestión de proyectos": ["Asesor",  "Ejecución", "Factibilidad", "Gestión", "Implementación", "Investigación", "Metodología", "Plan", "Proyecto", "Reforma", "Riesgo", "Sponsor", "Viabilidad", "Project"],
+    "Innovación y creatividad": ["Analítica", "Cambio", "Creatividad", "Datos", "Estructura", "Implementación", "Innova", "Proyecto", "Sponsor", "Transversal"],
+    "Colaboración estratégica": ["Asesor", "Colaboración", "Equipo", "Estrategia", "Estratégico", "Indicadores", "PEN", "PIN", "Proyecto", "Sponsor", "Staff"]
   },
   "IC": {
     "Auditoría y control": ["Análisis", "Asesoría", "Auditor", "Calidad", "Cumplimiento", "Datos", "Data", "Diagnóstico", "Ética", "Evaluación", "Indicador", "Informe", "Inspección", "Interventor", "Interventoría", "Matriz", "Normativa", "Revisión", "Seguimiento", "Supervisión", "Verificación"],
