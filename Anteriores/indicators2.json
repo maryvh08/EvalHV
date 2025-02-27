@@ -20,7 +20,7 @@
     "Análisis y transparencia": ["Análisis", "Auditoría", "Financiera", "Control", "Trazabilidad", "Transparencia"]
   },
   "DCM": {
-    "Estrategias de branding": ["Branding", "Campaña", "Identidad", "CRM", "Cultura", "Diferenciación", "Estrategia", "Expansión", "Identidad", "Imagen", "Corporativa", "Indicador", "Logo", "Marketing", "Mercadeo", "Modelo", "Negocio", "NPS", "Plan", "Posicionamiento", "Promoción", "Publicidad", "Rebranding", "Reconocimiento", "Red", "SGA", "Segmentación", "Slogan", "Stakeholders", "Tienda", "Valor"],
+    "Estrategias de branding": ["Branding", "Campaña", "Expansión", "Indicador", "Marketing", "Mercadeo", "Negocio", "NPS","Posicionamiento", "Stakeholders", "Tienda", "Valor"],
     "Promoción y visibilidad": ["Alcance", "Buzón", "Campaña", "Capítulo", "Comunidad", "Directiva", "Dinámica", "Embajador", "Engagement", "Evento", "Expansión", "Estrategia", "Identidad", "Marketing", "Mercadeo", "Negocio", "Networking", "Posicionamiento", "Publicidad", "Red", "Relaciones", "Saloneo", "Stakeholders", "Subdirector", "Subdirectora", "Visualización", "Visibilidad"],
     "Gestión comercial": ["Alianzas", "Análisis", "Base", "Buzón", "Canal", "Cliente", "Comercial", "CRM", "Crecimiento", "E-commerce", "EMPRENDE-IAP", "Entorno", "Estrategia", "Experiencia del cliente", "Expansión", "Externo", "Comercial", "Interno", "Marketing", "Mercadeo", "Modelo", "Negocio", "Negociación", "Networking", "Plan", "Posicionamiento", "Producto", "Prospecto", "Propuesta", "Publicidad", "Relaciones", "Servicio", "Stakeholders", "Tienda", "Venta"]
   },
