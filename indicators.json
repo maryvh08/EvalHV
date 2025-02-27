@@ -25,9 +25,9 @@
     "Gestión comercial": ["Alianzas", "Cliente", "Comercial", "CRM", "Crecimiento",  "Experiencia",  "Comercial", "Interno", "Marketing", "Negocio", "Producto", "Servicio", "Stakeholders", "Tienda", "Venta"]
   },
   "PC": {
-    "Liderazgo y estrategia": ["Comunicación", "Cultura", "Decisión", "Delegación", "Desarrollo", "Directivo", "Estrategia", "Gestión", "Innovación", "Liderazgo", "Motivación", "Global", "Estratégico", "Resolución", "Rendimiento", "Supervisión", "Toma", "Transformación", "Trabajo", "Visión"],
-    "Gestión organizacional": ["Capítulo", "Coordinación", "Control", "Directiva", "ECAP", "Eficiencia", "Estructura", "Gestión", "Gestor", "Junta", "Manejo", "Metodología", "Normativa", "Organización", "Plan", "Presidencia", "Presidente", "Proceso", "Protocolos", "Recurso", "Revisión"],
-    "Relaciones y representación": ["Agenda", "Alianza", "ANEIAP", "Convenio", "Legal", "Negociación", "Negociaciones", "Networking", "Protocolo", "Relaciones", "Representante", "Representatividad", "Resolución"]
+    "Liderazgo y estrategia": ["Decisión", "Delegación", "Directivo", "Estrategia", "Gestión","Liderazgo", "Estratégico", "Rendimiento"],
+    "Gestión organizacional": ["Directiva", "ECAP", "Gestión", "Gestor", "Normativa", "Organización", "Plan", "Presidencia", "Presidente", "Revisión"],
+    "Relaciones y representación": ["Negociación", "Negociaciones", "Protocolo", "Relaciones", "Representante", "Representatividad", "Resolución"]
   },
   "CCP": {
     "Gestión de proyectos": ["Alcance", "Ágil-Scrum", "Asesor", "Auditor", "Capacitación", "Capacitaciones", "Control", "Cronograma", "Desarrollo", "Gantt", "Estimaciones", "Ejecución", "Factibilidad", "Gestión", "Implementación", "Investigación", "Metodología", "PMI", "Modelo", "Monitoreo", "Plan", "Planificación", "Proyecto", "PIN", "Proceso", "Recurso", "Reforma", "Riesgo", "Sponsor", "Stakeholders", "Subcoordinadora", "Subcoordinador", "Viabilidad", "Vida", "PMO", "Project", "Modelo"],
