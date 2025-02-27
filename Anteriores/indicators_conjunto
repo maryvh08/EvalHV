@@ -1,43 +1,47 @@
 {
-{
-  "DCA": {
-    "Diseño académico": ["Académica", "Académico", "Coordinador", "Blanda", "Capacitación", "Certificación", "Conocimiento", "Contenido", "Dura", "Evaluación", "Habilidad", "Staff", "Taller"],
-    "Innovación e investigación": ["Académica", "Académico", "Conocimiento", "Herramienta", "I+D+I", "Innovación", "Investigación"],
-    "Formación y capacitación": ["Actividad", "Capacitación", "Charla", "Conferencia", "Curso", "Entrenamiento", "Escuela", "Formación", "Seminario", "Taller"]
-  },
-  "DCC": {
-    "Estrategia de comunicación": ["Alcance", "Comunicación", "Imagen","Difusión", "Digital", "Estrategia", "Marca", "Comunicativa", "Impacto", "Interacción", "MIC", "Plan", "Posicionamiento", "Publicidad", "Red"],
-    "Producción audiovisual": ["Audiovisual", "Visual", "Contenido", "Comunicaciones", "Comunicación", "Diseño", "Edición","Producción", "Publicidad", "Red", "Video"],
-    "Gestión de documental": ["Almacenamiento", "Manual", "Documental", "Archivo", "Digital", "Base", "Biblioteca", "Documental", "Documentación", "Integridad", "SIGEDA", "Sistema"]
-  },
-  "DCD": {
-    "Gestión de asociados": ["Acompañamiento", "Bienestar", "Carnetización", "Expansión", "Fidelización","Gala","Incentivo", "Padrino", "Membresía", "Reclutamiento", "SÉ", "SRA"],
-    "Integración y bienestar": ["Bienestar", "Clima", "Cultura", "Desarrollo","FRAC", "FRAN", "FRAR", "FRAS", "Gala", "Incentivo", "Integración", "RRHH", "Salud"],
-    "Sostenimiento y sociedad": ["Ambiente", "Ambiental", "Comunitario", "Social", "Responsabilidad", "RSA", "Sostenibilidad"]
-  },
-  "DCF": {
-    "Gestión financiera": ["Ahorro", "Balance", "Estado", "Financiero", "Finanzas", "Flujo", "Fondo", "Fuente","Liquidez", "Indicadores", "Rendición", "Reporte"],
-    "Sostenibilidad económica": ["Capital", "Financiación", "Financiamiento", "Fuente","Obtención","Recaudación", "Rentabilidad", "Retorno", "Sostenimiento", "Viabilidad"],
-    "Análisis y transparencia": ["Análisis", "Auditoría", "Financiera", "Control", "Trazabilidad", "Transparencia"]
-  },
-  "DCM": {
-    "Estrategias de branding": ["Branding", "Campaña", "Expansión", "Indicador", "Marketing", "Mercadeo", "Negocio", "NPS","Posicionamiento", "Stakeholders", "Tienda", "Valor"],
-    "Promoción y visibilidad": ["Alcance", "Promoción","Imagen", "Engagement", "Expansión", "Marketing", "Mercadeo", "Negocio", "Networking", "Posicionamiento", "Saloneo", "Stakeholders", "Visualización", "Visibilidad"],
-    "Gestión comercial": ["Alianzas", "Cliente", "Comercial", "CRM", "Crecimiento",  "Experiencia",  "Comercial", "Interno", "Marketing", "Negocio", "Producto","Servicio", "Stakeholders", "Tienda", "Venta"]
-  },
-  "PC": {
-    "Liderazgo y estrategia": ["Decisión", "Delegación", "Directivo", "Estrategia", "Gestión","Liderazgo", "Estratégico", "Rendimiento"],
-    "Gestión organizacional": ["Directiva", "ECAP", "Gestión", "Gestor", "Normativa", "Organización", "Plan", "Presidencia", "Presidente", "Revisión"],
-    "Relaciones y representación": ["Negociación", "Negociaciones", "Protocolo", "Relaciones", "Representante", "Representatividad", "Resolución"]
-  },
-  "CCP": {
-    "Gestión de proyectos": ["Asesor",  "Ejecución", "Factibilidad", "Gestión", "Implementación", "Investigación", "Metodología", "Plan", "Proyecto", "Reforma", "Riesgo", "Sponsor", "Viabilidad", "Project"],
-    "Innovación y creatividad": ["Analítica", "Cambio", "Creatividad", "Datos", "Estructura", "Implementación", "Innova", "Proyecto", "Sponsor", "Transversal"],
-    "Colaboración estratégica": ["Asesor", "Colaboración", "Equipo", "Estrategia", "Estratégico", "Indicadores", "PEN", "PIN", "Proyecto", "Sponsor", "Staff"]
-  },
-  "IC": {
-    "Auditoría y control": ["Auditor", "Calidad", "Cumplimiento", "Ética", "Evaluación", "Indicador", "Informe", "Interventor", "Matriz", "Normativa", "Revisión", "Seguimiento"],
-    "Normativa y transparencia": ["Código", "Conducta", "Conducto", "Control", "Ética", "Interventor", "Marco", "Monitoreo", "Política", "Procedimiento", "Protocolo", "Reglamento", "Regulación", "Transparencia"],
-    "Seguimiento y evaluación": ["360", "Auditoría", "Cuadro", "ECI", "ENI", "Evaluación", "Indicador", "Informe", "Interventor", "Revisión", "Rúbrica", "Seguimiento"]
+  "UNIGUAJIRA": {
+      "DCA": {
+        "Diseño académico": [...],
+        "Innovación e investigación": [...],
+        "Formación y capacitación": [...]
+      },
+      "DCC": {
+        "Estrategia de comunicación": [...],
+        "Producción audiovisual": [...],
+        "Gestión de documental": [...]
+      },
+    "DCD": {
+            "Estrategia de comunicación": [...],
+            "Producción audiovisual": [...],
+            "Gestión de documental": [...]
+      },
+    "DCF": {
+            "Estrategia de comunicación": [...],
+            "Producción audiovisual": [...],
+            "Gestión de documental": [...]
+      },
+    "DCM": {
+            "Estrategia de comunicación": [...],
+            "Producción audiovisual": [...],
+            "Gestión de documental": [...]
+      },
+    "PC": {
+            "Estrategia de comunicación": [...],
+            "Producción audiovisual": [...],
+            "Gestión de documental": [...]
+      },
+    "CCP": {
+            "Estrategia de comunicación": [...],
+            "Producción audiovisual": [...],
+            "Gestión de documental": [...]
+      },
+    "DCC": {
+            "Estrategia de comunicación": [...],
+            "Producción audiovisual": [...],
+            "Gestión de documental": [...]
+      }
+    }
   }
-}
+
+
+
