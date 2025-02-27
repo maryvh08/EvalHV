@@ -15,9 +15,9 @@
     "Sostenimiento y sociedad": ["Ambiente", "Ambiental", "Comunitario", "Social", "Responsabilidad", "RSA", "Sostenibilidad"]
   },
   "DCF": {
-    "Gestión financiera": ["Ahorro", "Auditoría", "Balance", "Capitalización", "Contabilidad", "Consolidación", "Control", "Dashboard", "Egreso", "Financiero", "Finanzas", "Flujo", "Fondo", "Fuente", "Gestión", "Ingreso", "Liquidez", "Presupuestaria", "Indicadores", "Ingreso", "Monitoreo", "Plan", "Política", "Proyección", "Proyecciones", "Recurso", "Rendición", "Reporte", "Revisión", "Riesgo", "Solidez", "Sustentable"],
-    "Sostenibilidad económica": ["Alternativa", "Capital", "Costo", "Desarrollo", "Diversificación", "Económica", "Estrategia", "Financiación", "Financiamiento", "Fuente", "Gestión", "Modelo", "Obtención", "Optimización", "Planeación", "Proyecto", "Recaudación", "Recurso", "Rentabilidad", "Retorno", "Riqueza", "Sostenibilidad", "Sostenimiento", "Viabilidad"],
-    "Análisis y transparencia": ["Análisis", "Auditoría", "Certificación", "Financiera", "Control", "Cumplimiento", "Directiva", "Donaciones", "Ética", "Indicadores", "Informe", "Norma", "Normativa", "Reporte", "Subdirectora", "Subdirector", "Trazabilidad", "Transparencia", "Validación"]
+    "Gestión financiera": ["Ahorro", "Balance", "Estado", "Financiero", "Finanzas", "Flujo", "Fondo", "Fuente","Liquidez", "Indicadores", "Rendición", "Reporte"],
+    "Sostenibilidad económica": ["Capital", "Financiación", "Financiamiento", "Fuente","Obtención","Recaudación", "Rentabilidad", "Retorno", "Sostenimiento", "Viabilidad"],
+    "Análisis y transparencia": ["Análisis", "Auditoría", "Financiera", "Control", "Trazabilidad", "Transparencia"]
   },
   "DCM": {
     "Estrategias de branding": ["Branding", "Campaña", "Identidad", "CRM", "Cultura", "Diferenciación", "Estrategia", "Expansión", "Identidad", "Imagen", "Corporativa", "Indicador", "Logo", "Marketing", "Mercadeo", "Modelo", "Negocio", "NPS", "Plan", "Posicionamiento", "Promoción", "Publicidad", "Rebranding", "Reconocimiento", "Red", "SGA", "Segmentación", "Slogan", "Stakeholders", "Tienda", "Valor"],
