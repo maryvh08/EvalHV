@@ -11,7 +11,7 @@
   },
   "DCD": {
     "Gestión de asociados": ["Acompañamiento", "Bienestar", "Carnetización", "Expansión", "Fidelización","Gala","Incentivo", "Padrino", "Membresía", "Reclutamiento", "SÉ", "SRA"],
-    "Integración y bienestar": ["Acompañamiento", "Bienestar", "Clima", "Cultura", "Desarrollo","FRAC", "FRAN", "FRAR", "FRAS", "Gala", "Gira", "Incentivo", "Integración", "Plan", "Relación", "RRHH", "Salud", "Voluntariado"],
+    "Integración y bienestar": ["Bienestar", "Clima", "Cultura", "Desarrollo","FRAC", "FRAN", "FRAR", "FRAS", "Gala", "Incentivo", "Integración", "RRHH", "Salud"],
      "Sostenimiento y sociedad": ["Ambiente", "Ambiental", "Comunitario", "Social", "Responsabilidad", "RSA", "Sostenibilidad", "Sustentabilidad"]
   },
   "DCF": {
