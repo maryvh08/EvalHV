@@ -5,9 +5,9 @@
     "Formación y capacitación": ["Actividad", "Capacitación", "Charla", "Conferencia", "Curso", "Entrenamiento", "Escuela", "Formación", "Seminario", "Taller"]
   },
   "DCC": {
-    "Estrategia de comunicación": ["Alcance", "Campaña", "Comunicación", "Difusión", "Digital", "Estrategia", "Feedback", "Marca", "Comunicativa", "Impacto", "Imagen", "Interacción", "Manual", "Medios", "MIC", "Plan", "Posicionamiento", "Podcast", "Publicidad", "Red", "Relación", "Segmentación", "Sistema", "Youtube"],
-    "Producción audiovisual": ["Animación", "Animaciones", "Audiovisual", "Visual", "Calidad", "Contenido", "Concepto", "Comunicaciones", "Comunicación", "Creativa", "Diseño", "Edición", "Grabación", "Guiones", "Infografía", "Streaming", "Podcast", "Producción", "Publicidad", "Red", "Tiktok", "Video", "Youtube"],
-    "Gestión de documental": ["Almacenamiento", "Documental", "Archivo", "Digital", "Base de datos", "Biblioteca", "Clasificación", "Información", "Documental", "Documentación", "Gestión", "Metadato", "Indexación", "Integridad", "Metadatos", "Manual", "Normatividad", "Política", "Preservación", "SIGEDA", "Sistema", "Recuperación"]
+    "Estrategia de comunicación": ["Alcance", "Comunicación", "Difusión", "Digital", "Estrategia", "Marca", "Comunicativa", "Impacto", "Interacción", "MIC", "Plan", "Posicionamiento", "Publicidad", "Red"],
+    "Producción audiovisual": ["Audiovisual", "Visual", "Contenido", "Comunicaciones", "Comunicación", "Diseño", "Edición","Producción", "Publicidad", "Red", "Video"],
+    "Gestión de documental": ["Almacenamiento", "Documental", "Archivo", "Digital", "Base", "Biblioteca", "Documental", "Documentación", "Integridad", "SIGEDA", "Sistema"]
   },
   "DCD": {
     "Gestión de asociados": ["Acompañamiento", "Adaptación", "Perfil", "Bienestar", "Carnetización", "Capítulo", "Cultura", "Desarrollo", "Directiva", "Encuesta", "Expansión", "Fidelización", "Feedback", "Gala", "Gestión", "Inclusión", "Incentivo", "Legado", "Networking", "Persuasión", "Padrino", "Padrinazgo", "Afiliación", "Membresía", "Reclutamiento", "Representación", "Retención", "SÉ", "SRA", "Subdirector", "Subdirectora", "FRAN", "SRA", "ANEIAP DAY", "Gira"],
