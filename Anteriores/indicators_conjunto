@@ -21,9 +21,9 @@
       "Análisis y transparencia": ["Análisis", "Auditoría", "Financiera", "Control", "Trazabilidad", "Transparencia"]
     },
     "DCM": {
-            "Estrategia de comunicación": [...],
-            "Producción audiovisual": [...],
-            "Gestión de documental": [...]
+      "Estrategias de branding": ["Branding", "Campaña", "Expansión", "Indicador", "Marketing", "Mercadeo", "Negocio", "NPS","Posicionamiento", "Stakeholders", "Tienda", "Valor"],
+      "Promoción y visibilidad": ["Alcance", "Promoción","Imagen", "Engagement", "Expansión", "Marketing", "Mercadeo", "Negocio", "Networking", "Posicionamiento", "Saloneo", "Stakeholders", "Visualización", "Visibilidad"],
+      "Gestión comercial": ["Alianzas", "Cliente", "Comercial", "CRM", "Crecimiento",  "Experiencia",  "Comercial", "Interno", "Marketing", "Negocio", "Producto","Servicio", "Stakeholders", "Tienda", "Venta"]
     },
     "PC": {
             "Estrategia de comunicación": [...],
