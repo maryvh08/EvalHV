@@ -4,43 +4,43 @@
         "Diseño académico": ["Académica", "Académico", "Coordinador", "Blanda", "Capacitación", "Certificación", "Conocimiento", "Contenido", "Dura", "Evaluación", "Habilidad", "Staff", "Taller"],
         "Innovación e investigación": ["Académica", "Académico", "Conocimiento", "Herramienta", "I+D+I", "Innovación", "Investigación"],
         "Formación y capacitación": ["Actividad", "Capacitación", "Charla", "Conferencia", "Curso", "Entrenamiento", "Escuela", "Formación", "Seminario", "Taller"]
-      },
+    },
     "DCC": {
         "Estrategia de comunicación": [...],
         "Producción audiovisual": [...],
         "Gestión de documental": [...]
-      },
+    },
     "DCD": {
             "Estrategia de comunicación": [...],
             "Producción audiovisual": [...],
             "Gestión de documental": [...]
-      },
+    },
     "DCF": {
             "Estrategia de comunicación": [...],
             "Producción audiovisual": [...],
             "Gestión de documental": [...]
-      },
+    },
     "DCM": {
             "Estrategia de comunicación": [...],
             "Producción audiovisual": [...],
             "Gestión de documental": [...]
-      },
+    },
     "PC": {
             "Estrategia de comunicación": [...],
             "Producción audiovisual": [...],
             "Gestión de documental": [...]
-      },
+    },
     "CCP": {
             "Estrategia de comunicación": [...],
             "Producción audiovisual": [...],
             "Gestión de documental": [...]
-      },
+    },
     "DCC": {
             "Estrategia de comunicación": [...],
             "Producción audiovisual": [...],
             "Gestión de documental": [...]
-      }
-    },
+    }
+  },
   "UNIMAGDALENA": {
   "UNINORTE": {
   "UNIATLÁNTICO": {
