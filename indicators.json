@@ -5,9 +5,9 @@
     "Formación y capacitación": ["Actividad", "Capacitación", "Charla", "Conferencia", "Curso", "Entrenamiento", "Escuela", "Formación", "Seminario", "Taller"]
   },
   "DCC": {
-    "Estrategia de comunicación": ["Alcance", "Comunicación", "Difusión", "Digital", "Estrategia", "Marca", "Comunicativa", "Impacto", "Interacción", "MIC", "Plan", "Posicionamiento", "Publicidad", "Red"],
+    "Estrategia de comunicación": ["Alcance", "Comunicación", "Imagen","Difusión", "Digital", "Estrategia", "Marca", "Comunicativa", "Impacto", "Interacción", "MIC", "Plan", "Posicionamiento", "Publicidad", "Red"],
     "Producción audiovisual": ["Audiovisual", "Visual", "Contenido", "Comunicaciones", "Comunicación", "Diseño", "Edición","Producción", "Publicidad", "Red", "Video"],
-    "Gestión de documental": ["Almacenamiento", "Documental", "Archivo", "Digital", "Base", "Biblioteca", "Documental", "Documentación", "Integridad", "SIGEDA", "Sistema"]
+    "Gestión de documental": ["Almacenamiento", "Manual", "Documental", "Archivo", "Digital", "Base", "Biblioteca", "Documental", "Documentación", "Integridad", "SIGEDA", "Sistema"]
   },
   "DCD": {
     "Gestión de asociados": ["Acompañamiento", "Bienestar", "Carnetización", "Expansión", "Fidelización","Gala","Incentivo", "Padrino", "Membresía", "Reclutamiento", "SÉ", "SRA"],
@@ -21,7 +21,7 @@
   },
   "DCM": {
     "Estrategias de branding": ["Branding", "Campaña", "Expansión", "Indicador", "Marketing", "Mercadeo", "Negocio", "NPS","Posicionamiento", "Stakeholders", "Tienda", "Valor"],
-    "Promoción y visibilidad": ["Alcance", "Promoción", "Engagement", "Expansión", "Marketing", "Mercadeo", "Negocio", "Networking", "Posicionamiento", "Saloneo", "Stakeholders", "Visualización", "Visibilidad"],
+    "Promoción y visibilidad": ["Alcance", "Promoción","Imagen", "Engagement", "Expansión", "Marketing", "Mercadeo", "Negocio", "Networking", "Posicionamiento", "Saloneo", "Stakeholders", "Visualización", "Visibilidad"],
     "Gestión comercial": ["Alianzas", "Cliente", "Comercial", "CRM", "Crecimiento",  "Experiencia",  "Comercial", "Interno", "Marketing", "Negocio", "Producto", "Servicio", "Stakeholders", "Tienda", "Venta"]
   },
   "PC": {
