@@ -31,11 +31,11 @@
       "Relaciones y representación": ["Negociación", "Negociaciones", "Protocolo", "Relaciones", "Representante", "Representatividad", "Resolución"]
     },
     "CCP": {
-            "Estrategia de comunicación": [...],
-            "Producción audiovisual": [...],
-            "Gestión de documental": [...]
+      "Gestión de proyectos": ["Asesor",  "Ejecución", "Factibilidad", "Gestión", "Implementación", "Investigación", "Metodología", "Plan", "Proyecto", "Reforma", "Riesgo", "Sponsor", "Viabilidad", "Project"],
+      "Innovación y creatividad": ["Analítica", "Cambio", "Creatividad", "Datos", "Estructura", "Implementación", "Innova", "Proyecto", "Sponsor", "Transversal"],
+      "Colaboración estratégica": ["Asesor", "Colaboración", "Equipo", "Estrategia", "Estratégico", "Indicadores", "PEN", "PIN", "Proyecto", "Sponsor", "Staff"]
     },
-    "DCC": {
+    "IC": {
             "Estrategia de comunicación": [...],
             "Producción audiovisual": [...],
             "Gestión de documental": [...]
@@ -63,6 +63,7 @@
   "UPBMONTERÍA": {
   "AREANDINA": {
   "UNICÓDOBA": {
+}
     
     
 
