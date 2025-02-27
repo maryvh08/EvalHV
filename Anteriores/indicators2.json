@@ -1,8 +1,8 @@
 {
   "DCA": {
-    "Diseño académico": ["Académica", "Académico", "Aprendizaje", "Blanda", "Capacidad", "Capítulo", "Certificación", "Conocimiento", "Cotenido", "Dura", "Evaluación", "Gestión", "Habilidad", "Olimpiada", "Planificación", "Reforma", "SIEA", "Staff", "Taller"],
-    "Innovación e investigación": ["Académica", "Académico", "Consultoría", "Estadística", "Experimentación", "Conocimiento", "Herramienta", "I+D+I", "Innovación", "Investigación"],
-    "Formación y capacitación": ["Actividad", "Acreditación", "Capacitación", "Charla", "Conferencia", "Consultoría", "Curso", "Desarrollo", "Director", "Entrenamiento", "Escuela", "Estrategia", "FIC", "EFI", "Formación", "Ingeolimpiada", "Liderazgo", "Mentoría", "Olimpiada", "Profesional", "Seminario", "Simposio", "Taller"]
+    "Diseño académico": ["Académica", "Académico", "Coordinador", "Blanda", "Capacitación", "Certificación", "Conocimiento", "Contenido", "Dura", "Evaluación", "Habilidad", "Staff", "Taller"],
+    "Innovación e investigación": ["Académica", "Académico", "Conocimiento", "Herramienta", "I+D+I", "Innovación", "Investigación"],
+    "Formación y capacitación": ["Actividad", "Capacitación", "Charla", "Conferencia", "Curso", "Entrenamiento", "Escuela", "Formación", "Seminario", "Taller"]
   },
   "DCC": {
     "Estrategia de comunicación": ["Alcance", "Campaña", "Comunicación", "Difusión", "Digital", "Estrategia", "Feedback", "Marca", "Comunicativa", "Impacto", "Imagen", "Interacción", "Manual", "Medios", "MIC", "Plan", "Posicionamiento", "Podcast", "Publicidad", "Red", "Relación", "Segmentación", "Sistema", "Youtube"],
