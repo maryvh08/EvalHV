@@ -6,9 +6,9 @@
         "Formación y capacitación": ["Actividad", "Capacitación", "Charla", "Conferencia", "Curso", "Entrenamiento", "Escuela", "Formación", "Seminario", "Taller"]
     },
     "DCC": {
-        "Estrategia de comunicación": [...],
-        "Producción audiovisual": [...],
-        "Gestión de documental": [...]
+        "Estrategia de comunicación": ["Alcance", "Comunicación", "Imagen","Difusión", "Digital", "Estrategia", "Marca", "Comunicativa", "Impacto", "Interacción", "MIC", "Plan", "Posicionamiento", "Publicidad", "Red"],
+    "Producción audiovisual": ["Audiovisual", "Visual", "Contenido", "Comunicaciones", "Comunicación", "Diseño", "Edición","Producción", "Publicidad", "Red", "Video"],
+    "Gestión de documental": ["Almacenamiento", "Manual", "Documental", "Archivo", "Digital", "Base", "Biblioteca", "Documental", "Documentación", "Integridad", "SIGEDA", "Sistema"]
     },
     "DCD": {
             "Estrategia de comunicación": [...],
