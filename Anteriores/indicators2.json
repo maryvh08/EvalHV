@@ -26,7 +26,7 @@
   },
   "PC": {
     "Liderazgo y estrategia": ["Decisión", "Delegación", "Directivo", "Estrategia", "Gestión","Liderazgo", "Estratégico", "Rendimiento"],
-    "Gestión organizacional": ["Directiva", "ECAP", "Gestión", "Gestor", "Normativa", "Organización", "Plan", "Presidencia", "Presidente", "Revisión"],
+    "Gestión organizacional": ["Directiva", "Gestión", "Gestor", "Normativa", "Organización", "Plan", "Presidencia", "Presidente", "Revisión"],
     "Relaciones y representación": ["Negociación", "Negociaciones", "Protocolo", "Relaciones", "Representante", "Representatividad", "Resolución"]
   },
   "CCP": {
@@ -35,8 +35,8 @@
     "Colaboración estratégica": ["Asesor", "Colaboración", "Equipo", "Estrategia", "Estratégico", "Indicadores", "PEN", "PIN", "Proyecto", "Sponsor", "Staff"]
   },
   "IC": {
-    "Auditoría y control": ["Análisis", "Asesoría", "Auditor", "Calidad", "Cumplimiento", "Datos", "Data", "Diagnóstico", "Ética", "Evaluación", "Indicador", "Informe", "Inspección", "Interventor", "Interventoría", "Matriz", "Normativa", "Revisión", "Seguimiento", "Supervisión", "Verificación"],
-    "Normativa y transparencia": ["Análisis financiero", "Código", "Conducta", "Conducto", "Control", "Ética", "Estándar", "Interventor", "Marco", "Monitoreo", "Política", "Procedimiento", "Protocolo", "Reglamento", "Regla", "Regulación", "Regular", "Reporte", "Transparencia"],
-    "Seguimiento y evaluación": ["360", "Auditoría", "Capítulo", "Cuadro", "Directiva", "ECI", "ENI", "Evaluación", "Feedback", "IC", "Indicador", "Informe", "Interventor", "KPI", "Medición", "Monitoreo", "Panel", "Plan", "Progreso", "Reporte", "Retroalimentación", "Revisión", "Rúbrica", "Seguimiento", "Supervisión"]
+    "Auditoría y control": ["Auditor", "Calidad", "Cumplimiento", "Ética", "Evaluación", "Indicador", "Informe", "Interventor", "Matriz", "Normativa", "Revisión", "Seguimiento"],
+    "Normativa y transparencia": ["Código", "Conducta", "Conducto", "Control", "Ética", "Interventor", "Marco", "Monitoreo", "Política", "Procedimiento", "Protocolo", "Reglamento", "Regulación", "Transparencia"],
+    "Seguimiento y evaluación": ["360", "Auditoría", "Cuadro", "ECI", "ENI", "Evaluación", "Feedback", "Indicador", "Informe", "Interventor", "Revisión", "Rúbrica", "Seguimiento"]
   }
 }
