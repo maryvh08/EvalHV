@@ -11,8 +11,8 @@
   },
   "DCD": {
     "Gestión de asociados": ["Acompañamiento", "Bienestar", "Carnetización", "Expansión", "Fidelización","Gala","Incentivo", "Padrino", "Membresía", "Reclutamiento", "SÉ", "SRA"],
-    "Integración y bienestar": ["Acompañamiento", "Bienestar", "Clima", "Cultura", "Desarrollo","FRAC", "FRAN", "FRAR", "FRAS", "Gala", "Gira", "Incentivo", "Integración", "Plan", "Relación", "RRHH", "Salud"],
-     "Sostenimiento y sociedad": ["Ambiente", "Ambiental", "Comunitario", "Social", "Responsabilidad", "RSA", "Sostenibilidad", "Sustentabilidad"]
+    "Integración y bienestar": ["Bienestar", "Clima", "Cultura", "Desarrollo","FRAC", "FRAN", "FRAR", "FRAS", "Gala", "Incentivo", "Integración", "RRHH", "Salud"],
+    "Sostenimiento y sociedad": ["Ambiente", "Ambiental", "Comunitario", "Social", "Responsabilidad", "RSA", "Sostenibilidad"]
   },
   "DCF": {
     "Gestión financiera": ["Ahorro", "Auditoría", "Balance", "Capitalización", "Contabilidad", "Consolidación", "Control", "Dashboard", "Egreso", "Financiero", "Finanzas", "Flujo", "Fondo", "Fuente", "Gestión", "Ingreso", "Liquidez", "Presupuestaria", "Indicadores", "Ingreso", "Monitoreo", "Plan", "Política", "Proyección", "Proyecciones", "Recurso", "Rendición", "Reporte", "Revisión", "Riesgo", "Solidez", "Sustentable"],
