@@ -16,9 +16,9 @@
       "Sostenimiento y sociedad": ["Ambiente", "Ambiental", "Comunitario", "Social", "Responsabilidad", "RSA", "Sostenibilidad"]
     },
     "DCF": {
-            "Estrategia de comunicación": [...],
-            "Producción audiovisual": [...],
-            "Gestión de documental": [...]
+      "Gestión financiera": ["Ahorro", "Balance", "Estado", "Financiero", "Finanzas", "Flujo", "Fondo", "Fuente","Liquidez", "Indicadores", "Rendición", "Reporte"],
+      "Sostenibilidad económica": ["Capital", "Financiación", "Financiamiento", "Fuente","Obtención","Recaudación", "Rentabilidad", "Retorno", "Sostenimiento", "Viabilidad"],
+      "Análisis y transparencia": ["Análisis", "Auditoría", "Financiera", "Control", "Trazabilidad", "Transparencia"]
     },
     "DCM": {
             "Estrategia de comunicación": [...],
