@@ -26,9 +26,9 @@
       "Gestión comercial": ["Alianzas", "Cliente", "Comercial", "CRM", "Crecimiento",  "Experiencia",  "Comercial", "Interno", "Marketing", "Negocio", "Producto","Servicio", "Stakeholders", "Tienda", "Venta"]
     },
     "PC": {
-            "Estrategia de comunicación": [...],
-            "Producción audiovisual": [...],
-            "Gestión de documental": [...]
+      "Liderazgo y estrategia": ["Decisión", "Delegación", "Directivo", "Estrategia", "Gestión","Liderazgo", "Estratégico", "Rendimiento"],
+      "Gestión organizacional": ["Directiva", "ECAP", "Gestión", "Gestor", "Normativa", "Organización", "Plan", "Presidencia", "Presidente", "Revisión"],
+      "Relaciones y representación": ["Negociación", "Negociaciones", "Protocolo", "Relaciones", "Representante", "Representatividad", "Resolución"]
     },
     "CCP": {
             "Estrategia de comunicación": [...],
