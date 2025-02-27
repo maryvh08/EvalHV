@@ -37,6 +37,6 @@
   "IC": {
     "Auditoría y control": ["Auditor", "Calidad", "Cumplimiento", "Ética", "Evaluación", "Indicador", "Informe", "Interventor", "Matriz", "Normativa", "Revisión", "Seguimiento"],
     "Normativa y transparencia": ["Código", "Conducta", "Conducto", "Control", "Ética", "Interventor", "Marco", "Monitoreo", "Política", "Procedimiento", "Protocolo", "Reglamento", "Regulación", "Transparencia"],
-    "Seguimiento y evaluación": ["360", "Auditoría", "Cuadro", "ECI", "ENI", "Evaluación", "Feedback", "Indicador", "Informe", "Interventor", "Revisión", "Rúbrica", "Seguimiento"]
+    "Seguimiento y evaluación": ["360", "Auditoría", "Cuadro", "ECI", "ENI", "Evaluación", "Indicador", "Informe", "Interventor", "Revisión", "Rúbrica", "Seguimiento"]
   }
 }
