@@ -380,10 +380,6 @@ def extract_experience_section_with_ocr(pdf_path):
     """
     text = extract_text_with_ocr(pdf_path)
 
-    # Verifica el texto extraído y muestra los primeros 500 caracteres
-    print("Texto extraído del PDF:")
-    print(text[:500])
-
     # Palabras clave para identificar inicio y fin de la sección
     start_keyword = "EXPERIENCIA EN ANEIAP"
     end_keywords = [
@@ -402,16 +398,12 @@ def extract_experience_section_with_ocr(pdf_path):
         print(f"No se encontró la sección '{start_keyword}' en el texto.")
         return None  # No se encontró la sección
 
-    print(f"Índice de inicio encontrado en: {start_idx}")
-
     # Encontrar índice más cercano de fin basado en palabras clave
     end_idx = len(text)  # Por defecto, tomar hasta el final
     for keyword in end_keywords:
         idx = text_lower.find(keyword.lower(), start_idx)
         if idx != -1:
             end_idx = min(end_idx, idx)
-
-    print(f"Índice de fin encontrado en: {end_idx}")
 
     # Extraer la sección entre inicio y fin
     experience_text = text[start_idx:end_idx].strip()
@@ -432,35 +424,38 @@ def extract_experience_section_with_ocr(pdf_path):
     cleaned_lines = []
     accumulated_line = ""
 
+    # Recorremos las líneas de la sección para procesar
     for line in experience_lines:
         line = line.strip()
         line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
         normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        
-        # Si la línea está vacía o en las líneas excluidas, ignorarla
+
+        # Excluir las líneas de las que no se desea evaluar
         if (
             normalized_line
             and normalized_line not in exclude_lines
             and normalized_line != start_keyword.lower()
             and normalized_line not in [kw.lower() for kw in end_keywords]
         ):
-            # Si la línea es parte de una frase larga, acumularla
+            # Acumulamos las líneas largas
             if accumulated_line:
                 accumulated_line += " " + line
             else:
                 accumulated_line = line
         
-        # Si una línea está vacía o es la última línea (lo que indica el fin de la frase larga)
+        # Si encontramos una línea vacía o es la última, añadimos la línea acumulada
         if normalized_line == "" or line == experience_lines[-1]:
             if accumulated_line:
                 cleaned_lines.append(accumulated_line)
                 accumulated_line = ""  # Reiniciar para la siguiente línea larga
 
-    # Imprimir líneas procesadas para depuración
+    return "\n".join(cleaned_lines)
+    
+    # Debugging: Imprime líneas procesadas
     print("Líneas procesadas:")
     for line in cleaned_lines:
         print(f"- {line}")
-
+    
     return "\n".join(cleaned_lines)
 
 def extract_event_section_with_ocr(pdf_path):
