@@ -1647,8 +1647,7 @@ def extract_asistencia_items_with_details(pdf_path):
     excluded_terms = {
         "dirección de residencia",
         "tiempo en aneiap",
-        "medios de comunicación",
-    }
+        "medios de comunicación"}
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
