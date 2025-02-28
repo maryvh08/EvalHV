@@ -462,18 +462,18 @@ def extract_event_section_with_ocr(pdf_path):
     if not text:
         return ""  # Retorna texto vacío si no hay contenido
 
-    # 📌 Patrones para detectar inicio y fin de la sección
+    # Patrones para detectar inicio y fin de la sección
     start_pattern = "EVENTOS ORGANIZADOS"
     end_patterns = ["EXPERIENCIA LABORAL", "FIRMA"]
 
-    # 📌 Encontrar inicio de la sección
+    # Encontrar el inicio de la sección
     start_match = re.search(start_pattern, text, re.IGNORECASE)
     if not start_match:
         return ""  # Retorna texto vacío si no encuentra la sección
 
     start_idx = start_match.start()
 
-    # 📌 Encontrar el final de la sección
+    # Encontrar el final de la sección
     end_idx = len(text)
     for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
@@ -481,32 +481,55 @@ def extract_event_section_with_ocr(pdf_path):
             end_idx = start_idx + match.start()
             break  # Se detiene en la primera coincidencia encontrada
 
-    # 📌 Extraer la sección entre inicio y fin
+    # Extraer la sección entre inicio y fin
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
         return ""  # Retorna texto vacío si la sección no tiene contenido
 
-    # 📌 Filtrar líneas repetitivas y limpiar texto
+    # Filtrar líneas repetitivas y limpiar texto
     org_lines = org_text.split("\n")
     cleaned_lines = []
     seen_items = set()
+    temp_line = ""  # Variable para acumular líneas largas
 
-    for line in org_lines:
+    for i, line in enumerate(org_lines):
         line = line.strip()
-        line = re.sub(r"[^\w\s]", "", line)  # Elimina caracteres especiales
-        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normaliza espacios y minúsculas
+        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres especiales
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
         
         # Excluir encabezados repetidos y líneas vacías
         if not normalized_line or normalized_line == "eventos organizados":
             continue
-        
+
+        # Si la línea parece ser una continuación, la unimos con la anterior
+        if temp_line and (line[0].isupper() or line[0] in ["•", "-"]):  # Detectar si es una continuación
+            temp_line += " " + line
+        else:
+            if temp_line:  # Si hay una línea temporal acumulada, la añadimos
+                cleaned_lines.append(temp_line)
+                temp_line = ""
+            temp_line = line
+
         # Evitar duplicados
         if normalized_line not in seen_items:
-            cleaned_lines.append(line)
+            cleaned_lines.append(temp_line)
             seen_items.add(normalized_line)
+            temp_line = ""  # Reiniciar después de añadir
 
-    return org_text
+    # Si la última línea quedó incompleta, añadirla
+    if temp_line:
+        cleaned_lines.append(temp_line)
+
+    # Devolver el texto limpio y procesado
+    return "\n".join(cleaned_lines)
+
+    # Debugging: Imprime las líneas procesadas
+    print("Líneas procesadas:")
+    for line in cleaned_lines:
+        print(f"- {line}")
     
+    return "\n".join(cleaned_lines)
+
 def evaluate_cv_presentation(pdf_path):
     """
     Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
