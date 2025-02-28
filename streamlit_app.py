@@ -1648,7 +1648,6 @@ def extract_asistencia_items_with_details(pdf_path):
         "dirección de residencia",
         "tiempo en aneiap",
         "medios de comunicación",
-        "asistencia a eventos aneiap"
     }
 
     with fitz.open(pdf_path) as doc:
