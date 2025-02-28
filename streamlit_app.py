@@ -389,15 +389,19 @@ def extract_experience_section_with_ocr(pdf_path):
         "Reconocimientos",
     ]
 
+    # Normalizar el texto extraído a minúsculas para hacer la búsqueda más flexible
+    text_lower = text.lower()
+
     # Encontrar índice de inicio
-    start_idx = text.lower().find(start_keyword.lower())
+    start_idx = text_lower.find(start_keyword.lower())
     if start_idx == -1:
+        print(f"No se encontró la sección '{start_keyword}' en el texto.")
         return None  # No se encontró la sección
 
     # Encontrar índice más cercano de fin basado en palabras clave
     end_idx = len(text)  # Por defecto, tomar hasta el final
     for keyword in end_keywords:
-        idx = text.lower().find(keyword.lower(), start_idx)
+        idx = text_lower.find(keyword.lower(), start_idx)
         if idx != -1:
             end_idx = min(end_idx, idx)
 
@@ -418,25 +422,32 @@ def extract_experience_section_with_ocr(pdf_path):
     ]
     experience_lines = experience_text.split("\n")
     cleaned_lines = []
+    accumulated_line = ""
+
     for line in experience_lines:
         line = line.strip()
         line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
         normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
+        
+        # Si la línea está vacía o en las líneas excluidas, ignorarla
         if (
             normalized_line
             and normalized_line not in exclude_lines
             and normalized_line != start_keyword.lower()
             and normalized_line not in [kw.lower() for kw in end_keywords]
         ):
-            cleaned_lines.append(line)
+            # Si la línea es parte de una frase larga, acumularla
+            if accumulated_line:
+                accumulated_line += " " + line
+            else:
+                accumulated_line = line
+        
+        # Si una línea está vacía o es la última línea (lo que indica el fin de la frase larga)
+        if normalized_line == "" or line == experience_lines[-1]:
+            if accumulated_line:
+                cleaned_lines.append(accumulated_line)
+                accumulated_line = ""  # Reiniciar para la siguiente línea larga
 
-    return "\n".join(cleaned_lines)
-    
-    # Debugging: Imprime líneas procesadas
-    print("Líneas procesadas:")
-    for line in cleaned_lines:
-        print(f"- {line}")
-    
     return "\n".join(cleaned_lines)
     
     # Debugging: Imprime líneas procesadas
