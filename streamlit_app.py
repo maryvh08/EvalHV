@@ -1607,17 +1607,24 @@ def extract_experience_items_with_details(pdf_path):
 
                         # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
                         if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
-                            line_text += " " + text  # Concatenar en una misma línea
+                            # Concatenar en una misma línea si está en la misma fuente
+                            if line_text:
+                                line_text += " " + text
+                            else:
+                                line_text = text
+                        else:
+                            # Si es otro tipo de texto, agregamos el encabezado actual y restablecemos
+                            if line_text:
+                                current_item = line_text.strip()
+                                items[current_item] = []
+                                line_text = ""  # Reiniciar para la siguiente línea
 
-                        # Cuando terminamos una línea y hemos detectado un encabezado
-                        if line_text:
-                            current_item = line_text.strip()
-                            items[current_item] = []
-                            line_text = ""  # Reiniciar para la siguiente línea
+                            items[current_item].append(text)  # Agregar detalles al encabezado actual
 
-                        # Agregar el resto del texto al encabezado actual
-                        elif current_item:
-                            items[current_item].append(text)
+    # Si el último encabezado ha quedado sin procesar
+    if line_text:
+        current_item = line_text.strip()
+        items[current_item] = []
 
     return items
     
