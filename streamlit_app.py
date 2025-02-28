@@ -1688,12 +1688,13 @@ def extract_event_items_with_details(pdf_path):
 
 def extract_asistencia_items_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita) y sus detalles de la sección 'Asistencia a eventos ANEIAP',
+    Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'Asistencia a eventos ANEIAP',
     excluyendo ciertos términos no evaluables sin modificar el formato original del texto.
     """
     items = {}
     current_item = None
     in_asistencia_section = False
+    line_text = ""
     excluded_terms = {
         "dirección de residencia:",
         "tiempo en aneiap:",
@@ -1709,6 +1710,7 @@ def extract_asistencia_items_with_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
+                        font_name = span["font"]
                         text_lower = text.lower()  # Solo para comparación
 
                         if not text or text_lower in excluded_terms:
@@ -1725,12 +1727,26 @@ def extract_asistencia_items_with_details(pdf_path):
                         if not in_asistencia_section:
                             continue
 
-                        # Detectar encabezados (negrita) y detalles
-                        if "bold" in span["font"].lower() and not text.startswith("-"):
-                            current_item = text  # Se mantiene el formato original
-                            items[current_item] = []
-                        elif current_item:
-                            items[current_item].append(text)  # Se mantiene el formato original
+                        # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
+                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
+                            # Concatenar en una misma línea si está en la misma fuente
+                            if line_text:
+                                line_text += " " + text
+                            else:
+                                line_text = text
+                        else:
+                            # Si es otro tipo de texto, agregamos el encabezado actual y restablecemos
+                            if line_text:
+                                current_item = line_text.strip()
+                                items[current_item] = []
+                                line_text = ""  # Reiniciar para la siguiente línea
+
+                            items[current_item].append(text)  # Agregar detalles al encabezado actual
+
+    # Si el último encabezado ha quedado sin procesar
+    if line_text:
+        current_item = line_text.strip()
+        items[current_item] = []
 
     return items
 
