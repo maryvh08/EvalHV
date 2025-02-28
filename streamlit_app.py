@@ -1524,12 +1524,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 # FUNCIONES PARA SECUNDARY
 def extract_text_with_headers_and_details(pdf_path):
     """
-    Extrae encabezados (en negrita) y detalles del texto de un archivo PDF.
+    Extrae encabezados (fuente Century Gothic) y detalles del texto de un archivo PDF.
     :param pdf_path: Ruta del archivo PDF.
     :return: Diccionario con encabezados como claves y detalles como valores.
     """
     items = {}
     current_header = None
+    century_gothic_fonts = {"CenturyGothic", "CenturyGothic-Bold", "CenturyGothic-Regular"}
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1541,11 +1542,13 @@ def extract_text_with_headers_and_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
+                        font_name = span["font"].replace(" ", "")  # Normalizar el nombre de la fuente
+                        
                         if not text:
                             continue
 
-                        # Detectar encabezados (negrita)
-                        if "bold" in span["font"].lower() and not text.startswith("-"):
+                        # Detectar encabezados por fuente Century Gothic
+                        if any(font in font_name for font in century_gothic_fonts) and not text.startswith("-"):
                             current_header = text
                             items[current_header] = []
                         elif current_header:
