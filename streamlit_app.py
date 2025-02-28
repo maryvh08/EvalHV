@@ -1603,12 +1603,11 @@ def extract_experience_items_with_details(pdf_path):
 
 def extract_event_items_with_details(pdf_path):
     """
-    Extrae encabezados (fuente Century Gothic) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
+    Extrae encabezados (en negrita) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
     """
     items = {}
     current_item = None
     in_eventos_section = False
-    century_fonts = {"centurygothic", "centurygothicbold"}  # Nombres de fuente posibles
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1620,8 +1619,6 @@ def extract_event_items_with_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
-                        font_name = span["font"].replace(" ", "").lower()  # Normalizar nombre de la fuente
-
                         if not text:
                             continue
 
@@ -1636,8 +1633,8 @@ def extract_event_items_with_details(pdf_path):
                         if not in_eventos_section:
                             continue
 
-                        # Detectar encabezados (fuente Century Gothic)
-                        if font_name in century_fonts and not text.startswith("-"):
+                        # Detectar encabezados (negrita) y detalles
+                        if "bold" in span["font"].lower() and not text.startswith("-"):
                             current_item = text
                             items[current_item] = []
                         elif current_item:
@@ -1647,7 +1644,7 @@ def extract_event_items_with_details(pdf_path):
 
 def extract_asistencia_items_with_details(pdf_path):
     """
-    Extrae encabezados (fuente Century Gothic) y sus detalles de la sección 'Asistencia a eventos ANEIAP',
+    Extrae encabezados (en negrita) y sus detalles de la sección 'Asistencia a eventos ANEIAP',
     excluyendo ciertos términos no evaluables sin modificar el formato original del texto.
     """
     items = {}
@@ -1657,8 +1654,6 @@ def extract_asistencia_items_with_details(pdf_path):
         "dirección de residencia:",
         "tiempo en aneiap:",
         "medios de comunicación:"}
-
-    century_fonts = {"centurygothic", "centurygothicbold"}  # Nombres de fuente posibles
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1670,8 +1665,7 @@ def extract_asistencia_items_with_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
-                        text_lower = text.lower()  # Para comparación
-                        font_name = span["font"].replace(" ", "").lower()  # Normalizar nombre de la fuente
+                        text_lower = text.lower()  # Solo para comparación
 
                         if not text or text_lower in excluded_terms:
                             continue
@@ -1687,15 +1681,14 @@ def extract_asistencia_items_with_details(pdf_path):
                         if not in_asistencia_section:
                             continue
 
-                        # Detectar encabezados (fuente Century Gothic)
-                        if font_name in century_fonts and not text.startswith("-"):
+                        # Detectar encabezados (negrita) y detalles
+                        if "bold" in span["font"].lower() and not text.startswith("-"):
                             current_item = text  # Se mantiene el formato original
                             items[current_item] = []
                         elif current_item:
                             items[current_item].append(text)  # Se mantiene el formato original
 
     return items
-
 
 def extract_profile_section_with_details(pdf_path):
     """ Extrae la sección 'Perfil' de un archivo PDF """
