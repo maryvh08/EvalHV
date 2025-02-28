@@ -1571,13 +1571,9 @@ def extract_text_with_headers_and_details(pdf_path):
     return items
 
 def extract_experience_items_with_details(pdf_path):
-    """
-    Extrae encabezados (fuente Century Gothic) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
-    """
     items = {}
     current_item = None
     in_experience_section = False
-    century_fonts = {"centurygothic", "centurygothicbold"}  # Nombres de fuente posibles
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1589,23 +1585,27 @@ def extract_experience_items_with_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
-                        font_name = span["font"].replace(" ", "").lower()  # Normalizar fuente
+                        font_name = span["font"]
+                        print(f"Texto encontrado: '{text}', Fuente: {font_name}")  # Depuración
 
                         if not text:
                             continue
 
                         # Detectar inicio y fin de la sección
                         if "experiencia en aneiap" in text.lower():
+                            print("🔹 Sección de experiencia detectada")
                             in_experience_section = True
                             continue
                         elif any(key in text.lower() for key in ["reconocimientos", "eventos organizados"]):
+                            print("🔸 Fin de la sección de experiencia detectado")
                             in_experience_section = False
                             break
 
                         if not in_experience_section:
                             continue
 
-                        # Detectar encabezados (fuente Century Gothic)
+                        # Detectar encabezados con Century Gothic en negrita
+                        century_fonts = {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}  # Ajusta según los nombres reales
                         if font_name in century_fonts and not text.startswith("-"):
                             current_item = text
                             items[current_item] = []
@@ -1613,7 +1613,7 @@ def extract_experience_items_with_details(pdf_path):
                             items[current_item].append(text)
 
     return items
-
+    
 def extract_event_items_with_details(pdf_path):
     """
     Extrae encabezados (en negrita) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
