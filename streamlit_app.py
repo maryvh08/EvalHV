@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 from collections import Counter
 from io import BytesIO
-from textstat import textstatimport fitz
+from textstat import textstat
 import numpy as np
 import spacy
 import pandas as pd
