@@ -455,77 +455,56 @@ def extract_experience_section_with_ocr(pdf_path):
     
 def extract_event_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
-    asegurando que los ítems sean correctamente identificados.
+    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con soporte de OCR.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto de la sección 'EVENTOS ORGANIZADOS'.
     """
     text = extract_text_with_ocr(pdf_path)
-    if not text:
-        return ""  # Retorna texto vacío si no hay contenido
 
-    # 📌 Patrones para detectar inicio y fin de la sección
-    start_pattern = r"\bEVENTOS\s+ORGANIZADOS\b"
-    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA"]
+    # Palabras clave para identificar inicio y fin de la sección
+    start_keyword = "EVENTOS ORGANIZADOS"
+    end_keywords = [
+        "EXPERIENCIA LABORAL",
+        "FIRMA",
+    ]
 
-    # 📌 Encontrar el inicio de la sección con más flexibilidad
-    start_match = re.search(start_pattern, text, re.IGNORECASE)
-    if not start_match:
-        return ""  # Retorna texto vacío si no encuentra la sección
+    # Encontrar índice de inicio
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None  # No se encontró la sección
 
-    start_idx = start_match.start()
+    # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
 
-    # 📌 Encontrar el final de la sección
-    end_idx = len(text)
-    for pattern in end_patterns:
-        match = re.search(pattern, text[start_idx:], re.IGNORECASE)
-        if match:
-            end_idx = start_idx + match.start()
-            break  # Se detiene en la primera coincidencia encontrada
-
-    # 📌 Extraer la sección entre inicio y fin
+    # Extraer la sección entre inicio y fin
     org_text = text[start_idx:end_idx].strip()
-    if not org_text:
-        return ""  # Retorna texto vacío si la sección no tiene contenido
 
-    # 📌 Filtrar líneas repetitivas y limpiar texto
+    # Filtrar y limpiar texto
+    org_exclude_lines = [
+        "a nivel capitular",
+        "a nivel nacional",
+        "a nivel seccional",
+        "capitular",
+        "seccional",
+        "nacional",
+    ]
     org_lines = org_text.split("\n")
-    cleaned_lines = []
-    seen_items = set()
-    temp_line = ""  # Variable para acumular líneas largas
-
+    org_cleaned_lines = []
     for line in org_lines:
         line = line.strip()
-        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres especiales
-        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        
-        # Excluir encabezados repetidos y líneas vacías
-        if not normalized_line or normalized_line == "eventos organizados":
-            continue
-
-        # Detectar y unir líneas largas que puedan haber sido divididas erróneamente (errores de OCR)
-        if temp_line and (line[0].isupper() or line[0] in ["•", "-"]):  # Detecta si es continuación
-            temp_line += " " + line
-        else:
-            if temp_line:  # Si hay una línea temporal acumulada, la añadimos
-                cleaned_lines.append(temp_line)
-                temp_line = ""
-            temp_line = line
-
-        # Evitar duplicados
-        if normalized_line not in seen_items:
-            cleaned_lines.append(temp_line)
-            seen_items.add(normalized_line)
-            temp_line = ""  # Reiniciar después de añadir
-
-    # Si la última línea quedó incompleta, añadirla
-    if temp_line:
-        cleaned_lines.append(temp_line)
-
-    # Debugging: Imprime las líneas procesadas
-    print("Líneas procesadas:")
-    for line in cleaned_lines:
-        print(f"- {line}")
-
-    return "\n".join(cleaned_lines)
+        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
+        normalized_org_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
+        if (
+            normalized_org_line
+            and normalized_org_line not in org_exclude_lines
+            and normalized_org_line != start_keyword.lower()
+            and normalized_org_line not in [kw.lower() for kw in end_keywords]
+        ):
+            org_cleaned_lines.append(line)
 
 def evaluate_cv_presentation(pdf_path):
     """
