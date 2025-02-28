@@ -1573,7 +1573,6 @@ def extract_text_with_headers_and_details(pdf_path):
 def extract_experience_items_with_details(pdf_path):
     """
     Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
-    Ajusta el contenido para que los encabezados largos se ajusten dentro de una sola celda sin dividirse.
     """
     items = {}
     current_item = None
@@ -1613,7 +1612,7 @@ def extract_experience_items_with_details(pdf_path):
                         # Cuando terminamos una línea y hemos detectado un encabezado
                         if line_text:
                             current_item = line_text.strip()
-                            items[current_item] = []  # Agregar encabezado completo como clave
+                            items[current_item] = []
                             line_text = ""  # Reiniciar para la siguiente línea
 
                         # Agregar el resto del texto al encabezado actual
