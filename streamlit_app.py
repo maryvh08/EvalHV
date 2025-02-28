@@ -1578,6 +1578,7 @@ def extract_experience_items_with_details(pdf_path):
     current_item = None
     in_experience_section = False
     line_text = ""
+    prev_span_y0 = None  # Variable para almacenar la posición vertical del span anterior
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1590,6 +1591,7 @@ def extract_experience_items_with_details(pdf_path):
                     for span in line["spans"]:
                         text = span["text"].strip()
                         font_name = span["font"]
+                        y0 = span["bbox"][1]  # Posición vertical de la parte superior del fragmento
 
                         if not text:
                             continue
@@ -1605,19 +1607,28 @@ def extract_experience_items_with_details(pdf_path):
                         if not in_experience_section:
                             continue
 
-                        # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
+                        # Comprobar si el texto está en "Century Gothic" en negrita
                         if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
-                            line_text += " " + text  # Concatenar en una misma línea
+                            # Si la diferencia en la posición Y es pequeña, considerar que es el mismo encabezado
+                            if prev_span_y0 and abs(prev_span_y0 - y0) < 5:
+                                line_text += " " + text  # Concatenar el texto
+                            else:
+                                # Si hay una diferencia considerable en la posición Y, es un nuevo encabezado
+                                if line_text:
+                                    current_item = line_text.strip()
+                                    items[current_item] = []
+                                    line_text = text  # Comenzar nuevo encabezado con el texto actual
+                        else:
+                            # Si no es negrita, agregarlo al encabezado actual si ya existe
+                            if current_item:
+                                items[current_item].append(text)
 
-                        # Cuando terminamos una línea y hemos detectado un encabezado
-                        if line_text:
-                            current_item = line_text.strip()
-                            items[current_item] = []
-                            line_text = ""  # Reiniciar para la siguiente línea
+                        prev_span_y0 = y0  # Actualizar la posición Y del fragmento actual
 
-                        # Agregar el resto del texto al encabezado actual
-                        elif current_item:
-                            items[current_item].append(text)
+    # Asegurarse de agregar el último encabezado recogido
+    if line_text:
+        current_item = line_text.strip()
+        items[current_item] = []
 
     return items
     
