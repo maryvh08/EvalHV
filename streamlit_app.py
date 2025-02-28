@@ -462,18 +462,18 @@ def extract_event_section_with_ocr(pdf_path):
     if not text:
         return ""  # Retorna texto vacío si no hay contenido
 
-    # Patrones para detectar inicio y fin de la sección
+    # 📌 Patrones para detectar inicio y fin de la sección
     start_pattern = "EVENTOS ORGANIZADOS"
-    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA"]
+    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "RECONOCIMIENTOS", "EVENTOS"]
 
-    # Encontrar el inicio de la sección
+    # 📌 Encontrar el inicio de la sección
     start_match = re.search(start_pattern, text, re.IGNORECASE)
     if not start_match:
         return ""  # Retorna texto vacío si no encuentra la sección
 
     start_idx = start_match.start()
 
-    # Encontrar el final de la sección
+    # 📌 Encontrar el final de la sección
     end_idx = len(text)
     for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
@@ -481,12 +481,12 @@ def extract_event_section_with_ocr(pdf_path):
             end_idx = start_idx + match.start()
             break  # Se detiene en la primera coincidencia encontrada
 
-    # Extraer la sección entre inicio y fin
+    # 📌 Extraer la sección entre inicio y fin
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
         return ""  # Retorna texto vacío si la sección no tiene contenido
 
-    # Filtrar líneas repetitivas y limpiar texto
+    # 📌 Filtrar líneas repetitivas y limpiar texto
     org_lines = org_text.split("\n")
     cleaned_lines = []
     seen_items = set()
