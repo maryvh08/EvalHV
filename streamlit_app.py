@@ -464,7 +464,7 @@ def extract_event_section_with_ocr(pdf_path):
 
     # 📌 Patrones para detectar inicio y fin de la sección
     start_pattern = "EVENTOS ORGANIZADOS"
-    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "RECONOCIMIENTOS", "EVENTOS"]
+    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "RECONOCIMIENTOS"]
 
     # 📌 Encontrar el inicio de la sección
     start_match = re.search(start_pattern, text, re.IGNORECASE)
