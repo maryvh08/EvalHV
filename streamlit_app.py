@@ -1638,11 +1638,18 @@ def extract_event_items_with_details(pdf_path):
 
 def extract_asistencia_items_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita) y sus detalles de la sección 'Asistencia a eventos ANEIAP'.
+    Extrae encabezados (en negrita) y sus detalles de la sección 'Asistencia a eventos ANEIAP',
+    excluyendo ciertos términos no evaluables.
     """
     items = {}
     current_item = None
     in_asistencia_section = False
+    excluded_terms = {
+        "dirección de residencia",
+        "tiempo en aneiap",
+        "medios de comunicación",
+        "asistencia a eventos aneiap"
+    }
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1653,15 +1660,15 @@ def extract_asistencia_items_with_details(pdf_path):
 
                 for line in block["lines"]:
                     for span in line["spans"]:
-                        text = span["text"].strip()
-                        if not text:
+                        text = span["text"].strip().lower()
+                        if not text or text in excluded_terms:
                             continue
 
                         # Detectar inicio y fin de la sección
-                        if "asistencia a eventos aneiap" in text.lower():
+                        if "asistencia a eventos aneiap" in text:
                             in_asistencia_section = True
                             continue
-                        elif any(key in text.lower() for key in ["actualización profesional", "firma"]):
+                        elif any(key in text for key in ["actualización profesional", "firma"]):
                             in_asistencia_section = False
                             break
 
