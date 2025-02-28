@@ -140,6 +140,19 @@ def extract_cleaned_lines(text):
 
     return cleaned_lines
 
+def extract_fonts_from_pdf(pdf_path):
+    fonts = set()
+    with fitz.open(pdf_path) as doc:
+        for page in doc:
+            blocks = page.get_text("dict")["blocks"]
+            for block in blocks:
+                if "lines" not in block:
+                    continue
+                for line in block["lines"]:
+                    for span in line["spans"]:
+                        fonts.add(span["font"])
+    return fonts
+
 def calculate_all_indicators(lines, position_indicators):
     """
     Calcula los porcentajes de todos los indicadores para un cargo.
