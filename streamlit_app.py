@@ -1630,11 +1630,12 @@ def extract_experience_items_with_details(pdf_path):
     
 def extract_event_items_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
+    Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
     """
     items = {}
     current_item = None
     in_eventos_section = False
+    line_text = ""
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1646,10 +1647,12 @@ def extract_event_items_with_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
+                        font_name = span["font"]
+
                         if not text:
                             continue
 
-                        # Detectar inicio y fin de la sección
+                        # Verificar si es parte de la sección de "EVENTOS ORGANIZADOS"
                         if "eventos organizados" in text.lower():
                             in_eventos_section = True
                             continue
@@ -1660,12 +1663,26 @@ def extract_event_items_with_details(pdf_path):
                         if not in_eventos_section:
                             continue
 
-                        # Detectar encabezados (negrita) y detalles
-                        if "bold" in span["font"].lower() and not text.startswith("-"):
-                            current_item = text
-                            items[current_item] = []
-                        elif current_item:
-                            items[current_item].append(text)
+                        # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
+                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
+                            # Concatenar en una misma línea si está en la misma fuente
+                            if line_text:
+                                line_text += " " + text
+                            else:
+                                line_text = text
+                        else:
+                            # Si es otro tipo de texto, agregamos el encabezado actual y restablecemos
+                            if line_text:
+                                current_item = line_text.strip()
+                                items[current_item] = []
+                                line_text = ""  # Reiniciar para la siguiente línea
+
+                            items[current_item].append(text)  # Agregar detalles al encabezado actual
+
+    # Si el último encabezado ha quedado sin procesar
+    if line_text:
+        current_item = line_text.strip()
+        items[current_item] = []
 
     return items
 
