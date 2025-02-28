@@ -372,87 +372,6 @@ def extract_profile_section_with_ocr(pdf_path):
 
     return cleaned_profile_text
     
-def extract_experience_section_with_ocr(pdf_path):
-    """
-    Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF con soporte de OCR.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Texto de la sección 'EXPERIENCIA EN ANEIAP'.
-    """
-    text = extract_text_with_ocr(pdf_path)
-
-    # Palabras clave para identificar inicio y fin de la sección
-    start_keyword = "EXPERIENCIA EN ANEIAP"
-    end_keywords = [
-        "EVENTOS ORGANIZADOS",
-        "Reconocimientos individuales",
-        "Reconocimientos grupales",
-        "Reconocimientos",
-    ]
-
-    # Encontrar índice de inicio
-    start_idx = text.lower().find(start_keyword.lower())
-    if start_idx == -1:
-        return None  # No se encontró la sección
-
-    # Encontrar índice más cercano de fin basado en palabras clave
-    end_idx = len(text)  # Por defecto, tomar hasta el final
-    for keyword in end_keywords:
-        idx = text.lower().find(keyword.lower(), start_idx)
-        if idx != -1:
-            end_idx = min(end_idx, idx)
-
-    # Extraer la sección entre inicio y fin
-    experience_text = text[start_idx:end_idx].strip()
-
-    # Filtrar y limpiar texto
-    exclude_lines = [
-        "a nivel capitular",
-        "a nivel nacional",
-        "a nivel seccional",
-        "reconocimientos individuales",
-        "reconocimientos grupales",
-        "trabajo capitular",
-        "trabajo nacional",
-        "nacional 2024",
-        "nacional 20212023",
-        "experiencia en aneiap",
-    ]
-    
-    # Dividir el texto en líneas
-    experience_lines = experience_text.split("\n")
-    cleaned_lines = []
-    temp_line = ""  # Variable para acumular líneas largas
-
-    for i, line in enumerate(experience_lines):
-        line = line.strip()
-        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
-        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        
-        # Si la línea no está vacía y no debe ser excluida
-        if normalized_line and normalized_line not in exclude_lines:
-            # Si es una continuación de una línea anterior, unimos
-            if temp_line and (line[0].isupper() or line[0] in ["•", "-"]):  # Detectar si es una continuación
-                temp_line += " " + line
-            else:
-                if temp_line:  # Si hay una línea temporal acumulada, la añadimos
-                    cleaned_lines.append(temp_line)
-                    temp_line = ""
-                temp_line = line
-
-        # Verificar si esta es la última línea, agregarla si está incompleta
-        if i == len(experience_lines) - 1 and temp_line:
-            cleaned_lines.append(temp_line)
-
-    # Devolver el texto limpio y procesado
-    return "\n".join(cleaned_lines)
-
-    # Debugging: Imprime las líneas procesadas
-    print("Líneas procesadas:")
-    for line in cleaned_lines:
-        print(f"- {line}")
-    
-    return "\n".join(cleaned_lines)
-
 def extract_event_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
@@ -463,10 +382,10 @@ def extract_event_section_with_ocr(pdf_path):
         return ""  # Retorna texto vacío si no hay contenido
 
     # 📌 Patrones para detectar inicio y fin de la sección
-    start_pattern = "EVENTOS ORGANIZADOS"
-    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "RECONOCIMIENTOS"]
+    start_pattern = r"\bEVENTOS\s+ORGANIZADOS\b"
+    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "RECONOCIMIENTOS", "EVENTOS"]
 
-    # 📌 Encontrar el inicio de la sección
+    # 📌 Encontrar el inicio de la sección con más flexibilidad
     start_match = re.search(start_pattern, text, re.IGNORECASE)
     if not start_match:
         return ""  # Retorna texto vacío si no encuentra la sección
@@ -492,7 +411,7 @@ def extract_event_section_with_ocr(pdf_path):
     seen_items = set()
     temp_line = ""  # Variable para acumular líneas largas
 
-    for i, line in enumerate(org_lines):
+    for line in org_lines:
         line = line.strip()
         line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres especiales
         normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
@@ -501,8 +420,8 @@ def extract_event_section_with_ocr(pdf_path):
         if not normalized_line or normalized_line == "eventos organizados":
             continue
 
-        # Si la línea parece ser una continuación, la unimos con la anterior
-        if temp_line and (line[0].isupper() or line[0] in ["•", "-"]):  # Detectar si es una continuación
+        # Detectar y unir líneas largas que puedan haber sido divididas erróneamente (errores de OCR)
+        if temp_line and (line[0].isupper() or line[0] in ["•", "-"]):  # Detecta si es continuación
             temp_line += " " + line
         else:
             if temp_line:  # Si hay una línea temporal acumulada, la añadimos
@@ -520,14 +439,11 @@ def extract_event_section_with_ocr(pdf_path):
     if temp_line:
         cleaned_lines.append(temp_line)
 
-    # Devolver el texto limpio y procesado
-    return "\n".join(cleaned_lines)
-
     # Debugging: Imprime las líneas procesadas
     print("Líneas procesadas:")
     for line in cleaned_lines:
         print(f"- {line}")
-    
+
     return "\n".join(cleaned_lines)
 
 def evaluate_cv_presentation(pdf_path):
