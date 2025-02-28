@@ -506,6 +506,15 @@ def extract_event_section_with_ocr(pdf_path):
         ):
             org_cleaned_lines.append(line)
 
+    return "\n".join(org_cleaned_lines)
+    
+    # Debugging: Imprime líneas procesadas
+    print("Líneas procesadas:")
+    for line in org_cleaned_lines:
+        print(f"- {line}")
+    
+    return "\n".join(org_cleaned_lines)
+    
 def evaluate_cv_presentation(pdf_path):
     """
     Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
