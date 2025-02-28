@@ -1639,7 +1639,7 @@ def extract_event_items_with_details(pdf_path):
 def extract_asistencia_items_with_details(pdf_path):
     """
     Extrae encabezados (en negrita) y sus detalles de la sección 'Asistencia a eventos ANEIAP',
-    excluyendo ciertos términos no evaluables.
+    excluyendo ciertos términos no evaluables sin modificar el formato original del texto.
     """
     items = {}
     current_item = None
@@ -1648,6 +1648,7 @@ def extract_asistencia_items_with_details(pdf_path):
         "dirección de residencia",
         "tiempo en aneiap",
         "medios de comunicación",
+        "asistencia a eventos aneiap"
     }
 
     with fitz.open(pdf_path) as doc:
@@ -1659,15 +1660,17 @@ def extract_asistencia_items_with_details(pdf_path):
 
                 for line in block["lines"]:
                     for span in line["spans"]:
-                        text = span["text"].strip().lower()
-                        if not text or text in excluded_terms:
+                        text = span["text"].strip()
+                        text_lower = text.lower()  # Solo para comparación
+
+                        if not text or text_lower in excluded_terms:
                             continue
 
                         # Detectar inicio y fin de la sección
-                        if "asistencia a eventos aneiap" in text:
+                        if "asistencia a eventos aneiap" in text_lower:
                             in_asistencia_section = True
                             continue
-                        elif any(key in text for key in ["actualización profesional", "firma"]):
+                        elif any(key in text_lower for key in ["actualización profesional", "firma"]):
                             in_asistencia_section = False
                             break
 
@@ -1676,10 +1679,10 @@ def extract_asistencia_items_with_details(pdf_path):
 
                         # Detectar encabezados (negrita) y detalles
                         if "bold" in span["font"].lower() and not text.startswith("-"):
-                            current_item = text
+                            current_item = text  # Se mantiene el formato original
                             items[current_item] = []
                         elif current_item:
-                            items[current_item].append(text)
+                            items[current_item].append(text)  # Se mantiene el formato original
 
     return items
 
