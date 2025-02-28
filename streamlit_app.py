@@ -1605,8 +1605,8 @@ def extract_experience_items_with_details(pdf_path):
                         if not in_experience_section:
                             continue
 
-                        # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
-                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
+                        # Unir los fragmentos de texto si tiene "negrita" o "Century Gothic"
+                        if "bold" in span["font"].lower() or font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
                             # Concatenar en una misma línea si está en la misma fuente
                             if line_text:
                                 line_text += " " + text
