@@ -1571,9 +1571,13 @@ def extract_text_with_headers_and_details(pdf_path):
     return items
 
 def extract_experience_items_with_details(pdf_path):
+    """
+    Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
+    """
     items = {}
     current_item = None
     in_experience_section = False
+    line_text = ""
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1586,29 +1590,32 @@ def extract_experience_items_with_details(pdf_path):
                     for span in line["spans"]:
                         text = span["text"].strip()
                         font_name = span["font"]
-                        print(f"Texto encontrado: '{text}', Fuente: {font_name}")  # Depuración
 
                         if not text:
                             continue
 
-                        # Detectar inicio y fin de la sección
+                        # Verificar si es parte de la sección de "EXPERIENCIA EN ANEIAP"
                         if "experiencia en aneiap" in text.lower():
-                            print("🔹 Sección de experiencia detectada")
                             in_experience_section = True
                             continue
                         elif any(key in text.lower() for key in ["reconocimientos", "eventos organizados"]):
-                            print("🔸 Fin de la sección de experiencia detectado")
                             in_experience_section = False
                             break
 
                         if not in_experience_section:
                             continue
 
-                        # Detectar encabezados con Century Gothic en negrita
-                        century_fonts = {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}  # Ajusta según los nombres reales
-                        if font_name in century_fonts and not text.startswith("-"):
-                            current_item = text
+                        # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
+                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
+                            line_text += " " + text  # Concatenar en una misma línea
+
+                        # Cuando terminamos una línea y hemos detectado un encabezado
+                        if line_text:
+                            current_item = line_text.strip()
                             items[current_item] = []
+                            line_text = ""  # Reiniciar para la siguiente línea
+
+                        # Agregar el resto del texto al encabezado actual
                         elif current_item:
                             items[current_item].append(text)
 
