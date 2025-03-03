@@ -443,7 +443,8 @@ def extract_experience_section_with_ocr(pdf_path):
 def extract_event_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
-    asegurando que los ítems sean correctamente identificados.
+    asegurando que los ítems sean correctamente identificados y preservando
+    las viñetas como separadores.
     """
     text = extract_text_with_ocr(pdf_path)
     if not text:
@@ -458,6 +459,7 @@ def extract_event_section_with_ocr(pdf_path):
     start_idx = start_match.start()
     end_idx = len(text)
 
+    # 📌 Buscar los posibles finales de la sección
     for pattern in ["EXPERIENCIA LABORAL", "FIRMA"]:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
         if match:
@@ -469,22 +471,24 @@ def extract_event_section_with_ocr(pdf_path):
     if not org_text:
         return ""
 
+    # 📌 Limpiar líneas y mantener estructura de viñetas
     cleaned_lines = extract_cleaned_lines(org_text)
 
-    # 📌 Combinar líneas fragmentadas
+    # 📌 Unir líneas fragmentadas y preservar viñetas
     final_lines = []
     temp_line = ""
 
     for line in cleaned_lines:
-        if temp_line and (not line or not line[0].isupper()):
-            temp_line += " " + line
-        else:
+        # 📌 Si la línea comienza con viñeta, es un nuevo ítem
+        if line.startswith("•"):
             if temp_line:
-                final_lines.append(temp_line)
-            temp_line = line
+                final_lines.append(temp_line)  # Guardar la línea acumulada
+            temp_line = line  # Iniciar nueva línea con la viñeta
+        else:
+            temp_line += " " + line  # Continuar con la línea anterior
 
     if temp_line:
-        final_lines.append(temp_line)
+        final_lines.append(temp_line)  # Guardar el último ítem
 
     return "\n".join(final_lines)
     
