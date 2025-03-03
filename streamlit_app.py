@@ -456,17 +456,17 @@ def extract_experience_section_with_ocr(pdf_path):
 def extract_event_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
-    asegurando que los ítems sean correctamente identificados.
+    asegurando que los ítems sean correctamente identificados y uniendo líneas fragmentadas.
     """
     text = extract_text_with_ocr(pdf_path)
     if not text:
         return ""  # Retorna texto vacío si no hay contenido
 
     # 📌 Patrones para detectar inicio y fin de la sección
-    start_pattern = "EVENTOS ORGANIZADOS"
+    start_pattern = r"\bEVENTOS\s+ORGANIZADOS\b"
     end_patterns = ["EXPERIENCIA LABORAL", "FIRMA"]
 
-    # 📌 Encontrar inicio de la sección
+    # 📌 Encontrar inicio de la sección con más flexibilidad
     start_match = re.search(start_pattern, text, re.IGNORECASE)
     if not start_match:
         return ""  # Retorna texto vacío si no encuentra la sección
@@ -486,28 +486,42 @@ def extract_event_section_with_ocr(pdf_path):
     if not org_text:
         return ""  # Retorna texto vacío si la sección no tiene contenido
 
-    # 📌 Filtrar líneas repetitivas y limpiar texto
+    # 📌 Filtrar y limpiar texto
     org_lines = org_text.split("\n")
     cleaned_lines = []
     seen_items = set()
+    temp_line = ""  # Variable para acumular líneas fragmentadas
 
     for line in org_lines:
         line = line.strip()
-        line = re.sub(r"[^\w\s]", "", line)  # Elimina caracteres especiales
-        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normaliza espacios y minúsculas
+        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres especiales
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
         
         # Excluir encabezados repetidos y líneas vacías
         if not normalized_line or normalized_line == "eventos organizados":
             continue
-        
+
+        # Unir líneas si están fragmentadas por OCR (detecta si la línea empieza con minúscula)
+        if temp_line and (line[0].islower() or not line[0].isalnum()):
+            temp_line += " " + line
+        else:
+            if temp_line:  # Si hay una línea temporal acumulada, la añadimos
+                cleaned_lines.append(temp_line)
+                temp_line = ""
+            temp_line = line
+
         # Evitar duplicados
         if normalized_line not in seen_items:
-            cleaned_lines.append(line)
+            cleaned_lines.append(temp_line)
             seen_items.add(normalized_line)
+            temp_line = ""  # Reiniciar después de añadir
 
-    return org_text   
-    
-    
+    # Si la última línea quedó incompleta, añadirla
+    if temp_line:
+        cleaned_lines.append(temp_line)
+
+    return "\n".join(cleaned_lines)
+
 def evaluate_cv_presentation(pdf_path):
     """
     Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
