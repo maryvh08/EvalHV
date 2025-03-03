@@ -458,7 +458,9 @@ def extract_event_section_with_ocr(pdf_path):
     start_idx = start_match.start()
     end_idx = len(text)
 
-    for pattern in ["EXPERIENCIA LABORAL", "FIRMA"]:
+    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "Reconocimientos", "EXPERIENCIA EN ANEIAP"]
+    
+    for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
         if match:
             end_idx = start_idx + match.start()
@@ -476,15 +478,16 @@ def extract_event_section_with_ocr(pdf_path):
     temp_line = ""
 
     for line in cleaned_lines:
-        if temp_line and (not line or not line[0].isupper()):
+        # Si la línea es continuación de otra (no empieza con mayúscula), se une
+        if temp_line and (not line or (line and not line[0].isupper() and not line[0].isdigit())):
             temp_line += " " + line
         else:
             if temp_line:
-                final_lines.append(temp_line)
+                final_lines.append(temp_line.strip())
             temp_line = line
 
     if temp_line:
-        final_lines.append(temp_line)
+        final_lines.append(temp_line.strip())
 
     return "\n".join(final_lines)
     
