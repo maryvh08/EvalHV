@@ -443,48 +443,40 @@ def extract_experience_section_with_ocr(pdf_path):
 def extract_event_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
-    asegurando que los ítems sean correctamente identificados y no se fragmenten.
+    asegurando que los ítems sean correctamente identificados.
     """
     text = extract_text_with_ocr(pdf_path)
     if not text:
-        print("⚠ No se pudo extraer texto del PDF.")
-        return ""
+        return ""  # Retorna texto vacío si no hay contenido
 
-    # 📌 Buscar inicio de la sección
+    # 📌 Buscar inicio y fin de la sección
     start_match = re.search(r"(?i)\bEVENTOS\s*ORGANIZADOS\b", text)
     if not start_match:
         print("⚠ No se encontró 'EVENTOS ORGANIZADOS' en el texto OCR.")
         return ""
 
     start_idx = start_match.start()
-    end_idx = len(text)  # Por defecto, tomar hasta el final
+    end_idx = len(text)
 
-    # 📌 Buscar el final de la sección basado en palabras clave
-    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA"]
-    for pattern in end_patterns:
+    for pattern in ["EXPERIENCIA LABORAL", "FIRMA"]:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
         if match:
             end_idx = start_idx + match.start()
             break  # Detenerse en la primera coincidencia
 
-    # 📌 Extraer la sección entre inicio y fin
+    # 📌 Extraer y limpiar la sección
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
-        print("⚠ La sección 'EVENTOS ORGANIZADOS' está vacía.")
         return ""
 
-    # 📌 Limpiar y estructurar el texto extraído
     cleaned_lines = extract_cleaned_lines(org_text)
 
-    # 📌 Detectar y unir líneas fragmentadas correctamente
+    # 📌 Combinar líneas fragmentadas
     final_lines = []
     temp_line = ""
 
     for line in cleaned_lines:
-        line = line.strip()
-        
-        # Detectar si es la continuación de la línea anterior
-        if temp_line and not re.match(r"^\s*[-•●]?\s*[A-Z]", line):
+        if temp_line and (not line or not line[0].isupper()):
             temp_line += " " + line
         else:
             if temp_line:
