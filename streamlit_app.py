@@ -449,11 +449,11 @@ def extract_event_section_with_ocr(pdf_path):
     if not text:
         return ""  # Retorna texto vacío si no hay contenido
 
-    # 📌 Normalizar texto para evitar problemas con espacios y caracteres raros
+    # Normalizar texto para evitar problemas con espacios y caracteres raros
     text = re.sub(r"[^\w\s\n]", "", text)  # Elimina caracteres especiales
     text = re.sub(r"\s+", " ", text)  # Reemplaza múltiples espacios con uno solo
 
-    # 📌 Buscar inicio y fin de la sección
+    # Buscar inicio y fin de la sección
     start_match = re.search(r"(?i)\bEVENTOS\s*ORGANIZADOS\b", text)
     if not start_match:
         print("⚠ No se encontró 'EVENTOS ORGANIZADOS' en el texto OCR.")
@@ -462,20 +462,19 @@ def extract_event_section_with_ocr(pdf_path):
     start_idx = start_match.start()
     end_idx = len(text)
 
+    # Definir patrones de fin de sección
     end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "Reconocimientos", "EXPERIENCIA EN ANEIAP"]
-    
     for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
         if match:
             end_idx = start_idx + match.start()
-            break  # Detenerse en la primera coincidencia
+            break
 
-    # 📌 Extraer y limpiar la sección
+    # Extraer y limpiar la sección
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
         return ""
 
-    # 📌 Filtrar líneas con eventos y separar correctamente
     cleaned_lines = extract_cleaned_lines(org_text)
 
     final_lines = []
@@ -503,12 +502,9 @@ def extract_event_section_with_ocr(pdf_path):
     # 📌 Dividir correctamente los eventos concatenados en líneas separadas
     corrected_lines = []
     for line in final_lines:
-        # Si la línea contiene varios eventos concatenados, los separamos
-        if "COEXPRO" in line and "2024" in line:
-            parts = re.split(r"\s+(COEXPRO.*2024)", line)
-            corrected_lines.extend([part.strip() for part in parts if part.strip()])
-        else:
-            corrected_lines.append(line)
+        # Uso de un patrón más general para separar eventos, basado en lugares y fechas
+        parts = re.split(r"(?<=\d{4})\s+(?=[A-Z])", line)  # Separa cuando encuentra un año seguido por un lugar o evento
+        corrected_lines.extend([part.strip() for part in parts if part.strip()])
 
     return "\n".join(corrected_lines)
     
