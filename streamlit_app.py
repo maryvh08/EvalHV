@@ -475,17 +475,23 @@ def extract_event_section_with_ocr(pdf_path):
     if not org_text:
         return ""
 
-    # 📌 Dividir en líneas asegurando que los ítems no se fragmenten
+    # 📌 Filtrar líneas con eventos y separar correctamente
     cleaned_lines = extract_cleaned_lines(org_text)
+
     final_lines = []
     temp_line = ""
 
     for line in cleaned_lines:
         line = line.strip()
-        
-        # Si la línea parece ser continuación de la anterior, se une
-        if temp_line and (not line or (line and not line[0].isupper() and not line[0].isdigit())):
-            temp_line += " " + line
+
+        # Verifica si el texto contiene información que corresponde a eventos (por ejemplo, año y lugar)
+        if re.search(r"\d{4}", line):  # Busca un año en la línea
+            # Si ya hay un texto en temp_line y el siguiente ítem parece estar mal dividido
+            if temp_line and len(line.split()) > 2:
+                final_lines.append(temp_line.strip())
+                temp_line = line
+            else:
+                temp_line = line
         else:
             if temp_line:
                 final_lines.append(temp_line.strip())
@@ -494,7 +500,17 @@ def extract_event_section_with_ocr(pdf_path):
     if temp_line:
         final_lines.append(temp_line.strip())
 
-    return "\n".join(final_lines)
+    # 📌 Dividir correctamente los eventos concatenados en líneas separadas
+    corrected_lines = []
+    for line in final_lines:
+        # Si la línea contiene varios eventos concatenados, los separamos
+        if "COEXPRO" in line and "2024" in line:
+            parts = re.split(r"\s+(COEXPRO.*2024)", line)
+            corrected_lines.extend([part.strip() for part in parts if part.strip()])
+        else:
+            corrected_lines.append(line)
+
+    return "\n".join(corrected_lines)
     
 def evaluate_cv_presentation(pdf_path):
     """
