@@ -106,14 +106,11 @@ def extract_text_with_ocr(pdf_path):
                 img = enhancer.enhance(2)  # Aumentar contraste
                 
                 # 📌 **3️⃣ Aplicar OCR**
-                page_text = pytesseract.image_to_string(img, config="--psm 6").strip()
-
-            # 📌 **4️⃣ Asegurar que las líneas están separadas**
-            page_text = re.sub(r"([a-z])([A-Z])", r"\1 \2", page_text)  # Separar palabras pegadas por error OCR
+                page_text = pytesseract.image_to_string(img, config="--psm 3").strip()
             
             extracted_text.append(page_text)
 
-    return "\n".join(extracted_text)
+    return "\n".join(extracted_text) 
 
 def extract_cleaned_lines(text):
     """
@@ -135,16 +132,11 @@ def extract_cleaned_lines(text):
         if re.fullmatch(r"\d+", line):
             continue
         
-        # 📌 **3️⃣ Ignorar líneas con pocos caracteres (posibles errores OCR)**
+        # 📌 **3️⃣ Ignorar líneas con muy pocos caracteres (posibles errores OCR)**
         if len(line) < 3:
             continue
 
-        # 📌 **4️⃣ Remover caracteres extraños OCR**
-        line = re.sub(r"[^a-zA-Z0-9,.\-() ]", "", line)
-
         cleaned_lines.append(line)
-
-    return cleaned_lines
 
 def calculate_all_indicators(lines, position_indicators):
     """
