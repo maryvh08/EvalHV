@@ -505,7 +505,7 @@ def extract_event_section_with_ocr(pdf_path):
             cleaned_lines.append(line)
             seen_items.add(normalized_line)
 
-    return "\n".join(org_cleaned_lines)    
+    return org_text   
     
     
 def evaluate_cv_presentation(pdf_path):
