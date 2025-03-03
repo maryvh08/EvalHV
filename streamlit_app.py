@@ -138,6 +138,8 @@ def extract_cleaned_lines(text):
 
         cleaned_lines.append(line)
 
+    return cleaned_lines
+
 def calculate_all_indicators(lines, position_indicators):
     """
     Calcula los porcentajes de todos los indicadores para un cargo.
