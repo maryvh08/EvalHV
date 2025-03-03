@@ -442,15 +442,14 @@ def extract_experience_section_with_ocr(pdf_path):
     
 def extract_event_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
-    asegurando que los ítems sean correctamente identificados y preservando
-    las viñetas como separadores.
+    Extrae la sección 'EVENTOS ORGANIZADOS' de un PDF con OCR,
+    asegurando que los ítems sean correctamente identificados.
     """
     text = extract_text_with_ocr(pdf_path)
     if not text:
         return ""  # Retorna texto vacío si no hay contenido
 
-    # 📌 Buscar inicio y fin de la sección
+    # 📌 Buscar el inicio de la sección
     start_match = re.search(r"(?i)\bEVENTOS\s*ORGANIZADOS\b", text)
     if not start_match:
         print("⚠ No se encontró 'EVENTOS ORGANIZADOS' en el texto OCR.")
@@ -466,31 +465,33 @@ def extract_event_section_with_ocr(pdf_path):
             end_idx = start_idx + match.start()
             break  # Detenerse en la primera coincidencia
 
-    # 📌 Extraer y limpiar la sección
+    # 📌 Extraer la sección de eventos organizados
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
         return ""
 
-    # 📌 Limpiar líneas y mantener estructura de viñetas
-    cleaned_lines = extract_cleaned_lines(org_text)
-
-    # 📌 Unir líneas fragmentadas y preservar viñetas
-    final_lines = []
+    # 📌 Identificar y separar los eventos organizados
+    event_lines = []
     temp_line = ""
 
-    for line in cleaned_lines:
-        # 📌 Si la línea comienza con viñeta, es un nuevo ítem
+    for line in org_text.split("\n"):
+        line = line.strip()
+        
+        # Normalizar caracteres similares a viñetas (por errores OCR)
+        line = re.sub(r"[-‣▪●○◦]", "•", line)
+
+        # 📌 Si la línea empieza con "•", es un nuevo ítem
         if line.startswith("•"):
             if temp_line:
-                final_lines.append(temp_line)  # Guardar la línea acumulada
+                event_lines.append(temp_line)  # Guardar la línea anterior
             temp_line = line  # Iniciar nueva línea con la viñeta
         else:
             temp_line += " " + line  # Continuar con la línea anterior
 
     if temp_line:
-        final_lines.append(temp_line)  # Guardar el último ítem
+        event_lines.append(temp_line)  # Guardar el último ítem
 
-    return "\n".join(final_lines)
+    return "\n".join(event_lines)
     
 def evaluate_cv_presentation(pdf_path):
     """
