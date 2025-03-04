@@ -1663,10 +1663,12 @@ def extract_event_items_with_details(pdf_path):
                     line_text = ""
                     line_fonts = set()
                     line_spans = []
+                    is_bold = False  # Bandera para detectar negrita
 
                     for span in line["spans"]:
                         text = span["text"].strip()
                         font_name = span["font"]
+                        font_flags = span["flags"]
 
                         if not text:
                             continue
@@ -1675,6 +1677,10 @@ def extract_event_items_with_details(pdf_path):
                         line_text += f" {text}" if line_text else text
                         line_fonts.add(font_name)
                         line_spans.append(text)
+
+                        # Detectar si el texto está en negrita (flag 16 indica negrita en PyMuPDF)
+                        if font_flags & 16:
+                            is_bold = True
 
                     if not line_text:
                         continue
@@ -1692,8 +1698,8 @@ def extract_event_items_with_details(pdf_path):
                     if not in_eventos_section:
                         continue
 
-                    # 📌 Identificar encabezados si TODA la línea usa fuentes Century Gothic
-                    if line_fonts.issubset(header_fonts):
+                    # 📌 Identificar encabezados si TODA la línea usa fuentes Century Gothic o si está en negrita
+                    if line_fonts.issubset(header_fonts) or is_bold:
                         current_item = line_text.strip()
                         items[current_item] = []
                     elif current_item:
