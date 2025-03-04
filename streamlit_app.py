@@ -482,7 +482,6 @@ def extract_event_section_with_ocr(pdf_path):
     
     for line in lines:
         line = line.strip()
-        if re.search(r"\d{4}", line):  # Detecta un año en la línea
             event_lines.append(line)
     
     return "\n".join(event_lines)
