@@ -455,7 +455,7 @@ def extract_event_section_with_ocr(pdf_path):
     text = re.sub(r"\s+", " ", text)  # Reemplaza múltiples espacios con uno solo
 
     # Buscar inicio y fin de la sección
-    start_match = re.search(r"(?i)\bEVENTOS\s*ORGANIZADOS\b", text)
+    start_match = re.search("EVENTOS ORGANIZADOS", text)
     if not start_match:
         print("⚠ No se encontró 'EVENTOS ORGANIZADOS' en el texto.")
         return ""
