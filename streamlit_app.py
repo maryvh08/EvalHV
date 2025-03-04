@@ -473,9 +473,10 @@ def extract_event_section_with_ocr(pdf_path):
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
         return []
-
-    # Obtener las líneas de eventos
-    event_lines = [line.strip() for line in org_text.split("\n") if line.strip()]
+    
+    # Asegurar que el texto extraído sea seguro antes de dividirlo en líneas
+    event_lines = org_text.split("\n") if "\n" in org_text else [org_text]
+    event_lines = [line.strip() for line in event_lines if line.strip()]
     
     # Filtrar líneas con eventos que contengan un año (ejemplo: 2024)
     events = [line for line in event_lines if re.search(r"\b\d{4}\b", line)]
