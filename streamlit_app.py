@@ -140,6 +140,19 @@ def extract_cleaned_lines(text):
 
     return cleaned_lines
 
+def extract_fonts_from_pdf(pdf_path):
+    fonts = set()
+    with fitz.open(pdf_path) as doc:
+        for page in doc:
+            blocks = page.get_text("dict")["blocks"]
+            for block in blocks:
+                if "lines" not in block:
+                    continue
+                for line in block["lines"]:
+                    for span in line["spans"]:
+                        fonts.add(span["font"])
+    return fonts
+
 def calculate_all_indicators(lines, position_indicators):
     """
     Calcula los porcentajes de todos los indicadores para un cargo.
@@ -358,7 +371,7 @@ def extract_profile_section_with_ocr(pdf_path):
     cleaned_profile_text = re.sub(r"\s+", " ", cleaned_profile_text)  # Normaliza espacios
 
     return cleaned_profile_text
-
+    
 def extract_experience_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF con soporte de OCR.
@@ -402,38 +415,24 @@ def extract_experience_section_with_ocr(pdf_path):
         "trabajo nacional",
         "nacional 2024",
         "nacional 20212023",
-        "experiencia en aneiap",
     ]
-    
-    # Dividir el texto en líneas
     experience_lines = experience_text.split("\n")
     cleaned_lines = []
-    temp_line = ""  # Variable para acumular líneas largas
-
-    for i, line in enumerate(experience_lines):
+    for line in experience_lines:
         line = line.strip()
         line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
         normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        
-        # Si la línea no está vacía y no debe ser excluida
-        if normalized_line and normalized_line not in exclude_lines:
-            # Si es una continuación de una línea anterior, unimos
-            if temp_line and (line[0].isupper() or line[0] in ["•", "-"]):  # Detectar si es una continuación
-                temp_line += " " + line
-            else:
-                if temp_line:  # Si hay una línea temporal acumulada, la añadimos
-                    cleaned_lines.append(temp_line)
-                    temp_line = ""
-                temp_line = line
+        if (
+            normalized_line
+            and normalized_line not in exclude_lines
+            and normalized_line != start_keyword.lower()
+            and normalized_line not in [kw.lower() for kw in end_keywords]
+        ):
+            cleaned_lines.append(line)
 
-        # Verificar si esta es la última línea, agregarla si está incompleta
-        if i == len(experience_lines) - 1 and temp_line:
-            cleaned_lines.append(temp_line)
-
-    # Devolver el texto limpio y procesado
     return "\n".join(cleaned_lines)
-
-    # Debugging: Imprime las líneas procesadas
+    
+    # Debugging: Imprime líneas procesadas
     print("Líneas procesadas:")
     for line in cleaned_lines:
         print(f"- {line}")
@@ -442,65 +441,57 @@ def extract_experience_section_with_ocr(pdf_path):
 
 def extract_event_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con soporte de OCR.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Texto de la sección 'EVENTOS ORGANIZADOS'.
+    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
+    asegurando que los ítems sean correctamente identificados.
     """
     text = extract_text_with_ocr(pdf_path)
+    if not text:
+        return ""  # Retorna texto vacío si no hay contenido
 
-    # Palabras clave para identificar inicio y fin de la sección
-    start_keyword = "EVENTOS ORGANIZADOS"
-    end_keywords = [
-        "EXPERIENCIA LABORAL",
-        "FIRMA",
-    ]
+    # 📌 Patrones para detectar inicio y fin de la sección
+    start_pattern = "EVENTOS ORGANIZADOS"
+    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA"]
 
-    # Encontrar índice de inicio
-    start_idx = text.lower().find(start_keyword.lower())
-    if start_idx == -1:
-        return None  # No se encontró la sección
+    # 📌 Encontrar inicio de la sección
+    start_match = re.search(start_pattern, text, re.IGNORECASE)
+    if not start_match:
+        return ""  # Retorna texto vacío si no encuentra la sección
 
-    # Encontrar índice más cercano de fin basado en palabras clave
-    end_idx = len(text)  # Por defecto, tomar hasta el final
-    for keyword in end_keywords:
-        idx = text.lower().find(keyword.lower(), start_idx)
-        if idx != -1:
-            end_idx = min(end_idx, idx)
+    start_idx = start_match.start()
 
-    # Extraer la sección entre inicio y fin
+    # 📌 Encontrar el final de la sección
+    end_idx = len(text)
+    for pattern in end_patterns:
+        match = re.search(pattern, text[start_idx:], re.IGNORECASE)
+        if match:
+            end_idx = start_idx + match.start()
+            break  # Se detiene en la primera coincidencia encontrada
+
+    # 📌 Extraer la sección entre inicio y fin
     org_text = text[start_idx:end_idx].strip()
+    if not org_text:
+        return ""  # Retorna texto vacío si la sección no tiene contenido
 
-    # Filtrar y limpiar texto
-    org_exclude_lines = [
-        "a nivel capitular",
-        "a nivel nacional",
-        "a nivel seccional",
-        "capitular",
-        "seccional",
-        "nacional",
-    ]
+    # 📌 Filtrar líneas repetitivas y limpiar texto
     org_lines = org_text.split("\n")
-    org_cleaned_lines = []
+    cleaned_lines = []
+    seen_items = set()
+
     for line in org_lines:
         line = line.strip()
-        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
-        normalized_org_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        if (
-            normalized_org_line
-            and normalized_org_line not in org_exclude_lines
-            and normalized_org_line != start_keyword.lower()
-            and normalized_org_line not in [kw.lower() for kw in end_keywords]
-        ):
-            org_cleaned_lines.append(line)
+        line = re.sub(r"[^\w\s]", "", line)  # Elimina caracteres especiales
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normaliza espacios y minúsculas
+        
+        # Excluir encabezados repetidos y líneas vacías
+        if not normalized_line or normalized_line == "eventos organizados":
+            continue
+        
+        # Evitar duplicados
+        if normalized_line not in seen_items:
+            cleaned_lines.append(line)
+            seen_items.add(normalized_line)
 
-    return "\n".join(org_cleaned_lines)
-    
-    # Debugging: Imprime líneas procesadas
-    print("Líneas procesadas:")
-    for line in org_cleaned_lines:
-        print(f"- {line}")
-    
-    return "\n".join(org_cleaned_lines)
+    return org_text
     
 def evaluate_cv_presentation(pdf_path):
     """
@@ -1639,105 +1630,126 @@ def extract_experience_items_with_details(pdf_path):
     
 def extract_event_items_with_details(pdf_path):
     """
-    Extrae los ítems de la sección 'EVENTOS ORGANIZADOS' de un archivo PDF.
-    Cada ítem es considerado una línea.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Lista de ítems.
+    Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
     """
-    text = extract_text_with_ocr(pdf_path)  # Extraer el texto completo usando OCR
-    
-    # Limpiar las líneas obtenidas
-    cleaned_lines = extract_cleaned_lines(text)
+    items = {}
+    current_item = None
+    in_eventos_section = False
+    line_text = ""
 
-    # Palabras clave para identificar inicio y fin de la sección
-    start_keyword = "EVENTOS ORGANIZADOS"
-    end_keywords = [
-        "Reconocimientos individuales",
-        "Reconocimientos grupales",
-        "Reconocimientos",
-    ]
+    with fitz.open(pdf_path) as doc:
+        for page in doc:
+            blocks = page.get_text("dict")["blocks"]
+            for block in blocks:
+                if "lines" not in block:
+                    continue
 
-    # Encontrar índice de inicio
-    start_idx = -1
-    for idx, line in enumerate(cleaned_lines):
-        if start_keyword.lower() in line.lower():
-            start_idx = idx
-            break
+                for line in block["lines"]:
+                    for span in line["spans"]:
+                        text = span["text"].strip()
+                        font_name = span["font"]
 
-    if start_idx == -1:
-        return []  # No se encontró la sección
+                        if not text:
+                            continue
 
-    # Encontrar índice de fin
-    end_idx = len(cleaned_lines)  # Por defecto, tomar hasta el final
-    for idx, line in enumerate(cleaned_lines[start_idx:], start=start_idx):
-        if any(keyword.lower() in line.lower() for keyword in end_keywords):
-            end_idx = idx
-            break
+                        # Verificar si es parte de la sección de "EVENTOS ORGANIZADOS"
+                        if "eventos organizados" in text.lower():
+                            in_eventos_section = True
+                            continue
+                        elif any(key in text.lower() for key in ["firma", "experiencia laboral"]):
+                            in_eventos_section = False
+                            break
 
-    # Extraer los ítems de la sección
-    org_items = cleaned_lines[start_idx + 1:end_idx]
+                        if not in_eventos_section:
+                            continue
 
-    return org_items
+                        # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
+                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
+                            # Concatenar en una misma línea si está en la misma fuente
+                            if line_text:
+                                line_text += " " + text
+                            else:
+                                line_text = text
+                        else:
+                            # Si es otro tipo de texto, agregamos el encabezado actual y restablecemos
+                            if line_text:
+                                current_item = line_text.strip()
+                                items[current_item] = []
+                                line_text = ""  # Reiniciar para la siguiente línea
+
+                            items[current_item].append(text)  # Agregar detalles al encabezado actual
+
+    # Si el último encabezado ha quedado sin procesar
+    if line_text:
+        current_item = line_text.strip()
+        items[current_item] = []
+
+    return items
 
 def extract_asistencia_items_with_details(pdf_path):
     """
-    Extrae los ítems de la sección 'Asistencia a eventos ANEIAP' de un archivo PDF.
-    Cada ítem es una línea, con soporte de OCR y frases largas que no se separan.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Lista de ítems de la sección 'Asistencia a eventos ANEIAP'.
+    Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'Asistencia a eventos ANEIAP',
+    excluyendo ciertos términos no evaluables sin modificar el formato original del texto.
     """
-    text = extract_text_with_ocr(pdf_path)  # Extraer el texto completo usando OCR
-    
-    # Limpiar las líneas obtenidas
-    cleaned_lines = extract_cleaned_lines(text)
+    items = {}
+    current_item = None
+    in_asistencia_section = False
+    line_text = ""
+    excluded_terms = {
+        "dirección de residencia:",
+        "tiempo en aneiap:",
+        "medios de comunicación:"}
 
-    # Palabras clave para identificar inicio y fin de la sección
-    start_keyword = "ASISTENCIA A EVENTOS ANEIAP"
-    end_keywords = [
-        "actualización profesional",
-        "firma",
-    ]
+    with fitz.open(pdf_path) as doc:
+        for page in doc:
+            blocks = page.get_text("dict")["blocks"]
+            for block in blocks:
+                if "lines" not in block:
+                    continue
 
-    # Encontrar índice de inicio
-    start_idx = -1
-    for idx, line in enumerate(cleaned_lines):
-        if start_keyword.lower() in line.lower():
-            start_idx = idx
-            break
+                for line in block["lines"]:
+                    for span in line["spans"]:
+                        text = span["text"].strip()
+                        font_name = span["font"]
+                        text_lower = text.lower()  # Solo para comparación
 
-    if start_idx == -1:
-        return []  # No se encontró la sección
+                        if not text or text_lower in excluded_terms:
+                            continue
 
-    # Encontrar índice de fin
-    end_idx = len(cleaned_lines)  # Por defecto, tomar hasta el final
-    for idx, line in enumerate(cleaned_lines[start_idx:], start=start_idx):
-        if any(keyword.lower() in line.lower() for keyword in end_keywords):
-            end_idx = idx
-            break
+                        # Detectar inicio y fin de la sección
+                        if "asistencia a eventos aneiap" in text_lower:
+                            in_asistencia_section = True
+                            continue
+                        elif any(key in text_lower for key in ["actualización profesional", "firma"]):
+                            in_asistencia_section = False
+                            break
 
-    # Extraer los ítems de la sección
-    asistencia_items = cleaned_lines[start_idx + 1:end_idx]
+                        if not in_asistencia_section:
+                            continue
 
-    # Asegurarse de que las frases largas no se separen
-    combined_items = []
-    temp_item = ""
-    for item in asistencia_items:
-        if len(item) > 100:  # Si el ítem es largo, considerarlo como un único ítem
-            if temp_item:
-                combined_items.append(temp_item)
-            combined_items.append(item)
-            temp_item = ""
-        else:
-            if temp_item:
-                temp_item += " " + item  # Combinar con el anterior
-            else:
-                temp_item = item
+                        # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
+                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
+                            # Concatenar en una misma línea si está en la misma fuente
+                            if line_text:
+                                line_text += " " + text
+                            else:
+                                line_text = text
+                        else:
+                            # Si es otro tipo de texto, agregamos el encabezado actual y restablecemos
+                            if line_text:
+                                current_item = line_text.strip()
+                                items[current_item] = []
+                                line_text = ""  # Reiniciar para la siguiente línea
 
-    if temp_item:
-        combined_items.append(temp_item)  # Agregar el último ítem
+                            items[current_item].append(text)  # Agregar detalles al encabezado actual
 
-    return combined_items
-    
+    # Si el último encabezado ha quedado sin procesar
+    if line_text:
+        current_item = line_text.strip()
+        items[current_item] = []
+
+    return items
+
 def extract_profile_section_with_details(pdf_path):
     """ Extrae la sección 'Perfil' de un archivo PDF """
     try:
