@@ -449,11 +449,11 @@ def extract_event_section_with_ocr(pdf_path):
     if not text:
         return ""  # Retorna texto vacío si no hay contenido
 
-    # 📌 Normalizar texto para evitar problemas con espacios y caracteres raros
+    # Normalizar texto para evitar problemas con espacios y caracteres raros
     text = re.sub(r"[^\w\s\n]", "", text)  # Elimina caracteres especiales
     text = re.sub(r"\s+", " ", text)  # Reemplaza múltiples espacios con uno solo
 
-    # 📌 Buscar inicio y fin de la sección
+    # Buscar inicio y fin de la sección
     start_match = re.search(r"(?i)\bEVENTOS\s*ORGANIZADOS\b", text)
     if not start_match:
         print("⚠ No se encontró 'EVENTOS ORGANIZADOS' en el texto OCR.")
@@ -470,18 +470,18 @@ def extract_event_section_with_ocr(pdf_path):
             end_idx = start_idx + match.start()
             break  # Detenerse en la primera coincidencia
 
-    # 📌 Extraer y limpiar la sección
+    # Extraer y limpiar la sección
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
         return ""
 
-    # 📌 Filtrar líneas con eventos y separar correctamente
+    # Filtrar líneas con eventos y separar correctamente
     cleaned_lines = extract_cleaned_lines(org_text)
 
     final_lines = []
     temp_line = ""
 
-    # 📌 Procesar líneas para asegurarse que se dividan correctamente
+    # Procesar líneas para asegurarse que se dividan correctamente
     for line in cleaned_lines:
         line = line.strip()
 
@@ -505,7 +505,7 @@ def extract_event_section_with_ocr(pdf_path):
     if temp_line:
         final_lines.append(temp_line.strip())
 
-    # 📌 Separa correctamente los eventos concatenados, si es necesario
+    # Separa correctamente los eventos concatenados, si es necesario
     corrected_lines = []
     for line in final_lines:
         # Si la línea contiene eventos concatenados (por ejemplo, COEXPRO 2024)
@@ -515,7 +515,7 @@ def extract_event_section_with_ocr(pdf_path):
         else:
             corrected_lines.append(line)
 
-    # 📌 Finalmente, devolver los eventos correctamente formateados
+    # Finalmente, devolver los eventos correctamente formateados
     return "\n".join(corrected_lines)    
     
 def evaluate_cv_presentation(pdf_path):
