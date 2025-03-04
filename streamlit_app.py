@@ -1662,7 +1662,6 @@ def extract_event_items_with_details(pdf_path):
                 for line in block["lines"]:
                     line_text = ""
                     line_fonts = set()
-                    line_spans = []
                     is_bold = False  # Bandera para detectar negrita
 
                     for span in line["spans"]:
@@ -1676,7 +1675,6 @@ def extract_event_items_with_details(pdf_path):
                         # Guardar texto y fuente de la línea
                         line_text += f" {text}" if line_text else text
                         line_fonts.add(font_name)
-                        line_spans.append(text)
 
                         # Detectar si el texto está en negrita (flag 16 indica negrita en PyMuPDF)
                         if font_flags & 16:
@@ -1698,15 +1696,17 @@ def extract_event_items_with_details(pdf_path):
                     if not in_eventos_section:
                         continue
 
-                    # 📌 Identificar encabezados si TODA la línea usa fuentes Century Gothic o si está en negrita
+                    # 📌 Identificar encabezados
                     if line_fonts.issubset(header_fonts) or is_bold:
                         current_item = line_text.strip()
                         items[current_item] = []
                         print(f"🟢 Encabezado detectado: {current_item}")  # DEBUG
-                    elif current_item:
+                    elif current_item is not None:
                         # Agregar detalles al encabezado actual
                         items[current_item].append(line_text.strip())
                         print(f"   ➕ Detalle agregado a '{current_item}': {line_text.strip()}")  # DEBUG
+                    else:
+                        print(f"⚠ WARNING: Se detectó un detalle sin encabezado: {line_text.strip()}")  # DEBUG
 
     print(f"🔎 Total de eventos detectados: {len(items)}")  # DEBUG
     return items
