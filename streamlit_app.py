@@ -449,7 +449,7 @@ def extract_event_section_with_ocr(pdf_path):
     if not text:
         return ""  # Retorna texto vacío si no hay contenido
 
-    # Normalizar texto para evitar problemas con espacios y caracteres raros
+    # Normalizar texto
     text = re.sub(r"[^\w\s\n]", "", text)  # Elimina caracteres especiales
     text = re.sub(r"\s+", " ", text)  # Reemplaza múltiples espacios con uno solo
 
@@ -463,56 +463,23 @@ def extract_event_section_with_ocr(pdf_path):
     end_idx = len(text)
 
     end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "Reconocimientos", "EXPERIENCIA EN ANEIAP"]
-    
     for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
         if match:
             end_idx = start_idx + match.start()
-            break  # Detenerse en la primera coincidencia
+            break
 
-    # Extraer y limpiar la sección
+    # Extraer la sección
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
         return ""
 
-    # Filtrar líneas con eventos y separar correctamente
-    cleaned_lines = extract_cleaned_lines(org_text)
+    # Filtrar y limpiar líneas
+    lines = org_text.split("\n")
+    events = [line.strip() for line in lines if re.search(r"\d{4}", line)]
+    
+    return "\n".join(events)
 
-    final_lines = []
-    temp_line = ""
-
-    # Procesar líneas para asegurarse que se dividan correctamente
-    for line in cleaned_lines:
-        line = line.strip()
-
-        # Verifica si la línea contiene información importante (por ejemplo, un evento y año)
-        if re.search(r"\d{4}", line):  # Detecta un año
-            # Si ya hay un texto en temp_line y la nueva línea parece un nuevo ítem
-            if temp_line and len(line.split()) > 2:
-                final_lines.append(temp_line.strip())
-                temp_line = line
-            else:
-                temp_line = line
-        else:
-            if temp_line:
-                final_lines.append(temp_line.strip())
-            temp_line = line
-
-    if temp_line:
-        final_lines.append(temp_line.strip())
-
-    # Separa correctamente los eventos concatenados, si es necesario
-    corrected_lines = []
-    for line in final_lines:
-        # Si la línea contiene eventos concatenados (por ejemplo, COEXPRO 2024)
-        if "COEXPRO" in line and "2024" in line:
-            parts = re.split(r"(\s+(COEXPRO.*2024))", line)  # Divide en los eventos
-            corrected_lines.extend([part.strip() for part in parts if part.strip()])
-        else:
-            corrected_lines.append(line)
-
-    # Finalmente, devolver los eventos correctamente formateados
-    return "\n".join(corrected_lines)    
     
 def evaluate_cv_presentation(pdf_path):
     """
