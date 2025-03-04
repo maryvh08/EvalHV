@@ -476,18 +476,11 @@ def extract_event_section_with_ocr(pdf_path):
     if not org_text:
         return ""
 
-    # Filtrar líneas con eventos y separar correctamente
-    words = org_text.split()
-    cleaned_lines = []
-    temp_line = []
-
-    for word in words:
-        temp_line.append(word)
-        if re.search(r"\d{4}", word):  # Si encuentra un año, asume fin del evento
-            cleaned_lines.append(" ".join(temp_line))
-            temp_line = []
+    # Separar eventos correctamente
+    event_pattern = re.compile(r"(.*?\d{4})")  # Captura nombre del evento + año
+    matches = event_pattern.findall(org_text)
     
-    return "\n".join(cleaned_lines)
+    return "\n".join(matches)
     
 def evaluate_cv_presentation(pdf_path):
     """
