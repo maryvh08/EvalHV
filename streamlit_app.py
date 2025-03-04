@@ -449,10 +449,6 @@ def extract_event_section_with_ocr(pdf_path):
     if not text:
         return []  # Retorna una lista vacía si no hay contenido
 
-    # Normalizar texto
-    text = re.sub(r"[^\w\s\n]", "", text)  # Elimina caracteres especiales
-    text = re.sub(r"\s+", " ", text)  # Reemplaza múltiples espacios con uno solo
-
     # Buscar inicio y fin de la sección
     start_match = re.search(r"(?i)\bEVENTOS\s*ORGANIZADOS\b", text)
     if not start_match:
@@ -476,7 +472,7 @@ def extract_event_section_with_ocr(pdf_path):
 
     # Filtrar y limpiar líneas
     lines = org_text.split("\n")
-    events = [line.strip() for line in lines if re.search(r"\d{4}", line)]
+    events = [line.strip() for line in lines if re.search(r"\b\d{4}\b", line)]
     
     return events
     
