@@ -485,10 +485,6 @@ def extract_event_section_with_ocr(pdf_path):
     for line in cleaned_lines:
         line = line.strip()
 
-        # Excluir la línea "EVENTOS ORGANIZADOS" (la cabecera de la sección)
-        if "eventos organizados" in line.lower():
-            continue  # Ignorar esta línea
-
         # Verifica si la línea contiene información importante (por ejemplo, un evento y año)
         if re.search(r"\d{4}", line):  # Detecta un año
             # Si ya hay un texto en temp_line y la nueva línea parece un nuevo ítem
