@@ -446,7 +446,7 @@ def extract_event_section_with_ocr(pdf_path):
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF,
     asegurando que los ítems sean correctamente identificados.
     """
-    text = extract_text_with_ocr(pdf_path)
+    text = extract_text(pdf_path)
     if not text:
         return ""  # Retorna texto vacío si no hay contenido
 
@@ -460,7 +460,7 @@ def extract_event_section_with_ocr(pdf_path):
         print("⚠ No se encontró 'EVENTOS ORGANIZADOS' en el texto.")
         return ""
 
-    start_idx = start_match.start()
+    start_idx = start_match.end()  # Mover el índice al final del título
     end_idx = len(text)
 
     end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "Reconocimientos", "EXPERIENCIA EN ANEIAP"]
@@ -471,7 +471,7 @@ def extract_event_section_with_ocr(pdf_path):
             end_idx = start_idx + match.start()
             break  # Detenerse en la primera coincidencia
 
-    # Extraer y limpiar la sección
+    # Extraer y limpiar la sección sin incluir el título
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
         return ""
