@@ -1675,9 +1675,9 @@ def extract_event_items_with_details(pdf_path):
             break
 
     # Extraer los ítems de la sección
-    event_items = cleaned_lines[start_idx + 1:end_idx]
+    org_items = cleaned_lines[start_idx + 1:end_idx]
 
-    return event_items
+    return org_items
 
 def extract_asistencia_items_with_details(pdf_path):
     """
