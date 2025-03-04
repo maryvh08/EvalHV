@@ -1640,9 +1640,9 @@ def extract_experience_items_with_details(pdf_path):
 def extract_event_items_with_details(pdf_path):
     """
     Extrae los ítems de la sección 'EVENTOS ORGANIZADOS' de un archivo PDF.
-    Cada ítem es una línea, con soporte de OCR y frases largas que no se separan.
+    Cada ítem es considerado una línea.
     :param pdf_path: Ruta del archivo PDF.
-    :return: Lista de ítems de la sección 'EVENTOS ORGANIZADOS'.
+    :return: Lista de ítems.
     """
     text = extract_text_with_ocr(pdf_path)  # Extraer el texto completo usando OCR
     
@@ -1652,10 +1652,9 @@ def extract_event_items_with_details(pdf_path):
     # Palabras clave para identificar inicio y fin de la sección
     start_keyword = "EVENTOS ORGANIZADOS"
     end_keywords = [
-        "reconocimientos", 
-        "experiencia laboral",
-        "reconocimientos grupales",
-        "experiencia en aneiap"
+        "Reconocimientos individuales",
+        "Reconocimientos grupales",
+        "Reconocimientos",
     ]
 
     # Encontrar índice de inicio
@@ -1676,27 +1675,9 @@ def extract_event_items_with_details(pdf_path):
             break
 
     # Extraer los ítems de la sección
-    eventos_items = cleaned_lines[start_idx + 1:end_idx]
+    event_items = cleaned_lines[start_idx + 1:end_idx]
 
-    # Asegurarse de que las frases largas no se separen
-    combined_items = []
-    temp_item = ""
-    for item in eventos_items:
-        if len(item) > 100:  # Si el ítem es largo, considerarlo como un único ítem
-            if temp_item:
-                combined_items.append(temp_item)
-            combined_items.append(item)
-            temp_item = ""
-        else:
-            if temp_item:
-                temp_item += " " + item  # Combinar con el anterior
-            else:
-                temp_item = item
-
-    if temp_item:
-        combined_items.append(temp_item)  # Agregar el último ítem
-
-    return combined_items
+    return event_items
 
 def extract_asistencia_items_with_details(pdf_path):
     """
