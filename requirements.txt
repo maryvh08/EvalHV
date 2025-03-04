@@ -12,6 +12,7 @@ matplotlib
 tesseract
 textblob>=0.17.1
 pyspellchecker
+pdf2image
 language_tool_python
 nltk
 spacy
