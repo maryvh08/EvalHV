@@ -443,42 +443,65 @@ def extract_experience_section_with_ocr(pdf_path):
 
 def extract_event_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
-    asegurando que los ítems sean correctamente identificados.
+    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con soporte de OCR.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto de la sección 'EVENTOS ORGANIZADOS'.
     """
     text = extract_text_with_ocr(pdf_path)
-    if not text:
-        return ""  # Retorna texto vacío si no hay contenido
 
-    # Normalizar texto para evitar problemas con espacios y caracteres raros
-    text = re.sub(r"[^\w\s\n]", "", text)  # Elimina caracteres especiales
-    text = re.sub(r"\s+", " ", text)  # Reemplaza múltiples espacios con uno solo
+    # Palabras clave para identificar inicio y fin de la sección
+    start_keyword = "EVENTOS ORGANIZADOS"
+    end_keywords = [
+        "EXPERIENCIA LABORAL",
+        "FIRMA",
+    ]
 
-    # Buscar inicio y fin de la sección
-    start_match = re.search("EVENTOS ORGANIZADOS", text)
-    if not start_match:
-        print("⚠ No se encontró 'EVENTOS ORGANIZADOS' en el texto.")
-        return ""
+    # Encontrar índice de inicio
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None  # No se encontró la sección
 
-    start_idx = start_match.end()  # Mover el índice al final del título
-    end_idx = len(text)
+    # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
 
-    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA"]
-
-    # Extraer y limpiar la sección sin incluir el título
+    # Extraer la sección entre inicio y fin
     org_text = text[start_idx:end_idx].strip()
-    if not org_text:
-        return ""
 
-    # Separar eventos correctamente por líneas
-    lines = org_text.split("\n")
-    event_lines = []
-    
-    for line in lines:
+    # Filtrar y limpiar texto
+    org_exclude_lines = [
+        "a nivel capitular",
+        "a nivel nacional",
+        "a nivel seccional",
+        "capitular",
+        "seccional",
+        "nacional",
+    ]
+    org_lines = org_text.split("\n")
+    org_cleaned_lines = []
+    for line in org_lines:
         line = line.strip()
-        event_lines.append(line)
+        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
+        normalized_org_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
+        if (
+            normalized_org_line
+            and normalized_org_line not in org_exclude_lines
+            and normalized_org_line != start_keyword.lower()
+            and normalized_org_line not in [kw.lower() for kw in end_keywords]
+        ):
+            org_cleaned_lines.append(line)
+
+    return "\n".join(org_cleaned_lines)
     
-    return "\n".join(event_lines)
+    # Debugging: Imprime líneas procesadas
+    print("Líneas procesadas:")
+    for line in org_cleaned_lines:
+        print(f"- {line}")
+    
+    return "\n".join(org_cleaned_lines)
     
 def evaluate_cv_presentation(pdf_path):
     """
