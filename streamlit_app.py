@@ -1700,68 +1700,63 @@ def extract_event_items_with_details(pdf_path):
 
 def extract_asistencia_items_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'Asistencia a eventos ANEIAP',
-    excluyendo ciertos términos no evaluables sin modificar el formato original del texto.
+    Extrae los ítems de la sección 'Asistencia a eventos ANEIAP' de un archivo PDF.
+    Cada ítem es una línea, con soporte de OCR y frases largas que no se separan.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Lista de ítems de la sección 'Asistencia a eventos ANEIAP'.
     """
-    items = {}
-    current_item = None
-    in_asistencia_section = False
-    line_text = ""
-    excluded_terms = {
-        "dirección de residencia:",
-        "tiempo en aneiap:",
-        "medios de comunicación:"}
+    text = extract_text_with_ocr(pdf_path)  # Extraer el texto completo usando OCR
+    
+    # Limpiar las líneas obtenidas
+    cleaned_lines = extract_cleaned_lines(text)
 
-    with fitz.open(pdf_path) as doc:
-        for page in doc:
-            blocks = page.get_text("dict")["blocks"]
-            for block in blocks:
-                if "lines" not in block:
-                    continue
+    # Palabras clave para identificar inicio y fin de la sección
+    start_keyword = "ASISTENCIA A EVENTOS ANEIAP"
+    end_keywords = [
+        "actualización profesional",
+        "firma",
+    ]
 
-                for line in block["lines"]:
-                    for span in line["spans"]:
-                        text = span["text"].strip()
-                        font_name = span["font"]
-                        text_lower = text.lower()  # Solo para comparación
+    # Encontrar índice de inicio
+    start_idx = -1
+    for idx, line in enumerate(cleaned_lines):
+        if start_keyword.lower() in line.lower():
+            start_idx = idx
+            break
 
-                        if not text or text_lower in excluded_terms:
-                            continue
+    if start_idx == -1:
+        return []  # No se encontró la sección
 
-                        # Detectar inicio y fin de la sección
-                        if "asistencia a eventos aneiap" in text_lower:
-                            in_asistencia_section = True
-                            continue
-                        elif any(key in text_lower for key in ["actualización profesional", "firma"]):
-                            in_asistencia_section = False
-                            break
+    # Encontrar índice de fin
+    end_idx = len(cleaned_lines)  # Por defecto, tomar hasta el final
+    for idx, line in enumerate(cleaned_lines[start_idx:], start=start_idx):
+        if any(keyword.lower() in line.lower() for keyword in end_keywords):
+            end_idx = idx
+            break
 
-                        if not in_asistencia_section:
-                            continue
+    # Extraer los ítems de la sección
+    asistencia_items = cleaned_lines[start_idx + 1:end_idx]
 
-                        # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
-                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
-                            # Concatenar en una misma línea si está en la misma fuente
-                            if line_text:
-                                line_text += " " + text
-                            else:
-                                line_text = text
-                        else:
-                            # Si es otro tipo de texto, agregamos el encabezado actual y restablecemos
-                            if line_text:
-                                current_item = line_text.strip()
-                                items[current_item] = []
-                                line_text = ""  # Reiniciar para la siguiente línea
+    # Asegurarse de que las frases largas no se separen
+    combined_items = []
+    temp_item = ""
+    for item in asistencia_items:
+        if len(item) > 100:  # Si el ítem es largo, considerarlo como un único ítem
+            if temp_item:
+                combined_items.append(temp_item)
+            combined_items.append(item)
+            temp_item = ""
+        else:
+            if temp_item:
+                temp_item += " " + item  # Combinar con el anterior
+            else:
+                temp_item = item
 
-                            items[current_item].append(text)  # Agregar detalles al encabezado actual
+    if temp_item:
+        combined_items.append(temp_item)  # Agregar el último ítem
 
-    # Si el último encabezado ha quedado sin procesar
-    if line_text:
-        current_item = line_text.strip()
-        items[current_item] = []
-
-    return items
-
+    return combined_items
+    
 def extract_profile_section_with_details(pdf_path):
     """ Extrae la sección 'Perfil' de un archivo PDF """
     try:
