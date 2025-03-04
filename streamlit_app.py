@@ -1702,12 +1702,15 @@ def extract_event_items_with_details(pdf_path):
                     if line_fonts.issubset(header_fonts) or is_bold:
                         current_item = line_text.strip()
                         items[current_item] = []
+                        print(f"🟢 Encabezado detectado: {current_item}")  # DEBUG
                     elif current_item:
                         # Agregar detalles al encabezado actual
                         items[current_item].append(line_text.strip())
+                        print(f"   ➕ Detalle agregado a '{current_item}': {line_text.strip()}")  # DEBUG
 
+    print(f"🔎 Total de eventos detectados: {len(items)}")  # DEBUG
     return items
-
+    
 def extract_asistencia_items_with_details(pdf_path):
     """
     Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'Asistencia a eventos ANEIAP',
