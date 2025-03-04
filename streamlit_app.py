@@ -1639,61 +1639,64 @@ def extract_experience_items_with_details(pdf_path):
     
 def extract_event_items_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
+    Extrae los ítems de la sección 'EVENTOS ORGANIZADOS' de un archivo PDF.
+    Cada ítem es una línea, con soporte de OCR y frases largas que no se separan.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Lista de ítems de la sección 'EVENTOS ORGANIZADOS'.
     """
-    items = {}
-    current_item = None
-    in_eventos_section = False
-    line_text = ""
+    text = extract_text_with_ocr(pdf_path)  # Extraer el texto completo usando OCR
+    
+    # Limpiar las líneas obtenidas
+    cleaned_lines = extract_cleaned_lines(text)
 
-    with fitz.open(pdf_path) as doc:
-        for page in doc:
-            blocks = page.get_text("dict")["blocks"]
-            for block in blocks:
-                if "lines" not in block:
-                    continue
+    # Palabras clave para identificar inicio y fin de la sección
+    start_keyword = "EVENTOS ORGANIZADOS"
+    end_keywords = [
+        "reconocimientos", 
+        "experiencia laboral",
+        "reconocimientos grupales",
+        "experiencia en aneiap"
+    ]
 
-                for line in block["lines"]:
-                    for span in line["spans"]:
-                        text = span["text"].strip()
-                        font_name = span["font"]
+    # Encontrar índice de inicio
+    start_idx = -1
+    for idx, line in enumerate(cleaned_lines):
+        if start_keyword.lower() in line.lower():
+            start_idx = idx
+            break
 
-                        if not text:
-                            continue
+    if start_idx == -1:
+        return []  # No se encontró la sección
 
-                        # Verificar si es parte de la sección de "EVENTOS ORGANIZADOS"
-                        if "eventos organizados" in text.lower():
-                            in_eventos_section = True
-                            continue
-                        elif any(key in text.lower() for key in ["firma", "experiencia laboral"]):
-                            in_eventos_section = False
-                            break
+    # Encontrar índice de fin
+    end_idx = len(cleaned_lines)  # Por defecto, tomar hasta el final
+    for idx, line in enumerate(cleaned_lines[start_idx:], start=start_idx):
+        if any(keyword.lower() in line.lower() for keyword in end_keywords):
+            end_idx = idx
+            break
 
-                        if not in_eventos_section:
-                            continue
+    # Extraer los ítems de la sección
+    eventos_items = cleaned_lines[start_idx + 1:end_idx]
 
-                        # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
-                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
-                            # Concatenar en una misma línea si está en la misma fuente
-                            if line_text:
-                                line_text += " " + text
-                            else:
-                                line_text = text
-                        else:
-                            # Si es otro tipo de texto, agregamos el encabezado actual y restablecemos
-                            if line_text:
-                                current_item = line_text.strip()
-                                items[current_item] = []
-                                line_text = ""  # Reiniciar para la siguiente línea
+    # Asegurarse de que las frases largas no se separen
+    combined_items = []
+    temp_item = ""
+    for item in eventos_items:
+        if len(item) > 100:  # Si el ítem es largo, considerarlo como un único ítem
+            if temp_item:
+                combined_items.append(temp_item)
+            combined_items.append(item)
+            temp_item = ""
+        else:
+            if temp_item:
+                temp_item += " " + item  # Combinar con el anterior
+            else:
+                temp_item = item
 
-                            items[current_item].append(text)  # Agregar detalles al encabezado actual
+    if temp_item:
+        combined_items.append(temp_item)  # Agregar el último ítem
 
-    # Si el último encabezado ha quedado sin procesar
-    if line_text:
-        current_item = line_text.strip()
-        items[current_item] = []
-
-    return items
+    return combined_items
 
 def extract_asistencia_items_with_details(pdf_path):
     """
