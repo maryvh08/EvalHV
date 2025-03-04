@@ -482,7 +482,7 @@ def extract_event_section_with_ocr(pdf_path):
     
     for line in lines:
         line = line.strip()
-            event_lines.append(line)
+        event_lines.append(line)
     
     return "\n".join(event_lines)
     
