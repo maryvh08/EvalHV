@@ -443,11 +443,11 @@ def extract_experience_section_with_ocr(pdf_path):
 def extract_event_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
-    asegurando que los ítems sean correctamente identificados.
+    asegurando que los ítems sean correctamente identificados y separados.
     """
     text = extract_text_with_ocr(pdf_path)
     if not text:
-        return ""  # Retorna texto vacío si no hay contenido
+        return []  # Retorna una lista vacía si no hay contenido
 
     # Normalizar texto
     text = re.sub(r"[^\w\s\n]", "", text)  # Elimina caracteres especiales
@@ -457,7 +457,7 @@ def extract_event_section_with_ocr(pdf_path):
     start_match = re.search(r"(?i)\bEVENTOS\s*ORGANIZADOS\b", text)
     if not start_match:
         print("⚠ No se encontró 'EVENTOS ORGANIZADOS' en el texto OCR.")
-        return ""
+        return []
 
     start_idx = start_match.start()
     end_idx = len(text)
@@ -472,14 +472,13 @@ def extract_event_section_with_ocr(pdf_path):
     # Extraer la sección
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
-        return ""
+        return []
 
     # Filtrar y limpiar líneas
     lines = org_text.split("\n")
     events = [line.strip() for line in lines if re.search(r"\d{4}", line)]
     
-    return "\n".join(events)
-
+    return events
     
 def evaluate_cv_presentation(pdf_path):
     """
