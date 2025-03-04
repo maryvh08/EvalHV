@@ -446,7 +446,7 @@ def extract_event_section_with_ocr(pdf_path):
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF,
     asegurando que los ítems sean correctamente identificados.
     """
-    text = extract_text(pdf_path)
+    text = extract_text_with_ocr(pdf_path)
     if not text:
         return ""  # Retorna texto vacío si no hay contenido
 
