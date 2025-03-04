@@ -440,6 +440,18 @@ def extract_experience_section_with_ocr(pdf_path):
     
     return "\n".join(cleaned_lines)
     
+import re
+from pdf2image import convert_from_path
+import pytesseract
+
+def extract_text_with_ocr(pdf_path):
+    """
+    Convierte el PDF en imágenes y extrae el texto mediante OCR.
+    """
+    images = convert_from_path(pdf_path)
+    text = "\n".join(pytesseract.image_to_string(img, lang="spa") for img in images)
+    return text
+
 def extract_event_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
@@ -447,6 +459,7 @@ def extract_event_section_with_ocr(pdf_path):
     """
     text = extract_text_with_ocr(pdf_path)
     if not text:
+        print("⚠ No se extrajo ningún texto del PDF.")
         return []  # Retorna una lista vacía si no hay contenido
 
     # Normalizar texto para evitar problemas con espacios y caracteres raros
@@ -471,15 +484,19 @@ def extract_event_section_with_ocr(pdf_path):
 
     # Extraer y limpiar la sección
     org_text = text[start_idx:end_idx].strip()
+    print(f"Texto extraído de 'EVENTOS ORGANIZADOS':\n{org_text}")
     if not org_text:
+        print("⚠ La sección 'EVENTOS ORGANIZADOS' está vacía después de la extracción.")
         return []
     
     # Asegurar que el texto extraído sea seguro antes de dividirlo en líneas
     event_lines = org_text.split("\n") if "\n" in org_text else [org_text]
     event_lines = [line.strip() for line in event_lines if line.strip()]
+    print(f"Líneas de eventos extraídas: {event_lines}")
     
     # Filtrar líneas con eventos que contengan un año (ejemplo: 2024)
     events = [line for line in event_lines if re.search(r"\b\d{4}\b", line)]
+    print(f"Eventos finales detectados: {events}")
     
     return events  # Retorna una lista con los eventos extraídos
     
