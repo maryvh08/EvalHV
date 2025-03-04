@@ -463,7 +463,7 @@ def extract_event_section_with_ocr(pdf_path):
     start_idx = start_match.end()  # Mover el índice al final del título
     end_idx = len(text)
 
-    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "Reconocimientos", "EXPERIENCIA EN ANEIAP"]
+    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA"]
     
     for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
