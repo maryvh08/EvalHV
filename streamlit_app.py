@@ -440,18 +440,24 @@ def extract_experience_section_with_ocr(pdf_path):
         print(f"- {line}")
     
     return "\n".join(cleaned_lines)
-    
 import re
 from pdf2image import convert_from_path
 import pytesseract
 
 def extract_text_with_ocr(pdf_path):
     """
-    Convierte el PDF en imágenes y extrae el texto mediante OCR.
+    Convierte un PDF a imágenes y extrae el texto usando OCR.
     """
     images = convert_from_path(pdf_path)
-    text = "\n".join(pytesseract.image_to_string(img, lang="spa") for img in images)
-    return text
+    extracted_text = "\n".join(pytesseract.image_to_string(img, lang="spa") for img in images)
+    return extracted_text
+
+def extract_cleaned_lines(text):
+    """
+    Limpia y divide el texto en líneas útiles.
+    """
+    lines = text.split("\n")
+    return [line.strip() for line in lines if line.strip()]
 
 def extract_event_section_with_ocr(pdf_path):
     """
@@ -460,8 +466,7 @@ def extract_event_section_with_ocr(pdf_path):
     """
     text = extract_text_with_ocr(pdf_path)
     if not text:
-        print("⚠ No se extrajo ningún texto del PDF.")
-        return []  # Retorna una lista vacía si no hay contenido
+        return ""  # Retorna texto vacío si no hay contenido
 
     # Normalizar texto para evitar problemas con espacios y caracteres raros
     text = re.sub(r"[^\w\s\n]", "", text)  # Elimina caracteres especiales
@@ -471,35 +476,33 @@ def extract_event_section_with_ocr(pdf_path):
     start_match = re.search(r"(?i)\bEVENTOS\s*ORGANIZADOS\b", text)
     if not start_match:
         print("⚠ No se encontró 'EVENTOS ORGANIZADOS' en el texto OCR.")
-        return []
+        return ""
 
     start_idx = start_match.start()
     end_idx = len(text)
-    
+
     end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "Reconocimientos", "EXPERIENCIA EN ANEIAP"]
+    
     for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
         if match:
             end_idx = start_idx + match.start()
-            break
+            break  # Detenerse en la primera coincidencia
 
     # Extraer y limpiar la sección
     org_text = text[start_idx:end_idx].strip()
-    print(f"Texto extraído de 'EVENTOS ORGANIZADOS':\n{org_text}")
     if not org_text:
-        print("⚠ La sección 'EVENTOS ORGANIZADOS' está vacía después de la extracción.")
-        return []
+        return ""
+
+    # Filtrar líneas con eventos y separar correctamente
+    cleaned_lines = extract_cleaned_lines(org_text)
     
-    # Asegurar que el texto extraído sea seguro antes de dividirlo en líneas
-    event_lines = org_text.split("\n") if "\n" in org_text else [org_text]
-    event_lines = [line.strip() for line in event_lines if line.strip()]
-    print(f"Líneas de eventos extraídas: {event_lines}")
+    final_lines = []
+    for line in cleaned_lines:
+        if re.search(r"\d{4}", line):  # Detecta un año
+            final_lines.append(line.strip())
     
-    # Filtrar líneas con eventos que contengan un año (ejemplo: 2024)
-    events = [line for line in event_lines if re.search(r"\b\d{4}\b", line)]
-    print(f"Eventos finales detectados: {events}")
-    
-    return events  # Retorna una lista con los eventos extraídos
+    return "\n".join(final_lines)
     
 def evaluate_cv_presentation(pdf_path):
     """
