@@ -1648,9 +1648,8 @@ def extract_event_items_with_details(pdf_path):
     items = {}
     current_item = None
     in_eventos_section = False
-    line_text = ""
 
-    # Tipos de fuente que indican un encabezado (Century Gothic en negrita)
+    # Fuentes que indican encabezados (Century Gothic en negrita)
     header_fonts = {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}
 
     with fitz.open(pdf_path) as doc:
@@ -1661,6 +1660,9 @@ def extract_event_items_with_details(pdf_path):
                     continue
 
                 for line in block["lines"]:
+                    line_text = ""
+                    line_fonts = set()
+
                     for span in line["spans"]:
                         text = span["text"].strip()
                         font_name = span["font"]
@@ -1668,38 +1670,33 @@ def extract_event_items_with_details(pdf_path):
                         if not text:
                             continue
 
-                        # 📌 Detectar inicio de la sección "EVENTOS ORGANIZADOS"
-                        if "eventos organizados" in text.lower():
-                            in_eventos_section = True
-                            continue
-                        # 📌 Detectar fin de la sección
-                        elif any(key in text.lower() for key in ["firma", "experiencia laboral"]):
-                            in_eventos_section = False
-                            break
+                        # Guardar texto y fuente de la línea
+                        line_text += f" {text}" if line_text else text
+                        line_fonts.add(font_name)
 
-                        if not in_eventos_section:
-                            continue
+                    if not line_text:
+                        continue
 
-                        # 📌 Identificar encabezados (Century Gothic en negrita)
-                        if font_name in header_fonts:
-                            if line_text:  
-                                line_text += " " + text  # Concatenar fragmentos si están en la misma fuente
-                            else:
-                                line_text = text
-                        else:
-                            # Si es otro tipo de texto, agregar encabezado previo y resetear
-                            if line_text:
-                                current_item = line_text.strip()
-                                items[current_item] = []
-                                line_text = ""
+                    # 📌 Detectar inicio de la sección "EVENTOS ORGANIZADOS"
+                    if "eventos organizados" in line_text.lower():
+                        in_eventos_section = True
+                        continue
 
-                            if current_item:
-                                items[current_item].append(text)  # Agregar detalles
+                    # 📌 Detectar fin de la sección
+                    if any(key in line_text.lower() for key in ["firma", "experiencia laboral"]):
+                        in_eventos_section = False
+                        break
 
-    # 📌 Procesar último encabezado si quedó sin procesar
-    if line_text:
-        current_item = line_text.strip()
-        items[current_item] = []
+                    if not in_eventos_section:
+                        continue
+
+                    # 📌 Identificar encabezados si la línea usa exclusivamente fuentes de negrita
+                    if line_fonts.intersection(header_fonts):
+                        current_item = line_text.strip()
+                        items[current_item] = []
+                    elif current_item:
+                        # Agregar detalles al encabezado actual
+                        items[current_item].append(line_text.strip())
 
     return items
 
