@@ -1643,7 +1643,7 @@ def extract_experience_items_with_details(pdf_path):
     
 def extract_event_items_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita o con fuente Century Gothic) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
+    Extrae encabezados (en negrita) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
     """
     items = {}
     current_item = None
@@ -1657,55 +1657,31 @@ def extract_event_items_with_details(pdf_path):
                     continue
 
                 for line in block["lines"]:
-                    line_text = ""  # Reiniciar texto de línea para evitar concatenaciones incorrectas
-                    is_bold = False  # Bandera para negrita
-
                     for span in line["spans"]:
                         text = span["text"].strip()
-                        font_name = span["font"]
-                        font_flags = span["flags"]  # PyMuPDF usa flags para detectar negrita
-
                         if not text:
                             continue
 
-                        # Verificar si es la sección "EVENTOS ORGANIZADOS"
+                        # Detectar inicio y fin de la sección
                         if "eventos organizados" in text.lower():
                             in_eventos_section = True
                             continue
                         elif any(key in text.lower() for key in ["firma", "experiencia laboral"]):
                             in_eventos_section = False
-                            break  # Salir del loop interno si llegamos al final de la sección
+                            break
 
                         if not in_eventos_section:
                             continue
 
-                        # Detectar si el texto es negrita (usando font_flags)
-                        if font_flags & 1:  # El bit 1 indica negrita
-                            is_bold = True
-                        
-                        # Si el texto está en Century Gothic en negrita, es un encabezado
-                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"} or is_bold:
-                            if line_text:
-                                line_text += " " + text
-                            else:
-                                line_text = text
-                        else:
-                            # Si hay un encabezado previo, guardarlo antes de procesar detalles
-                            if line_text:
-                                current_item = line_text.strip()
-                                items[current_item] = []  # Crear nueva entrada
-                                line_text = ""
-
-                            # Agregar detalles al encabezado actual
-                            if current_item:
-                                items[current_item].append(text)
-
-    # Si el último encabezado quedó sin detalles, aseguramos que se registre
-    if line_text:
-        current_item = line_text.strip()
-        items[current_item] = []
+                        # Detectar encabezados (negrita) y detalles
+                        if "bold" in span["font"].lower() and not text.startswith("-"):
+                            current_item = text
+                            items[current_item] = []
+                        elif current_item:
+                            items[current_item].append(text)
 
     return items
+
     
 def extract_asistencia_items_with_details(pdf_path):
     """
