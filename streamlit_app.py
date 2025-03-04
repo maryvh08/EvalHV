@@ -5,7 +5,6 @@ import pandas as pd
 import streamlit as st
 from collections import Counter
 from io import BytesIO
-from pdf2image import convert_from_path
 from textstat import textstat
 from reportlab.platypus.flowables import PageBreak
 import requests
