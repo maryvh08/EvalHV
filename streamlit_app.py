@@ -1524,12 +1524,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 # FUNCIONES PARA SECUNDARY
 def extract_text_with_headers_and_details(pdf_path):
     """
-    Extrae encabezados (en negrita) y detalles del texto de un archivo PDF.
+    Extrae encabezados (fuente Century Gothic) y detalles del texto de un archivo PDF.
     :param pdf_path: Ruta del archivo PDF.
     :return: Diccionario con encabezados como claves y detalles como valores.
     """
     items = {}
     current_header = None
+    century_gothic_fonts = {"CenturyGothic", "CenturyGothic-Bold", "CenturyGothic-Regular"}
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1541,11 +1542,13 @@ def extract_text_with_headers_and_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
+                        font_name = span["font"].replace(" ", "")  # Normalizar el nombre de la fuente
+                        
                         if not text:
                             continue
 
-                        # Detectar encabezados (negrita)
-                        if "bold" in span["font"].lower() and not text.startswith("-"):
+                        # Detectar encabezados por fuente Century Gothic
+                        if any(font in font_name for font in century_gothic_fonts) and not text.startswith("-"):
                             current_header = text
                             items[current_header] = []
                         elif current_header:
@@ -1556,11 +1559,12 @@ def extract_text_with_headers_and_details(pdf_path):
 
 def extract_experience_items_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
+    Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'EXPERIENCIA EN ANEIAP'.
     """
     items = {}
     current_item = None
     in_experience_section = False
+    line_text = ""
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1572,10 +1576,12 @@ def extract_experience_items_with_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
+                        font_name = span["font"]
+
                         if not text:
                             continue
 
-                        # Detectar inicio y fin de la sección
+                        # Verificar si es parte de la sección de "EXPERIENCIA EN ANEIAP"
                         if "experiencia en aneiap" in text.lower():
                             in_experience_section = True
                             continue
@@ -1586,22 +1592,37 @@ def extract_experience_items_with_details(pdf_path):
                         if not in_experience_section:
                             continue
 
-                        # Detectar encabezados (negrita) y detalles
-                        if "bold" in span["font"].lower() and not text.startswith("-"):
-                            current_item = text
-                            items[current_item] = []
-                        elif current_item:
-                            items[current_item].append(text)
+                        # Unir los fragmentos de texto si tiene "negrita" o "Century Gothic"
+                        if "bold" in span["font"].lower() or font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
+                            # Concatenar en una misma línea si está en la misma fuente
+                            if line_text:
+                                line_text += " " + text
+                            else:
+                                line_text = text
+                        else:
+                            # Si es otro tipo de texto, agregamos el encabezado actual y restablecemos
+                            if line_text:
+                                current_item = line_text.strip()
+                                items[current_item] = []
+                                line_text = ""  # Reiniciar para la siguiente línea
+
+                            items[current_item].append(text)  # Agregar detalles al encabezado actual
+
+    # Si el último encabezado ha quedado sin procesar
+    if line_text:
+        current_item = line_text.strip()
+        items[current_item] = []
 
     return items
-
+    
 def extract_event_items_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
+    Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
     """
     items = {}
     current_item = None
     in_eventos_section = False
+    line_text = ""
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1613,10 +1634,12 @@ def extract_event_items_with_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
+                        font_name = span["font"]
+
                         if not text:
                             continue
 
-                        # Detectar inicio y fin de la sección
+                        # Verificar si es parte de la sección de "EVENTOS ORGANIZADOS"
                         if "eventos organizados" in text.lower():
                             in_eventos_section = True
                             continue
@@ -1627,23 +1650,38 @@ def extract_event_items_with_details(pdf_path):
                         if not in_eventos_section:
                             continue
 
-                        # Detectar encabezados (negrita) y detalles
-                        if "bold" in span["font"].lower() and not text.startswith("-"):
-                            current_item = text
-                            items[current_item] = []
-                        elif current_item:
-                            items[current_item].append(text)
+                        # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
+                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
+                            # Concatenar en una misma línea si está en la misma fuente
+                            if line_text:
+                                line_text += " " + text
+                            else:
+                                line_text = text
+                        else:
+                            # Si es otro tipo de texto, agregamos el encabezado actual y restablecemos
+                            if line_text:
+                                current_item = line_text.strip()
+                                items[current_item] = []
+                                line_text = ""  # Reiniciar para la siguiente línea
+
+                            items[current_item].append(text)  # Agregar detalles al encabezado actual
+
+    # Si el último encabezado ha quedado sin procesar
+    if line_text:
+        current_item = line_text.strip()
+        items[current_item] = []
 
     return items
 
 def extract_asistencia_items_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita) y sus detalles de la sección 'Asistencia a eventos ANEIAP',
+    Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'Asistencia a eventos ANEIAP',
     excluyendo ciertos términos no evaluables sin modificar el formato original del texto.
     """
     items = {}
     current_item = None
     in_asistencia_section = False
+    line_text = ""
     excluded_terms = {
         "dirección de residencia:",
         "tiempo en aneiap:",
@@ -1659,6 +1697,7 @@ def extract_asistencia_items_with_details(pdf_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
+                        font_name = span["font"]
                         text_lower = text.lower()  # Solo para comparación
 
                         if not text or text_lower in excluded_terms:
@@ -1675,12 +1714,26 @@ def extract_asistencia_items_with_details(pdf_path):
                         if not in_asistencia_section:
                             continue
 
-                        # Detectar encabezados (negrita) y detalles
-                        if "bold" in span["font"].lower() and not text.startswith("-"):
-                            current_item = text  # Se mantiene el formato original
-                            items[current_item] = []
-                        elif current_item:
-                            items[current_item].append(text)  # Se mantiene el formato original
+                        # Unir los fragmentos de texto de una misma línea si tienen la misma fuente
+                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}:
+                            # Concatenar en una misma línea si está en la misma fuente
+                            if line_text:
+                                line_text += " " + text
+                            else:
+                                line_text = text
+                        else:
+                            # Si es otro tipo de texto, agregamos el encabezado actual y restablecemos
+                            if line_text:
+                                current_item = line_text.strip()
+                                items[current_item] = []
+                                line_text = ""  # Reiniciar para la siguiente línea
+
+                            items[current_item].append(text)  # Agregar detalles al encabezado actual
+
+    # Si el último encabezado ha quedado sin procesar
+    if line_text:
+        current_item = line_text.strip()
+        items[current_item] = []
 
     return items
 
