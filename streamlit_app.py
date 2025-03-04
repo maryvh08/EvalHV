@@ -416,23 +416,36 @@ def extract_experience_section_with_ocr(pdf_path):
         "nacional 2024",
         "nacional 20212023",
     ]
+    
+    # Dividir el texto en líneas
     experience_lines = experience_text.split("\n")
     cleaned_lines = []
-    for line in experience_lines:
+    temp_line = ""  # Variable para acumular líneas largas
+
+    for i, line in enumerate(experience_lines):
         line = line.strip()
         line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
         normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        if (
-            normalized_line
-            and normalized_line not in exclude_lines
-            and normalized_line != start_keyword.lower()
-            and normalized_line not in [kw.lower() for kw in end_keywords]
-        ):
-            cleaned_lines.append(line)
+        
+        # Si la línea no está vacía y no debe ser excluida
+        if normalized_line and normalized_line not in exclude_lines:
+            # Si es una continuación de una línea anterior, unimos
+            if temp_line and (line[0].isupper() or line[0] in ["•", "-"]):  # Detectar si es una continuación
+                temp_line += " " + line
+            else:
+                if temp_line:  # Si hay una línea temporal acumulada, la añadimos
+                    cleaned_lines.append(temp_line)
+                    temp_line = ""
+                temp_line = line
 
+        # Verificar si esta es la última línea, agregarla si está incompleta
+        if i == len(experience_lines) - 1 and temp_line:
+            cleaned_lines.append(temp_line)
+
+    # Devolver el texto limpio y procesado
     return "\n".join(cleaned_lines)
-    
-    # Debugging: Imprime líneas procesadas
+
+    # Debugging: Imprime las líneas procesadas
     print("Líneas procesadas:")
     for line in cleaned_lines:
         print(f"- {line}")
