@@ -16,4 +16,5 @@ pdf2image
 language_tool_python
 nltk
 spacy
+poppler
 textstat
