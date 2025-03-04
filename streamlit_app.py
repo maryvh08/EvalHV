@@ -1643,14 +1643,11 @@ def extract_experience_items_with_details(pdf_path):
     
 def extract_event_items_with_details(pdf_path):
     """
-    Extrae encabezados de eventos (en negrita o fuente Century Gothic) y sus detalles en la sección 'EVENTOS ORGANIZADOS'.
+    Extrae encabezados (en negrita o con fuente Century Gothic) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
     """
     items = {}
     current_item = None
     in_eventos_section = False
-
-    # Fuentes que indican encabezados
-    header_fonts = {"CenturyGothic-Bold", "CenturyGothic-BoldItalic", "CenturyGothic"}
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1660,55 +1657,54 @@ def extract_event_items_with_details(pdf_path):
                     continue
 
                 for line in block["lines"]:
-                    line_text = ""
-                    line_fonts = set()
-                    is_bold = False  # Bandera para detectar negrita
+                    line_text = ""  # Reiniciar texto de línea para evitar concatenaciones incorrectas
+                    is_bold = False  # Bandera para negrita
 
                     for span in line["spans"]:
                         text = span["text"].strip()
                         font_name = span["font"]
-                        font_flags = span["flags"]
+                        font_flags = span["flags"]  # PyMuPDF usa flags para detectar negrita
 
                         if not text:
                             continue
 
-                        # Guardar texto y fuente de la línea
-                        line_text += f" {text}" if line_text else text
-                        line_fonts.add(font_name)
+                        # Verificar si es la sección "EVENTOS ORGANIZADOS"
+                        if "eventos organizados" in text.lower():
+                            in_eventos_section = True
+                            continue
+                        elif any(key in text.lower() for key in ["firma", "experiencia laboral"]):
+                            in_eventos_section = False
+                            break  # Salir del loop interno si llegamos al final de la sección
 
-                        # Detectar si el texto está en negrita (flag 16 indica negrita en PyMuPDF)
-                        if font_flags & 16:
+                        if not in_eventos_section:
+                            continue
+
+                        # Detectar si el texto es negrita (usando font_flags)
+                        if font_flags & 1:  # El bit 1 indica negrita
                             is_bold = True
+                        
+                        # Si el texto está en Century Gothic en negrita, es un encabezado
+                        if font_name in {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"} or is_bold:
+                            if line_text:
+                                line_text += " " + text
+                            else:
+                                line_text = text
+                        else:
+                            # Si hay un encabezado previo, guardarlo antes de procesar detalles
+                            if line_text:
+                                current_item = line_text.strip()
+                                items[current_item] = []  # Crear nueva entrada
+                                line_text = ""
 
-                    if not line_text:
-                        continue
+                            # Agregar detalles al encabezado actual
+                            if current_item:
+                                items[current_item].append(text)
 
-                    # 📌 Detectar inicio de la sección "EVENTOS ORGANIZADOS"
-                    if "eventos organizados" in line_text.lower():
-                        in_eventos_section = True
-                        continue
+    # Si el último encabezado quedó sin detalles, aseguramos que se registre
+    if line_text:
+        current_item = line_text.strip()
+        items[current_item] = []
 
-                    # 📌 Detectar fin de la sección
-                    if any(key in line_text.lower() for key in ["firma", "experiencia laboral"]):
-                        in_eventos_section = False
-                        break
-
-                    if not in_eventos_section:
-                        continue
-
-                    # 📌 Identificar encabezados
-                    if line_fonts.issubset(header_fonts) or is_bold:
-                        current_item = line_text.strip()
-                        items[current_item] = []
-                        print(f"🟢 Encabezado detectado: {current_item}")  # DEBUG
-                    elif current_item is not None:
-                        # Agregar detalles al encabezado actual
-                        items[current_item].append(line_text.strip())
-                        print(f"   ➕ Detalle agregado a '{current_item}': {line_text.strip()}")  # DEBUG
-                    else:
-                        print(f"⚠ WARNING: Se detectó un detalle sin encabezado: {line_text.strip()}")  # DEBUG
-
-    print(f"🔎 Total de eventos detectados: {len(items)}")  # DEBUG
     return items
     
 def extract_asistencia_items_with_details(pdf_path):
