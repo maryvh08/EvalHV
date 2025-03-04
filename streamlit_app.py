@@ -1643,14 +1643,14 @@ def extract_experience_items_with_details(pdf_path):
     
 def extract_event_items_with_details(pdf_path):
     """
-    Extrae encabezados (en negrita y con fuente Century Gothic) y sus detalles de la sección 'EVENTOS ORGANIZADOS'.
+    Extrae encabezados de eventos (en negrita o fuente Century Gothic) y sus detalles en la sección 'EVENTOS ORGANIZADOS'.
     """
     items = {}
     current_item = None
     in_eventos_section = False
 
-    # Fuentes que indican encabezados (Century Gothic en negrita)
-    header_fonts = {"CenturyGothic-Bold", "CenturyGothic-BoldItalic"}
+    # Fuentes que indican encabezados
+    header_fonts = {"CenturyGothic-Bold", "CenturyGothic-BoldItalic", "CenturyGothic"}
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
@@ -1662,6 +1662,7 @@ def extract_event_items_with_details(pdf_path):
                 for line in block["lines"]:
                     line_text = ""
                     line_fonts = set()
+                    line_spans = []
 
                     for span in line["spans"]:
                         text = span["text"].strip()
@@ -1673,6 +1674,7 @@ def extract_event_items_with_details(pdf_path):
                         # Guardar texto y fuente de la línea
                         line_text += f" {text}" if line_text else text
                         line_fonts.add(font_name)
+                        line_spans.append(text)
 
                     if not line_text:
                         continue
@@ -1690,8 +1692,8 @@ def extract_event_items_with_details(pdf_path):
                     if not in_eventos_section:
                         continue
 
-                    # 📌 Identificar encabezados si la línea usa exclusivamente fuentes de negrita
-                    if line_fonts.intersection(header_fonts):
+                    # 📌 Identificar encabezados si TODA la línea usa fuentes Century Gothic
+                    if line_fonts.issubset(header_fonts):
                         current_item = line_text.strip()
                         items[current_item] = []
                     elif current_item:
