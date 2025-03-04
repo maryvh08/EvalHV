@@ -443,11 +443,15 @@ def extract_experience_section_with_ocr(pdf_path):
 def extract_event_section_with_ocr(pdf_path):
     """
     Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
-    asegurando que los ítems sean correctamente identificados y separados.
+    asegurando que los ítems sean correctamente identificados.
     """
     text = extract_text_with_ocr(pdf_path)
     if not text:
         return []  # Retorna una lista vacía si no hay contenido
+
+    # Normalizar texto para evitar problemas con espacios y caracteres raros
+    text = re.sub(r"[^\w\s\n]", "", text)  # Elimina caracteres especiales
+    text = re.sub(r"\s+", " ", text)  # Reemplaza múltiples espacios con uno solo
 
     # Buscar inicio y fin de la sección
     start_match = re.search(r"(?i)\bEVENTOS\s*ORGANIZADOS\b", text)
@@ -457,7 +461,7 @@ def extract_event_section_with_ocr(pdf_path):
 
     start_idx = start_match.start()
     end_idx = len(text)
-
+    
     end_patterns = ["EXPERIENCIA LABORAL", "FIRMA", "Reconocimientos", "EXPERIENCIA EN ANEIAP"]
     for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
@@ -465,16 +469,18 @@ def extract_event_section_with_ocr(pdf_path):
             end_idx = start_idx + match.start()
             break
 
-    # Extraer la sección
+    # Extraer y limpiar la sección
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
         return []
 
-    # Filtrar y limpiar líneas
-    lines = org_text.split("\n")
-    events = [line.strip() for line in lines if re.search(r"\b\d{4}\b", line)]
+    # Obtener las líneas de eventos
+    event_lines = [line.strip() for line in org_text.split("\n") if line.strip()]
     
-    return events
+    # Filtrar líneas con eventos que contengan un año (ejemplo: 2024)
+    events = [line for line in event_lines if re.search(r"\b\d{4}\b", line)]
+    
+    return events  # Retorna una lista con los eventos extraídos
     
 def evaluate_cv_presentation(pdf_path):
     """
