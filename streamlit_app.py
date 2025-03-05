@@ -626,12 +626,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
 
     # Dividir los eventos en líneas
-    org_lines = extract_cleaned_lines(org_text)#Extraer texto del perfil
-    if isinstance(org_text, list):  
-        org_lines = org_text  # Si ya es una lista, úsala directamente  
-    else:  
-        org_lines = org_text.split("\n")  # Si es texto, divídelo en líneas 
-    org_lines = [line.strip() for line in org_lines if line.strip()]  # Eliminar líneas vacías
+    org_lines = extract_cleaned_lines(org_text)
+    org_lines= org_text.split("\n")
+    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+
+    #Dividir lineas de perfil
     candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
     candidate_profile_lines= candidate_profile_text.split("\n")
     candidate_profile_lines= [line.strip() for line in candidate_profile_lines if line.strip()] 
@@ -660,7 +659,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     org_line_results = []
     att_line_results = []
 
-    # Evaluación de renglones
+    # Evaluación de renglones de EXPERIENCIA EN ANEIAP
     for line in lines:
         line = line.strip()
         if not line:  # Ignorar líneas vacías
