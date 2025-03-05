@@ -433,42 +433,64 @@ def extract_event_section_with_ocr(pdf_path):
     if not text:
         return []  # Retorna lista vacía si no hay contenido
 
-    # 📌 Detectar inicio y fin de la sección
-    start_pattern = r"EVENTOS ORGANIZADOS"
-    end_patterns = [r"EXPERIENCIA LABORAL", r"FIRMA"]
+    text = extract_text_with_ocr(pdf_path)
 
-    start_match = re.search(start_pattern, text, re.IGNORECASE)
-    if not start_match:
-        return []  # No se encontró la sección
+    # Palabras clave para identificar inicio y fin de la sección
+    start_keyword = "EVENTOS ORGANIZADOS"
+    end_keywords = [
+        "EXPERIENCIA LABORAL",
+        "FIRMA",
+    ]
 
-    start_idx = start_match.end()  # Comenzar después del encabezado
-    end_idx = len(text)
-    
-    for pattern in end_patterns:
-        match = re.search(pattern, text[start_idx:], re.IGNORECASE)
-        if match:
-            end_idx = start_idx + match.start()
-            break  # Usar el primer patrón encontrado como límite
+    # Encontrar índice de inicio
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None  # No se encontró la sección
 
-    # 📌 Extraer la sección
+    # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
+
+    # Extraer la sección entre inicio y fin
     org_text = text[start_idx:end_idx].strip()
-    if not org_text:
-        return []
     
-    # 📌 Extraer ítems asegurando que cada línea sea un evento
+    # Filtrar y limpiar texto
+    exclude_lines = [
+        "a nivel capitular",
+        "a nivel nacional",
+        "a nivel seccional",
+        "reconocimientos individuales",
+        "reconocimientos grupales",
+        "trabajo capitular",
+        "trabajo nacional",
+        "nacional 2024",
+        "nacional 20212023",
+    ]
     org_lines = org_text.split("\n")
     cleaned_lines = []
-    seen_items = set()
-    
     for line in org_lines:
-        line = re.sub(r"[^\w\s]", "", line).strip()  # Limpiar caracteres especiales
-        normalized_line = re.sub(r"\s+", " ", line).lower()
-        
-        if normalized_line and normalized_line not in seen_items:
+        line = line.strip()
+        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
+        if (
+            normalized_line
+            and normalized_line not in exclude_lines
+            and normalized_line != start_keyword.lower()
+            and normalized_line not in [kw.lower() for kw in end_keywords]
+        ):
             cleaned_lines.append(line)
-            seen_items.add(normalized_line)
+
+    return "\n".join(cleaned_lines)
     
-    return cleaned_lines
+    # Debugging: Imprime líneas procesadas
+    print("Líneas procesadas:")
+    for line in cleaned_lines:
+        print(f"- {line}")
+    
+    return "\n".join(cleaned_lines)
     
 def evaluate_cv_presentation(pdf_path):
     """
