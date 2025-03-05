@@ -433,44 +433,44 @@ def extract_event_section_with_ocr(pdf_path):
     """
     text = extract_text_with_ocr(pdf_path)
     if not text:
-        return ""  # Retorna vacío si no hay contenido
+        return []  # Retorna lista vacía si no hay contenido
 
     # 📌 Detectar inicio y fin de la sección
-    start_pattern = "EVENTOS ORGANIZADOS"
-    end_patterns = ["EXPERIENCIA LABORAL", "FIRMA"]
+    start_pattern = r"EVENTOS ORGANIZADOS"
+    end_patterns = [r"EXPERIENCIA LABORAL", r"FIRMA"]
 
     start_match = re.search(start_pattern, text, re.IGNORECASE)
     if not start_match:
-        return ""  
+        return []  # No se encontró la sección
 
-    start_idx = start_match.start()
-
+    start_idx = start_match.end()  # Comenzar después del encabezado
     end_idx = len(text)
+    
     for pattern in end_patterns:
         match = re.search(pattern, text[start_idx:], re.IGNORECASE)
         if match:
             end_idx = start_idx + match.start()
-            break  
+            break  # Usar el primer patrón encontrado como límite
 
     # 📌 Extraer la sección
     org_text = text[start_idx:end_idx].strip()
     if not org_text:
-        return ""
-
-    # 📌 Limpiar y filtrar líneas repetidas
+        return []
+    
+    # 📌 Extraer ítems asegurando que cada línea sea un evento
     org_lines = org_text.split("\n")
     cleaned_lines = []
     seen_items = set()
-
+    
     for line in org_lines:
-        line = re.sub(r"[^\w\s]", "", line).strip()  
+        line = re.sub(r"[^\w\s]", "", line).strip()  # Limpiar caracteres especiales
         normalized_line = re.sub(r"\s+", " ", line).lower()
         
-        if normalized_line and normalized_line != "eventos organizados" and normalized_line not in seen_items:
+        if normalized_line and normalized_line not in seen_items:
             cleaned_lines.append(line)
             seen_items.add(normalized_line)
-
-    return "\n".join(cleaned_lines)
+    
+    return cleaned_lines
     
 def evaluate_cv_presentation(pdf_path):
     """
