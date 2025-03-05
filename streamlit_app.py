@@ -660,6 +660,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     att_line_results = []
 
     # Evaluación de renglones de EXPERIENCIA EN ANEIAP
+    # Evaluación de renglones
     for line in lines:
         line = line.strip()
         if not line:  # Ignorar líneas vacías
