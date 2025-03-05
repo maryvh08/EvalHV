@@ -628,7 +628,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Dividir los eventos en líneas
     org_lines = extract_cleaned_lines(org_text)
     org_lines= org_text.split("\n")
-    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+    org_lines = [line.strip() for line in org_lines if line.strip()]  # Eliminar líneas vacías
 
     #Dividir lineas de perfil
     candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
@@ -713,11 +713,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             continue
 
         # Dividir los eventos en líneas
-        if isinstance(org_text, list):  
-            org_lines = org_text  # Si ya es una lista, úsala directamente  
-        else:  
-            org_lines = org_text.split("\n")  # Si es texto, divídelo en líneas 
         org_lines = extract_cleaned_lines(org_text)
+        org_lines= att_text.split("\n")
         org_lines = [line.strip() for line in org_lines if line.strip]
 
         # Evaluación general de concordancia
@@ -739,7 +736,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         if not line:  # Ignorar líneas vacías
             continue
 
-        # Dividir los eventos en líneas
+        # Dividir los asistencia en líneas
         att_lines = extract_cleaned_lines(att_text)
         att_lines= att_text.split("\n")
         att_lines = [line.strip() for line in att_lines if line.strip]
