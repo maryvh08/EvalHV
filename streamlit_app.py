@@ -605,7 +605,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
 
     # Dividir los eventos en líneas
     org_lines = extract_cleaned_lines(org_text)#Extraer texto del perfil
-    org_lines= org_text.split("\n")
+    if isinstance(org_text, list):  
+        org_lines = org_text  # Si ya es una lista, úsala directamente  
+    else:  
+        org_lines = org_text.split("\n")  # Si es texto, divídelo en líneas 
     org_lines = [line.strip() for line in org_lines if line.strip()]  # Eliminar líneas vacías
     candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
     candidate_profile_lines= candidate_profile_text.split("\n")
