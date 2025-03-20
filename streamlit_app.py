@@ -2763,37 +2763,37 @@ def calculate_similarity_gemini(text1, text2):
         # Configura la API de Gemini
         GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
         genai.configure(api_key=GOOGLE_API_KEY)
-            # Carga el modelo Gemini Pro
-            model = genai.GenerativeModel('gemini-pro')
+        # Carga el modelo Gemini Pro
+        model = genai.GenerativeModel('gemini-pro')
+    
+        # Crea un prompt para comparar los dos textos
+        prompt = f"""
+        ¿Qué tan similares son los siguientes textos? 
+        Texto 1: {text1}
+        Texto 2: {text2}
+        Responde con un número del 0 al 100, donde 0 significa que no son nada similares y 100 significa que son idénticos.
+        """
+    
+        # Envía el prompt al modelo
+        response = model.generate_content(prompt)
         
-            # Crea un prompt para comparar los dos textos
-            prompt = f"""
-            ¿Qué tan similares son los siguientes textos? 
-            Texto 1: {text1}
-            Texto 2: {text2}
-            Responde con un número del 0 al 100, donde 0 significa que no son nada similares y 100 significa que son idénticos.
-            """
-        
-            # Envía el prompt al modelo
-            response = model.generate_content(prompt)
-            
-            # Extrae la respuesta del modelo
-            similarity_score_text = response.text.strip()
-        
-            # Intenta convertir la respuesta a un número
-            try:
-                similarity_score = int(similarity_score_text)
-            except ValueError:
-                print(f"⚠️ No se pudo convertir la respuesta a un número: {similarity_score_text}")
-                return 0
-        
-            # Asegúrate de que el puntaje esté en el rango de 0 a 100
-            similarity_score = max(0, min(100, similarity_score))
-        
-            return similarity_score
-        except Exception as e:
-            print(f"⚠️ Error al calcular la similitud con la API de Gemini: {e}")
+        # Extrae la respuesta del modelo
+        similarity_score_text = response.text.strip()
+    
+        # Intenta convertir la respuesta a un número
+        try:
+            similarity_score = int(similarity_score_text)
+        except ValueError:
+            print(f"⚠️ No se pudo convertir la respuesta a un número: {similarity_score_text}")
             return 0
+    
+        # Asegúrate de que el puntaje esté en el rango de 0 a 100
+        similarity_score = max(0, min(100, similarity_score))
+    
+        return similarity_score
+    except Exception as e:
+        print(f"⚠️ Error al calcular la similitud con la API de Gemini: {e}")
+        return 0
 
 def home_page():
     st.title("Bienvenido a EvalHVAN")
