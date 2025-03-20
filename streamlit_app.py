@@ -762,6 +762,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if att_func_match > 0 or att_profile_match > 0:
             att_line_results.append((line, att_func_match, att_profile_match))
+            
   # Calcular porcentajes de concordancia con perfil de candidato
   keyword_count = 0
   words = re.findall(r"\b\w+\b", candidate_profile_text)
