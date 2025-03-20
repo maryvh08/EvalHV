@@ -1735,7 +1735,7 @@ def evaluate_cv_presentation_with_headers(pdf_path):
     def evaluate_capitalization(text):
         sentences = re.split(r'[.!?]\s*', text.strip())  # Dividir en oraciones usando signos de puntuación
         sentences = [sentence for sentence in sentences if sentence]  # Filtrar oraciones vacías
-        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper()])
+        correct_caps = sum(1 for sentence in sentences if sentence and sentence[0].isupper())
         if not sentences:
             return 100  # Si no hay oraciones, asumimos puntaje perfecto
         return (correct_caps / len(sentences)) * 100
