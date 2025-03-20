@@ -1,3 +1,4 @@
+from fastapi import FastAPI, UploadFile, File
 import fitz
 import numpy as np
 import spacy
@@ -35,8 +36,12 @@ from spellchecker import SpellChecker
 import re
 from PIL import Image as PILImage
 from PIL import Image, ImageFilter, ImageOps, ImageEnhance
+from fastapi.responses import JSONResponse
+import shutil
 
 #Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app
+
+app = FastAPI()
 
 # Cargar las palabras clave y consejos desde los archivos JSON
 def load_indicators(filepath="indicators.json"):
