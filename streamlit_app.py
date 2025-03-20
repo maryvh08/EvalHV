@@ -876,7 +876,7 @@ for line in pres_cleaned_lines:
   spelling_score= round(((spelling+ capitalization_score)/2)*5,2)
   
   if total_lines == 0:
-      return 100  # Si no hay oraciones, asumimos coherencia perfecta.
+    return 100  # Si no hay oraciones, asumimos coherencia perfecta.
   
   # Calcular métricas coherencia
   # 1. Repetición de palabras
