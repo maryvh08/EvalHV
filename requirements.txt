@@ -16,3 +16,4 @@ language_tool_python
 nltk
 spacy
 textstat
+FastAPI
