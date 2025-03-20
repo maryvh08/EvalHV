@@ -878,19 +878,19 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
   # Calcular métricas coherencia
   # 1. Repetición de palabras
   def calculate_word_repetition(pres_cleaned_lines):
-      repeated_words = Counter()
-      for line in pres_cleaned_lines:
-          words = line.split()
-          repeated_words.update([word.lower() for word in words])
-  
-      total_words = sum(repeated_words.values())
-      unique_words = len(repeated_words)
-      most_common_word_count = repeated_words.most_common(1)[0][1] if repeated_words else 0
-      repeated_word_ratio = (most_common_word_count / total_words) if total_words > 0 else 0
-  
-      # Una menor repetición indica mayor calidad
-      repetition_score = 1 - repeated_word_ratio
-      return repetition_score, repeated_words
+    repeated_words = Counter()
+    for line in pres_cleaned_lines:
+        words = line.split()
+        repeated_words.update([word.lower() for word in words])
+
+    total_words = sum(repeated_words.values())
+    unique_words = len(repeated_words)
+    most_common_word_count = repeated_words.most_common(1)[0][1] if repeated_words else 0
+    repeated_word_ratio = (most_common_word_count / total_words) if total_words > 0 else 0
+    
+    # Una menor repetición indica mayor calidad
+    repetition_score = 1 - repeated_word_ratio
+    return repetition_score, repeated_words
   
   # 2. Fluidez entre oraciones
   def calculate_sentence_fluency(pres_cleaned_lines):
