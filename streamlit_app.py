@@ -2463,8 +2463,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     
     # Estilo de la tabla
     presentation_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo de encabezados
-        Color("#F0F0F0")), # Fondo para encabezados
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")), # Fondo para encabezados
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black), # Color de texto en encabezados
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'), # Centrar texto
         ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'), # Fuente en encabezados
