@@ -763,107 +763,107 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         if att_func_match > 0 or att_profile_match > 0:
             att_line_results.append((line, att_func_match, att_profile_match))
             
-      # Calcular porcentajes de concordancia con perfil de candidato
-      keyword_count = 0
-      words = re.findall(r"\b\w+\b", candidate_profile_text)
-      total_words = len(words)
-      for kw_set in position_indicators.values():
-          for keyword in kw_set:
-              keyword_count += candidate_profile_text.count(keyword)
-      
-      prop_keyword= keyword_count/total_words
-      
-      # Evitar división por cero
-      if prop_keyword<= 0.01:
-          keyword_match_percentage = 0
-      elif 0.01 <prop_keyword <= 0.15:
-          keyword_match_percentage = 25
-      elif 0.15 <prop_keyword <= 0.5:
-          keyword_match_percentage = 50
-      elif 0.5 <prop_keyword <= 0.75:
-          keyword_match_percentage = 75
-      else:
-          keyword_match_percentage = 100        
-      
-      # Evaluación de concordancia basada en palabras clave
-      if keyword_match_percentage == 100:
-          profile_func_match = 100.0
-          profile_profile_match = 100.0
-      else:
-          # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
-          prof_func_match = calculate_similarity_gemini(candidate_profile_text, functions_text)
-          prof_profile_match = calculate_similarity_gemini(candidate_profile_text, profile_text)
-          profile_func_match = keyword_match_percentage + prof_func_match
-          profile_profile_match = keyword_match_percentage + prof_profile_match
-      
-      # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
-      if line_results:  # Evitar división por cero si no hay ítems válidos
-          parcial_exp_func_match = sum([res[1] for res in line_results]) / len(line_results)
-          parcial_exp_profile_match = sum([res[2] for res in line_results]) / len(line_results)
-      else:
-          parcial_exp_func_match = 0
-          parcial_exp_profile_match = 0
-      
-      # Calcular porcentajes parciales respecto a los Eventos ANEIAP
-      if org_line_results:  # Evitar división por cero si no hay ítems válidos
-          parcial_org_func_match = sum([res[1] for res in org_line_results]) / len(org_line_results)
-          parcial_org_profile_match = sum([res[2] for res in org_line_results]) / len(org_line_results)
-      else:
-          parcial_org_func_match = 0
-          parcial_org_profile_match = 0
-      
-      # Calcular porcentajes parciales respecto a la asistencia a eventos
-      if att_line_results:  # Evitar división por cero si no hay ítems válidos
-          parcial_att_func_match = sum([res[1] for res in att_line_results]) / len(att_line_results)
-          parcial_att_profile_match = sum([res[2] for res in att_line_results]) / len(att_line_results)
-      else:
-          parcial_att_func_match = 0
-          parcial_att_profile_match = 0
-      
-      resume_text= evaluate_cv_presentation(pdf_path)
-      
-      # Inicializar corrector ortográfico
-      spell = SpellChecker(language='es')
-      
-      punctuation_errors = 0
-      
-      for i, line in enumerate(lines):
-          # Verificar si la oración termina con puntuación válida
-          if not line.endswith((".", "!", "?")):
-              punctuation_errors += 1
-      
-      # Limpiar y dividir el texto en líneas
-      pres_cleaned_lines = [line.strip() for line in resume_text.split("\n") if line.strip()]
-      total_lines = len(pres_cleaned_lines)
-      
-      # Métricas
-      total_words = 0
-      spelling_errors = 0
-      missing_capitalization = 0
-      incomplete_sentences = 0
-      punctuation_marks = 0
-      grammar_errors = 0
-      
-      for line in pres_cleaned_lines:
-          # Dividir en palabras y contar
-          words = re.findall(r'\b\w+\b', line)
-          total_words += len(words)
-      
-          # Ortografía
-          misspelled = spell.unknown(words)
-          spelling_errors += len(misspelled)
-      
-          # Verificar capitalización
-          if line and not line[0].isupper():
-              missing_capitalization += 1
-      
-          # Verificar que termine en signo de puntuación
-          if not line.endswith((".", "!", "?", ":", ";")):
-              incomplete_sentences += 1
-      
-          # Gramática básica: verificar patrones comunes (ejemplo)
-          grammar_errors += len(re.findall(r'\b(?:es|está|son)\b [^\w\s]', line))  # Ejemplo: "es" sin continuación válida
-      
+# Calcular porcentajes de concordancia con perfil de candidato
+keyword_count = 0
+words = re.findall(r"\b\w+\b", candidate_profile_text)
+total_words = len(words)
+for kw_set in position_indicators.values():
+  for keyword in kw_set:
+      keyword_count += candidate_profile_text.count(keyword)
+
+prop_keyword= keyword_count/total_words
+
+# Evitar división por cero
+if prop_keyword<= 0.01:
+  keyword_match_percentage = 0
+elif 0.01 <prop_keyword <= 0.15:
+  keyword_match_percentage = 25
+elif 0.15 <prop_keyword <= 0.5:
+  keyword_match_percentage = 50
+elif 0.5 <prop_keyword <= 0.75:
+  keyword_match_percentage = 75
+else:
+  keyword_match_percentage = 100        
+
+# Evaluación de concordancia basada en palabras clave
+if keyword_match_percentage == 100:
+  profile_func_match = 100.0
+  profile_profile_match = 100.0
+else:
+  # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
+  prof_func_match = calculate_similarity_gemini(candidate_profile_text, functions_text)
+  prof_profile_match = calculate_similarity_gemini(candidate_profile_text, profile_text)
+  profile_func_match = keyword_match_percentage + prof_func_match
+  profile_profile_match = keyword_match_percentage + prof_profile_match
+
+# Calcular porcentajes parciales respecto a la Experiencia ANEIAP
+if line_results:  # Evitar división por cero si no hay ítems válidos
+  parcial_exp_func_match = sum([res[1] for res in line_results]) / len(line_results)
+  parcial_exp_profile_match = sum([res[2] for res in line_results]) / len(line_results)
+else:
+  parcial_exp_func_match = 0
+  parcial_exp_profile_match = 0
+
+# Calcular porcentajes parciales respecto a los Eventos ANEIAP
+if org_line_results:  # Evitar división por cero si no hay ítems válidos
+  parcial_org_func_match = sum([res[1] for res in org_line_results]) / len(org_line_results)
+  parcial_org_profile_match = sum([res[2] for res in org_line_results]) / len(org_line_results)
+else:
+  parcial_org_func_match = 0
+  parcial_org_profile_match = 0
+
+# Calcular porcentajes parciales respecto a la asistencia a eventos
+if att_line_results:  # Evitar división por cero si no hay ítems válidos
+  parcial_att_func_match = sum([res[1] for res in att_line_results]) / len(att_line_results)
+  parcial_att_profile_match = sum([res[2] for res in att_line_results]) / len(att_line_results)
+else:
+  parcial_att_func_match = 0
+  parcial_att_profile_match = 0
+
+resume_text= evaluate_cv_presentation(pdf_path)
+
+# Inicializar corrector ortográfico
+spell = SpellChecker(language='es')
+
+punctuation_errors = 0
+
+for i, line in enumerate(lines):
+  # Verificar si la oración termina con puntuación válida
+  if not line.endswith((".", "!", "?")):
+      punctuation_errors += 1
+
+# Limpiar y dividir el texto en líneas
+pres_cleaned_lines = [line.strip() for line in resume_text.split("\n") if line.strip()]
+total_lines = len(pres_cleaned_lines)
+
+# Métricas
+total_words = 0
+spelling_errors = 0
+missing_capitalization = 0
+incomplete_sentences = 0
+punctuation_marks = 0
+grammar_errors = 0
+
+for line in pres_cleaned_lines:
+  # Dividir en palabras y contar
+  words = re.findall(r'\b\w+\b', line)
+  total_words += len(words)
+
+  # Ortografía
+  misspelled = spell.unknown(words)
+  spelling_errors += len(misspelled)
+
+  # Verificar capitalización
+  if line and not line[0].isupper():
+      missing_capitalization += 1
+
+  # Verificar que termine en signo de puntuación
+  if not line.endswith((".", "!", "?", ":", ";")):
+      incomplete_sentences += 1
+
+  # Gramática básica: verificar patrones comunes (ejemplo)
+  grammar_errors += len(re.findall(r'\b(?:es|está|son)\b [^\w\s]', line))  # Ejemplo: "es" sin continuación válida
+
   # Calcular métricas secundarias
   spelling = 1- (spelling_errors / total_words) 
   capitalization_score = 1- (missing_capitalization / total_lines)
