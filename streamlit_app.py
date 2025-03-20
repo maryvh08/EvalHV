@@ -875,9 +875,6 @@ for line in pres_cleaned_lines:
   grammar_score = round(((punctuation_error_rate+ grammar+ sentence_completion_score)/3)*5, 2)
   spelling_score= round(((spelling+ capitalization_score)/2)*5,2)
   
-  if total_lines == 0:
-    return 100  # Si no hay oraciones, asumimos coherencia perfecta.
-  
   # Calcular métricas coherencia
   # 1. Repetición de palabras
   def calculate_word_repetition(pres_cleaned_lines):
