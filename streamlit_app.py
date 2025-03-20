@@ -876,13 +876,13 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       spelling_score= round(((spelling+ capitalization_score)/2)*5,2)
         
     # Calcular métricas coherencia
-  # 1. Repetición de palabras
-  def calculate_word_repetition(pres_cleaned_lines):
+    # 1. Repetición de palabras
+    def calculate_word_repetition(pres_cleaned_lines):
     repeated_words = Counter()
     for line in pres_cleaned_lines:
-        words = line.split()
-        repeated_words.update([word.lower() for word in words])
-
+    words = line.split()
+    repeated_words.update([word.lower() for word in words])
+    
     total_words = sum(repeated_words.values())
     unique_words = len(repeated_words)
     most_common_word_count = repeated_words.most_common(1)[0][1] if repeated_words else 0
@@ -891,102 +891,102 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Una menor repetición indica mayor calidad
     repetition_score = 1 - repeated_word_ratio
     return repetition_score, repeated_words
-      
-  # 2. Fluidez entre oraciones
-  def calculate_sentence_fluency(pres_cleaned_lines):
-      """
-      Calcula el puntaje de fluidez de las oraciones basándose en conectores lógicos, puntuación,
-      y variabilidad en la longitud de las oraciones.
-      :param pres_cleaned_lines: Lista de líneas limpias del texto.
-      :return: Puntaje de fluidez de las oraciones entre 0 y 1.
-      """
-      # Lista de conectores lógicos comunes
-      logical_connectors = {
-      "adición": [
-          "además", "también", "asimismo", "igualmente", "de igual manera",
-          "por otro lado", "de la misma forma", "junto con"
-      ],
-      "causa": [
-          "porque", "ya que", "debido a", "dado que", "por motivo de",
-          "gracias a", "en razón de", "a causa de"
-      ],
-      "consecuencia": [
-          "por lo tanto", "así que", "en consecuencia", "como resultado",
-          "por esta razón", "de modo que", "lo que permitió", "de ahí que"
-      ],
-      "contraste": [
-          "sin embargo", "pero", "aunque", "no obstante", "a pesar de",
-          "por el contrario", "en cambio", "si bien", "mientras que"
-      ],
-      "condición": [
-          "si", "en caso de", "a menos que", "siempre que", "con la condición de",
-          "a no ser que", "en el supuesto de que"
-      ],
-      "tiempo": [
-          "mientras", "cuando", "después de", "antes de", "al mismo tiempo",
-          "posteriormente", "una vez que", "simultáneamente", "en el transcurso de"
-      ],
-      "descripción de funciones": [
-          "encargado de", "responsable de", "mis funciones incluían",
-          "lideré", "gestioné", "coordiné", "dirigí", "supervisé",
-          "desarrollé", "planifiqué", "ejecuté", "implementé", "organicé"
-      ],
-      "logros y resultados": [
-          "logré", "alcancé", "conseguí", "incrementé", "reduje",
-          "optimizé", "mejoré", "aumenté", "potencié", "maximicé",
-          "contribuí a", "obtuve", "permitió mejorar", "impactó positivamente en"
-      ],
-      "secuencia": [
-          "primero", "en primer lugar", "a continuación", "luego", "después",
-          "seguidamente", "posteriormente", "finalmente", "por último"
-      ],
-      "énfasis": [
-          "sobre todo", "en particular", "especialmente", "principalmente",
-          "específicamente", "vale la pena destacar", "conviene resaltar",
-          "cabe mencionar", "es importante señalar"
-      ],
-      "conclusión": [
-          "en resumen", "para concluir", "en definitiva", "en síntesis",
-          "como conclusión", "por ende", "por consiguiente", "para finalizar"
-      ]
-  }
-      connector_count = 0
-      total_lines = len(pres_cleaned_lines)
-  
-      # Validación para evitar divisiones por cero
-      if total_lines == 0:
-          return 0  # Sin líneas, no se puede calcular fluidez
-  
-      # Inicialización de métricas
-      punctuation_errors = 0
-      sentence_lengths = []
-  
-      for line in pres_cleaned_lines:
-          # Verificar errores de puntuación (oraciones sin punto final)
-          if not line.endswith((".", "!", "?")):
-              punctuation_errors += 1
-  
-          # Almacenar la longitud de cada oración
-          sentence_lengths.append(len(line.split()))
-  
-          # Contar conectores lógicos en la línea
-          for connector in logical_connectors:
-              if connector in line.lower():
-                  connector_count += 1
-  
-      # Calcular métricas individuales
-      avg_length = sum(sentence_lengths) / total_lines
-      length_variance = sum(
-          (len(line.split()) - avg_length) ** 2 for line in pres_cleaned_lines
-      ) / total_lines if total_lines > 1 else 0
-  
-      # Normalizar métricas entre 0 y 1
-      punctuation_score = max(0, 1 - (punctuation_errors / total_lines))  # 1 si no hay errores
-      connector_score = min(1, connector_count / total_lines)  # Máximo 1, basado en conectores
-      variance_penalty = max(0, 1 - length_variance / avg_length) if avg_length > 0 else 0
-  
-      # Calcular puntaje final de fluidez
-      fluency_score = (punctuation_score + connector_score + variance_penalty) / 3
+    
+    # 2. Fluidez entre oraciones
+    def calculate_sentence_fluency(pres_cleaned_lines):
+    """
+    Calcula el puntaje de fluidez de las oraciones basándose en conectores lógicos, puntuación,
+    y variabilidad en la longitud de las oraciones.
+    :param pres_cleaned_lines: Lista de líneas limpias del texto.
+    :return: Puntaje de fluidez de las oraciones entre 0 y 1.
+    """
+    # Lista de conectores lógicos comunes
+    logical_connectors = {
+    "adición": [
+    "además", "también", "asimismo", "igualmente", "de igual manera",
+    "por otro lado", "de la misma forma", "junto con"
+    ],
+    "causa": [
+    "porque", "ya que", "debido a", "dado que", "por motivo de",
+    "gracias a", "en razón de", "a causa de"
+    ],
+    "consecuencia": [
+    "por lo tanto", "así que", "en consecuencia", "como resultado",
+    "por esta razón", "de modo que", "lo que permitió", "de ahí que"
+    ],
+    "contraste": [
+    "sin embargo", "pero", "aunque", "no obstante", "a pesar de",
+    "por el contrario", "en cambio", "si bien", "mientras que"
+    ],
+    "condición": [
+    "si", "en caso de", "a menos que", "siempre que", "con la condición de",
+    "a no ser que", "en el supuesto de que"
+    ],
+    "tiempo": [
+    "mientras", "cuando", "después de", "antes de", "al mismo tiempo",
+    "posteriormente", "una vez que", "simultáneamente", "en el transcurso de"
+    ],
+    "descripción de funciones": [
+    "encargado de", "responsable de", "mis funciones incluían",
+    "lideré", "gestioné", "coordiné", "dirigí", "supervisé",
+    "desarrollé", "planifiqué", "ejecuté", "implementé", "organicé"
+    ],
+    "logros y resultados": [
+    "logré", "alcancé", "conseguí", "incrementé", "reduje",
+    "optimizé", "mejoré", "aumenté", "potencié", "maximicé",
+    "contribuí a", "obtuve", "permitió mejorar", "impactó positivamente en"
+    ],
+    "secuencia": [
+    "primero", "en primer lugar", "a continuación", "luego", "después",
+    "seguidamente", "posteriormente", "finalmente", "por último"
+    ],
+    "énfasis": [
+    "sobre todo", "en particular", "especialmente", "principalmente",
+    "específicamente", "vale la pena destacar", "conviene resaltar",
+    "cabe mencionar", "es importante señalar"
+    ],
+    "conclusión": [
+    "en resumen", "para concluir", "en definitiva", "en síntesis",
+    "como conclusión", "por ende", "por consiguiente", "para finalizar"
+    ]
+    }
+    connector_count = 0
+    total_lines = len(pres_cleaned_lines)
+    
+    # Validación para evitar divisiones por cero
+    if total_lines == 0:
+    return 0  # Sin líneas, no se puede calcular fluidez
+    
+    # Inicialización de métricas
+    punctuation_errors = 0
+    sentence_lengths = []
+    
+    for line in pres_cleaned_lines:
+    # Verificar errores de puntuación (oraciones sin punto final)
+    if not line.endswith((".", "!", "?")):
+    punctuation_errors += 1
+    
+    # Almacenar la longitud de cada oración
+    sentence_lengths.append(len(line.split()))
+    
+    # Contar conectores lógicos en la línea
+    for connector in logical_connectors:
+    if connector in line.lower():
+      connector_count += 1
+    
+    # Calcular métricas individuales
+    avg_length = sum(sentence_lengths) / total_lines
+    length_variance = sum(
+    (len(line.split()) - avg_length) ** 2 for line in pres_cleaned_lines
+    ) / total_lines if total_lines > 1 else 0
+    
+    # Normalizar métricas entre 0 y 1
+    punctuation_score = max(0, 1 - (punctuation_errors / total_lines))  # 1 si no hay errores
+    connector_score = min(1, connector_count / total_lines)  # Máximo 1, basado en conectores
+    variance_penalty = max(0, 1 - length_variance / avg_length) if avg_length > 0 else 0
+    
+    # Calcular puntaje final de fluidez
+    fluency_score = (punctuation_score + connector_score + variance_penalty) / 3
     return round(fluency_score, 2)  # Escalar a un rango de 0 a 100 y redondear
       
   # Calcular métricas individuales
