@@ -964,7 +964,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     for line in pres_cleaned_lines:
         # Verificar errores de puntuación (oraciones sin punto final)
         if not line.endswith((".", "!", "?")):
-        punctuation_errors += 1
+            punctuation_errors += 1
         
         # Almacenar la longitud de cada oración
         sentence_lengths.append(len(line.split()))
