@@ -984,14 +984,111 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         punctuation_score = max(0, 1 - (punctuation_errors / total_lines))  # 1 si no hay errores
         connector_score = min(1, connector_count / total_lines)  # Máximo 1, basado en conectores
         variance_penalty = max(0, 1 - length_variance / avg_length) if avg_length > 0 else 0
+    def evaluate_cv_presentation(pdf_path):
+    """
+    Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
+    coherencia básica, y claridad.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto limpio y análisis detallado de la presentación.
+    """
+    # Extraer texto completo de la hoja de vida
+    resume_text = extract_text_with_ocr(pdf_path)
+
+    if not resume_text:
+        return None, "No se pudo extraer el texto de la hoja de vida."
+
+    # Limpiar y filtrar texto
+    pres_cleaned_lines = []
+    lines = resume_text.split("\n")
+    for line in lines:
+        line = line.strip()
+        line = re.sub(r"[^\w\s.,;:!?-]", "", line)  # Eliminar caracteres no alfanuméricos excepto signos básicos
+        line = re.sub(r"\s+", " ", line)  # Normalizar espacios
+        if line:
+            pres_cleaned_lines.append(line)
+
+    # Evaluación de calidad de presentación
+    total_lines = len(pres_cleaned_lines)
+    if total_lines == 0:
+        return None, "El documento está vacío o no contiene texto procesable."
+
+    punctuation_errors = 0
     
-        # Calcular puntaje final de fluidez
-        fluency_score = (punctuation_score + connector_score + variance_penalty) / 3
-        return round(fluency_score, 2)  # Escalar a un rango de 0 a 100 y redondear
+    for i, line in enumerate(lines):
+        # Verificar si la oración termina con puntuación válida
+        if not line.endswith((".", "!", "?")):
+            punctuation_errors += 1
+
+    # Inicializar values
+    spelling = 0
+    capitalization_score= 0
+    sentence_completion_score = 0
+    grammar= 0
+    punctuation_error_rate=0
+    punctuation_errors=0
+    repetition_score = 0.0
+    fluency_score = 0.0
+
+    # Limpiar y dividir el texto en líneas
+    pres_cleaned_lines = [line.strip() for line in resume_text.split("\n") if line.strip()]
+    total_lines = len(pres_cleaned_lines)
+
+    # Métricas
+    total_words = 0
+    spelling_errors = 0
+    missing_capitalization = 0
+    incomplete_sentences = 0
+    punctuation_marks = 0
+    grammar_errors = 0
+
+    for line in pres_cleaned_lines:
+        # Dividir en palabras y contar
+        words = re.findall(r'\b\w+\b', line)
+        total_words += len(words)
+
+        # Ortografía
+        misspelled = spell.unknown(words)
+        spelling_errors += len(misspelled)
+
+        # Verificar capitalización
+        if line and not line[0].isupper():
+            missing_capitalization += 1
+
+        # Verificar que termine en signo de puntuación
+        if not line.endswith((".", "!", "?", ":", ";")):
+            incomplete_sentences += 1
+
+        # Gramática básica: verificar patrones comunes (ejemplo)
+        grammar_errors += len(re.findall(r'\b(?:es|está|son)\b [^\w\s]', line))  # Ejemplo: "es" sin continuación válida
+
+    # Calcular métricas secundarias
+    spelling = 1- (spelling_errors / total_words) 
+    capitalization_score = 1- (missing_capitalization / total_lines)
+    sentence_completion_score = 1- (incomplete_sentences / total_lines) 
+    grammar = 1- (grammar_errors / total_lines) 
+    punctuation_error_rate = 1- (punctuation_errors / total_lines)
+
+    #Calcular métricas principales
+    grammar_score = round(((punctuation_error_rate+ grammar+ sentence_completion_score)/3)*5, 2)
+    spelling_score= round(((spelling+ capitalization_score)/2)*5,2)
+
+    if total_lines == 0:
+        return 100  # Si no hay oraciones, asumimos coherencia perfecta.
+    if len(pres_cleaned_lines) == 0:
+        normalized_repetition_score = 0.0
+        normalized_fluency_score = 0.0
+    else:
+            # Calcular métricas individuales
+        repetition_score, repeated_words = calculate_word_repetition(pres_cleaned_lines)
+        fluency_score = calculate_sentence_fluency(pres_cleaned_lines)
+    
+        # Asegurar que repetition_score y fluency_score están entre 0 y 1 antes de la conversión
+        normalized_repetition_score = min(1, max(0, repetition_score))
+        normalized_fluency_score = min(1, max(0, fluency_score))
 
     # Calcular coherencia asegurando que el resultado final no pase de 5
-    coherence_score = round(min(5, (repetition_score + fluency_score) * 5), 2)
-    
+    coherence_score = round(min(5, (normalized_repetition_score + normalized_fluency_score) * 2.5), 2)
+
     # Puntaje general ponderado
     overall_score = round((spelling_score  + coherence_score + grammar_score) / 3, 2)
     
