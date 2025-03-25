@@ -950,6 +950,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             "como conclusión", "por ende", "por consiguiente", "para finalizar"
         ]
     }
+        fluency_score = 0
         connector_count = 0
         total_lines = len(pres_cleaned_lines)
     
