@@ -1025,57 +1025,57 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     att_score= (parcial_att_func_score+ parcial_att_profile_score)/2
     prof_score= (profile_func_score+ profile_profile_score)/2
     total_score= (overall_score+ exp_score+ org_score+ att_score+ profile_score)/5
-  
-  # Registrar la fuente personalizada
-  pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
-  pdfmetrics.registerFont(TTFont('CenturyGothicBold', 'Century_Gothic_Bold.ttf'))
-  
-  # Estilos
-  styles = getSampleStyleSheet()
-  styles.add(ParagraphStyle(name="CenturyGothic", fontName="CenturyGothic", fontSize=12, leading=14, alignment=TA_JUSTIFY))
-  styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14, alignment=TA_JUSTIFY))
-  
-  # Crear el documento PDF
-  report_path = f"Reporte_analisis_cargo_{candidate_name}_{position}_{chapter}.pdf"
-  doc = SimpleDocTemplate(report_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
-  
-  # Lista de elementos para el reporte
-  elements = []
-  
-  # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
-  def on_first_page(canvas, doc):
+    
+    # Registrar la fuente personalizada
+    pdfmetrics.registerFont(TTFont('CenturyGothic', 'Century_Gothic.ttf'))
+    pdfmetrics.registerFont(TTFont('CenturyGothicBold', 'Century_Gothic_Bold.ttf'))
+    
+    # Estilos
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name="CenturyGothic", fontName="CenturyGothic", fontSize=12, leading=14, alignment=TA_JUSTIFY))
+    styles.add(ParagraphStyle(name="CenturyGothicBold", fontName="CenturyGothicBold", fontSize=12, leading=14, alignment=TA_JUSTIFY))
+    
+    # Crear el documento PDF
+    report_path = f"Reporte_analisis_cargo_{candidate_name}_{position}_{chapter}.pdf"
+    doc = SimpleDocTemplate(report_path, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100, bottomMargin=72)
+    
+    # Lista de elementos para el reporte
+    elements = []
+    
+    # 📌 **3️⃣ AGREGAR PORTADA SIN FONDO**
+    def on_first_page(canvas, doc):
       """Dibuja una portada que ocupa toda la página."""
       draw_full_page_cover(canvas, portada_path, candidate_name, position, chapter)
-  
-  # Título del reporte centrado
-  title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
+    
+    # Título del reporte centrado
+    title_style = ParagraphStyle(name='CenteredTitle', fontName='CenturyGothicBold', fontSize=14, leading=16, alignment=1,  # 1 significa centrado, textColor=colors.black
                               )
-  # Convertir texto a mayúsculas
-  elements.append(PageBreak())
-  title_candidate_name = candidate_name.upper()
-  title_position = position.upper()
-  tittle_chapter= chapter.upper()
-  
-  elements.append(Paragraph(f"REPORTE DE ANÁLISIS {title_candidate_name} CARGO {title_position} {tittle_chapter}", title_style))
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Concordancia de items organizada en tabla con ajuste de texto
-  elements.append(Paragraph("<b>Análisis de perfil de aspirante:</b>", styles['CenturyGothicBold']))
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Encabezados de la tabla
-  prof_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
-  
-  #Agregar resultados parciales
-  prof_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{profile_func_match:.2f}%", f"{profile_profile_match:.2f}%"])
-  prof_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{profile_func_score:.2f}", f"{profile_profile_score:.2f}"])   
-  
-  # Crear la tabla con ancho de columnas ajustado
-  prof_item_table = Table(prof_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
-  
-  # Estilos de la tabla con ajuste de texto
-  prof_item_table.setStyle(TableStyle([
+    # Convertir texto a mayúsculas
+    elements.append(PageBreak())
+    title_candidate_name = candidate_name.upper()
+    title_position = position.upper()
+    tittle_chapter= chapter.upper()
+    
+    elements.append(Paragraph(f"REPORTE DE ANÁLISIS {title_candidate_name} CARGO {title_position} {tittle_chapter}", title_style))
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Concordancia de items organizada en tabla con ajuste de texto
+    elements.append(Paragraph("<b>Análisis de perfil de aspirante:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Encabezados de la tabla
+    prof_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+    
+    #Agregar resultados parciales
+    prof_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{profile_func_match:.2f}%", f"{profile_profile_match:.2f}%"])
+    prof_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{profile_func_score:.2f}", f"{profile_profile_score:.2f}"])   
+    
+    # Crear la tabla con ancho de columnas ajustado
+    prof_item_table = Table(prof_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    prof_item_table.setStyle(TableStyle([
       ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
       ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
       ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
@@ -1086,33 +1086,33 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
       ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
       ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
-  ]))
-  
-  # Agregar tabla a los elementos
-  elements.append(prof_item_table)
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Concordancia de items organizada en tabla con ajuste de texto
-  elements.append(Paragraph("<b>Análisis de ítems de asistencia a eventos:</b>", styles['CenturyGothicBold']))
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Encabezados de la tabla
-  att_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
-  
-  # Agregar datos de line_results a la tabla
-  for line, att_func_match, att_profile_match in att_line_results:
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(prof_item_table)
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Concordancia de items organizada en tabla con ajuste de texto
+    elements.append(Paragraph("<b>Análisis de ítems de asistencia a eventos:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Encabezados de la tabla
+    att_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+    
+    # Agregar datos de line_results a la tabla
+    for line, att_func_match, att_profile_match in att_line_results:
       att_table_data.append([Paragraph(line, styles['CenturyGothic']), f"{att_func_match:.2f}%", f"{att_profile_match:.2f}%"])
-  
-  #Agregar resultados parciales
-  att_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_att_func_match:.2f}%", f"{parcial_att_profile_match:.2f}%"])
-  att_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_att_func_score:.2f}", f"{parcial_att_profile_score:.2f}"])   
-  
-  # Crear la tabla con ancho de columnas ajustado
-  att_item_table = Table(att_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
-  
-  # Estilos de la tabla con ajuste de texto
-  att_item_table.setStyle(TableStyle([
+    
+    #Agregar resultados parciales
+    att_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_att_func_match:.2f}%", f"{parcial_att_profile_match:.2f}%"])
+    att_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_att_func_score:.2f}", f"{parcial_att_profile_score:.2f}"])   
+    
+    # Crear la tabla con ancho de columnas ajustado
+    att_item_table = Table(att_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    att_item_table.setStyle(TableStyle([
       ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
       ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
       ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
@@ -1123,39 +1123,39 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
       ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
       ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
-  ]))
-  
-  # Agregar tabla a los elementos
-  elements.append(att_item_table)
-  
-  elements.append(Spacer(1, 0.1 * inch))
-  
-  # Total de líneas analizadas en ASISTENCIA A EVENTOS ANEIAP
-  att_total_lines = len(att_line_results)
-  elements.append(Paragraph(f"• Total de asistencias a eventos analizadas: {att_total_lines}", styles['CenturyGothicBold']))
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Concordancia de items organizada en tabla con ajuste de texto
-  elements.append(Paragraph("<b>Análisis de ítems de eventos organizados:</b>", styles['CenturyGothicBold']))
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Encabezados de la tabla
-  org_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
-  
-  # Agregar datos de line_results a la tabla
-  for line, org_func_match, org_profile_match in org_line_results:
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(att_item_table)
+    
+    elements.append(Spacer(1, 0.1 * inch))
+    
+    # Total de líneas analizadas en ASISTENCIA A EVENTOS ANEIAP
+    att_total_lines = len(att_line_results)
+    elements.append(Paragraph(f"• Total de asistencias a eventos analizadas: {att_total_lines}", styles['CenturyGothicBold']))
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Concordancia de items organizada en tabla con ajuste de texto
+    elements.append(Paragraph("<b>Análisis de ítems de eventos organizados:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Encabezados de la tabla
+    org_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+    
+    # Agregar datos de line_results a la tabla
+    for line, org_func_match, org_profile_match in org_line_results:
       org_table_data.append([Paragraph(line, styles['CenturyGothic']), f"{org_func_match:.2f}%", f"{org_profile_match:.2f}%"])
-  
-  #Agregar resultados parciales
-  org_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_org_func_match:.2f}%", f"{parcial_org_profile_match:.2f}%"])
-  org_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_org_func_score:.2f}", f"{parcial_org_profile_score:.2f}"])   
-  
-  # Crear la tabla con ancho de columnas ajustado
-  org_item_table = Table(org_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
-  
-  # Estilos de la tabla con ajuste de texto
-  org_item_table.setStyle(TableStyle([
+    
+    #Agregar resultados parciales
+    org_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_org_func_match:.2f}%", f"{parcial_org_profile_match:.2f}%"])
+    org_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_org_func_score:.2f}", f"{parcial_org_profile_score:.2f}"])   
+    
+    # Crear la tabla con ancho de columnas ajustado
+    org_item_table = Table(org_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    org_item_table.setStyle(TableStyle([
       ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
       ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
       ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
@@ -1166,39 +1166,39 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
       ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
       ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
-  ]))
-  
-  # Agregar tabla a los elementos
-  elements.append(org_item_table)
-  
-  elements.append(Spacer(1, 0.1 * inch))
-  
-  # Total de líneas analizadas en ASISTENCIA A EVENTOS ANEIAP
-  org_total_lines = len(org_line_results)
-  elements.append(Paragraph(f"• Total de eventos analizados: {org_total_lines}", styles['CenturyGothicBold']))
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Concordancia de items organizada en tabla con ajuste de texto
-  elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Encabezados de la tabla
-  table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
-  
-  # Agregar datos de line_results a la tabla
-  for line, exp_func_match, exp_profile_match in line_results:
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(org_item_table)
+    
+    elements.append(Spacer(1, 0.1 * inch))
+    
+    # Total de líneas analizadas en ASISTENCIA A EVENTOS ANEIAP
+    org_total_lines = len(org_line_results)
+    elements.append(Paragraph(f"• Total de eventos analizados: {org_total_lines}", styles['CenturyGothicBold']))
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Concordancia de items organizada en tabla con ajuste de texto
+    elements.append(Paragraph("<b>Análisis de ítems:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Encabezados de la tabla
+    table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
+    
+    # Agregar datos de line_results a la tabla
+    for line, exp_func_match, exp_profile_match in line_results:
       table_data.append([Paragraph(line, styles['CenturyGothic']), f"{exp_func_match:.2f}%", f"{exp_profile_match:.2f}%"])
-  
-  #Agregar resultados parciales
-  table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_match:.2f}%", f"{parcial_exp_profile_match:.2f}%"])
-  table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_score:.2f}", f"{parcial_exp_profile_score:.2f}"])   
-  
-  # Crear la tabla con ancho de columnas ajustado
-  item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
-  
-  # Estilos de la tabla con ajuste de texto
-  item_table.setStyle(TableStyle([
+    
+    #Agregar resultados parciales
+    table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_match:.2f}%", f"{parcial_exp_profile_match:.2f}%"])
+    table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_exp_func_score:.2f}", f"{parcial_exp_profile_score:.2f}"])   
+    
+    # Crear la tabla con ancho de columnas ajustado
+    item_table = Table(table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    item_table.setStyle(TableStyle([
       ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
       ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
       ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
@@ -1209,25 +1209,25 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
       ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
       ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
-  ]))
-  
-  # Agregar tabla a los elementos
-  elements.append(item_table)
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Total de líneas analizadas en EXPERIENCIA EN ANEIAP
-  total_lines = len(line_results)
-  elements.append(Paragraph(f"• Total de experiencias analizadas: {total_lines}", styles['CenturyGothicBold']))
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Añadir resultados al reporte
-  elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Crear tabla de evaluación de presentación
-  presentation_table = Table(
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(item_table)
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Total de líneas analizadas en EXPERIENCIA EN ANEIAP
+    total_lines = len(line_results)
+    elements.append(Paragraph(f"• Total de experiencias analizadas: {total_lines}", styles['CenturyGothicBold']))
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Añadir resultados al reporte
+    elements.append(Paragraph("<b>Evaluación de la Presentación:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Crear tabla de evaluación de presentación
+    presentation_table = Table(
       [
           ["Criterio", "Puntaje"],
           ["Coherencia", f"{coherence_score:.2f}"],
@@ -1236,10 +1236,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
           ["Puntaje Total", f"{overall_score:.2f}"]
       ],
       colWidths=[3 * inch, 2 * inch]
-  )
-  
-  # Estilo de la tabla
-  presentation_table.setStyle(TableStyle([
+    )
+    
+    # Estilo de la tabla
+    presentation_table.setStyle(TableStyle([
       ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
       ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
       ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -1249,76 +1249,76 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
       ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
       ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-  ]))
-  
-  elements.append(presentation_table)
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  elements.append(Paragraph("<b>Consejos para mejorar la presentación de la hoja de vida:</b>", styles['CenturyGothicBold']))
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Consejos para coherencia de frases
-  if coherence_score < 3:
+    ]))
+    
+    elements.append(presentation_table)
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    elements.append(Paragraph("<b>Consejos para mejorar la presentación de la hoja de vida:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Consejos para coherencia de frases
+    if coherence_score < 3:
       elements.append(Paragraph(
           "• Mejora la redacción de las frases en tu hoja de vida. Asegúrate de que sean completas, coherentes y claras.",
           styles['CenturyGothic']
       ))
-  elif 3 <= coherence_score <= 4:
+    elif 3 <= coherence_score <= 4:
       elements.append(Paragraph(
           "• La redacción de tus frases es adecuada, pero revisa la fluidez entre oraciones para mejorar la coherencia general.",
           styles['CenturyGothic']
       ))
-  else:
+    else:
       elements.append(Paragraph(
           "• La redacción de las frases en tu hoja de vida es clara y coherente. Excelente trabajo.",
           styles['CenturyGothic']
       ))
-  elements.append(Spacer(1, 0.1 * inch))
-  # Consejos para ortografía
-  if spelling_score < 3:
+    elements.append(Spacer(1, 0.1 * inch))
+    # Consejos para ortografía
+    if spelling_score < 3:
       elements.append(Paragraph(
           "• Revisa cuidadosamente la ortografía de tu hoja de vida. Considera utilizar herramientas automáticas para detectar errores de escritura.",
           styles['CenturyGothic']
       ))
-  elif 3 <= spelling_score <= 4:
+    elif 3 <= spelling_score <= 4:
       elements.append(Paragraph(
           "• Tu ortografía es buena, pero aún puede mejorar. Lee tu hoja de vida en voz alta para identificar errores menores.",
           styles['CenturyGothic']
       ))
-  else:
+    else:
       elements.append(Paragraph(
           "• Tu ortografía es excelente. Continúa manteniendo este nivel de detalle en tus documentos.",
           styles['CenturyGothic']
       ))
-  elements.append(Spacer(1, 0.1 * inch))
-  
-  # Consejos para gramática
-  if grammar_score < 3:
+    elements.append(Spacer(1, 0.1 * inch))
+    
+    # Consejos para gramática
+    if grammar_score < 3:
       elements.append(Paragraph(
           "• Corrige el uso de mayúsculas. Asegúrate de que nombres propios, títulos y principios de frases estén correctamente capitalizados.",
           styles['CenturyGothic']
       ))
-  elif 3 <= grammar_score <= 4:
+    elif 3 <= grammar_score <= 4:
       elements.append(Paragraph(
           "• Tu uso de mayúsculas es aceptable, pero puede perfeccionarse. Revisa los encabezados y títulos para asegurarte de que estén bien escritos.",
           styles['CenturyGothic']
       ))
-  else:
+    else:
       elements.append(Paragraph(
           "• El uso de mayúsculas en tu hoja de vida es excelente. Continúa aplicando este estándar.",
           styles['CenturyGothic']
       ))
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  # Concordancia de items organizada en tabla con ajuste de texto
-  elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
-  elements.append(Spacer(1, 0.2 * inch))
-  # Encabezados de la tabla
-  table_indicator = [["Indicador", "Concordancia (%)"]]
-  
-  # Agregar datos de line_results a la tabla
-  for indicator, data in indicator_results.items():
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    # Concordancia de items organizada en tabla con ajuste de texto
+    elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    # Encabezados de la tabla
+    table_indicator = [["Indicador", "Concordancia (%)"]]
+    
+    # Agregar datos de line_results a la tabla
+    for indicator, data in indicator_results.items():
       relevant_lines = sum(
           any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
       )
@@ -1326,12 +1326,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
       if isinstance(percentage, (int, float)):  # Validar que sea un número
           table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%"])
-  
-  # Crear la tabla con ancho de columnas ajustado
-  indicator_table = Table(table_indicator, colWidths=[3 * inch, 2 * inch, 2 * inch])
-  
-  # Estilos de la tabla con ajuste de texto
-  indicator_table.setStyle(TableStyle([
+    
+    # Crear la tabla con ancho de columnas ajustado
+    indicator_table = Table(table_indicator, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    indicator_table.setStyle(TableStyle([
       ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
       ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
       ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
@@ -1342,16 +1342,16 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
       ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
       ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
-  ]))
-  
-  # Agregar tabla a los elementos
-  elements.append(indicator_table)
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Consejos para mejorar indicadores con baja presencia
-  low_performance_indicators = {k: v for k, v in indicator_results.items() if (relevant_lines/ total_lines) * 100 < 60.0}
-  if low_performance_indicators:
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(indicator_table)
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Consejos para mejorar indicadores con baja presencia
+    low_performance_indicators = {k: v for k, v in indicator_results.items() if (relevant_lines/ total_lines) * 100 < 60.0}
+    if low_performance_indicators:
       elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
       for indicator, result in low_performance_indicators.items():
           percentage = (relevant_lines/ total_lines)*100
@@ -1360,25 +1360,25 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
           for tip in advice[position].get(indicator, []):
               elements.append(Paragraph(f"  • {tip}", styles['CenturyGothic']))
               elements.append(Spacer(1, 0.1 * inch))
-  
-  elements.append(Spacer(1, 0.2 * inch))
-
-  elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
-
-  elements.append(Spacer(1, 0.2 * inch))
-
-  # Encabezados de la tabla global
-  global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
-  
-  # Agregar datos de global_results a la tabla
-  global_table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
-  global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
-  
-  # Crear la tabla con ancho de columnas ajustado
-  global_table = Table(global_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
-  
-  # Estilos de la tabla con ajuste de texto
-  global_table.setStyle(TableStyle([
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Encabezados de la tabla global
+    global_table_data = [["Criterio","Funciones del Cargo", "Perfil del Cargo"]]
+    
+    # Agregar datos de global_results a la tabla
+    global_table_data.append([Paragraph("<b>Concordancia Global</b>", styles['CenturyGothicBold']), f"{global_func_match:.2f}%", f"{global_profile_match:.2f}%"])
+    global_table_data.append([Paragraph("<b>Puntaje Global</b>", styles['CenturyGothicBold']), f"{func_score:.2f}", f"{profile_score:.2f}"])
+    
+    # Crear la tabla con ancho de columnas ajustado
+    global_table = Table(global_table_data, colWidths=[3 * inch, 2 * inch, 2 * inch])
+    
+    # Estilos de la tabla con ajuste de texto
+    global_table.setStyle(TableStyle([
       ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
       ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
       ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
@@ -1389,40 +1389,40 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
       ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
       ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
-  ]))
-  
-  # Agregar tabla a los elementos
-  elements.append(global_table)
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Interpretación de resultados
-  elements.append(Paragraph("<b>Interpretación de resultados globales:</b>", styles['CenturyGothicBold']))
-  elements.append(Spacer(1, 0.1 * inch))
-  if global_profile_match > 75 and global_func_match > 75:
+    ]))
+    
+    # Agregar tabla a los elementos
+    elements.append(global_table)
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Interpretación de resultados
+    elements.append(Paragraph("<b>Interpretación de resultados globales:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.1 * inch))
+    if global_profile_match > 75 and global_func_match > 75:
       elements.append(Paragraph(
           f" Alta Concordancia (> 0.75): El análisis revela que {candidate_name} tiene una excelente adecuación con las funciones del cargo de {position} y el perfil buscado. La experiencia detallada en su hoja de vida está estrechamente alineada con las responsabilidades y competencias requeridas para este rol crucial en la prevalencia del Capítulo. La alta concordancia indica que {candidate_name} está bien preparado para asumir este cargo y contribuir significativamente al éxito y la misión del Capítulo. Se recomienda proceder con el proceso de selección y considerar a {candidate_name} como una opción sólida para el cargo.",
           styles['CenturyGothic']
       ))
-  elif 60 < global_profile_match <= 75 or 60 < global_func_match <= 75:
+    elif 60 < global_profile_match <= 75 or 60 < global_func_match <= 75:
       elements.append(Paragraph(
           f" Buena Concordancia (> 0.60): El análisis muestra que {candidate_name} tiene una buena correspondencia con las funciones del cargo de {position} y el perfil deseado. Aunque su experiencia en la asociación es relevante, existe margen para mejorar. {candidate_name} muestra potencial para cumplir con el rol crucial en la prevalencia del Capítulo, pero se recomienda que continúe desarrollando sus habilidades y acumulando más experiencia relacionada con el cargo objetivo. Su candidatura debe ser considerada con la recomendación de enriquecimiento adicional.",
           styles['CenturyGothic']
       ))
-  elif 60 < global_profile_match or 60 < global_func_match:
+    elif 60 < global_profile_match or 60 < global_func_match:
       elements.append(Paragraph(
           f" Baja Concordancia (< 0.60): El análisis indica que {candidate_name} tiene una baja concordancia con los requisitos del cargo de {position} y el perfil buscado. Esto sugiere que aunque el aspirante posee algunas experiencias relevantes, su historial actual no cubre adecuadamente las competencias y responsabilidades necesarias para este rol crucial en la prevalencia del Capítulo. Se aconseja a {candidate_name} enfocarse en mejorar su perfil profesional y desarrollar las habilidades necesarias para el cargo. Este enfoque permitirá a {candidate_name} alinear mejor su perfil con los requisitos del puesto en futuras oportunidades.",
           styles['CenturyGothic']
       ))
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Añadir resultados al reporte
-  elements.append(Paragraph("<b>Puntajes totales:</b>", styles['CenturyGothicBold']))
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Crear tabla de evaluación de presentación
-  total_table = Table(
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Añadir resultados al reporte
+    elements.append(Paragraph("<b>Puntajes totales:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Crear tabla de evaluación de presentación
+    total_table = Table(
       [
           ["Criterio", "Puntaje"],
           ["Experiencia en ANEIAP", f"{exp_score:.2f}"],
@@ -1433,10 +1433,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
           ["Puntaje Total", f"{total_score:.2f}"]
       ],
       colWidths=[3 * inch, 2 * inch]
-  )
-  
-  # Estilo de la tabla
-  total_table.setStyle(TableStyle([
+    )
+    
+    # Estilo de la tabla
+    total_table.setStyle(TableStyle([
       ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
       ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
       ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -1446,90 +1446,90 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
       ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
       ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-  ]))
-  
-  elements.append(total_table)
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Generar comentarios para los resultados
-  comments = []
-  
-  if exp_score >= 4:
+    ]))
+    
+    elements.append(total_table)
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Generar comentarios para los resultados
+    comments = []
+    
+    if exp_score >= 4:
       comments.append("Tu experiencia en ANEIAP refleja un nivel destacado, lo que demuestra un conocimiento sólido de la organización y tus contribuciones en actividades clave. Continúa fortaleciendo tu participación para mantener este nivel y destacar aún más.")
-  elif exp_score >= 3:
+    elif exp_score >= 3:
       comments.append("Tu experiencia en ANEIAP es buena, pero podrías enfocarte en profundizar tus contribuciones y participación en actividades clave.")
-  else:
+    else:
       comments.append("Es importante fortalecer tu experiencia en ANEIAP. Considera involucrarte en más actividades y proyectos para adquirir una mayor comprensión y relevancia.")
-  
-  if att_score >= 4:
+    
+    if att_score >= 4:
       comments.append("Tu puntuación en asistencia a eventos es excelente. Esto muestra tu compromiso con el aprendizaje y el desarrollo profesional. Mantén esta consistencia participando en eventos relevantes que sigan ampliando tu red de contactos y conocimientos.")
-  elif att_score >= 3:
+    elif att_score >= 3:
       comments.append("Tu asistencia a eventos es adecuada, pero hay margen para participar más en actividades que refuercen tu aprendizaje y crecimiento profesional.")
-  else:
+    else:
       comments.append("Debes trabajar en tu participación en eventos. La asistencia regular a actividades puede ayudarte a desarrollar habilidades clave y expandir tu red de contactos.")
-  
-  if org_score >= 4:
+    
+    if org_score >= 4:
       comments.append("¡Perfecto! Tu desempeño en la organización de eventos es ejemplar. Esto indica habilidades destacadas de planificación, liderazgo y ejecución. Considera compartir tus experiencias con otros miembros para fortalecer el impacto organizacional.")
-  elif org_score >= 3:
+    elif org_score >= 3:
       comments.append("Tu desempeño en la organización de eventos es bueno, pero podrías centrarte en mejorar la planificación y la ejecución para alcanzar un nivel más destacado.")
-  else:
+    else:
       comments.append("Es importante trabajar en tus habilidades de organización de eventos. Considera involucrarte en proyectos donde puedas asumir un rol de liderazgo y planificación.")
-  
-  if prof_score >= 4:
+    
+    if prof_score >= 4:
       comments.append("Tu perfil presenta una buena alineación con las expectativas del cargo, destacando competencias clave. Mantén este nivel y continúa fortaleciendo áreas relevantes.")
-  elif prof_score >= 3:
+    elif prof_score >= 3:
       comments.append("El perfil presenta una buena alineación con las expectativas del cargo, aunque hay margen de mejora. Podrías enfocar tus esfuerzos en reforzar áreas específicas relacionadas con las competencias clave del puesto.")
-  else:
+    else:
       comments.append("Tu perfil necesita mejoras para alinearse mejor con las expectativas del cargo. Trabaja en desarrollar habilidades y competencias clave.")
-  
-  if overall_score >= 4:
+    
+    if overall_score >= 4:
       comments.append("La presentación de tu hoja de vida es excelente. Refleja profesionalismo y claridad. Continúa aplicando este enfoque para mantener un alto estándar.")
-  elif overall_score >= 3:
+    elif overall_score >= 3:
       comments.append("La presentación de tu hoja de vida es buena, pero puede mejorar en aspectos como coherencia, ortografía o formato general. Dedica tiempo a revisar estos detalles.")
-  else:
+    else:
       comments.append("La presentación de tu hoja de vida necesita mejoras significativas. Asegúrate de revisar la ortografía, la gramática y la coherencia para proyectar una imagen más profesional.")
-  
-  if total_score >= 4:
+    
+    if total_score >= 4:
       comments.append("Tu puntaje total indica un desempeño destacado en la mayoría de las áreas. Estás bien posicionado para asumir el rol. Mantén este nivel y busca perfeccionar tus fortalezas.")
-  elif total_score >= 3:
+    elif total_score >= 3:
       comments.append("Tu puntaje total es sólido, pero hay aspectos que podrían mejorarse. Enfócate en perfeccionar la presentación y el perfil para complementar tus fortalezas en experiencia, eventos y asistencia.")
-  else:
+    else:
       comments.append("El puntaje total muestra áreas importantes por mejorar. Trabaja en fortalecer cada criterio para presentar un perfil más competitivo y completo.")
-  
-  # Añadir comentarios al reporte
-  elements.append(Paragraph("<b>Comentarios sobre los Resultados:</b>", styles['CenturyGothicBold']))
-  elements.append(Spacer(1, 0.2 * inch))
-  for comment in comments:
+    
+    # Añadir comentarios al reporte
+    elements.append(Paragraph("<b>Comentarios sobre los Resultados:</b>", styles['CenturyGothicBold']))
+    elements.append(Spacer(1, 0.2 * inch))
+    for comment in comments:
       elements.append(Paragraph(comment, styles['CenturyGothic']))
       elements.append(Spacer(1, 0.1 * inch))
-  
-  elements.append(Spacer(1, 0.1 * inch))
-  
-  # Conclusión
-  elements.append(Paragraph(
+    
+    elements.append(Spacer(1, 0.1 * inch))
+    
+    # Conclusión
+    elements.append(Paragraph(
       f"Este análisis es generado debido a que es crucial tomar medidas estratégicas para garantizar que  los candidatos estén bien preparados para el rol de {position}. Los aspirantes con alta concordancia deben ser considerados seriamente para el cargo, ya que están en una posición favorable para asumir responsabilidades significativas y contribuir al éxito del Capítulo. Aquellos con buena concordancia deberían continuar desarrollando su experiencia, mientras que los aspirantes con  baja concordancia deberían recibir orientación para mejorar su perfil profesional y acumular más  experiencia relevante. Estas acciones asegurarán que el proceso de selección se base en una evaluación completa y precisa de las capacidades de cada candidato, fortaleciendo la gestión y el  impacto del Capítulo.",
       styles['CenturyGothic']
-  ))
-  
-  elements.append(Spacer(1, 0.2 * inch))
-  
-  # Mensaje de agradecimiento
-  elements.append(Paragraph(
+    ))
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Mensaje de agradecimiento
+    elements.append(Paragraph(
       f"Gracias, {candidate_name}, por tu interés en el cargo de {position} ¡Éxitos en tu proceso!",
       styles['CenturyGothic']
-  ))
-  
-  # 📌 **4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
-  def on_later_pages(canvas, doc):
+    ))
+    
+    # 📌 **4️⃣ CONFIGURAR EL FONDO PARA PÁGINAS POSTERIORES**
+    def on_later_pages(canvas, doc):
       """Aplica el fondo solo en páginas después de la portada."""
       add_background(canvas, background_path)
-  
-  # Construcción del PDF
-  doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
-  
-  # Descargar el reporte desde Streamlit
-  with open(report_path, "rb") as file:
+    
+    # Construcción del PDF
+    doc.build(elements, onFirstPage=on_first_page, onLaterPages=on_later_pages)
+    
+    # Descargar el reporte desde Streamlit
+    with open(report_path, "rb") as file:
       st.success("Reporte PDF generado exitosamente.")
       st.download_button(
           label="Descargar Reporte PDF",
