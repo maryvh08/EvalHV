@@ -955,7 +955,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         
         # Validación para evitar divisiones por cero
         if total_lines == 0:
-        return 0  # Sin líneas, no se puede calcular fluidez
+            return 0  # Sin líneas, no se puede calcular fluidez
     
     # Inicialización de métricas
     punctuation_errors = 0
