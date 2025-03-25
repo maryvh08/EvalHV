@@ -950,12 +950,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             "como conclusión", "por ende", "por consiguiente", "para finalizar"
         ]
     }
-        connector_count = 0
-        total_lines = len(pres_cleaned_lines)
+    connector_count = 0
+    total_lines = len(pres_cleaned_lines)
 
-        # Validation para evitar divisiones por cero
-        if total_lines == 0:
-            return 0  # Sin líneas, no se puede calcular fluidez
+    # Validation para evitar divisiones por cero
+    if total_lines == 0:
+        return 0  # Sin líneas, no se puede calcular fluidez
     
     # Inicialización de métricas
     punctuation_errors = 0
@@ -966,7 +966,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     fluency_score = calculate_sentence_fluency(pres_cleaned_lines)
     
     # Calcular coherencia asegurando que el resultado final no pase de 5
-    coherence_score = round(min(5, (repetition_score + fluency_score) * 2.5), 2)
+    coherence_score = round(min(5, (repetition_score + fluency_score) * 5), 2)
     
     # Puntaje general ponderado
     overall_score = round((spelling_score  + coherence_score + grammar_score) / 3, 2)
