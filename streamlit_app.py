@@ -2896,6 +2896,7 @@ def primary():
     st.image(imagen_primary, use_container_width=True)
     st.subheader("Versión Simplificada Hoja de Vida ANEIAP▶️")
     st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
+    
     # Entrada de datos del usuario
     candidate_name = st.text_input("Nombre del candidato:")
     uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
@@ -2905,7 +2906,7 @@ def primary():
     chapter = st.selectbox("Selecciona el Capítulo al que perteneces:", [
         "UNIGUAJIRA", "UNIMAGDALENA", "UNINORTE", "UNIATLÁNTICO", "CUC", "UNISIMÓN", "LIBREQUILLA", "UTB", "UFPS", "UNALMED", "UPBMED", "UDEA", "UTP", "UNALMA", "LIBRECALI", "UNIVALLE", "ICESI", "USC", "UDISTRITAL", "UNALBOG", "UPBMONTERÍA", "AREANDINA", "UNICÓDOBA"
     ])
-    
+
     #CONFIGURACIÓN BOTÓN GENERAR REPORTE
     if uploaded_file is not None:
         # Guarda el archivo en una carpeta temporal
@@ -2913,13 +2914,13 @@ def primary():
         os.makedirs("temp", exist_ok=True)  # Asegura que la carpeta existe
         with open(pdf_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
-    
+
         # Guarda la información en session_state para compartirla con secondary()
         st.session_state["pdf_path"] = pdf_path
         st.session_state["candidate_name"] = candidate_name
         st.session_state["position"] = position
         st.session_state["chapter"] = chapter
-    
+
     if st.button("Generar Reporte PDF"):
         if "pdf_path" in st.session_state:
             generate_report_with_background(
@@ -2942,17 +2943,18 @@ def primary():
     """,
     unsafe_allow_html=True
     )
-    
+
     # Botón para volver al inicio
     if st.button("⬅️ Volver al Inicio"):
         st.session_state.page = "home"
-
+    
 def secondary():
     imagen_secundary= 'Analizador Versión Descriptiva.jpg'
     st.title("Evaluador de Hoja de Vida ANEIAP")
     st.image(imagen_secundary, use_container_width=True)
     st.subheader("Versión Descriptiva Hoja de Vida ANEIAP⏩")
     st.write("Sube tu hoja de vida ANEIAP (en formato PDF) para evaluar tu perfil.")
+
     # Entrada de datos del usuario
     candidate_name = st.text_input("Nombre del candidato:")
     uploaded_file = st.file_uploader("Sube tu hoja de vida ANEIAP en formato PDF", type="pdf")
@@ -2962,20 +2964,20 @@ def secondary():
     chapter = st.selectbox("Selecciona el Capítulo al que perteneces:", [
         "UNIGUAJIRA", "UNIMAGDALENA", "UNINORTE", "UNIATLÁNTICO", "CUC", "UNISIMÓN", "LIBREQUILLA", "UTB", "UFPS", "UNALMED", "UPBMED", "UDEA", "UTP", "UNALMA", "LIBRECALI", "UNIVALLE", "ICESI", "USC", "UDISTRITAL", "UNALBOG", "UPBMONTERÍA", "AREANDINA", "UNICÓDOBA"
     ])
-    
+
     if uploaded_file is not None:
         # Guarda el archivo en una carpeta temporal
         pdf_path = os.path.join("temp", uploaded_file.name)
         os.makedirs("temp", exist_ok=True)  # Asegura que la carpeta existe
         with open(pdf_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
-    
+
         # Guarda la ruta del archivo en session_state
         st.session_state["pdf_path_secondary"] = pdf_path
         st.session_state["candidate_name_secondary"] = candidate_name
         st.session_state["position_secondary"] = position
         st.session_state["chapter_secondary"] = chapter
-    
+
     if st.button("Generar Reporte PDF"):
         if "pdf_path_secondary" in st.session_state:
             analyze_and_generate_descriptive_report_with_background(
@@ -2987,9 +2989,10 @@ def secondary():
             )
         else:
             st.error("Por favor, sube un archivo PDF para continuar.")
-            
+
+  
     st.write("---")
-    
+
     st.markdown(
         """
         <div style="text-align: center; font-weight: bold; font-size: 20px;">
@@ -3001,10 +3004,10 @@ def secondary():
     st.write("")
     imagen_plantilla = 'PLANTILLA PROPUESTA HV ANEIAP.jpg'
     st.image(imagen_plantilla, use_container_width=True)
-    
+
     link_url_plantilla = "https://drive.google.com/drive/folders/16i35reQpBq9eC2EuZfy6E6Uul5XVDN8D?usp=sharing"
     link_label_plantilla = "Explorar plantilla"
-    
+
     st.markdown(f"""
         <div style="display: flex; justify-content: center; gap: 20px;">
             <a href="{link_url_plantilla}" target="_blank" style="text-decoration:none;">
@@ -3023,28 +3026,30 @@ def secondary():
             </a>
         </div>
         """, unsafe_allow_html=True)
-st.write("---")
+        
+    st.write("---")
 
-st.markdown(
-    """
-    <div style="text-align: center; font-weight: bold; font-size: 20px;">
-    ⚠️ DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+    st.markdown(
+        """
+        <div style="text-align: center; font-weight: bold; font-size: 20px;">
+        ⚠️ DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-# Botón para volver al inicio
-if st.button("⬅️ Volver al Inicio"):
-    st.session_state.page = "home"
+    # Botón para volver al inicio
+    if st.button("⬅️ Volver al Inicio"):
+        st.session_state.page = "home"
 
+# Configuración del estado inicial de la sesión
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
+# Renderizado de la página según el estado
 if st.session_state.page == "home":
     home_page()
 elif st.session_state.page == "primary":
     primary()
 elif st.session_state.page == "secondary":
     secondary()
-
