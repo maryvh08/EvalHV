@@ -893,7 +893,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         return repetition_score, repeated_words
     
     # 2. Fluidez entre oraciones
-        def calculate_sentence_fluency(pres_cleaned_lines):
+    def calculate_sentence_fluency(pres_cleaned_lines):
         """
         Calcula el puntaje de fluidez de las oraciones basándose en conectores lógicos, puntuación,
         y variabilidad en la longitud de las oraciones.
