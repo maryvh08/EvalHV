@@ -2935,15 +2935,6 @@ def primary():
     
     st.write("---")
     
-    st.markdown(
-    """
-    <div style="text-align: center; font-weight: bold; font-size: 20px;">
-    ⚠️ DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
-    </div>
-    """,
-    unsafe_allow_html=True
-    )
-
     # Botón para volver al inicio
     if st.button("⬅️ Volver al Inicio"):
         st.session_state.page = "home"
@@ -3028,15 +3019,6 @@ def secondary():
         """, unsafe_allow_html=True)
         
     st.write("---")
-
-    st.markdown(
-        """
-        <div style="text-align: center; font-weight: bold; font-size: 20px;">
-        ⚠️ DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
     # Botón para volver al inicio
     if st.button("⬅️ Volver al Inicio"):
