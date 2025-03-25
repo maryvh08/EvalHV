@@ -2791,22 +2791,24 @@ def calculate_similarity_gemini(text1, text2):
         print(f"⚠️ Error al calcular la similitud con la API de Gemini: {e}")
         return 0
 
+# Página de Inicio (Home)
 def home_page():
     st.title("Bienvenido a EvalHVAN")
+
     st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁") 
     imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP.jpg'
     st.image(imagen_aneiap, use_container_width=True)
     st.write("Esta herramienta analiza el contenido de la hoja de vida ANEIAP, comparándola con las funciones y perfil del cargo al que aspira, evaluando por medio de indicadores los aspectos puntuales en los cuales se hace necesario el aspirante enfatice para asegurar que este se encuentre preparado.") 
     st.write("Esta fue diseñada para apoyar en el proceso de convocatoria a los evaluadores para calificar las hojas de vida de los aspirantes.")
     st.write("Como resultado de este análisis se generará un reporte PDF descargable.")
-    
+
     st.write("")
-    
+
     # Split Page
     st.write("## 🔍 Selecciona el tipo de evaluación de Hoja de Vida")
-    
+
     col1, col2 = st.columns(2)
-    
+
     with col1:
         st.subheader("▶️ Versión Simplificada")
         st.write("Esta versión analiza la hoja de vida de forma mucho más rápida evaluando cada una de las experiencias como listado.")
@@ -2821,7 +2823,7 @@ def home_page():
         """)
         if st.button("Ir a Evaluador Simplificado"):
             st.session_state.page = "primary"
-    
+
     with col2:
         st.subheader("⏩ Versión Descriptiva")
         st.write("Esta versión es más cercana al entorno profesional permitiendo analizar la descripción de cada una de las experiencia de la hoja de vida")
@@ -2836,17 +2838,17 @@ def home_page():
         """)
         if st.button("Ir a Evaluador Descriptivo"):
             st.session_state.page = "secondary"
-    
+
     st.write("---") 
-    
+
     st.write("ℹ️ Aquí puedes encontrar información si quieres saber un poco más") 
-    
+
     # Botones de información
     link_url_cargos = "https://drive.google.com/drive/folders/1hSUChvaYymUJ6g-IEfiY4hYqikePsQ9P?usp=drive_link"
     link_label_cargos = "Info cargos"
     link_url_indicadores = "https://docs.google.com/document/d/1BM07wuVaXEWcdurTRr8xBzjsB1fiWt6wGqOzLiyQBs8/edit?usp=drive_link"
     link_label_indicadores = "Info indicadores"
-    
+
     st.markdown(f"""
         <div style="display: flex; justify-content: center; gap: 20px;">
             <a href="{link_url_cargos}" target="_blank" style="text-decoration:none;">
@@ -2879,9 +2881,9 @@ def home_page():
             </a>
         </div>
         """, unsafe_allow_html=True)
-    
+
     st.write("---")
-    
+
     st.markdown("""
         <div style="text-align: center; font-weight: bold; font-size: 20px;">
         La herramienta tiene disponible dos versiones, de modo que se pueda evaluar la HV con el formato actual y una propuesta para incluir descripciones de los proyectos/cargos ocupados.
