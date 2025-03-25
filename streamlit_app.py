@@ -952,30 +952,28 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     }
         connector_count = 0
         total_lines = len(pres_cleaned_lines)
-        
-        fluency_score = 0 # fix NameError issue, if function return early
 
         # Validation para evitar divisiones por cero
         if total_lines == 0:
             return 0  # Sin líneas, no se puede calcular fluidez
     
-        # Inicialización de métricas
-        punctuation_errors = 0
-        sentence_lengths = []
-          
-        # Calcular métricas individuales
-        repetition_score, repeated_words = calculate_word_repetition(pres_cleaned_lines)
-        fluency_score = calculate_sentence_fluency(pres_cleaned_lines)
-        
-        # Asegurar que repetition_score y fluency_score están entre 0 y 1 antes de la conversión
-        normalized_repetition_score = min(1, max(0, repetition_score))
-        normalized_fluency_score = min(1, max(0, fluency_score))
-        
-        # Calcular coherencia asegurando que el resultado final no pase de 5
-        coherence_score = round(min(5, (normalized_repetition_score + normalized_fluency_score) * 2.5), 2)
-        
-        # Puntaje general ponderado
-        overall_score = round((spelling_score  + coherence_score + grammar_score) / 3, 2)
+    # Inicialización de métricas
+    punctuation_errors = 0
+    sentence_lengths = []
+      
+    # Calcular métricas individuales
+    repetition_score, repeated_words = calculate_word_repetition(pres_cleaned_lines)
+    fluency_score = calculate_sentence_fluency(pres_cleaned_lines)
+    
+    # Asegurar que repetition_score y fluency_score están entre 0 y 1 antes de la conversión
+    normalized_repetition_score = min(1, max(0, repetition_score))
+    normalized_fluency_score = min(1, max(0, fluency_score))
+    
+    # Calcular coherencia asegurando que el resultado final no pase de 5
+    coherence_score = round(min(5, (normalized_repetition_score + normalized_fluency_score) * 2.5), 2)
+    
+    # Puntaje general ponderado
+    overall_score = round((spelling_score  + coherence_score + grammar_score) / 3, 2)
     
     # Calculo puntajes parciales
     parcial_exp_func_score = round((parcial_exp_func_match * 5) / 100, 2)
