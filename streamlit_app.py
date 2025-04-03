@@ -647,8 +647,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     att_lines = [line.strip() for line in att_lines if line.strip()]  # Eliminar líneas vacías
 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
-    chapter_indicators = indicators.get(chapter, {})
-    position_indicators = chapter_indicators.get(position, {})
+    position_indicators = indicators.get(position, {})
 
     indicator_results = calculate_all_indicators(lines, position_indicators)
 
@@ -679,8 +678,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
     
         # Obtener los indicadores y palabras clave para el cargo seleccionado
-        chapter_indicators = indicators.get(chapter, {})
-        position_indicators = chapter_indicators.get(position, {})
+        position_indicators = indicators.get(position, {})
         indicator_results = {}
 
         # Calcular el porcentaje por cada indicador
@@ -701,9 +699,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             func_match = 100.0
             profile_match = 100.0
         else:
-            # Calcular similitud con Gemini API
-            func_match = calculate_similarity_gemini(line, functions_text)
-            profile_match = calculate_similarity_gemini(line, profile_text)
+            # Calcular similitud 
+            func_match = calculate_similarity(line, functions_text)
+            profile_match = calculate_similarity(line, profile_text)
         
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if func_match > 0 or profile_match > 0:
@@ -731,9 +729,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             org_func_match = 100.0
             org_profile_match = 100.0
         else:
-            # Calcular similitud con Gemini API
-            org_func_match = calculate_similarity_gemini(line, functions_text)
-            org_profile_match = calculate_similarity_gemini(line, profile_text)
+            # Calcular similitud
+            org_func_match = calculate_similarity(line, functions_text)
+            org_profile_match = calculate_similarity(line, profile_text)
         
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if org_func_match > 0 or org_profile_match > 0:
@@ -755,9 +753,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             att_func_match = 100.0
             att_profile_match = 100.0
         else:
-            # Calcular similitud con Gemini API
-            att_func_match = calculate_similarity_gemini(line, functions_text)
-            att_profile_match = calculate_similarity_gemini(line, profile_text)
+            # Calcular similitud
+            att_func_match = calculate_similarity(line, functions_text)
+            att_profile_match = calculate_similarity(line, profile_text)
         
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if att_func_match > 0 or att_profile_match > 0:
