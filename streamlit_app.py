@@ -602,173 +602,173 @@ def extract_attendance_section_with_ocr(pdf_path):
     return "\n".join(att_cleaned_lines)
 
 def generate_report_with_background(pdf_path, position, candidate_name,background_path, chapter):
-"""
-Genera un reporte con un fondo en cada página.
-:param pdf_path: Ruta del PDF.
-:param position: Cargo al que aspira.
-:param candidate_name: Nombre del candidato.
-:param background_path: Ruta de la imagen de fondo.
-:param chapter: Capítulo del Candidato
-"""
-experience_text = extract_experience_section_with_ocr(pdf_path)
-if not experience_text:
-st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
-return
-
-org_text = extract_event_section_with_ocr(pdf_path)
-if not org_text:
-    st.error("No se encontró la sección 'EVENTOS ORGANIZADOS' en el PDF.")
+    """
+    Genera un reporte con un fondo en cada página.
+    :param pdf_path: Ruta del PDF.
+    :param position: Cargo al que aspira.
+    :param candidate_name: Nombre del candidato.
+    :param background_path: Ruta de la imagen de fondo.
+    :param chapter: Capítulo del Candidato
+    """
+    experience_text = extract_experience_section_with_ocr(pdf_path)
+    if not experience_text:
+    st.error("No se encontró la sección 'EXPERIENCIA EN ANEIAP' en el PDF.")
     return
-
-att_text = extract_attendance_section_with_ocr(pdf_path)
-if not att_text:
-    st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
-    return
-
-resume_text= evaluate_cv_presentation(pdf_path)
-if not resume_text:
-    st.error("No se encontró el texto de la hoja de vida")
-    return
-
-candidate_profile_text= extract_profile_section_with_ocr(pdf_path)
-if not candidate_profile_text:
-    st.error("No se encontró la sección 'Perfil' en el PDF.")
-    return
-
-# Dividir la experiencia en líneas
-lines = extract_cleaned_lines(experience_text)
-lines= experience_text.split("\n")
-lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
-
-# Dividir los eventos en líneas
-org_lines = extract_cleaned_lines(org_text)
-org_lines= org_text.split("\n")
-org_lines = [line.strip() for line in org_lines if line.strip()]  # Eliminar líneas vacías
-
-#Dividir lineas de perfil
-candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
-candidate_profile_lines= candidate_profile_text.split("\n")
-candidate_profile_lines= [line.strip() for line in candidate_profile_lines if line.strip()] 
-
-# Dividir la asistencia en líneas
-att_lines = extract_cleaned_lines(att_text)
-att_lines= att_text.split("\n")
-att_lines = [line.strip() for line in att_lines if line.strip()]  # Eliminar líneas vacías
-
-# Obtener los indicadores y palabras clave para el cargo seleccionado
-position_indicators = indicators.get(position, {})
-
-indicator_results = calculate_all_indicators(lines, position_indicators)
-
-# Cargar funciones y perfil
-try:
-    with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
-        functions_text = func_doc[0].get_text()
-    with fitz.open(f"Perfiles/P{position}.pdf") as profile_doc:
-        profile_text = profile_doc[0].get_text()
-except Exception as e:
-    st.error(f"Error al cargar funciones o perfil: {e}")
-    return
-
-line_results = []
-org_line_results = []
-att_line_results = []
-
-# Evaluación de renglones de EXPERIENCIA EN ANEIAP
-# Evaluación de renglones
-for line in lines:
-    line = line.strip()
-    if not line:  # Ignorar líneas vacías
-        continue
-
+    
+    org_text = extract_event_section_with_ocr(pdf_path)
+    if not org_text:
+        st.error("No se encontró la sección 'EVENTOS ORGANIZADOS' en el PDF.")
+        return
+    
+    att_text = extract_attendance_section_with_ocr(pdf_path)
+    if not att_text:
+        st.error("No se encontró la sección 'Asistencia a Eventos ANEIAP' en el PDF.")
+        return
+    
+    resume_text= evaluate_cv_presentation(pdf_path)
+    if not resume_text:
+        st.error("No se encontró el texto de la hoja de vida")
+        return
+    
+    candidate_profile_text= extract_profile_section_with_ocr(pdf_path)
+    if not candidate_profile_text:
+        st.error("No se encontró la sección 'Perfil' en el PDF.")
+        return
+    
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
-    lines = experience_text.split("\n")
+    lines= experience_text.split("\n")
     lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
-
+    
+    # Dividir los eventos en líneas
+    org_lines = extract_cleaned_lines(org_text)
+    org_lines= org_text.split("\n")
+    org_lines = [line.strip() for line in org_lines if line.strip()]  # Eliminar líneas vacías
+    
+    #Dividir lineas de perfil
+    candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
+    candidate_profile_lines= candidate_profile_text.split("\n")
+    candidate_profile_lines= [line.strip() for line in candidate_profile_lines if line.strip()] 
+    
+    # Dividir la asistencia en líneas
+    att_lines = extract_cleaned_lines(att_text)
+    att_lines= att_text.split("\n")
+    att_lines = [line.strip() for line in att_lines if line.strip()]  # Eliminar líneas vacías
+    
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
-    indicator_results = {}
-
-    # Calcular el porcentaje por cada indicador
-    indicator_results = calculate_indicators_for_report(lines, position_indicators)
-    for indicator, keywords in position_indicators.items():
+    
+    indicator_results = calculate_all_indicators(lines, position_indicators)
+    
+    # Cargar funciones y perfil
+    try:
+        with fitz.open(f"Funciones//F{position}.pdf") as func_doc:
+            functions_text = func_doc[0].get_text()
+        with fitz.open(f"Perfiles/P{position}.pdf") as profile_doc:
+            profile_text = profile_doc[0].get_text()
+    except Exception as e:
+        st.error(f"Error al cargar funciones o perfil: {e}")
+        return
+    
+    line_results = []
+    org_line_results = []
+    att_line_results = []
+    
+    # Evaluación de renglones de EXPERIENCIA EN ANEIAP
+    # Evaluación de renglones
+    for line in lines:
+        line = line.strip()
+        if not line:  # Ignorar líneas vacías
+            continue
+    
+        # Dividir la experiencia en líneas
+        lines = extract_cleaned_lines(experience_text)
+        lines = experience_text.split("\n")
+        lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
+    
+        # Obtener los indicadores y palabras clave para el cargo seleccionado
+        position_indicators = indicators.get(position, {})
+        indicator_results = {}
+    
+        # Calcular el porcentaje por cada indicador
         indicator_results = calculate_indicators_for_report(lines, position_indicators)
-
-    # Calcular la presencia total (si es necesario)
-    total_presence = sum(result["percentage"] for result in indicator_results.values())
-
-    # Normalizar los porcentajes si es necesario
+        for indicator, keywords in position_indicators.items():
+            indicator_results = calculate_indicators_for_report(lines, position_indicators)
+    
+        # Calcular la presencia total (si es necesario)
+        total_presence = sum(result["percentage"] for result in indicator_results.values())
+    
+        # Normalizar los porcentajes si es necesario
+        if total_presence > 0:
+            for indicator in indicator_results:
+                indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
+    
+        # Evaluación general de concordancia
+        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+            func_match = 100.0
+            profile_match = 100.0
+        else:
+            # Calcular similitud 
+            func_match = calculate_similarity(line, functions_text)
+            profile_match = calculate_similarity(line, profile_text)
+        
+        # Solo agregar al reporte si no tiene 0% en ambas métricas
+        if func_match > 0 or profile_match > 0:
+            line_results.append((line, func_match, profile_match))
+    
+    # Normalización de los resultados de indicadores
+    total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
     if total_presence > 0:
         for indicator in indicator_results:
             indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
-
-    # Evaluación general de concordancia
-    if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
-        func_match = 100.0
-        profile_match = 100.0
-    else:
-        # Calcular similitud 
-        func_match = calculate_similarity(line, functions_text)
-        profile_match = calculate_similarity(line, profile_text)
     
-    # Solo agregar al reporte si no tiene 0% en ambas métricas
-    if func_match > 0 or profile_match > 0:
-        line_results.append((line, func_match, profile_match))
-
-# Normalización de los resultados de indicadores
-total_presence = sum(indicator["percentage"] for indicator in indicator_results.values())
-if total_presence > 0:
-    for indicator in indicator_results:
-        indicator_results[indicator]["percentage"] = (indicator_results[indicator]["percentage"] / total_presence) * 100
-
-# Evaluación de renglones eventos organizados
-for line in org_lines:
-    line = line.strip()
-    if not line:  # Ignorar líneas vacías
-        continue
-
-    # Dividir los eventos en líneas
-    org_lines = extract_cleaned_lines(org_text)
-    org_lines= att_text.split("\n")
-    org_lines = [line.strip() for line in org_lines if line.strip]
-
-    # Evaluación general de concordancia
-    if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
-        org_func_match = 100.0
-        org_profile_match = 100.0
-    else:
-        # Calcular similitud
-        org_func_match = calculate_similarity(line, functions_text)
-        org_profile_match = calculate_similarity(line, profile_text)
+    # Evaluación de renglones eventos organizados
+    for line in org_lines:
+        line = line.strip()
+        if not line:  # Ignorar líneas vacías
+            continue
     
-    # Solo agregar al reporte si no tiene 0% en ambas métricas
-    if org_func_match > 0 or org_profile_match > 0:
-        org_line_results.append((line, org_func_match, org_profile_match))
-
-# Evaluación de renglones asistencia a eventos
-for line in att_lines:
-    line = line.strip()
-    if not line:  # Ignorar líneas vacías
-        continue
-
-    # Dividir los asistencia en líneas
-    att_lines = extract_cleaned_lines(att_text)
-    att_lines= att_text.split("\n")
-    att_lines = [line.strip() for line in att_lines if line.strip]
-
-    # Evaluación general de concordancia
-    if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
-        att_func_match = 100.0
-        att_profile_match = 100.0
-    else:
-        # Calcular similitud
-        att_func_match = calculate_similarity(line, functions_text)
-        att_profile_match = calculate_similarity(line, profile_text)
+        # Dividir los eventos en líneas
+        org_lines = extract_cleaned_lines(org_text)
+        org_lines= att_text.split("\n")
+        org_lines = [line.strip() for line in org_lines if line.strip]
     
-    # Solo agregar al reporte si no tiene 0% en ambas métricas
-    if att_func_match > 0 or att_profile_match > 0:
-        att_line_results.append((line, att_func_match, att_profile_match))
+        # Evaluación general de concordancia
+        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+            org_func_match = 100.0
+            org_profile_match = 100.0
+        else:
+            # Calcular similitud
+            org_func_match = calculate_similarity(line, functions_text)
+            org_profile_match = calculate_similarity(line, profile_text)
+        
+        # Solo agregar al reporte si no tiene 0% en ambas métricas
+        if org_func_match > 0 or org_profile_match > 0:
+            org_line_results.append((line, org_func_match, org_profile_match))
+    
+    # Evaluación de renglones asistencia a eventos
+    for line in att_lines:
+        line = line.strip()
+        if not line:  # Ignorar líneas vacías
+            continue
+    
+        # Dividir los asistencia en líneas
+        att_lines = extract_cleaned_lines(att_text)
+        att_lines= att_text.split("\n")
+        att_lines = [line.strip() for line in att_lines if line.strip]
+    
+        # Evaluación general de concordancia
+        if any(keyword.lower() in line.lower() for kw_set in position_indicators.values() for keyword in kw_set):
+            att_func_match = 100.0
+            att_profile_match = 100.0
+        else:
+            # Calcular similitud
+            att_func_match = calculate_similarity(line, functions_text)
+            att_profile_match = calculate_similarity(line, profile_text)
+        
+        # Solo agregar al reporte si no tiene 0% en ambas métricas
+        if att_func_match > 0 or att_profile_match > 0:
+            att_line_results.append((line, att_func_match, att_profile_match))
             
     # Calcular porcentajes de concordancia con perfil de candidato
     keyword_count = 0
