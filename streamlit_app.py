@@ -798,56 +798,37 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if att_func_match > 0 or att_profile_match > 0:
             att_line_results.append((line, att_func_match, att_profile_match))
-            
-    def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators):
+
+    total_keywords = 0
+    matched_keywords = 0
+
+    for indicator, keywords in position_indicators.items():
+        total_keywords += len(keywords) # set total keywords
+
+        prompt = f"""
+            Analiza el siguiente texto: '{candidate_profile_text}'.
+            Indica si las siguientes palabras clave están presentes en el texto: {', '.join(keywords)}.
+            Responde 'Si' o 'No' por cada palabra clave.
         """
-        Calculates the keyword match percentage between the candidate's profile text and the
-        specified position indicators using the Gemini API for improved accuracy.
-    
-        :param candidate_profile_text: Candidate's profile section text.
-        :param position_indicators: A dictionary of keywords associated with the position.
-        :return: A keyword match percentage (0-100). Returns None if an error occurs or it doesn't exist.
-        """
-    
-        if not candidate_profile_text or not isinstance(candidate_profile_text, str):
-            print("⚠️ Invalid input: candidate_profile_text missing or invalid")
-            return None
-    
-        if not position_indicators:
-            print("⚠️ Invalid input: position_indicators missing or invalid")
-            return None
-    
-        total_keywords = 0
-        matched_keywords = 0
-    
-        for indicator, keywords in position_indicators.items():
-            total_keywords += len(keywords) # set total keywords
-    
-            prompt = f"""
-                Analiza el siguiente texto: '{candidate_profile_text}'.
-                Indica si las siguientes palabras clave están presentes en el texto: {', '.join(keywords)}.
-                Responde 'Si' o 'No' por cada palabra clave.
-            """
-            
-            GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
-            genai.configure(api_key=GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-pro')
-            response = model.generate_content(prompt)
-            answer= response.text
-            
-            #Check the answer with key word
-            for keyword in keywords:
-                if keyword in answer:
-                     matched_keywords +=1
-    
         
-        if total_keywords == 0:
-            print("⚠️ No key words available, match is 0 by default")
-            keyword_match_percentage= 0.00
-            return keyword_match_percentage
+        GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
+        genai.configure(api_key=GOOGLE_API_KEY)
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        answer= response.text
+        
+        #Check the answer with key word
+        for keyword in keywords:
+            if keyword in answer:
+                 matched_keywords +=1
+
     
-        keyword_match_percentage = (matched_keywords / total_keywords) * 100
-        return round(keyword_match_percentage, 2)
+    if total_keywords == 0:
+        print("⚠️ No key words available, match is 0 by default")
+        keyword_match_percentage= 0.00
+        return keyword_match_percentage
+
+    keyword_match_percentage = (matched_keywords / total_keywords) * 100
 
     # Evaluación de concordancia basada en palabras clave
     if keyword_match_percentage == 100:
