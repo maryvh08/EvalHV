@@ -1309,6 +1309,8 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     table_indicator = [["Indicador", "Concordancia (%)"]]
     
     # Agregar datos de line_results a la tabla
+    percentage = (relevant_lines / total_lines) * 100
+        indicator_results[indicator] = {"percentage": percentage, "relevant_lines": relevant_lines}
     for indicator, data in indicator_results.items():
       relevant_lines = sum(
           any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
