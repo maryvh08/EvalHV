@@ -740,6 +740,14 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         prof_profile_match = calculate_similarity(candidate_profile_text, profile_text) # using normal function now
         profile_func_match = keyword_match_percentage + prof_func_match
         profile_profile_match = keyword_match_percentage + prof_profile_match
+
+    indicator_results = {}
+    for indicator, keywords in position_indicators.items():
+        relevant_lines = sum(
+            any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
+        )
+        percentage = (relevant_lines / total_lines) * 100
+        indicator_results[indicator] = {"percentage": percentage, "relevant_lines": relevant_lines}
             
     # Calcular porcentajes de concordancia con perfil de candidato
     keyword_count = 0
@@ -1309,8 +1317,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     table_indicator = [["Indicador", "Concordancia (%)"]]
     
     # Agregar datos de line_results a la tabla
-    percentage = (relevant_lines / total_lines) * 100
-        indicator_results[indicator] = {"percentage": percentage, "relevant_lines": relevant_lines}
     for indicator, data in indicator_results.items():
       relevant_lines = sum(
           any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
