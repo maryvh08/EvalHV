@@ -432,39 +432,48 @@ def extract_experience_section_with_ocr(pdf_path):
 
 def extract_event_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
-    asegurando que los ítems sean correctamente identificados.
+    Extracts the 'EVENTOS ORGANIZADOS' section from a PDF using OCR,
+    ensuring accurate item identification. Improves accuracy with:
+        * More robust keyword detection.
+        * Exclusion of common false positives.
+        * Cleaned line returns
     """
+
     text = extract_text_with_ocr(pdf_path)
     if not text:
-        return []  # Retorna lista vacía si no hay contenido
+        return None  # Improved handling of no content, return None for no text extracted
 
-    text = extract_text_with_ocr(pdf_path)
-
-    # Palabras clave para identificar inicio y fin de la sección
-    start_keyword = "EVENTOS ORGANIZADOS"
+    # More robust keyword matching (case-insensitive and allows variations)
+    start_keywords = ["EVENTOS ORGANIZADOS", "EVENTO ORGANIZADO"]  # account for singular vs. plural
     end_keywords = [
         "EXPERIENCIA LABORAL",
         "FIRMA",
+        "EXPERIENCIA PROFESIONAL", # account for variations of section title
+        "OTROS EVENTOS",
+        "FORMACIÓN COMPLEMENTARIA",
+        "REFERENCIAS",
+        "HABILIDADES",
     ]
 
-    # Encontrar índice de inicio
-    start_idx = text.lower().find(start_keyword.lower())
+    start_idx = -1  # Initialize to -1 for clearer handling
+    for keyword in start_keywords:
+        start_idx = text.lower().find(keyword.lower())
+        if start_idx != -1:
+            break  # Use the first occurrence
+
     if start_idx == -1:
-        return None  # No se encontró la sección
+        return None  # Section not found, return None explicitly
 
-    # Encontrar índice más cercano de fin basado en palabras clave
-    end_idx = len(text)  # Por defecto, tomar hasta el final
+    end_idx = len(text)  # Default to end of text
     for keyword in end_keywords:
-        idx = text.lower().find(keyword.lower(), start_idx)
+        idx = text.lower().find(keyword.lower(), start_idx)  # Start search after section start
         if idx != -1:
-            end_idx = min(end_idx, idx)
+            end_idx = min(end_idx, idx)  # closest keyword
 
-    # Extraer la sección entre inicio y fin
     org_text = text[start_idx:end_idx].strip()
-    
-    # Filtrar y limpiar texto
-    exclude_lines = [
+
+    # Refined Filtering and Cleaning (handles more cases)
+    exclude_lines = {
         "a nivel capitular",
         "a nivel nacional",
         "a nivel seccional",
@@ -474,30 +483,30 @@ def extract_event_section_with_ocr(pdf_path):
         "trabajo nacional",
         "nacional 2024",
         "nacional 20212023",
-    ]
+        "descripción del evento",
+        "información del evento",
+        "nombre del evento",
+        "resultados obtenidos",
+    }  # Use a set for faster lookups
+
     org_lines = org_text.split("\n")
     cleaned_lines = []
+
     for line in org_lines:
         line = line.strip()
-        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
-        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        if (
-            normalized_line
-            and normalized_line not in exclude_lines
-            and normalized_line != start_keyword.lower()
-            and normalized_line not in [kw.lower() for kw in end_keywords]
-        ):
+        normalized_line = re.sub(r"[^\w\s]", "", line).lower()  # cleaning
+        normalized_line = re.sub(r"\s+", " ", normalized_line).strip() # removing space.
+
+        if (normalized_line and
+            normalized_line not in exclude_lines and
+            not any(keyword.lower() in normalized_line for keyword in start_keywords) and
+            not any(keyword.lower() in normalized_line for keyword in end_keywords)):
             cleaned_lines.append(line)
 
-    return "\n".join(cleaned_lines)
-    
-    # Debugging: Imprime líneas procesadas
-    print("Líneas procesadas:")
-    for line in cleaned_lines:
-        print(f"- {line}")
-    
-    return "\n".join(cleaned_lines)
+    cleaned_text = "\n".join(cleaned_lines)  # Create back a line structure with cleaned line.
 
+    return cleaned_text
+    
 def evaluate_cv_presentation(pdf_path):
     """
     Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
