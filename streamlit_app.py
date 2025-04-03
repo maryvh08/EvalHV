@@ -819,6 +819,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     else:
       parcial_att_func_match = 0
       parcial_att_profile_match = 0
+
+    resume_text= evaluate_cv_presentation(pdf_path)
+
+    # Inicializar corrector ortográfico
+    spell = SpellChecker(language='es')
     
     # Inicializar valores
     spelling = 0
