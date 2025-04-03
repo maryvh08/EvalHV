@@ -820,12 +820,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       keyword_match_percentage = 75
     else:
       keyword_match_percentage = 100  
-        
-    if profile_func_match is None or profile_profile_match is None:
-        st.warning("Could not calculate profile similarity. Check for errors during similarity calculation.")
-        profile_func_match = 0  # Set to Default Value
-        profile_profile_match = 0  # Set to Default Value
-    
+
     # Evaluación de concordancia basada en palabras clave
     if keyword_match_percentage == 100:
       profile_func_match = 100.0
