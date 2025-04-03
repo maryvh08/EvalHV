@@ -430,6 +430,35 @@ def extract_experience_section_with_ocr(pdf_path):
     
     return "\n".join(cleaned_lines)
 
+def analyze_profile_similarity(candidate_profile_text, functions_text, profile_text):
+    """
+    Analyzes the similarity between the candidate's profile text and both
+    the functions and profile descriptions for a specified position, leveraging the Gemini API.
+
+    :param candidate_profile_text: Candidate's profile section text.
+    :param functions_text: Functions description for the position.
+    :param profile_text: The profile description for the position.
+    :return: A tuple (function_similarity_score, profile_similarity_score)
+             Scores range from 0-100. Returns (None, None) for any invalid text.
+    """
+    if not candidate_profile_text or not isinstance(candidate_profile_text, str):
+        print("⚠️ Invalid input: candidate_profile_text missing or invalid")
+        return (None, None)
+
+    if not functions_text or not isinstance(functions_text, str):
+        print("⚠️ Invalid input: functions_text missing or invalid")
+        return (None, None)
+
+    if not profile_text or not isinstance(profile_text, str):
+        print("⚠️ Invalid input: profile_text missing or invalid")
+        return (None, None)
+
+    # Calculate similarity with function and profile texts using Gemini API
+    function_similarity_score = calculate_similarity_gemini(candidate_profile_text, functions_text)
+    profile_similarity_score = calculate_similarity_gemini(candidate_profile_text, profile_text)
+
+    return function_similarity_score, profile_similarity_score
+
 def extract_event_section_with_ocr(pdf_path):
     """
     Extracts the 'EVENTOS ORGANIZADOS' section from a PDF using OCR,
@@ -790,7 +819,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     elif 0.5 <prop_keyword <= 0.75:
       keyword_match_percentage = 75
     else:
-      keyword_match_percentage = 100        
+      keyword_match_percentage = 100  
+        
+    if profile_func_match is None or profile_profile_match is None:
+        st.warning("Could not calculate profile similarity. Check for errors during similarity calculation.")
+        profile_func_match = 0  # Set to Default Value
+        profile_profile_match = 0  # Set to Default Value
     
     # Evaluación de concordancia basada en palabras clave
     if keyword_match_percentage == 100:
@@ -798,8 +832,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       profile_profile_match = 100.0
     else:
       # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
-      prof_func_match = calculate_similarity_gemini(candidate_profile_text, functions_text)
-      prof_profile_match = calculate_similarity_gemini(candidate_profile_text, profile_text)
+      prof_func_match = analyze_profile_similarity(candidate_profile_text, functions_text)
+      prof_profile_match = analyze_profile_similarity(candidate_profile_text, profile_text)
       profile_func_match = keyword_match_percentage + prof_func_match
       profile_profile_match = keyword_match_percentage + prof_profile_match
     
