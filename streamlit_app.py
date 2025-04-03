@@ -527,22 +527,22 @@ def evaluate_cv_presentation(pdf_path):
         return None, "El documento está vacío o no contiene texto procesable."
 
     punctuation_errors = 0
-    
+
     for i, line in enumerate(lines):
         # Verificar si la oración termina con puntuación válida
         if not line.endswith((".", "!", "?")):
             punctuation_errors += 1
 
-    # Inicializar values
+    # Inicializar valores
     spelling = 0
-    capitalization_score= 0
+    capitalization_score = 0
     sentence_completion_score = 0
-    grammar= 0
-    punctuation_error_rate=0
-    punctuation_errors=0
-    normalized_repetition_score= 0
-    normalized_fluency_score= 0
-    total_words= 0
+    grammar = 0
+    punctuation_error_rate = 0
+    punctuation_errors = 0
+    normalized_repetition_score = 0
+    normalized_fluency_score = 0
+    total_words = 0
 
     # Limpiar y dividir el texto en líneas
     pres_cleaned_lines = [line.strip() for line in resume_text.split("\n") if line.strip()]
@@ -577,22 +577,22 @@ def evaluate_cv_presentation(pdf_path):
         grammar_errors += len(re.findall(r'\b(?:es|está|son)\b [^\w\s]', line))  # Ejemplo: "es" sin continuación válida
 
     # Calcular métricas secundarias
-    spelling = 1- (spelling_errors / total_words) 
-    capitalization_score = 1- (missing_capitalization / total_lines)
-    sentence_completion_score = 1- (incomplete_sentences / total_lines) 
-    grammar = 1- (grammar_errors / total_lines) 
-    punctuation_error_rate = 1- (punctuation_errors / total_lines)
+    spelling = 1 - (spelling_errors / total_words)
+    capitalization_score = 1 - (missing_capitalization / total_lines)
+    sentence_completion_score = 1 - (incomplete_sentences / total_lines)
+    grammar = 1 - (grammar_errors / total_lines)
+    punctuation_error_rate = 1 - (punctuation_errors / total_lines)
 
-    #Calcular métricas principales
-    grammar_score = round(((punctuation_error_rate+ grammar+ sentence_completion_score)/3)*5, 2)
-    spelling_score= round(((spelling+ capitalization_score)/2)*5,2)
+    # Calcular métricas principales
+    grammar_score = round(((punctuation_error_rate + grammar + sentence_completion_score) / 3) * 5, 2)
+    spelling_score = round(((spelling + capitalization_score) / 2) * 5, 2)
 
     if total_lines == 0:
         normalized_repetition_score = 0.0
         normalized_fluency_score = 0.0
 
         return None, "El documento está vacío o no contiene texto procesable."  # Si no hay oraciones, asumimos coherencia perfecta
-    
+
     else:
         def calculate_word_repetition(pres_cleaned_lines):
             repeated_words = Counter()
@@ -605,109 +605,109 @@ def evaluate_cv_presentation(pdf_path):
             most_common_word_count = repeated_words.most_common(1)[0][1] if repeated_words else 0
             repeated_word_ratio = (most_common_word_count / total_words) if total_words > 0 else 0
 
-    # Una menor repetición indica mayor calidad
+            # Una menor repetición indica mayor calidad
             repetition_score = 1 - repeated_word_ratio
             return repetition_score, repeated_words
 
-# 2. Fluidez entre oraciones
-        def calculate_sentence_fluency(pres_cleaned_lines):
-            """
-            Calcula el puntaje de fluidez de las oraciones basándose en conectores lógicos, puntuación,
-            y variabilidad en la longitud de las oraciones.
-            :param pres_cleaned_lines: Lista de líneas limpias del texto.
-            :return: Puntaje de fluidez de las oraciones entre 0 y 1.
-            """
-    # Lista de conectores lógicos comunes
-            logical_connectors = {
+    # 2. Fluidez entre oraciones
+    def calculate_sentence_fluency(pres_cleaned_lines):
+        """
+        Calcula el puntaje de fluidez de las oraciones basándose en conectores lógicos, puntuación,
+        y variabilidad en la longitud de las oraciones.
+        :param pres_cleaned_lines: Lista de líneas limpias del texto.
+        :return: Puntaje de fluidez de las oraciones entre 0 y 1.
+        """
+        # Lista de conectores lógicos comunes
+        logical_connectors = {
             "adición": [
-                 "además", "también", "asimismo", "igualmente", "de igual manera",
+                "además", "también", "asimismo", "igualmente", "de igual manera",
                 "por otro lado", "de la misma forma", "junto con"
-                 ],
+            ],
             "causa": [
-                 "porque", "ya que", "debido a", "dado que", "por motivo de",
+                "porque", "ya que", "debido a", "dado que", "por motivo de",
                 "gracias a", "en razón de", "a causa de"
-                 ],
+            ],
             "consecuencia": [
-                 "por lo tanto", "así que", "en consecuencia", "como resultado",
+                "por lo tanto", "así que", "en consecuencia", "como resultado",
                 "por esta razón", "de modo que", "lo que permitió", "de ahí que"
-                ],
+            ],
             "contraste": [
                 "sin embargo", "pero", "aunque", "no obstante", "a pesar de",
                 "por el contrario", "en cambio", "si bien", "mientras que"
-                  ],
+            ],
             "condición": [
-                 "si", "en caso de", "a menos que", "siempre que", "con la condición de",
+                "si", "en caso de", "a menos que", "siempre que", "con la condición de",
                 "a no ser que", "en el supuesto de que"
-                  ],
+            ],
             "tiempo": [
                 "mientras", "cuando", "después de", "antes de", "al mismo tiempo",
                 "posteriormente", "una vez que", "simultáneamente", "en el transcurso de"
-                  ],
+            ],
             "descripción de funciones": [
-                 "encargado de", "responsable de", "mis funciones incluían",
+                "encargado de", "responsable de", "mis funciones incluían",
                 "lideré", "gestioné", "coordiné", "dirigí", "supervisé",
                 "desarrollé", "planifiqué", "ejecuté", "implementé", "organicé"
-                  ],
-             "logros y resultados": [
-                 "logré", "alcancé", "conseguí", "incrementé", "reduje",
+            ],
+            "logros y resultados": [
+                "logré", "alcancé", "conseguí", "incrementé", "reduje",
                 "optimizé", "mejoré", "aumenté", "potencié", "maximicé",
                 "contribuí a", "obtuve", "permitió mejorar", "impactó positivamente en"
-                  ],
+            ],
             "secuencia": [
-                 "primero", "en primer lugar", "a continuación", "luego", "después",
+                "primero", "en primer lugar", "a continuación", "luego", "después",
                 "seguidamente", "posteriormente", "finalmente", "por último"
-                  ],
+            ],
             "énfasis": [
                 "sobre todo", "en particular", "especialmente", "principalmente",
                 "específicamente", "vale la pena destacar", "conviene resaltar",
                 "cabe mencionar", "es importante señalar"
-                 ],
+            ],
             "conclusión": [
-               "en resumen", "para concluir", "en definitiva", "en síntesis",
+                "en resumen", "para concluir", "en definitiva", "en síntesis",
                 "como conclusión", "por ende", "por consiguiente", "para finalizar"
-                   ]
-             }
-            fluency_score = 0
-            connector_count = 0
-            total_lines = len(pres_cleaned_lines)
-    
-    
-            # Validación para evitar divisiones por cero
-            if total_lines == 0:
-                return 0  # Sin líneas, no se puede calcular fluidez
-            
-            # Inicialización de métricas
-            punctuation_errors = 0
-            sentence_lengths = []
-    
-            for line in pres_cleaned_lines:
-                # Verificar errores de puntuación (oraciones sin punto final)
-                if not line.endswith((".", "!", "?")):
-                    punctuation_errors += 1
-    
-        # Almacenar la longitud de cada oración
-                sentence_lengths.append(len(line.split()))
-    
-        # Contar conectores lógicos en la línea
-                for connector in logical_connectors:
-                    if connector in line.lower():
-                        connector_count += 1
-    
+            ]
+        }
+
+        fluency_score = 0
+        connector_count = 0
+        total_lines = len(pres_cleaned_lines)
+
+        # Validación para evitar divisiones por cero
+        if total_lines == 0:
+            return 0  # Sin líneas, no se puede calcular fluidez
+
+        # Inicialización de métricas
+        punctuation_errors = 0
+        sentence_lengths = []
+
+        for line in pres_cleaned_lines:
+            # Verificar errores de puntuación (oraciones sin punto final)
+            if not line.endswith((".", "!", "?")):
+                punctuation_errors += 1
+
+            # Almacenar la longitud de cada oración
+            sentence_lengths.append(len(line.split()))
+
+            # Contar conectores lógicos en la línea
+            for connector in logical_connectors:
+                if connector in line.lower():
+                    connector_count += 1
+
         # Calcular métricas individuales
-            avg_length = sum(sentence_lengths) / total_lines
-            length_variance = sum(
-                (len(line.split()) - avg_length) ** 2 for line in pres_cleaned_lines
+        avg_length = sum(sentence_lengths) / total_lines
+        length_variance = sum(
+            (len(line.split()) - avg_length) ** 2 for line in pres_cleaned_lines
         ) / total_lines if total_lines > 1 else 0
-    
+
         # Normalizar métricas entre 0 y 1
-            punctuation_score = max(0, 1 - (punctuation_errors / total_lines))  # 1 si no hay errores
-            connector_score = min(1, connector_count / total_lines)  # Máximo 1, basado en conectores
-            variance_penalty = max(0, 1 - length_variance / avg_length) if avg_length > 0 else 0
-    
+        punctuation_score = max(0, 1 - (punctuation_errors / total_lines))  # 1 si no hay errores
+        connector_score = min(1, connector_count / total_lines)  # Máximo 1, basado en conectores
+        variance_penalty = max(0, 1 - length_variance / avg_length) if avg_length > 0 else 0
+
         # Calcular puntaje final de fluidez
-            fluency_score = (punctuation_score + connector_score + variance_penalty) / 3
-            return round(fluency_score, 2)  # Escalar a un rango de 0 a 100 y redondear
-            
+        fluency_score = (punctuation_score + connector_score + variance_penalty) / 3
+        return round(fluency_score, 2)  # Escalar a un rango de 0 a 100 y redondear
+
     # Calcular métricas individuales
     normalized_repetition_score = 0.0
     normalized_fluency_score = 0.0
@@ -722,7 +722,7 @@ def evaluate_cv_presentation(pdf_path):
     coherence_score = round(min(5, (normalized_repetition_score + normalized_fluency_score) * 2.5), 2)
 
     # Puntaje general ponderado
-    overall_score = round((spelling_score  + coherence_score + grammar_score) / 3, 2)
+    overall_score = round((spelling_score + coherence_score + grammar_score) / 3, 2)
 
 def extract_attendance_section_with_ocr(pdf_path):
     """
