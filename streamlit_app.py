@@ -799,27 +799,55 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         if att_func_match > 0 or att_profile_match > 0:
             att_line_results.append((line, att_func_match, att_profile_match))
             
-    # Calcular porcentajes de concordancia con perfil de candidato
-    keyword_count = 0
-    words = re.findall(r"\b\w+\b", candidate_profile_text)
-    total_words = len(words)
-    for kw_set in position_indicators.values():
-      for keyword in kw_set:
-          keyword_count += candidate_profile_text.count(keyword)
+    def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators):
+    """
+    Calculates the keyword match percentage between the candidate's profile text and the
+    specified position indicators using the Gemini API for improved accuracy.
+
+    :param candidate_profile_text: Candidate's profile section text.
+    :param position_indicators: A dictionary of keywords associated with the position.
+    :return: A keyword match percentage (0-100). Returns None if an error occurs or it doesn't exist.
+    """
+
+    if not candidate_profile_text or not isinstance(candidate_profile_text, str):
+        print("⚠️ Invalid input: candidate_profile_text missing or invalid")
+        return None
+
+    if not position_indicators:
+        print("⚠️ Invalid input: position_indicators missing or invalid")
+        return None
+
+    total_keywords = 0
+    matched_keywords = 0
+
+    for indicator, keywords in position_indicators.items():
+        total_keywords += len(keywords) # set total keywords
+
+        prompt = f"""
+            Analiza el siguiente texto: '{candidate_profile_text}'.
+            Indica si las siguientes palabras clave están presentes en el texto: {', '.join(keywords)}.
+            Responde 'Si' o 'No' por cada palabra clave.
+        """
+        
+        GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
+        genai.configure(api_key=GOOGLE_API_KEY)
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        answer= response.text
+        
+        #Check the answer with key word
+        for keyword in keywords:
+            if keyword in answer:
+                 matched_keywords +=1
+
     
-    prop_keyword= keyword_count/total_words
-    
-    # Evitar división por cero
-    if prop_keyword<= 0.01:
-      keyword_match_percentage = 0
-    elif 0.01 <prop_keyword <= 0.15:
-      keyword_match_percentage = 25
-    elif 0.15 <prop_keyword <= 0.5:
-      keyword_match_percentage = 50
-    elif 0.5 <prop_keyword <= 0.75:
-      keyword_match_percentage = 75
-    else:
-      keyword_match_percentage = 100  
+    if total_keywords == 0:
+        print("⚠️ No key words available, match is 0 by default")
+        keyword_match_percentage= 0.00
+        return keyword_match_percentage
+
+    keyword_match_percentage = (matched_keywords / total_keywords) * 100
+    return round(keyword_match_percentage, 2)
 
     # Evaluación de concordancia basada en palabras clave
     if keyword_match_percentage == 100:
@@ -827,7 +855,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       profile_profile_match = 100.0
     else:
       # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
-      prof_func_match, prof_profile_match = analyze_profile_similarity(candidate_profile_text, functions_text,profile_text)
+      prof_func_match, prof_profile_match = analyze_profile_similarity(candidate_profile_text, functions_text, profile_text)
       profile_func_match = keyword_match_percentage + prof_func_match
       profile_profile_match = keyword_match_percentage + prof_profile_match
     
