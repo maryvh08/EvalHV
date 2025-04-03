@@ -811,7 +811,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             Responde 'Si' o 'No' por cada palabra clave.
         """
         
-        GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
+        GOOGLE_API_KEY= st.secrets["AIzaSyDs2889q5Gh6SI_3GfzzSXdvmUliV1Mw7I"]
         genai.configure(api_key=GOOGLE_API_KEY)
         model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt)
@@ -2814,7 +2814,7 @@ def calculate_similarity_gemini(text1, text2):
     """Calcula la similitud entre dos textos utilizando la API de Gemini."""
     try:
         # Configura la API de Gemini
-        GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
+        GOOGLE_API_KEY= st.secrets["AIzaSyDs2889q5Gh6SI_3GfzzSXdvmUliV1Mw7I]
         genai.configure(api_key=GOOGLE_API_KEY)
         # Carga el modelo Gemini Pro
         model = genai.GenerativeModel('gemini-pro')
