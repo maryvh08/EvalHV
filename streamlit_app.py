@@ -810,9 +810,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             Indica si las siguientes palabras clave están presentes en el texto: {', '.join(keywords)}.
             Responde 'Si' o 'No' por cada palabra clave.
         """
-        
-        GOOGLE_API_KEY= st.secrets["AIzaSyDs2889q5Gh6SI_3GfzzSXdvmUliV1Mw7I"]
-        genai.configure(api_key=GOOGLE_API_KEY)
+        GEMINI_API_KEY = "AIzaSyDs2889q5Gh6SI_3GfzzSXdvmUliV1Mw7I"
+        genai.configure(api_key=GEMINI_API_KEY)
         model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt)
         answer= response.text
