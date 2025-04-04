@@ -815,12 +815,18 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             Indica si las siguientes palabras clave están presentes en el texto: {', '.join(keywords)}.
             Responde 'Si' o 'No' por cada palabra clave.
         """
+        def available_models():
+            GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
+            genai.configure(api_key=GOOGLE_API_KEY)
+            for m in genai.list_models():
+                if 'generateContent' in m.supported_generation_methods:
+                    print(m.name)
         GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
-        genai.configure(api_key=GOOGLE_API_KEY)
-        try:
-            model = genai.GenerativeModel('gemini-1.0-pro')
-            response = model.generate_content(prompt)
-            answer= response.text
+                genai.configure(api_key=GOOGLE_API_KEY)
+                try:
+                    model = genai.GenerativeModel('gemini-1.0-pro')
+                    response = model.generate_content(prompt)
+                    answer= response.text
             #Check the answer with key word
             for keyword in keywords:
                 if keyword.lower() in answer.lower():  # Lowercase for robust comparasion
