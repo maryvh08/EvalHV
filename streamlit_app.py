@@ -812,7 +812,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         """
         GEMINI_API_KEY = "AIzaSyDs2889q5Gh6SI_3GfzzSXdvmUliV1Mw7I"
         genai.configure(api_key=GEMINI_API_KEY)
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.0-pro')
         response = model.generate_content(prompt)
         answer= response.text
         
