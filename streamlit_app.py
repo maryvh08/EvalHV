@@ -800,48 +800,50 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             att_line_results.append((line, att_func_match, att_profile_match))
 
    # Calcular porcentajes de concordancia con perfil de candidato
-    keyword_match_percentage = 0.0 # Set to 0
-    profile_func_match = 0.0 #Setting the default
+    keyword_match_percentage = 0.0  # Set to 0
+    profile_func_match = 0.0  # Setting the default
     profile_profile_match = 0.0
     
     total_keywords = 0
     matched_keywords = 0
     
     for indicator, keywords in position_indicators.items():
-        total_keywords += len(keywords) # set total keywords
+        total_keywords += len(keywords)  # Set total keywords
     
         prompt = f"""
             Analiza el siguiente texto: '{candidate_profile_text}'.
             Indica si las siguientes palabras clave están presentes en el texto: {', '.join(keywords)}.
             Responde 'Si' o 'No' por cada palabra clave.
         """
+    
         def available_models():
             GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
             genai.configure(api_key=GOOGLE_API_KEY)
             for m in genai.list_models():
                 if 'generateContent' in m.supported_generation_methods:
                     print(m.name)
-        GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
-                genai.configure(api_key=GOOGLE_API_KEY)
-                try:
-                    model = genai.GenerativeModel('gemini-1.0-pro')
-                    response = model.generate_content(prompt)
-                    answer= response.text
-            #Check the answer with key word
-            for keyword in keywords:
-                if keyword.lower() in answer.lower():  # Lowercase for robust comparasion
-                        matched_keywords +=1
-        except Exception as e:
-             st.error(f"Error generating contents {e}") #Error message to output
-             answer = ""       
     
+        try:
+            GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
+            genai.configure(api_key=GOOGLE_API_KEY)
+            model = genai.GenerativeModel('gemini-1.0-pro')
+            response = model.generate_content(prompt)
+            answer = response.text
+    
+            # Check the answer with keyword
+            for keyword in keywords:
+                if keyword.lower() in answer.lower():  # Lowercase for robust comparison
+                    matched_keywords += 1
+        except Exception as e:
+            st.error(f"Error generating contents {e}")  # Error message to output
+            answer = ""
     
     if total_keywords == 0:
-        keyword_match_percentage= 0.00 #setting standard
+        keyword_match_percentage = 0.00  # Setting standard
     else:
         keyword_match_percentage = (matched_keywords / total_keywords) * 100
         # Asegúrate de que el puntaje esté en el rango de 0 a 100
-        keyword_match_percentage= max(0.00, min(100.00, keyword_match_percentage))
+        keyword_match_percentage = max(0.00, min(100.00, keyword_match_percentage))
     
     # Evaluación de concordancia basada en palabras clave
     if keyword_match_percentage == 100:
@@ -851,14 +853,15 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
         prof_func_match, prof_profile_match = analyze_profile_similarity(candidate_profile_text, functions_text, profile_text)
     
-        # check if it has been assigned properly
-        if prof_func_match is None or prof_profile_match is None: # Check if Gemini API Failed
+        # Check if it has been assigned properly
+        if prof_func_match is None or prof_profile_match is None:  # Check if Gemini API Failed
             st.warning("Could not calculate profile similarity. Setting default to 0%. Check API connection.")
             profile_func_match = 0.0
-            profile_profile_match= 0.0
-        
+            profile_profile_match = 0.0
+    
         profile_func_match = keyword_match_percentage + prof_func_match
         profile_profile_match = keyword_match_percentage + prof_profile_match
+
     
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
