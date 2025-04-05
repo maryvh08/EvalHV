@@ -70,9 +70,21 @@ nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download("wordnet")
 
-# Necessary imports if this section is standalone
-import streamlit as st
-import google.generativeai as genai
+def list_available_models():
+    """Lists available models for generateContent and prints their names."""
+    
+    if "GEMINI_API_KEY" not in os.environ: #if testing is false, test another.
+       st.error ("set that the API has been created, set environment to os library")
+       return
+
+    GOOGLE_API_KEY = os.environ["GEMINI_API_KEY"]
+    genai.configure(api_key=GOOGLE_API_KEY) #This sets key.
+
+    available_models = []
+    for m in genai.list_models():
+       if 'generateContent' in m.supported_generation_methods:
+            st.write("All available methods are ", m.name)
+            available_models.append(m.name)
 
 def preprocess_image(image):
     """
