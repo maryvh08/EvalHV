@@ -74,22 +74,6 @@ nltk.download("wordnet")
 import streamlit as st
 import google.generativeai as genai
 
-def list_available_models():
-    """Lists available models for generateContent and prints their names."""
-    
-    if "GEMINI_API_KEY" not in os.environ: #if testing is false, test another.
-       st.error ("set that the API has been created, set environment to os library")
-       return
-
-    GOOGLE_API_KEY = os.environ["GEMINI_API_KEY"]
-    genai.configure(api_key=GOOGLE_API_KEY) #This sets key.
-
-    available_models = []
-    for m in genai.list_models():
-       if 'generateContent' in m.supported_generation_methods:
-            st.write("All available methods are ", m.name)
-            available_models.append(m.name)
-
 #Test that API KEY is setup correctly
 def verify_toml():
     """
@@ -892,7 +876,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         try:
             GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
             genai.configure(api_key=GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-1.0-pro')
+            model = genai.GenerativeModel('2.0-flash-thinking-exp')
             response = model.generate_content(prompt)
             answer = response.text
     
@@ -2906,7 +2890,7 @@ def calculate_similarity_gemini(text1, text2):
         GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
         genai.configure(api_key=GOOGLE_API_KEY)
         # Carga el modelo Gemini Pro
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('2.0-flash-thinking-exp')
     
         # Crea un prompt para comparar los dos textos
         prompt = f"""
