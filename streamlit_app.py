@@ -887,17 +887,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
       parcial_att_func_match = 0
       parcial_att_profile_match = 0
 
-    def check_secrets():
-        if "GEMINI_API_KEY" in st.secrets:
-            st.success("GEMINI_API_KEY is set successfully!", icon="✅")
-            try:
-                GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
-                st.write("First 5 characters:", GOOGLE_API_KEY[:5])  # Display the first 5 to confirm you have it
-            except Exception as e:
-                st.error(f"Error accessing key although it appears present: {e}") #To be sure the key is accessible
-        else:
-            st.error("GEMINI_API_KEY is NOT set in st.secrets 😭. Please check your Streamlit Secrets configuration.")
-
     resume_text= evaluate_cv_presentation(pdf_path)
 
     # Inicializar corrector ortográfico
