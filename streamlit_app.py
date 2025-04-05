@@ -70,68 +70,6 @@ nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download("wordnet")
 
-def list_available_models():
-    """Lists available models for generateContent and prints their names."""
-    
-    if "GEMINI_API_KEY" not in os.environ: #if testing is false, test another.
-       st.error ("set that the API has been created, set environment to os library")
-       return
-
-    GOOGLE_API_KEY = os.environ["GEMINI_API_KEY"]
-    genai.configure(api_key=GOOGLE_API_KEY) #This sets key.
-
-    available_models = []
-    for m in genai.list_models():
-       if 'generateContent' in m.supported_generation_methods:
-            st.write("All available methods are ", m.name)
-            available_models.append(m.name)
-
-#Test that API KEY is setup correctly
-def verify_toml():
-    """
-    Check api code
-    """
-    try:
-        if "GEMINI_API_KEY" in os.environ:
-            GOOGLE_API_KEY = os.environ["GEMINI_API_KEY"]
-            st.write("The current first five are", GOOGLE_API_KEY[:5])
-
-        else:
-            st.error("The API does not exist") # error that API is empty
-            return
-    except Exception as e:
-        st.error(f"Cannot load .env {e}")# Error for toml name/ not found
-
-def check_secret_validity(api_call): # Check there are no issues with project/ envinroment or API key
-    """
-     Validates that Google key and the check API is working
-
-    """
-    model = genai.GenerativeModel(api_call) # call api to google to use.
-    try:
-        response = model.generate_content("What can you do?") #Simple text, is to validate if contents are generated
-        st.write(f"API generated {api_call}:", response.text)
-        st.success("It is a success", icon="✅") # message setup correctly and it went through!
-    except Exception as ex:
-        st.error(f"The API is NOT setup, due to error: {ex}") # Message setup correctly!
-def print_message(print_method):
-    """
-     It prints to tell users of process.
-    """
-    st.header("Check all Models valid", divider='rainbow')
-    print_method()
-def main(): # Main function that runs, and to process.
-    print_message(list_available_models)
-    st.header("Verify the configurations with code", divider='rainbow')
-    verify_toml()
-    check_secret_validity("gemini-pro")
-    check_secret_validity("gemini-1.0-pro")
-    check_secret_validity("text-bison-001")# Last test with available API
-
-
-if __name__ == "__main__":
-    main()
-
 def preprocess_image(image):
     """
     Preprocesa una imagen antes de aplicar OCR.
