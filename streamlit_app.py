@@ -888,7 +888,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         try:
             GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
             genai.configure(api_key=GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-2.0-flash-thinking-exp')
+            model = genai.GenerativeModel('gemini-1.5-flash')
             response = model.generate_content(prompt)
             answer = response.text
     
@@ -2902,7 +2902,7 @@ def calculate_similarity_gemini(text1, text2):
         GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
         genai.configure(api_key=GOOGLE_API_KEY)
         # Carga el modelo Gemini Pro
-        model = genai.GenerativeModel('gemini-2.0-flash-thinking-exp')
+        model = genai.GenerativeModel('gemini-1.5-flash')
     
         # Crea un prompt para comparar los dos textos
         prompt = f"""
