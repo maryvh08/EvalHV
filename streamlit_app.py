@@ -1847,6 +1847,42 @@ def evaluate_cv_presentation_with_headers(pdf_path):
             "details_score": details_score,
         }
 
+def extract_profile_section_with_details(pdf_path):
+    """ Extrae la sección 'Perfil' de un archivo PDF """
+    try:
+        candidate_profile_text = ""
+        in_profile_section = False
+
+        with fitz.open(pdf_path) as doc:
+            for page in doc:
+                blocks = page.get_text("dict")["blocks"]
+                for block in blocks:
+                    if "lines" not in block:
+                        continue
+
+                    for line in block["lines"]:
+                        for span in line["spans"]:
+                            text = span["text"].strip()
+                            if not text:
+                                continue
+
+                            # Detectar inicio y fin de la sección
+                            if "perfil" in text.lower():
+                                in_profile_section = True
+                                continue
+                            elif any(key in text.lower() for key in ["asistencia a eventos aneiap", "actualización profesional"]):
+                                in_profile_section = False
+                                break
+
+                            if in_profile_section:
+                                candidate_profile_text += text + " "
+
+        return candidate_profile_text.strip()
+    
+    except Exception as e:
+        print(f"⚠️ Error en extract_profile_section_with_details: {e}")
+        return ""
+
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path, chapter):
     """
     Analiza un CV descriptivo y genera un reporte PDF con un fondo en cada página.
