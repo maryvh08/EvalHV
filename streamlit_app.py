@@ -144,35 +144,145 @@ def extract_cleaned_lines(text):
 
     return cleaned_lines
 
-def calculate_all_indicators(lines, position_indicators):
+def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text):
     """
-    Calcula los porcentajes de todos los indicadores para un cargo.
-    :param lines: Lista de líneas de la sección "EXPERIENCIA EN ANEIAP".
-    :param position_indicators: Diccionario de indicadores y palabras clave del cargo.
-    :return: Diccionario con los porcentajes por indicador.
+    Calculates keyword match percentages (functions and profile) using the Gemini API.
+
+    :param candidate_profile_text: Candidate profile text.
+    :param position_indicators: Position indicators (dict).
+    :param functions_text: The functions of the position (text).
+    :param profile_text: The profile description (text).
+    :return: (function_match_percentage, profile_match_percentage), or (None, None) if invalid input or error.
+    """
+    if not candidate_profile_text or not isinstance(candidate_profile_text, str):
+        print("⚠️ Invalid input: candidate_profile_text missing or invalid")
+        return None, None
+
+    if not position_indicators or not isinstance(position_indicators, dict):
+        print("⚠️ Invalid input: position_indicators missing or invalid")
+        return None, None
+
+    function_keywords = ""
+    profile_keywords = ""
+
+    for indicator, keywords in position_indicators.items(): #Split indicators for functions vs perfil
+
+        if functions_text and any(indicator.lower() in func.lower() for func in functions_text.split()): #If key-word set is for functions append it
+                function_keywords+= " ".join(keywords)
+        if profile_text and any(indicator.lower() in prof.lower() for prof in profile_text.split()): #If key-word set is for profile append it
+                profile_keywords += " ".join(keywords)
+
+    # make sure we are not dividing by zero and there is a key words and no empty profile / function key words for calculations
+    total_function_keywords= len(function_keywords)
+    total_profile_keywords = len(profile_keywords)
+
+    #Validate all
+    if total_function_keywords == 0 or function_keywords == "" or function_keywords is None:
+        print("There's no  keywords for functions, by setting to 0%")
+        function_match_percentage= 0.0
+    else :
+        # if function matches
+        prompt = f"""
+            Analiza el siguiente texto: '{candidate_profile_text}'.
+            Indica si las siguientes palabras clave están presentes en el texto: {function_keywords}.
+            Responde 'Si' o 'No' por cada palabra clave.
+        """
+
+        try:
+            GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
+            genai.configure(api_key=GOOGLE_API_KEY)
+            model = genai.GenerativeModel('gemini-pro')
+            response = model.generate_content(prompt)
+            function_answer= response.text
+            function_matched_keywords = sum(1 for keyword in function_keywords.split() if keyword.lower() in function_answer.lower())# Split by white space
+            function_match_percentage= round((function_matched_keywords / total_function_keywords) * 100, 2)
+
+        except Exception as e:
+            st.error(f"Error generating function keywords: {e}") #Error message to output
+            function_match_percentage = 0.0
+
+    if total_profile_keywords == 0 or profile_keywords == "" or profile_keywords is None: # Check the numbers or it bugs out
+        print("There are no  keywords for profile, by setting to 0%")
+        profile_match_percentage= 0.0
+    else:
+        # if functions_text match
+        prompt = f"""
+            Analiza el siguiente texto: '{candidate_profile_text}'.
+            Indica si las siguientes palabras clave están presentes en el texto: {profile_keywords}.
+            Responde 'Si' o 'No' por cada palabra clave.
+        """
+        try:
+            GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
+            genai.configure(api_key=GOOGLE_API_KEY)
+            model = genai.GenerativeModel('gemini-pro')
+            response = model.generate_content(prompt)
+            profile_answer= response.text
+            profile_matched_keywords = sum(1 for keyword in profile_keywords.split() if keyword.lower() in profile_answer.lower())  # Split by white space
+            profile_match_percentage = round((profile_matched_keywords / total_profile_keywords) * 100, 2)
+
+        except Exception as e:
+            st.error(f"Error generating profile keywords: {e}") #Error message to output
+            profile_match_percentage = 0.0
+
+    return function_match_percentage, profile_match_percentage
+
+def calculate_all_indicators(lines, chapter, position, indicators):
+    """
+    Calculates the percentages for each indicator for a given chapter and position.
+    :param lines: List of lines from the "EXPERIENCIA EN ANEIAP" section.
+    :param chapter: The chapter name (string).
+    :param position: The position name (string).
+    :param indicators: The complete indicators dictionary with chapter-cargo-indicator structure.
+    :return: A dictionary with the percentages for each indicator.
     """
     total_lines = len(lines)
     if total_lines == 0:
-        return {indicator: 0 for indicator in position_indicators}  # Evitar división por cero
+        # Create correct empty nested dictionary before returning
+        position_indicators = indicators.get(chapter, {}).get(position, {})
+        if position_indicators:
+            return {indicator: 0 for indicator in position_indicators}  # avoid division by zero
+        else:
+           return {} #Correct handling, none can be found
+    #If none return by zero:
+    chapter_indicators = indicators.get(chapter, {})
+    position_indicators = chapter_indicators.get(position, {})
+
+    if not position_indicators: # Added to fix None types
+       return {}
 
     indicator_results = {}
     for indicator, keywords in position_indicators.items():
         relevant_lines = sum(
             any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
         )
-        indicator_results[indicator] = (relevant_lines / total_lines) * 100  # Cálculo del porcentaje
+        indicator_results[indicator] = (relevant_lines / total_lines) * 100  # Calculate the percentage
+
     return indicator_results
 
-def calculate_indicators_for_report(lines, position_indicators):
+def calculate_indicators_for_report(lines, chapter, position, indicators):
     """
-    Calcula los porcentajes de relevancia de indicadores para el reporte.
-    :param lines: Lista de líneas de la sección "EXPERIENCIA EN ANEIAP".
-    :param position_indicators: Diccionario de indicadores y palabras clave del cargo.
-    :return: Diccionario con los porcentajes por indicador y detalles de líneas relevantes.
+    Calculates the relevance percentages of indicators for the report, including relevant line details.
+    :param lines: List of lines from the "EXPERIENCIA EN ANEIAP" section.
+    :param chapter: The chapter name (string).
+    :param position: The position name (string).
+    :param indicators: The complete indicators dictionary with chapter-cargo-indicator structure.
+    :return: Dictionary with the percentages per indicator and details on relevant lines.
     """
     total_lines = len(lines)
     if total_lines == 0:
-        return {indicator: {"percentage": 0, "relevant_lines": 0} for indicator in position_indicators}
+        #Check that function exists
+        chapter_indicators = indicators.get(chapter, {})
+        position_indicators = chapter_indicators.get(position, {})
+        if position_indicators: #Create empty Dictionary
+            return {indicator: {"percentage": 0, "relevant_lines": 0} for indicator in position_indicators}
+        else :
+            return {}# It does not exist so none
+
+    chapter_indicators = indicators.get(chapter, {})
+    position_indicators = chapter_indicators.get(position, {})
+
+    if not position_indicators:#Make sure it has proper dict
+       return {}
 
     indicator_results = {}
     for indicator, keywords in position_indicators.items():
@@ -183,7 +293,6 @@ def calculate_indicators_for_report(lines, position_indicators):
         indicator_results[indicator] = {"percentage": percentage, "relevant_lines": relevant_lines}
 
     return indicator_results
-
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def clean_text(text):
     """Limpia el texto eliminando caracteres especiales y espacios extra."""
