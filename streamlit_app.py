@@ -796,7 +796,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     position_indicators = indicators.get(position, {})
 
-    indicator_results = calculate_all_indicators(lines, position_indicators)
+    indicator_results = calculate_all_indicators(lines, chapter, position, indicators)
 
     # Cargar funciones y perfil
     try:
