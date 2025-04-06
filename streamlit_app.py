@@ -233,7 +233,6 @@ def calculate_all_indicators(lines, chapter, position, indicators):
     :param position: The position name (string).
     :param indicators: chapter_indicators.get(position, {})
     """
-    Calculates theCalculates the percentages for each indicator for a given chapter and position.
     total_lines = len(lines)
     if total_lines == 0:
         # Create correct empty nested dictionary before returning
