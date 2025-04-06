@@ -829,9 +829,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         indicator_results = {}
 
         # Calcular el porcentaje por cada indicador
-        indicator_results = calculate_indicators_for_report(lines, position_indicators)
+        indicator_results = calculate_indicators_for_report(lines, chapter, position, indicators)
         for indicator, keywords in position_indicators.items():
-            indicator_results = calculate_indicators_for_report(lines, position_indicators)
+            indicator_results = calculate_indicators_for_report(lines, chapter, position, indicators)
 
         # Calcular la presencia total (si es necesario)
         total_presence = sum(result["percentage"] for result in indicator_results.values())
