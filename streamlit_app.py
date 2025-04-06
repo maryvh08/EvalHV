@@ -234,7 +234,7 @@ def calculate_all_indicators(lines, chapter, position, indicators):
     :param chapter: The chapter name (string).
     :param position: The position name (string).
     :param indicators: The complete indicators dictionary with chapter-cargo-indicator structure.
-    :return: A dictionary with the percentages for each indicator.  Returns an empty dictionary {} safely on errors.
+    :return: A dictionary with the percentages for each indicator. Returns an empty dictionary {} safely on errors.
     """
     if not isinstance(lines, list):
         print("⚠️ Invalid input: lines must be a list")
@@ -277,14 +277,18 @@ def calculate_all_indicators(lines, chapter, position, indicators):
             indicator_results[indicator] = 0.0
             continue
 
-        relevant_lines = sum(
-            any(keyword.lower() in line.lower() for keyword in keywords)
-            for line in lines
-        )
+        relevant_lines = 0
+        for line in lines:
+            if not isinstance(line, str):
+                print(f"Invalid value {line}")
+                continue
+
+            relevant_lines+= any(keyword.lower() in line.lower() for keyword in keywords)
+
         indicator_results[indicator] = (relevant_lines / total_lines) * 100  if total_lines > 0 else 0.0 #added this
 
     return indicator_results
-
+    
 def calculate_indicators_for_report(lines, chapter, position, indicators):
     """
     Calculates the relevance percentages of indicators for the report, including relevant line details.
