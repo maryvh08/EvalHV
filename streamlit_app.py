@@ -229,21 +229,19 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
 def calculate_all_indicators(lines, chapter, position, indicators):
     """
     Calculates the percentages for each indicator for a given chapter and position.
-
     :param lines: List of lines from the "EXPERIENCIA EN ANEIAP" section.
     :param chapter: The chapter name (string).
     :param position: The position name (string).
     :param indicators: The complete indicators dictionary with chapter-cargo-indicator structure.
     :return: A dictionary with the percentages for each indicator. Returns an empty dictionary {} safely on errors.
     """
+    # Verify type errors.
     if not isinstance(lines, list):
         print("⚠️ Invalid input: lines must be a list")
         return {}
-
     if not isinstance(chapter, str) or not isinstance(position, str):
         print("⚠️ Invalid input: chapter and position must be strings")
         return {}
-
     if not isinstance(indicators, dict):
         print("⚠️ Invalid input: indicators must be a dictionary")
         return {}
@@ -271,19 +269,18 @@ def calculate_all_indicators(lines, chapter, position, indicators):
             print(f"⚠️ Invalid keywords: {indicator} does not have a list")
             indicator_results[indicator] = 0.0
             continue
-
         if not keywords or len(keywords) == 0:
             print(f"ℹ️ No keywords available for {indicator}, setting to 0%")
             indicator_results[indicator] = 0.0
             continue
 
-        relevant_lines = 0
+        relevant_lines = 0 # Initialize for the total lines
         for line in lines:
             if not isinstance(line, str):
                 print(f"Invalid value {line}")
                 continue
-
-            relevant_lines+= any(keyword.lower() in line.lower() for keyword in keywords)
+            if any(keyword.lower() in line.lower() for keyword in keywords):# check what's in keyword.
+                relevant_lines+=1
 
         indicator_results[indicator] = (relevant_lines / total_lines) * 100  if total_lines > 0 else 0.0 #added this
 
