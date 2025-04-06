@@ -237,7 +237,7 @@ def calculate_all_indicators(lines, chapter, position, indicators):
     if total_lines == 0:
         # Create correct empty nested dictionary before returning
         chapter_indicators = indicators.get(chapter, {})
-        position_indicators = percentages for each indicator for chapter and position.
+        position_indicators = percentages for indicator for chapter and position.
     :param lines: List of lines from the "EXPERIENCIA EN ANEIAP" section.
     :param chapter: The chapter name (string).
     :param position: The position name (string).
@@ -249,7 +249,7 @@ def calculate_all_indicators(lines, chapter, position, indicators):
 
     #If none return by zero:
     chapter The complete indicators dictionary with chapter-cargo-indicator structure.
-    :return: A dictionary with the percentages for each indicator.
+    :return: A dictionary with the percentages for indicator.
     """
     total_lines = len(lines)
     if total_lines == 0:
