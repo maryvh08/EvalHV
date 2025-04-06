@@ -156,11 +156,11 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
     """
     if not candidate_profile_text or not isinstance(candidate_profile_text, str):
         print("⚠️ Invalid input: candidate_profile_text missing or invalid")
-        return None, None
+        return (None, None)
 
     if not position_indicators or not isinstance(position_indicators, dict):
         print("⚠️ Invalid input: position_indicators missing or invalid")
-        return None, None
+        return (None, None)
 
     function_keywords = ""
     profile_keywords = ""
@@ -175,6 +175,10 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
     # make sure we are not dividing by zero and there is a key words and no empty profile / function key words for calculations
     total_function_keywords= len(function_keywords)
     total_profile_keywords = len(profile_keywords)
+
+    # Initializar porcentajes a 0.0 por defecto
+    function_match_percentage = 0.0
+    profile_match_percentage = 0.0
 
     #Validate all
     if total_function_keywords == 0 or function_keywords == "" or function_keywords is None:
@@ -987,10 +991,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         profile_profile_match = 100.0
     else:
         # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
-        prof_func_match, prof_profile_match = analyze_profile_similarity(candidate_profile_text, functions_text, profile_text)
-    
-        # Check if it has been assigned properly
-        if prof_func_match is None or prof_profile_match is None:  # Check if Gemini API Failed
+        profile_func_match, profile_profile_match = calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text)
+
+        if profile_func_match is None or profile_profile_match is None:
             st.warning("Could not calculate profile similarity. Setting default to 0%. Check API connection.")
             profile_func_match = 0.0
             profile_profile_match = 0.0
