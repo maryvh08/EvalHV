@@ -571,9 +571,6 @@ def extract_experience_section_with_ocr(pdf_path):
 
 def analyze_profile_similarity(candidate_profile_text, functions_text, profile_text):
     """
-    Analyzes the similarity between the candidate's profile text and both
-    the functions and profile descriptions for a specified position, leveraging the Gemini API.
-
     :param candidate_profile_text: Candidate's profile section text.
     :param functions_text: Functions description for the position.
     :param profile_text: The profile description for the position.
