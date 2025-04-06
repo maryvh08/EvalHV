@@ -571,7 +571,7 @@ def extract_experience_section_with_ocr(pdf_path):
 
 def analyze_profile_similarity(candidate_profile_text, functions_text, profile_text):
     """
-    :param candidate_profile_text: Candidate's profile section text.
+    :param candidate_profile_text: candidate's profile section text.
     :param functions_text: Functions description for the position.
     :param profile_text: The profile description for the position.
     :return: A tuple (function_similarity_score, profile_similarity_score)
