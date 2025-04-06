@@ -1542,7 +1542,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Encabezados de la tabla
     table_indicator = [["Indicador", "Concordancia (%)"]]
     
-    # Agregar datos de line_results a la tabla
+    # Agregar datos a la tabla
     for indicator, data in indicator_results.items():
       relevant_lines = sum(
           any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
