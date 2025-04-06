@@ -998,10 +998,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             profile_func_match = 0.0
             profile_profile_match = 0.0
     
-        profile_func_match = keyword_match_percentage + prof_func_match
-        profile_profile_match = keyword_match_percentage + prof_profile_match
-
-    
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
       parcial_exp_func_match = sum([res[1] for res in line_results]) / len(line_results)
