@@ -571,11 +571,10 @@ def extract_experience_section_with_ocr(pdf_path):
 
 def analyze_profile_similarity(candidate_profile_text, functions_text, profile_text):
     """
-    :param candidate_profile_text: candidate's profile section text.
-    :param functions_text: Functions description for the position.
-    :param profile_text: The profile description for the position.
+    :param candidate_profile_text: texto del perfil del candidato
+    :param functions_text: Descripción de funciones del cargo
+    :param profile_text: Descripción del perfil del cargo
     :return: A tuple (function_similarity_score, profile_similarity_score)
-             Scores range from 0-100. Returns (None, None) for any invalid text.
     """
     if not candidate_profile_text or not isinstance(candidate_profile_text, str):
         print("⚠️ Invalid input: candidate_profile_text missing or invalid")
