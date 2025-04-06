@@ -228,23 +228,35 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
 
 def calculate_all_indicators(lines, chapter, position, indicators):
     """
-    Calculates the percentages for each indicator for a given chapter and position.
+    .cv.presentation it fails
+Here are the code blocks with the correct functions and tests that has been debug.
+```python
+def calculate_all_indicators(lines, chapter, position, indicators):
+    """
+    Calculates theCalculates the percentages for each indicator for a given chapter and position.
+    """
+    total_lines = len(lines)
+    if total_lines == 0:
+        # Create correct empty nested dictionary before returning
+        chapter_indicators = indicators.get(chapter, {})
+        position_indicators = percentages for each indicator for a given chapter and position.
     :param lines: List of lines from the "EXPERIENCIA EN ANEIAP" section.
     :param chapter: The chapter name (string).
     :param position: The position name (string).
-    :param indicators: The complete indicators dictionary with chapter-cargo-indicator structure.
+    :param indicators: chapter_indicators.get(position, {})
+        if position_indicators:
+            return {indicator: 0 for indicator in position_indicators}  # avoid division by zero
+        else:
+           return {} #Correct handling, none can be found
+
+    #If none return by zero:
+    chapter The complete indicators dictionary with chapter-cargo-indicator structure.
     :return: A dictionary with the percentages for each indicator.
     """
     total_lines = len(lines)
     if total_lines == 0:
         # Create correct empty nested dictionary before returning
-        position_indicators = indicators.get(chapter, {}).get(position, {})
-        if position_indicators:
-            return {indicator: 0 for indicator in position_indicators}  # avoid division by zero
-        else:
-           return {} #Correct handling, none can be found
-    #If none return by zero:
-    chapter_indicators = indicators.get(chapter, {})
+        chapter_indicators = indicators_indicators = indicators.get(chapter, {})
     position_indicators = chapter_indicators.get(position, {})
 
     if not position_indicators: # Added to fix None types
@@ -252,13 +264,32 @@ def calculate_all_indicators(lines, chapter, position, indicators):
 
     indicator_results = {}
     for indicator, keywords in position_indicators.items():
-        relevant_lines = sum(
+        
+.get(chapter, {})
+        position_indicators = chapter_indicators.get(position, {})
+        if position_indicators:
+            return {indicator: 0 for indicator in position_indicators}  # avoid division by zero
+        else:
+           return {} #Correct handling, none can be found
+            if not keywords or len(keywords) == 0:
+            print(f"No keywords found for indicator {indicator}, skipping it.")
+            indicator_results[indicator] = 0.0
+            continue # skip, and it will not cause any exception with calculations.
+
+        relevant_lines = sum#If none return by zero:
+    chapter_indicators = indicators.get(chapter, {})
+    position_indicators = chapter_indicators.get(position, {})
+
+    if not position_indicators: # Added to fix None types
+       return {}
+
+    indicator_results = {}
+    for indicator(
             any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
         )
         indicator_results[indicator] = (relevant_lines / total_lines) * 100  # Calculate the percentage
 
     return indicator_results
-
 def calculate_indicators_for_report(lines, chapter, position, indicators):
     """
     Calculates the relevance percentages of indicators for the report, including relevant line details.
