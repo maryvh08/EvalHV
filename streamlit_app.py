@@ -270,27 +270,35 @@ def calculate_all_indicators(lines, chapter, position, indicators):
         return {}
 
     for indicator, keywords in position_indicators.items():
-        # New: Validate keywords before use
-        if not isinstance(keywords, list):
-            print(f"⚠️ Invalid keywords: Keywords for indicator '{indicator}' is not a list!")
-            indicator_results[indicator] = 0.0
-            continue  # Skip invalid keyword entries
+    #Check types and if not set to 0 and skip
+    if not isinstance(keywords, list):
+        print(f"⚠️ Invalid keywords: {indicator} does not have a list")
+        indicator_results[indicator] = 0.0
+        continue
 
-        if not keywords or len(keywords) == 0:
-            print(f"ℹ️ No keywords available for {indicator}, setting to 0%")
-            indicator_results[indicator] = 0.0
+    if not keywords or len(keywords) == 0:
+        print(f"ℹ️ No keywords available for {indicator}, setting to 0%")
+        indicator_results[indicator] = 0.0
+        continue
+    
+    # Initialize relevant_lines for each indicator
+    relevant_lines = 0
+    for line in lines:
+        if not isinstance(line, str):
+            print(f"Invalid value {line}")
             continue
         
-        relevant_lines = 0  # Initialize for each indicator
-        for line in lines:
-            if not isinstance(line, str):
-                print(f"⚠️ Invalid line: Found non-string line in input.")
-                continue
+        def count_matches(line, keywords): #Added keywords
+            matches = 0
+            for keyword in keywords: # Pass keywords in
+                if keyword.lower() in line.lower():
+                    matches+=1
+            return matches
 
-            # Process keywords and line with lowercase
-            relevant_lines += any(keyword.lower() in line.lower() for keyword in keywords)
+        relevant_lines+= count_matches(line, keywords)
 
-        indicator_results[indicator] = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0.0
+    # Ensure percentage calculation is safe
+    indicator_results[indicator] = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0.0 
 
     return indicator_results
     
