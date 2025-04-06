@@ -242,13 +242,13 @@ def calculate_all_indicators(lines, chapter, position, indicators):
     """
     # Verify type errors.
     if not isinstance(lines, list):
-        print("⚠️ Invalid input: lines must be a list")
+        st.warning("⚠️ Invalid input: lines must be a list")
         return {}
     if not isinstance(chapter, str) or not isinstance(position, str):
-        print("⚠️ Invalid input: chapter and position must be strings")
+        st.warning("⚠️ Invalid input: chapter and position must be strings")
         return {}
     if not isinstance(indicators, dict):
-        print("⚠️ Invalid input: indicators must be a dictionary")
+        st.warning("⚠️ Invalid input: indicators must be a dictionary")
         return {}
 
     total_lines = len(lines)
@@ -266,13 +266,13 @@ def calculate_all_indicators(lines, chapter, position, indicators):
     position_indicators = chapter_indicators.get(position, {})
 
     if not position_indicators:
-        print(f"⚠️ No indicators found for chapter: {chapter} and position: {position}")
+        st.warning(f"⚠️ No indicators found for chapter: {chapter} and position: {position}")
         return {}
 
     for indicator, keywords in position_indicators.items():
     #Check types and if not set to 0 and skip
         if not isinstance(keywords, list):
-            print(f"⚠️ Invalid keywords: {indicator} does not have a list")
+            st.warning(f"⚠️ Invalid keywords: {indicator} does not have a list")
             indicator_results[indicator] = 0.0
             continue
     
@@ -296,6 +296,8 @@ def calculate_all_indicators(lines, chapter, position, indicators):
                 return matches
     
             relevant_lines+= count_matches(line, keywords)
+            if any(keyword.lower() in line.lower() for keyword in keywords):  # Trying to use keywords here
+                relevant_lines += 1
     
         # Ensure percentage calculation is safe
         indicator_results[indicator] = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0.0 
