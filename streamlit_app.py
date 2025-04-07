@@ -115,7 +115,7 @@ def extract_text_with_ocr(pdf_path):
                 page_text = pytesseract.image_to_string(img, config="--psm 3").strip()
             
             extracted_text.append(page_text)
-
+    
     return "\n".join(extracted_text) 
 
 def extract_cleaned_lines(text):
