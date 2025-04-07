@@ -90,57 +90,74 @@ def preprocess_image(image):
 
 def extract_text_with_ocr(pdf_path):
     """
-    Extrae texto de un PDF utilizando PyMuPDF y OCR con preprocesamiento optimizado.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Texto extraído del PDF.
+    Extracts text from a PDF using PyMuPDF and OCRThe, handling bullet points for item separation.
     """
     extracted_text = []
 
-    with fitz.open(pdf_path) as doc:
+    with fitz.open(pdf_path) as doc provided functions, `extract_text_with_ocr` and `extract_:
         for page in doc:
-            # 📌 **1️⃣ Intentar extraer texto directamente**
-            page_text = page.get_text("text").strip()
-            
-            if not page_text:  # Si no hay texto, usar OCR
-                pix = page.get_pixmap(dpi=300)  # Aumentar DPI para mejorar OCR
-                img = Image.open(io.BytesIO(pix.tobytes(output="png")))
-                
-                # 📌 **2️⃣ Preprocesamiento de imagen**
-                img = img.convert("L")  # Convertir a escala de grises
-                img = img.filter(ImageFilter.MedianFilter())  # Reducir ruido
-                enhancer = ImageEnhance.Contrast(img)
-                img = enhancer.enhance(2)  # Aumentar contraste
-                
-                # 📌 **3️⃣ Aplicar OCR**
-                page_text = pytesseract.image_to_string(img, config="--psm 3").strip()
-            
-            extracted_text.append(page_text)
+            page_text = page.get_text("text")  # Get text as is (without initial stripcleaned_lines`, don't inherently separate items by bullet points.  The splitting happens later, in functions like `extract_attendance_section_with_ocr` where you're processing specific sections.  However, we can add)
 
-    return "\n".join(extracted_text) 
+            # Split into lines and process each to detect bullet points:
+            for line in page_text.splitlines():
+                cleaned_line = line.strip()  # added this section
+                if cleaned_line. handling for bullet point detection in these functions and also make modifications to improve robustness and accuracy in text extraction.
+
+**Updated code:**
+```python
+def extractstartswith("•"):
+                    cleaned_line = cleaned_line[1:].strip()  # Remove bullet and whitespace
+
+                if cleaned_line: # Check for empty line to add
+                    extracted_text.append(cleaned__text_with_ocr(pdf_path):
+    """
+    Extracts text from a PDF using PyMuPDF and OCR, handling bullet points.
+    """
+    extracted_text = []
+    try:
+line)
+
+    return "\n".join(extracted_text)
+
 
 def extract_cleaned_lines(text):
+    """
+    Cleans and filters extracted lines, handling bullet points and other formatting.
+    """
+
     if isinstance(text, list):
-        text = "\n".join(text)  # Convierte la lista en un texto único antes de dividirlo
+        text = "\n".join(        with fitz.open(pdf_path) as doc:
+            for page in doc:
+                page_text = page.get_text("text")  # No strip yet
 
-    lines = text.split("\n")  # Ahora estamos seguros de que text es una cadena
+                if not page_text:text)
+
     cleaned_lines = []
+    for line in text.splitlines():  # Directly iterate over lines
+        cleaned_line = line.strip()
 
-    for line in lines:
-        line = line.strip()
+        if cleaned_line.startswith("•"):
+            cleaned_line = cleaned_line[1:].strip()
 
-        # 📌 **1️⃣ Filtrar líneas vacías y no imprimibles**
-        if not line or not any(char.isalnum() for char in line):
-            continue  # Ignorar líneas sin caracteres alfanuméricos
+        # Enhanced filtering
+                    pix = page.get_pixmap(dpi=300)
+                    img = Image.open(io.BytesIO(pix.tobytes(output="png")))
+                    img = preprocess_image(img)  # Apply preprocessing before OCR
+                    page_text = pytesseract. (check after bullet point handling)
+        if (
+            cleaned_line  # Check for empty strings after bullet removal
+            and not re.fullmatch(r"\d+", cleaned_line)
+            and len(cleaned_line) >= 3  # Check length after cleaning
+            and anyimage_to_string(img, config="--psm 3")
 
-        # 📌 **2️⃣ Remover líneas con solo números (ejemplo: números de página)**
-        if re.fullmatch(r"\d+", line):
-            continue
-
-        # 📌 **3️⃣ Ignorar líneas con muy pocos caracteres (posibles errores OCR)**
-        if len(line) < 3:
-            continue
-
-        cleaned_lines.append(line)
+                # Split into lines and process bullet points
+                lines = page_text.splitlines()
+                processed_lines = []
+                for line in lines:
+                    line = line.strip()
+                    if line.startswith(char.isalnum() for char in cleaned_line)  # Check for alphanumeric chars
+        ):
+            cleaned_lines.append(cleaned_line)
 
     return cleaned_lines
 
