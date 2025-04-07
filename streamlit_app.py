@@ -88,22 +88,25 @@ def preprocess_image(image):
 
     return image
 
-def extract_text_with_ocr_optimized(pdf_path):
+def extract_text_with_ocr(pdf_path):
     """
-    Extrae texto de un PDF con PyMuPDF, aplicando un preprocesamiento enfocado en
-    eliminar saltos de línea inapropiados para texto con formato específico.
+    Extrae texto de un PDF utilizando PyMuPDF y OCR, con preprocesamiento agresivo
+    para unir líneas que pertenecen a un mismo elemento, manejando además el texto y ocr
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto extraído del PDF.
     """
     extracted_text = []
-    
+
     with fitz.open(pdf_path) as doc:
         for page in doc:
             text = page.get_text("text")
-    
-            # Replace newline chars, and merge it to make one string.
-            text = re.sub(r'\n(?!\s*[\w"-]|[\(])', ' ', text)  # removes if there is not next alphanumerico.
-    
+
+            # Combine lines aggressively to treat as one item, but also take care OCR with image
+            text = re.sub(r'(\w)-(\w)', r'\1-\2', text)  # Fix hyphenated words split across lines (e.g., "hard-\nware" becomes "hard-ware")
+            text = re.sub(r'\n(?!\S)', ' ', text)  # Remove newlines *unless* followed by a non-space char, better for paragraph
+
             extracted_text.append(text)
-    
+
     return "\n".join(extracted_text)
 
 def extract_cleaned_lines(text):
