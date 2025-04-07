@@ -1542,15 +1542,21 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Encabezados de la tabla
     table_indicator = [["Indicador", "Concordancia (%)"]]
     
-    # Agregar datos a la tabla
+    # Agregar datos a la tabla  # Problematic line
     for indicator, data in indicator_results.items():
-      relevant_lines = sum(
-          any(keyword.lower() in line.lower() for keyword in keywords) for line in lines
-      )
-      total_lines = len(line_results)
-      percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+        # The 'keywords' variable is not defined in this scope.  You meant to use 'data'
+        # relevant_lines = sum(any(keyword.lower() in line.lower() for keyword in keywords) for line in lines)  # INCORRECT
+
+        if isinstance(data, dict) and "relevant_lines" in data: #Check if valid, has "relevant_lines" then assign it from the object data.
+           relevant_lines= data.get("relevant_lines", 0)
+           total_lines = len(line_results)
+           percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+        elif isinstance(data, (int, float)):
+            percentage = data
+        else:
+            st.warning("Data not dict")
       if isinstance(percentage, (int, float)):  # Validar que sea un número
-          table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%"])
+        table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%"])
     
     # Crear la tabla con ancho de columnas ajustado
     indicator_table = Table(table_indicator, colWidths=[3 * inch, 2 * inch, 2 * inch])
