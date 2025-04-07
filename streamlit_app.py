@@ -1574,25 +1574,28 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     elements.append(Spacer(1, 0.2 * inch))
     
-    # Consejos para mejorar indicadores con baja presencia
-    low_performance_indicators = {k: v for k, v in indicator_results.items() if (relevant_lines/ total_lines) * 100 < 60.0}
-    if isinstance(data, dict) and "relevant_lines" in data: #Check if valid, has "relevant_lines" then assign it from the object data.
-           relevant_lines= data.get("relevant_lines", 0)
-           total_lines = len(line_results)
-           percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-    elif isinstance(data, (int, float)):
-        percentage = data
-    else:
-        st.warning("Data not dict")
+        # Consejos para mejorar indicadores con baja presencia
+    low_performance_indicators = {}  # Initialize as a dictionary
+    for indicator, data in indicator_results.items():
+        percentage = data.get("percentage", 0)  # Safely get percentage
+        if percentage < 60.0:
+            low_performance_indicators[indicator] = percentage  # Store as key-value
+
     if low_performance_indicators:
-      elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
-      for indicator, result in low_performance_indicators.items():
-          elements.append(Paragraph(f" {indicator}: ({percentage:.2f}%)", styles['CenturyGothicBold']))
-          elements.append(Spacer(1, 0.05 * inch))
-          for tip in advice[position].get(indicator, []):
-              elements.append(Paragraph(f"  • {tip}", styles['CenturyGothic']))
-              elements.append(Spacer(1, 0.1 * inch))
-    
+        elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
+        for indicator, percentage in low_performance_indicators.items():  # Iterate with percentage
+            elements.append(Paragraph(f" {indicator}: ({percentage:.2f}%)", styles['CenturyGothicBold']))
+            elements.append(Spacer(1, 0.05 * inch))
+
+            # Retrieve chapter-specific advice (if available)
+            chapter_advice = advice.get(chapter, {}).get(position, {})  # Get advice for the specific chapter and position
+            tips = chapter_advice.get(indicator, advice.get(position, {}).get(indicator, [])) # First find if there is advice for the indicator in the current chapter, else find the general advice
+            if not tips:
+                tips = ["No hay consejos disponibles para este indicador."]  # Default message if no tips are found
+            for tip in tips:  # Iterate over available tips
+                elements.append(Paragraph(f"  • {tip}", styles['CenturyGothic']))
+                elements.append(Spacer(1, 0.1 * inch))
+                
     elements.append(Spacer(1, 0.2 * inch))
     
     elements.append(Paragraph("<b>Resultados globales:</b>", styles['CenturyGothicBold']))
