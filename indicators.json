@@ -95,7 +95,7 @@
       "Gestión de documental": ["Almacenamiento", "Manual", "Documental", "Archivo", "Digital", "Base", "Biblioteca", "Documental", "Documentación", "Integridad", "SIGEDA", "Sistema"]
     },
     "DCD": {
-      "Gestión de asociados": ["Acompañamiento", "Bienestar", "Carnetización", "Expansión", "Fidelización","Gala","Incentivo", "Padrino", "Membresía", "Reclutamiento", "SÉ", "SRA"],
+      "Gestión de asociados": ["Acompañamiento", "Bienestar", "Carnetización", "Expansión", "Fidelización","Gala","Humano","Incentivo", "Padrino", "Membresía", "Reclutamiento", "SÉ", "SRA"],
       "Integración y bienestar": ["Bienestar", "Clima", "Cultura", "Desarrollo","FRAC", "FRAN", "FRAR", "FRAS", "Gala", "Incentivo", "Integración", "RRHH", "Salud"],
       "Sostenimiento y sociedad": ["Ambiente", "Ambiental", "Comunitario", "Social", "Responsabilidad", "RSA", "Sostenibilidad"]
     },
