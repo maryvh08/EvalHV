@@ -175,7 +175,6 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
 
     #Validate all
     if total_function_keywords == 0 or function_keywords == "" or function_keywords is None:
-        st.warning("There's no  keywords for functions, by setting to 0%")
         function_match_percentage= 0.0
     else :
         # if function matches
@@ -199,7 +198,6 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
             function_match_percentage = 0.0
 
     if total_profile_keywords == 0 or profile_keywords == "" or profile_keywords is None: # Check the numbers or it bugs out
-        st.warning("There are no  keywords for profile, by setting to 0%")
         profile_match_percentage= 0.0
     else:
         # if functions_text match
