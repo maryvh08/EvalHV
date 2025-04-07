@@ -147,9 +147,8 @@ def extract_cleaned_lines(text):
             processed_lines = []
             for line in lines:
                 line = line.strip()
-                if line.startswith(char.isalnum() for char in cleaned_line)  
-            cleaned_lines.append(cleaned_line)
-
+                if line.startswith(char.isalnum() for char in cleaned_line): 
+                    cleaned_lines.append(cleaned_line)
     return cleaned_lines
 
 def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text):
