@@ -94,29 +94,26 @@ def extract_text_with_ocr(pdf_path):
     """
     extracted_text = []
 
-    with fitz.open(pdf_path) as doc provided functions, `extract_text_with_ocr` and `extract_:
+    with fitz.open(pdf_path) as doc:
         for page in doc:
-            page_text = page.get_text("text")  # Get text as is (without initial stripcleaned_lines`, don't inherently separate items by bullet points.  The splitting happens later, in functions like `extract_attendance_section_with_ocr` where you're processing specific sections.  However, we can add)
-
-            # Split into lines and process each to detect bullet points:
-            for line in page_text.splitlines():
-                cleaned_line = line.strip()  # added this section
-                if cleaned_line. handling for bullet point detection in these functions and also make modifications to improve robustness and accuracy in text extraction.
-
-**Updated code:**
-```python
-def extractstartswith("•"):
-                    cleaned_line = cleaned_line[1:].strip()  # Remove bullet and whitespace
-
-                if cleaned_line: # Check for empty line to add
-                    extracted_text.append(cleaned__text_with_ocr(pdf_path):
-    """
-    Extracts text from a PDF using PyMuPDF and OCR, handling bullet points.
-    """
-    extracted_text = []
-    try:
-line)
-
+            # 📌 **1️⃣ Intentar extraer texto directamente**
+            page_text = page.get_text("text").strip()
+            
+            if not page_text:  # Si no hay texto, usar OCR
+                pix = page.get_pixmap(dpi=300)  # Aumentar DPI para mejorar OCR
+                img = Image.open(io.BytesIO(pix.tobytes(output="png")))
+                
+                # 📌 **2️⃣ Preprocesamiento de imagen**
+                img = img.convert("L")  # Convertir a escala de grises
+                img = img.filter(ImageFilter.MedianFilter())  # Reducir ruido
+                enhancer = ImageEnhance.Contrast(img)
+                img = enhancer.enhance(2)  # Aumentar contraste
+                
+                # 📌 **3️⃣ Aplicar OCR**
+                page_text = pytesseract.image_to_string(img, config="--psm 3").strip()
+            
+            extracted_text.append(page_text)
+    
     return "\n".join(extracted_text)
 
 
