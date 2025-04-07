@@ -119,28 +119,35 @@ def extract_text_with_ocr(pdf_path):
     return "\n".join(extracted_text) 
 
 def extract_cleaned_lines(text):
+    """
+    Extracts and cleans lines from text, splitting lines based on bullet points.
+    Handles various bullet point styles.
+    """
     if isinstance(text, list):
-        text = "\n".join(text)  # Convierte la lista en un texto único antes de dividirlo
+        text = "\n".join(text)  # Handle case where input is a list of strings
 
-    lines = text.split("\n")  # Ahora estamos seguros de que text es una cadena
+    lines = text.split("\n")  # Now we're sure text is a string
     cleaned_lines = []
-    
+
     for line in lines:
         line = line.strip()
-    
-        # 📌 **1️⃣ Filtrar líneas vacías y no imprimibles**
-        if not line or not any(char.isalnum() for char in line):
-            continue  # Ignorar líneas sin caracteres alfanuméricos
-    
-        # 📌 **2️⃣ Remover líneas con solo números (ejemplo: números de página)**
-        if re.fullmatch(r"\d+", line):
-            continue
-    
-        # 📌 **3️⃣ Ignorar líneas con muy pocos caracteres (posibles errores OCR)**
-        if len(line) < 3:
-            continue
-    
-        cleaned_lines.append(line)
+
+        # Bullet point detection regex
+        bullet_regex = r"^(•|‣|\-|\*|\+|▪|➔|❯|>|o|▪)\s+"  # Bullet styles at start of line
+
+        # Split lines that start with a bullet point
+        if re.match(bullet_regex, line):
+            parts = re.split(bullet_regex, line, maxsplit=1)  # Split only once
+            if len(parts) > 2: # only if the split was correct.
+               bullet = parts[1]
+               item_text = parts[2].strip() # text is here
+
+               if item_text:
+                    cleaned_lines.append(item_text)  # Append text not symbol.
+        # Process bullet lines, or other standard lines
+        else:
+            if line and any(char.isalnum() for char in line) and not re.fullmatch(r"\d+", line) and len(line) >= 3:
+                cleaned_lines.append(line)
     
     return cleaned_lines
 
