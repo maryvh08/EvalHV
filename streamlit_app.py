@@ -1317,13 +1317,19 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Análisis de ítems de asistencia a eventos:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
-    
+
     # Encabezados de la tabla
     att_table_data = [["Ítem", "Funciones del Cargo (%)", "Perfil del Cargo (%)"]]
-    
-    # Agregar datos de line_results a la tabla
-    for line, att_func_match, att_profile_match in att_line_results:
-      att_table_data.append([Paragraph(line, styles['CenturyGothic']), f"{att_func_match:.2f}%", f"{att_profile_match:.2f}%"])
+
+    for item, func_match, profile_match in att_line_results:  # Correctly iterate through att_line_results
+        att_table_data.append([Paragraph(item, styles['CenturyGothic']), f"{func_match:.2f}%", f"{profile_match:.2f}%"])
+
+    # Calculate *parcial* (partial) matches *after* the item loop
+    parcial_att_func_match = sum(func_match for _, func_match, _ in att_line_results) / len(att_line_results) if att_line_results else 0
+    parcial_att_profile_match = sum(profile_match for _, _, profile_match in att_line_results) / len(att_line_results) if att_line_results else 0
+
+    # Add partial scores
+    att_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_att_func_match:.2f}%", f"{parcial_att_profile_match:.2f}%"])
     
     #Agregar resultados parciales
     att_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_att_func_match:.2f}%", f"{parcial_att_profile_match:.2f}%"])
