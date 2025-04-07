@@ -3162,7 +3162,7 @@ def calculate_similarity_gemini(text1, text2):
 def home_page():
     st.title("Bienvenido a EvalHVAN")
 
-    st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí 🦁") 
+    st.subheader("¿Qué tan listo estás para asumir un cargo de junta directiva Capitular? Descúbrelo aquí ⚙️") 
     imagen_aneiap = 'Evaluador Hoja de Vida ANEIAP.jpg'
     st.image(imagen_aneiap, use_container_width=True)
     st.write("Esta herramienta analiza el contenido de la hoja de vida ANEIAP, comparándola con las funciones y perfil del cargo al que aspira, evaluando por medio de indicadores los aspectos puntuales en los cuales se hace necesario el aspirante enfatice para asegurar que este se encuentre preparado.") 
@@ -3222,7 +3222,7 @@ def home_page():
         <div style="display: flex; justify-content: center; gap: 20px;">
             <a href="{link_url_cargos}" target="_blank" style="text-decoration:none;">
                 <button style="
-                    background-color: #F1501B;
+                    background-color: #0D62AD;
                     border: none;
                     color: white;
                     padding: 12px 24px;
@@ -3236,7 +3236,7 @@ def home_page():
             </a>
             <a href="{link_url_indicadores}" target="_blank" style="text-decoration:none;">
                 <button style="
-                    background-color: #F1501B;
+                    background-color: #A8CF45;
                     border: none;
                     color: white;
                     padding: 12px 24px;
@@ -3250,7 +3250,7 @@ def home_page():
             </a>
             <a href="{link_url_perfiles}" target="_blank" style="text-decoration:none;">
                 <button style="
-                    background-color: #F1501B;
+                    background-color: #76C04E;
                     border: none;
                     color: white;
                     padding: 12px 24px;
