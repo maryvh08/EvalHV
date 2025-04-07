@@ -1580,10 +1580,10 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
            relevant_lines= data.get("relevant_lines", 0)
            total_lines = len(line_results)
            percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        elif isinstance(data, (int, float)):
-            percentage = data
-        else:
-            st.warning("Data not dict")
+    elif isinstance(data, (int, float)):
+        percentage = data
+    else:
+        st.warning("Data not dict")
     if low_performance_indicators:
       elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
       for indicator, result in low_performance_indicators.items():
