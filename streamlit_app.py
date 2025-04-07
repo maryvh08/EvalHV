@@ -2196,8 +2196,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             exp_func_match = 100
             exp_profile_match = 100
         else:
-            exp_func_match = calculate_similarity_gemini(header_and_details, functions_text)
-            exp_profile_match = calculate_similarity_gemini(header_and_details, profile_text)
+            exp_func_match = calculate_similarity(header_and_details, functions_text)
+            exp_profile_match = calculate_similarity(header_and_details, profile_text)
     
         # Ignorar ítems con 0% en funciones y perfil
         if exp_func_match == 0 and exp_profile_match == 0:
@@ -2245,8 +2245,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             org_func_match = 100
             org_profile_match = 100
         else:
-            org_func_match = calculate_similarity_gemini(header_and_details, functions_text)
-            org_profile_match = calculate_similarity_gemini(header_and_details, profile_text)
+            org_func_match = calculate_similarity(header_and_details, functions_text)
+            org_profile_match = calculate_similarity(header_and_details, profile_text)
     
         # Ignorar ítems con 0% en funciones y perfil
         if org_func_match == 0 and org_profile_match == 0:
@@ -2276,8 +2276,8 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             att_func_match = 100
             att_profile_match = 100
         else:
-            att_func_match = calculate_similarity_gemini(header_and_details, functions_text)
-            att_profile_match = calculate_similarity_gemini(header_and_details, profile_text)
+            att_func_match = calculate_similarity(header_and_details, functions_text)
+            att_profile_match = calculate_similarity(header_and_details, profile_text)
     
         # Ignorar ítems con 0% en funciones y perfil
         if att_func_match == 0 and att_profile_match == 0:
