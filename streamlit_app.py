@@ -138,23 +138,16 @@ def extract_cleaned_lines(text):
             cleaned_line = cleaned_line[1:].strip()
 
         # Enhanced filtering
-                    pix = page.get_pixmap(dpi=300)
-                    img = Image.open(io.BytesIO(pix.tobytes(output="png")))
-                    img = preprocess_image(img)  # Apply preprocessing before OCR
-                    page_text = pytesseract. (check after bullet point handling)
-        if (
-            cleaned_line  # Check for empty strings after bullet removal
-            and not re.fullmatch(r"\d+", cleaned_line)
-            and len(cleaned_line) >= 3  # Check length after cleaning
-            and anyimage_to_string(img, config="--psm 3")
-
-                # Split into lines and process bullet points
-                lines = page_text.splitlines()
-                processed_lines = []
-                for line in lines:
-                    line = line.strip()
-                    if line.startswith(char.isalnum() for char in cleaned_line)  # Check for alphanumeric chars
-        ):
+        pix = page.get_pixmap(dpi=300)
+        img = Image.open(io.BytesIO(pix.tobytes(output="png")))
+        img = preprocess_image(img)  # Apply preprocessing before OCR
+        page_text = pytesseract. (check after bullet point handling)
+        if cleaned_line and not re.fullmatch(r"\d+", cleaned_line) and len(cleaned_line) >= 3  and anyimage_to_string(img, config="--psm 3")
+            lines = page_text.splitlines()
+            processed_lines = []
+            for line in lines:
+                line = line.strip()
+                if line.startswith(char.isalnum() for char in cleaned_line)  
             cleaned_lines.append(cleaned_line)
 
     return cleaned_lines
