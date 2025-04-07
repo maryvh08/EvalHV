@@ -2124,7 +2124,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         return
     
     # Extraer texto de la sección EVENTOS ORGANIZADOS
-    items = extract_event_items_with_details(pdf_path)
+    org_items = extract_event_items_with_details(pdf_path)
     if not items:
         st.error("No se encontraron encabezados y detalles de eventos para analizar.")
         return
