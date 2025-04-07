@@ -1003,6 +1003,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         if att_func_match > 0 or att_profile_match > 0:
             att_line_results.append((line, att_func_match, att_profile_match))
 
+    # Now apply the functions and new methods
+    lines = extract_bullet_point_items(experience_text)
+    org_lines = extract_bullet_point_items(org_text)
+    att_lines = extract_bullet_point_items(att_text)
+    candidate_profile_lines = extract_bullet_point_items(candidate_profile_text)
+
    # Calcular porcentajes de concordancia con perfil de candidato
     keyword_match_percentage = 0.0  # Set to 0
     profile_func_match = 0.0  # Setting the default
