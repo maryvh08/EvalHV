@@ -90,7 +90,8 @@ def preprocess_image(image):
 
 def extract_text_with_ocr(pdf_path):
     """
-    Extrae texto de un PDF utilizando PyMuPDF y OCR con preprocesamiento optimizado.
+    Extrae texto de un PDF utilizando PyMuPDF y OCR, con preprocesamiento agresivo
+    para unir líneas que pertenecen a un mismo elemento, manejando además el texto y ocr
     :param pdf_path: Ruta del archivo PDF.
     :return: Texto extraído del PDF.
     """
@@ -98,50 +99,90 @@ def extract_text_with_ocr(pdf_path):
 
     with fitz.open(pdf_path) as doc:
         for page in doc:
-            # 📌 **1️⃣ Intentar extraer texto directamente**
-            page_text = page.get_text("text").strip()
-            
-            if not page_text:  # Si no hay texto, usar OCR
-                pix = page.get_pixmap(dpi=300)  # Aumentar DPI para mejorar OCR
-                img = Image.open(io.BytesIO(pix.tobytes(output="png")))
-                
-                # 📌 **2️⃣ Preprocesamiento de imagen**
-                img = img.convert("L")  # Convertir a escala de grises
-                img = img.filter(ImageFilter.MedianFilter())  # Reducir ruido
-                enhancer = ImageEnhance.Contrast(img)
-                img = enhancer.enhance(2)  # Aumentar contraste
-                
-                # 📌 **3️⃣ Aplicar OCR**
-                page_text = pytesseract.image_to_string(img, config="--psm 3").strip()
-            
-            extracted_text.append(page_text)
-    
-    return "\n".join(extracted_text) 
+            text = page.get_text("text")
+
+            # Combine lines aggressively to treat as one item, but also take care OCR with image
+            text = re.sub(r'(\w)-(\w)', r'\1-\2', text)  # Fix hyphenated words split across lines (e.g., "hard-\nware" becomes "hard-ware")
+            text = re.sub(r'\n(?!\S)', ' ', text)  # Remove newlines *unless* followed by a non-space char, better for paragraph
+
+            extracted_text.append(text)
+
+    return "\n".join(extracted_text)
+
+def extract_bullet_point_items(text):
+    """
+    Extracts items from text where each item starts with a bullet point (viñeta)
+    and may span multiple lines. Recognizes bulleted structure more reliably.
+
+    :param text: The input text containing bulleted items.
+    :return: A list of strings, where each string is a complete bulleted item.
+    """
+    if not text or not isinstance(text, str):
+        print("⚠️ Invalid input: text must be a string")
+        return []
+
+    # Robust regex to identify different bullet styles and handle whitespace
+    bullet_regex = r"^(•|‣|\-|\*|\+|\u2022)\s*(.+)$" # Check most common bullet.
+    # Regex para detectar numeros al principio de las lineas.
+    number_regex= r"^\d+\.\s*(.+)$"
+
+    items = []
+    current_item = None
+
+    lines = text.splitlines()  # Split into lines
+
+    for line in lines:
+        line = line.strip() # important for every call.
+        #Detect the bullet points
+        if re.match(bullet_regex,line) :
+            match = re.match(bullet_regex, line)
+            current_item = match.group(2)
+            items.append(current_item)
+
+        elif re.match(number_regex,line):
+            match= re.match(number_regex, line)
+            current_item = match.group(2)
+            items.append(current_item)
+
+        # it does not apply to bullet, then it is none and ignore.
+        else:
+            if items:
+             items[-1]+= line + ' '   # connect and be part of recent.
+
+    return items
 
 def extract_cleaned_lines(text):
-    if isinstance(text, list):
-        text = "\n".join(text)  # Convierte la lista en un texto único antes de dividirlo
+    """
+    Extracts and cleans lines from text, assuming each item *starts* with a bullet point
+    and ends just before the next bullet point.
+    """
 
-    lines = text.split("\n")  # Ahora estamos seguros de que text es una cadena
+    if isinstance(text, list):
+        text = "\n".join(text)
+
+    lines = text.split("\n")
     cleaned_lines = []
-    
+    current_item = ""  # Accumulator for the current bulleted item
+    bullet_regex = r"^(•|‣|\-|\*|\+|▪|➔|❯|>|o|▪)\s+" # Robust bullets
+
     for line in lines:
         line = line.strip()
-    
-        # 📌 **1️⃣ Filtrar líneas vacías y no imprimibles**
-        if not line or not any(char.isalnum() for char in line):
-            continue  # Ignorar líneas sin caracteres alfanuméricos
-    
-        # 📌 **2️⃣ Remover líneas con solo números (ejemplo: números de página)**
-        if re.fullmatch(r"\d+", line):
-            continue
-    
-        # 📌 **3️⃣ Ignorar líneas con muy pocos caracteres (posibles errores OCR)**
-        if len(line) < 3:
-            continue
-    
-        cleaned_lines.append(line)
-    
+
+        # Check if line starts with a bullet point
+        if re.match(bullet_regex, line):
+            #If the bullet and the new line then reset to add the text portion to next round
+            if current_item:
+                cleaned_lines.append(current_item.strip())  # Append the item
+            current_item = re.sub(bullet_regex, "", line, count=1).strip() # remove bullet from this line, set next.
+            # Normal bullet, but not the bullet text in line
+        else:
+
+            if line:
+                current_item += " " + line # Add normal
+
+    if current_item:#Catch last bullets if they are not there.
+        cleaned_lines.append(current_item.strip())
+
     return cleaned_lines
 
 def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text):
@@ -824,7 +865,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if not candidate_profile_text:
         st.error("No se encontró la sección 'Perfil' en el PDF.")
         return
-    
+
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
     lines= experience_text.split("\n")
