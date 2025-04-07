@@ -128,7 +128,7 @@ def extract_cleaned_lines(text):
             for page in doc:
                 page_text = page.get_text("text")  # No strip yet
 
-                if not page_text:text)
+                if not page_text:text
 
     cleaned_lines = []
     for line in text.splitlines():  # Directly iterate over lines
