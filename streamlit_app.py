@@ -244,6 +244,14 @@ def calculate_all_indicators(lines, chapter, position, indicators):
         st.warning("⚠️ Invalid input: indicators must be a dictionary")
         return {}
 
+    indicator_results = {}
+    chapter_indicators = indicators.get(chapter, {})
+    position_indicators = chapter_indicators.get(position, {})
+
+    if not position_indicators:
+        st.warning(f"⚠️ No indicators found for chapter: {chapter} and position: {position}")
+        return {}
+
     total_lines = len(lines)
     if total_lines == 0:
         chapter_indicators = indicators.get(chapter, {})
@@ -253,14 +261,6 @@ def calculate_all_indicators(lines, chapter, position, indicators):
             return {indicator: 0.0 for indicator in position_indicators}  # Ensure values are float
         else:
             return {}  # Correct handling when no indicators
-
-    indicator_results = {}
-    chapter_indicators = indicators.get(chapter, {})
-    position_indicators = chapter_indicators.get(position, {})
-
-    if not position_indicators:
-        st.warning(f"⚠️ No indicators found for chapter: {chapter} and position: {position}")
-        return {}
 
     for indicator, keywords in position_indicators.items():
     #Check types and if not set to 0 and skip
@@ -331,6 +331,7 @@ def calculate_indicators_for_report(lines, chapter, position, indicators):
         indicator_results[indicator] = {"percentage": percentage, "relevant_lines": relevant_lines}
 
     return indicator_results
+    
 # Función para calcular la similitud usando TF-IDF y similitud de coseno
 def clean_text(text):
     """Limpia el texto eliminando caracteres especiales y espacios extra."""
@@ -828,7 +829,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     att_lines = [line.strip() for line in att_lines if line.strip()]  # Eliminar líneas vacías
 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
-    position_indicators = indicators.get(position, {})
+    chapter_indicators = indicators.get(chapter, {})
+    position_indicators = chapter_indicators.get(position, {})
 
     indicator_results = calculate_all_indicators(lines, chapter, position, indicators)
 
@@ -859,7 +861,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
     
         # Obtener los indicadores y palabras clave para el cargo seleccionado
-        position_indicators = indicators.get(position, {})
+        chapter_indicators = indicators.get(chapter, {})
+        position_indicators = chapter_indicators.get(position, {})
         indicator_results = {}
 
         # Calcular el porcentaje por cada indicador
