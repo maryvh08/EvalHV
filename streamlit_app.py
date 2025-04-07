@@ -124,24 +124,24 @@ def extract_cleaned_lines(text):
 
     lines = text.split("\n")  # Ahora estamos seguros de que text es una cadena
     cleaned_lines = []
-
+    
     for line in lines:
         line = line.strip()
-
+    
         # 📌 **1️⃣ Filtrar líneas vacías y no imprimibles**
         if not line or not any(char.isalnum() for char in line):
             continue  # Ignorar líneas sin caracteres alfanuméricos
-
+    
         # 📌 **2️⃣ Remover líneas con solo números (ejemplo: números de página)**
         if re.fullmatch(r"\d+", line):
             continue
-
+    
         # 📌 **3️⃣ Ignorar líneas con muy pocos caracteres (posibles errores OCR)**
         if len(line) < 3:
             continue
-
+    
         cleaned_lines.append(line)
-
+    
     return cleaned_lines
 
 def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text):
