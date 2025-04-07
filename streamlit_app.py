@@ -865,6 +865,11 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if not candidate_profile_text:
         st.error("No se encontró la sección 'Perfil' en el PDF.")
         return
+
+    lines = extract_bullet_point_items(experience_text)
+    org_lines = extract_bullet_point_items(org_text)
+    att_lines = extract_bullet_point_items(att_text)
+    candidate_profile_lines = extract_bullet_point_items(candidate_profile_text)
     
     # Dividir la experiencia en líneas
     lines = extract_cleaned_lines(experience_text)
@@ -885,12 +890,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     att_lines = extract_cleaned_lines(att_text)
     att_lines= att_text.split("\n")
     att_lines = [line.strip() for line in att_lines if line.strip()]  # Eliminar líneas vacías
-
-    # Now apply the functions and new methods
-    lines = extract_bullet_point_items(experience_text)
-    org_lines = extract_bullet_point_items(org_text)
-    att_lines = extract_bullet_point_items(att_text)
-    candidate_profile_lines = extract_bullet_point_items(candidate_profile_text)
 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     chapter_indicators = indicators.get(chapter, {})
