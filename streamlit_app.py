@@ -3386,7 +3386,7 @@ def secondary():
         <div style="display: flex; justify-content: center; gap: 20px;">
             <a href="{link_url_plantilla}" target="_blank" style="text-decoration:none;">
                 <button style="
-                    background-color: #F1501B;
+                    background-color: #76C04E;
                     border: none;
                     color: white;
                     padding: 12px 24px;
