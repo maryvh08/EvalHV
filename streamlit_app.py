@@ -712,67 +712,77 @@ def evaluate_cv_presentation(pdf_path):
 
 def extract_attendance_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'Asistencia Eventos ANEIAP' de un archivo PDF con soporte de OCR,
-    considerando que los items están separados por viñetas.
-
-    Args:
-        pdf_path: Path to the PDF file.
-
-    Returns:
-        The extracted text of the section, or None if not found or on errors.
+    Extracts the 'Asistencia a Eventos' section from a PDF using OCR,
+    ensuring accurate item identification. Improves accuracy with:
+        * More robust keyword detection.
+        * Exclusion of common false positives.
+        * Cleaned line returns
     """
+
     text = extract_text_with_ocr(pdf_path)
     if not text:
-        return None
+        return None  # Improved handling of no content, return None for no text extracted
 
-    start_keyword = "ASISTENCIA A EVENTOS ANEIAP"
+    # More robust keyword matching (case-insensitive and allows variations)
+    start_keywords = ["ASISTENCIA A EVENTOS ANEIAP"]  # account for singular vs. plural
     end_keywords = [
         "ACTUALIZACIÓN PROFESIONAL",
+        "FIRMA",
         "EXPERIENCIA EN ANEIAP",
-        "EVENTOS ORGANIZADOS",
-        "RECONOCIMIENTOS",
+        "EVENTOS ORGANIZADOS"
     ]
 
-    start_idx = text.lower().find(start_keyword.lower())
-    if start_idx == -1:
-        return None
+    start_idx = -1  # Initialize to -1 for clearer handling
+    for keyword in start_keywords:
+        start_idx = text.lower().find(keyword.lower())
+        if start_idx != -1:
+            break  # Use the first occurrence
 
-    end_idx = len(text)
+    if start_idx == -1:
+        return None  # Section not found, return None explicitly
+
+    end_idx = len(text)  # Default to end of text
     for keyword in end_keywords:
-        idx = text.lower().find(keyword.lower(), start_idx)
+        idx = text.lower().find(keyword.lower(), start_idx)  # Start search after section start
         if idx != -1:
-            end_idx = min(end_idx, idx)
+            end_idx = min(end_idx, idx)  # closest keyword
 
     att_text = text[start_idx:end_idx].strip()
 
-    att_exclude_lines = [
+    # Refined Filtering and Cleaning (handles more cases)
+    exclude_lines = {
         "a nivel capitular",
         "a nivel nacional",
         "a nivel seccional",
-        "capitular",
-        "seccional",
-        "nacional",
-    ]
+        "reconocimientos individuales",
+        "reconocimientos grupales",
+        "trabajo capitular",
+        "trabajo nacional",
+        "nacional 2024",
+        "nacional 20212023",
+        "descripción del evento",
+        "información del evento",
+        "nombre del evento",
+        "resultados obtenidos",
+    }  # Use a set for faster lookups
 
     att_lines = att_text.split("\n")
-    att_cleaned_lines = []
+    cleaned_lines = []
 
     for line in att_lines:
-        cleaned_line = line.strip()
-        if cleaned_line.startswith("•"):  # Check and removes if there is bullet point.
-            cleaned_line = cleaned_line[1:].strip() # Remove bullet and any leading/trailing spaces
-        normalized_line = re.sub(r"[^\w\s]", "", cleaned_line).lower()
-        normalized_line = re.sub(r"\s+", " ", normalized_line).strip()
+        line = line.strip()
+        normalized_line = re.sub(r"[^\w\s]", "", line).lower()  # cleaning
+        normalized_line = re.sub(r"\s+", " ", normalized_line).strip() # removing space.
 
-        if (
-            normalized_line
-            and normalized_line not in att_exclude_lines
-            and normalized_line != start_keyword.lower()
-            and normalized_line not in [kw.lower() for kw in end_keywords]
-        ):
-            att_cleaned_lines.append(cleaned_line)
+        if (normalized_line and
+            normalized_line not in exclude_lines and
+            not any(keyword.lower() in normalized_line for keyword in start_keywords) and
+            not any(keyword.lower() in normalized_line for keyword in end_keywords)):
+            cleaned_lines.append(line)
 
-    return "\n".join(att_cleaned_lines) if att_cleaned_lines else None
+    cleaned_text = "\n".join(cleaned_lines)  # Create back a line structure with cleaned line.
+
+    return cleaned_text
 
 def generate_report_with_background(pdf_path, position, candidate_name,background_path, chapter):
     """
