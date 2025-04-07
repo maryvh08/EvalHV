@@ -116,39 +116,28 @@ def extract_text_with_ocr(pdf_path):
     
     return "\n".join(extracted_text)
 
-
 def extract_cleaned_lines(text):
-    """
-    Cleans and filters extracted lines, handling bullet points and other formatting.
-    """
-
     if isinstance(text, list):
-        text = "\n".join
-        with fitz.open(pdf_path) as doc:
-            for page in doc:
-                page_text = page.get_text("text")  # No strip yet
-
-                if not page_text:text
-
-    cleaned_lines = []
-    for line in text.splitlines():  # Directly iterate over lines
-        cleaned_line = line.strip()
-
-        if cleaned_line.startswith("•"):
-            cleaned_line = cleaned_line[1:].strip()
-
-        # Enhanced filtering
-        pix = page.get_pixmap(dpi=300)
-        img = Image.open(io.BytesIO(pix.tobytes(output="png")))
-        img = preprocess_image(img)  # Apply preprocessing before OCR
-        page_text = pytesseract
-        if cleaned_line and not re.fullmatch(r"\d+", cleaned_line) and len(cleaned_line) >= 3  and anyimage_to_string(img, config="--psm 3"):
-            lines = page_text.splitlines()
-            processed_lines = []
-            for line in lines:
-                line = line.strip()
-                if line.startswith(char.isalnum() for char in cleaned_line): 
-                    cleaned_lines.append(cleaned_line)
+        text = "\n".join(text)  # Convierte la lista en un texto único antes de dividirlo
+            lines = text.split("\n")  # Ahora estamos seguros de que text es una cadena
+            cleaned_lines = []
+    for line in lines:
+        line = line.strip()
+    
+        # 📌 **1️⃣ Filtrar líneas vacías y no imprimibles**
+        if not line or not any(char.isalnum() for char in line):
+            continue  # Ignorar líneas sin caracteres alfanuméricos
+    
+        # 📌 **2️⃣ Remover líneas con solo números (ejemplo: números de página)**
+        if re.fullmatch(r"\d+", line):
+            continue
+    
+        # 📌 **3️⃣ Ignorar líneas con muy pocos caracteres (posibles errores OCR)**
+        if len(line) < 3:
+            continue
+    
+        cleaned_lines.append(line)
+    
     return cleaned_lines
 
 def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text):
