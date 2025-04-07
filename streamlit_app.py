@@ -119,8 +119,8 @@ def extract_text_with_ocr(pdf_path):
 def extract_cleaned_lines(text):
     if isinstance(text, list):
         text = "\n".join(text)  # Convierte la lista en un texto único antes de dividirlo
-            lines = text.split("\n")  # Ahora estamos seguros de que text es una cadena
-            cleaned_lines = []
+        lines = text.split("\n")  # Ahora estamos seguros de que text es una cadena
+        cleaned_lines = []
     for line in lines:
         line = line.strip()
     
