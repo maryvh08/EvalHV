@@ -3269,7 +3269,7 @@ def home_page():
 
     st.markdown("""
         <div style="text-align: center; font-weight: bold; font-size: 20px;">
-        La herramienta tiene disponible dos versiones, de modo que se pueda evaluar la HV con el formato actual y una propuesta para incluir descripciones de los proyectos/cargos ocupados.
+        Evaluación de hoja de vida más sencilla, al acance de evaluadores y aspirantes.
         </div>
         """, unsafe_allow_html=True)
 
