@@ -148,107 +148,85 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
     """
     Calculates keyword match percentages (functions and profile) using the Gemini API.
 
-    Args:
-        candidate_profile_text: Candidate profile text.
-        position_indicators: Position indicators (dict).
-        functions_text: The functions of the position (text).
-        profile_text: The profile description (text).
-
-    Returns:
-        Tuple: (function_match_percentage, profile_match_percentage), or (0.0, 0.0) if invalid input, no keywords, or error.
+    :param candidate_profile_text: Candidate profile text.
+    :param position_indicators: Position indicators (dict).
+    :param functions_text: The functions of the position (text).
+    :param profile_text: The profile description (text).
+    :return: (function_match_percentage, profile_match_percentage), or (None, None) if invalid input or error.
     """
-    if not isinstance(candidate_profile_text, str):
-       print("Invalid candidate profile text")
-       return 0.0, 0.0 #Return 0 if there isn't text.
+    if not candidate_profile_text or not isinstance(candidate_profile_text, str):
+        print("⚠️ Invalid input: candidate_profile_text missing or invalid")
+        return (None, None)
 
     if not position_indicators or not isinstance(position_indicators, dict):
         print("⚠️ Invalid input: position_indicators missing or invalid")
-        return 0.0, 0.0
-
+        return (None, None)
 
     function_keywords = ""
     profile_keywords = ""
 
-    if not functions_text or not isinstance(functions_text, str):
-        print("Invalid Functions Text")
+    for indicator, keywords in position_indicators.items(): #Split indicators for functions vs perfil
 
-    if not profile_text or not isinstance(profile_text, str):
-        print("Invalid Profile text")
+        if functions_text and any(indicator.lower() in func.lower() for func in functions_text.split()): #If key-word set is for functions append it
+                function_keywords+= " ".join(keywords)
+        if profile_text and any(indicator.lower() in prof.lower() for prof in profile_text.split()): #If key-word set is for profile append it
+                profile_keywords += " ".join(keywords)
 
-    for indicator, keywords in position_indicators.items():
-        if functions_text and any(indicator.lower() in func.lower() for func in functions_text.split()):
-            function_keywords += " ".join(keywords)
-        if profile_text and any(indicator.lower() in prof.lower() for prof in profile_text.split()):
-            profile_keywords += " ".join(keywords)
+    # make sure we are not dividing by zero and there is a key words and no empty profile / function key words for calculations
+    total_function_keywords= len(function_keywords)
+    total_profile_keywords = len(profile_keywords)
 
-    total_function_keywords = len(function_keywords.split()) #split by white space
-    total_profile_keywords = len(profile_keywords.split())
-
+    # Initializar porcentajes a 0.0 por defecto
     function_match_percentage = 0.0
     profile_match_percentage = 0.0
 
-    if total_function_keywords == 0:
-        print("No function keywords found.")
-
-    else:
-        prompt = f"""
-            Analiza el siguiente texto: '{candidate_profile_text}'.
-            Indica si las siguientes palabras clave están presentes en el texto: {', '.join(function_keywords.split())}.
-            Responde 'Si' o 'No' por cada palabra clave, separadas por comas.
-        """
-        try:
-            GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
-            genai.configure(api_key=GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            response = model.generate_content(prompt)
-            function_answer = response.text
-            
-            # Split both the keywords and answer, to ensure that each work is being used
-            function_matched_keywords = 0
-            answers = function_answer.lower().split(',') # split by the commas as instructed
-            for i, keyword in enumerate(function_keywords.split()):
-                try:
-                   if "si" in answers[i].strip().lower(): #Make sure that index exist.
-                      function_matched_keywords+=1
-                except IndexError: # index does not exist, which means it was not found.
-                     pass
-
-            function_match_percentage = round((function_matched_keywords / total_function_keywords) * 100, 2) if total_function_keywords > 0 else 0.0
-
-        except (KeyError, Exception) as e: # Catch both exceptions
-            st.error(f"Error generating function keywords or API key not set: {e}")
-            # return 0.0, 0.0 #Don't return here, calculate profile match as well
-
-    if total_profile_keywords == 0:
-        print("No profile keywords found.")
+    #Validate all
+    if total_function_keywords == 0 or function_keywords == "" or function_keywords is None:
+        print("There's no  keywords for functions, by setting to 0%")
+        function_match_percentage= 0.0
     else :
+        # if function matches
         prompt = f"""
             Analiza el siguiente texto: '{candidate_profile_text}'.
-            Indica si las siguientes palabras clave están presentes en el texto: {', '.join(profile_keywords.split())}.
-            Responde 'Si' o 'No' por cada palabra clave, separadas por comas.
+            Indica si las siguientes palabras clave están presentes en el texto: {function_keywords}.
+            Responde 'Si' o 'No' por cada palabra clave.
         """
+
         try:
-            GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
+            GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
             genai.configure(api_key=GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('gemini-pro')
             response = model.generate_content(prompt)
-            profile_answer = response.text
-
-            profile_matched_keywords = 0
-            answers = profile_answer.lower().split(',') # split by comma and lower case it
-            for i, keyword in enumerate(profile_keywords.split()):
-                try:
-                   if "si" in answers[i].strip().lower():  # Check "si" and handle potential IndexError
-                       profile_matched_keywords+=1
-                except IndexError:#means the model did not find a match.
-                    pass
-            profile_match_percentage = round((profile_matched_keywords / total_profile_keywords) * 100, 2) if total_profile_keywords > 0 else 0.0
-
+            function_answer= response.text
+            function_matched_keywords = sum(1 for keyword in function_keywords.split() if keyword.lower() in function_answer.lower())# Split by white space
+            function_match_percentage= round((function_matched_keywords / total_function_keywords) * 100, 2)
 
         except Exception as e:
-            st.error(f"Error generating profile keywords: {e}")
-           # return 0.0, 0.0 ##Don't return here
+            st.error(f"Error generating function keywords: {e}") #Error message to output
+            function_match_percentage = 0.0
 
+    if total_profile_keywords == 0 or profile_keywords == "" or profile_keywords is None: # Check the numbers or it bugs out
+        print("There are no  keywords for profile, by setting to 0%")
+        profile_match_percentage= 0.0
+    else:
+        # if functions_text match
+        prompt = f"""
+            Analiza el siguiente texto: '{candidate_profile_text}'.
+            Indica si las siguientes palabras clave están presentes en el texto: {profile_keywords}.
+            Responde 'Si' o 'No' por cada palabra clave.
+        """
+        try:
+            GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
+            genai.configure(api_key=GOOGLE_API_KEY)
+            model = genai.GenerativeModel('gemini-pro')
+            response = model.generate_content(prompt)
+            profile_answer= response.text
+            profile_matched_keywords = sum(1 for keyword in profile_keywords.split() if keyword.lower() in profile_answer.lower())  # Split by white space
+            profile_match_percentage = round((profile_matched_keywords / total_profile_keywords) * 100, 2)
+
+        except Exception as e:
+            st.error(f"Error generating profile keywords: {e}") #Error message to output
+            profile_match_percentage = 0.0
 
     return function_match_percentage, profile_match_percentage
 
@@ -1042,6 +1020,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             st.warning("Could not calculate profile similarity. Setting default to 0%. Check API connection.")
             profile_func_match = 0.0
             profile_profile_match = 0.0
+
     
     # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
     if line_results:  # Evitar división por cero si no hay ítems válidos
