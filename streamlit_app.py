@@ -729,43 +729,68 @@ def extract_attendance_section_with_ocr(pdf_path):
 
     # Encontrar índice de inicio
     start_idx = text.lower().find(start_keyword.lower())
-    if start_idx == -1:
-        return None  # No se encontró la sección
+ in end_keywords:
+            idx = text.lower().find(keyword.lower(), start_idx)
+            if idx != -1:
+                end_idx = min(end_idx, idx)
 
-    # Encontrar índice más cercano de fin basado en palabras clave
-    end_idx = len(text)  # Por defecto, tomar hasta el final
+        att_text = text[start_idx:end_idx].strip()
+
+    if start_idx == -1:
+        return None
+
+    end_idx = len(text)
     for keyword in end_keywords:
         idx = text.lower().find(keyword.lower(), start_idx)
         if idx != -1:
-            end_idx = min(end_idx, idx)
+            end_idx =        att_exclude_lines = [
+            "a nivel capitular",
+            "a nivel nacional",
+            "a nivel seccional",
+            "capitular",
+            "seccional",
+            "nacional",
+        ]
 
-    # Extraer la sección entre inicio y fin
+        att_lines = att_text.split("\n min(end_idx, idx")
+
     att_text = text[start_idx:end_idx].strip()
 
-    # Filtrar y limpiar texto
     att_exclude_lines = [
         "a nivel capitular",
         "a nivel nacional",
         "a nivel seccional",
-        "capitular",
-        "seccional",
-        "nacional",
-    ]
+        "capitular")
+        att_cleaned_lines = []
+    for line in att_lines:
+        cleaned_line = line.strip()
+        cleaned_line = re.sub(r"[^\w\s]", "", cleaned_line)  # Remove non-alphanumeric characters
+        normalized_att= ["seccional", "nacional",]
+    
     att_lines = att_text.split("\n")
     att_cleaned_lines = []
-    for line in att_lines:
-        line = line.strip()
-        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
-        normalized_att_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
-        if (
-            normalized_att_line
-            and normalized_att_line not in att_exclude_lines
-            and normalized_att_line != start_keyword.lower()
-            and normalized_att_line not in [kw.lower() for kw in end_keywords]
-        ):
-            att_cleaned_lines.append(line)
 
-    return "\n".join(att_cleaned_lines)
+    for line in att_lines:
+        cleaned_line = line.strip()
+        normalized_line =_line = re.sub(r"\s+", " ", cleaned_line).lower().strip()
+
+            if (
+                normalized_att_line
+                and normalized_att_line not in att_exclude_lines
+                and normalized_att_line != start_keyword.lower()
+                 re.sub(r"[^\w\s]", "", cleaned_line).lower() #Regex first
+        normalized_line = re.sub(r"\s+", " ", normalized_line).strip()
+        if (
+            normalized_line
+            and normalized_line not in att_exclude_and normalized_att_line not in [kw.lower() for kw in end_keywords]
+            ):
+                att_cleaned_lines.append(cleaned_line)  # Append the cleaned line
+
+        return "\n".join(att_cleaned_lines) if att_cleaned_lines elselines
+            and normalized_line != start_keyword.lower()
+            and normalized_line not in [kw.lower() for kw in end_keywords]
+        ):
+            att_cleaned_lines.append(cleaned_line)
     
     # Debugging: Imprime líneas procesadas
     st.warning("Líneas procesadas:")
