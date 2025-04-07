@@ -142,7 +142,7 @@ def extract_cleaned_lines(text):
         img = Image.open(io.BytesIO(pix.tobytes(output="png")))
         img = preprocess_image(img)  # Apply preprocessing before OCR
         page_text = pytesseract
-        if cleaned_line and not re.fullmatch(r"\d+", cleaned_line) and len(cleaned_line) >= 3  and anyimage_to_string(img, config="--psm 3")
+        if cleaned_line and not re.fullmatch(r"\d+", cleaned_line) and len(cleaned_line) >= 3  and anyimage_to_string(img, config="--psm 3"):
             lines = page_text.splitlines()
             processed_lines = []
             for line in lines:
