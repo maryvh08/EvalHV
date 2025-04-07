@@ -3215,6 +3215,8 @@ def home_page():
     link_label_cargos = "Info cargos"
     link_url_indicadores = "https://docs.google.com/document/d/1BM07wuVaXEWcdurTRr8xBzjsB1fiWt6wGqOzLiyQBs8/edit?usp=drive_link"
     link_label_indicadores = "Info indicadores"
+    link_url_perfiles = "https://docs.google.com/document/d/1WvAe0toLeedLXQ4YYUsiK5OUTPacTQ8HkDVdyShl3l0/edit?usp=drive_link"
+    link_label_perfiles = "Info perfiles"
 
     st.markdown(f"""
         <div style="display: flex; justify-content: center; gap: 20px;">
@@ -3244,6 +3246,20 @@ def home_page():
                     border-radius: 4px;
                 ">
                     {link_label_indicadores}
+                </button>
+            </a>
+            <a href="{link_url_perfiles}" target="_blank" style="text-decoration:none;">
+                <button style="
+                    background-color: #F1501B;
+                    border: none;
+                    color: white;
+                    padding: 12px 24px;
+                    text-align: center;
+                    font-size: 16px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                ">
+                    {link_label_perfiles}
                 </button>
             </a>
         </div>
