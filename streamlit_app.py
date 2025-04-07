@@ -1338,9 +1338,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     parcial_att_func_match = sum(func_match for _, func_match, _ in att_line_results) / len(att_line_results) if att_line_results else 0
     parcial_att_profile_match = sum(profile_match for _, _, profile_match in att_line_results) / len(att_line_results) if att_line_results else 0
 
-    # Add partial scores
-    att_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_att_func_match:.2f}%", f"{parcial_att_profile_match:.2f}%"])
-    
     #Agregar resultados parciales
     att_table_data.append([Paragraph("<b>Concordancia Parcial</b>", styles['CenturyGothicBold']), f"{parcial_att_func_match:.2f}%", f"{parcial_att_profile_match:.2f}%"])
     att_table_data.append([Paragraph("<b>Puntaje Parcial</b>", styles['CenturyGothicBold']), f"{parcial_att_func_score:.2f}", f"{parcial_att_profile_score:.2f}"])   
