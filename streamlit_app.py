@@ -123,7 +123,8 @@ def extract_cleaned_lines(text):
     """
 
     if isinstance(text, list):
-        text = "\n".join(        with fitz.open(pdf_path) as doc:
+        text = "\n".join
+        with fitz.open(pdf_path) as doc:
             for page in doc:
                 page_text = page.get_text("text")  # No strip yet
 
