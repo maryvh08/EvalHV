@@ -1555,8 +1555,8 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             percentage = data
         else:
             st.warning("Data not dict")
-      if isinstance(percentage, (int, float)):  
-        table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%"])
+    if isinstance(percentage, (int, float)):
+      table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%"])
     
     # Crear la tabla con ancho de columnas ajustado
     indicator_table = Table(table_indicator, colWidths=[3 * inch, 2 * inch, 2 * inch])
