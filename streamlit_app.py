@@ -1535,46 +1535,46 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     # Concordancia de items organizada en tabla con ajuste de texto
     elements.append(Paragraph("<b>Resultados de indicadores:</b>", styles['CenturyGothicBold']))
     elements.append(Spacer(1, 0.2 * inch))
+
     # Encabezados de la tabla
     table_indicator = [["Indicador", "Concordancia (%)"]]
-    
-    # Agregar datos a la tabla  # Problematic line
+
+    # Obtener los indicadores y palabras clave para el cargo y capítulo seleccionado
+    chapter_indicators = indicators.get(chapter, {})
+    position_indicators = chapter_indicators.get(position, {})
+
+    # Calcular los resultados de los indicadores
+    indicator_results = calculate_indicators_for_report(lines, chapter, position, indicators)
+
+
+    # Agregar datos a la tabla
     for indicator, data in indicator_results.items():
-        if isinstance(data, dict) and "relevant_lines" in data: #Check if valid, has "relevant_lines" then assign it from the object data.
-           relevant_lines= data.get("relevant_lines", 0)
-           total_lines = len(line_results)
-           percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
-        elif isinstance(data, (int, float)):
-            percentage = data
-        else:
-            st.warning("Data not dict")
-            
+        percentage = data.get("percentage", 0)  # Obtener el porcentaje directamente de los resultados del indicador
+
         if isinstance(percentage, (int, float)):
-          table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%"])
-    
-    # Crear la tabla con ancho de columnas ajustado
+            table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%"])
+        else:
+             st.warning(f"Invalid percentage value for indicator '{indicator}'. Check indicator calculations.")
+
+
+    # Resto del código para crear y agregar la tabla (sin cambios)
     indicator_table = Table(table_indicator, colWidths=[3 * inch, 2 * inch, 2 * inch])
-    
-    # Estilos de la tabla con ajuste de texto
     indicator_table.setStyle(TableStyle([
-      ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),  # Fondo para encabezados
-      ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Color de texto en encabezados
-      ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinear texto al centro
-      ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),  # Fuente para encabezados
-      ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),  # Fuente para el resto de la tabla
-      ('FONTSIZE', (0, 0), (-1, -1), 10),  # Tamaño de fuente
-      ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # Padding inferior para encabezados
-      ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Líneas de la tabla
-      ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Alinear texto verticalmente al centro
-      ('WORDWRAP', (0, 0), (-1, -1)),  # Habilitar ajuste de texto
+      ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F0F0F0")),
+      ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+      ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+      ('FONTNAME', (0, 0), (-1, 0), 'CenturyGothicBold'),
+      ('FONTNAME', (0, 1), (-1, -1), 'CenturyGothic'),
+      ('FONTSIZE', (0, 0), (-1, -1), 10),
+      ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+      ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+      ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+      ('WORDWRAP', (0, 0), (-1, -1)),
     ]))
-    
-    # Agregar tabla a los elementos
     elements.append(indicator_table)
-    
     elements.append(Spacer(1, 0.2 * inch))
     
-        # Consejos para mejorar indicadores con baja presencia
+    # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {}  # Initialize as a dictionary
     for indicator, data in indicator_results.items():
         percentage = data.get("percentage", 0)  # Safely get percentage
