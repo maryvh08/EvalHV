@@ -154,13 +154,6 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
     :param profile_text: The profile description (text).
     :return: (function_match_percentage, profile_match_percentage), or (None, None) if invalid input or error.
     """
-    if not candidate_profile_text or not isinstance(candidate_profile_text, str):
-        st.warning("⚠️ Invalid input: candidate_profile_text missing or invalid")
-        return (None, None)
-
-    if not position_indicators or not isinstance(position_indicators, dict):
-        st.warning("⚠️ Invalid input: position_indicators missing or invalid")
-        return (None, None)
 
     function_keywords = ""
     profile_keywords = ""
@@ -1544,9 +1537,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     # Agregar datos a la tabla  # Problematic line
     for indicator, data in indicator_results.items():
-        # The 'keywords' variable is not defined in this scope.  You meant to use 'data'
-        # relevant_lines = sum(any(keyword.lower() in line.lower() for keyword in keywords) for line in lines)  # INCORRECT
-
         if isinstance(data, dict) and "relevant_lines" in data: #Check if valid, has "relevant_lines" then assign it from the object data.
            relevant_lines= data.get("relevant_lines", 0)
            total_lines = len(line_results)
