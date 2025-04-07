@@ -155,11 +155,11 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
     :return: (function_match_percentage, profile_match_percentage), or (None, None) if invalid input or error.
     """
     if not candidate_profile_text or not isinstance(candidate_profile_text, str):
-        print("⚠️ Invalid input: candidate_profile_text missing or invalid")
+        st.warning("⚠️ Invalid input: candidate_profile_text missing or invalid")
         return (None, None)
 
     if not position_indicators or not isinstance(position_indicators, dict):
-        print("⚠️ Invalid input: position_indicators missing or invalid")
+        st.warning("⚠️ Invalid input: position_indicators missing or invalid")
         return (None, None)
 
     function_keywords = ""
@@ -182,7 +182,7 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
 
     #Validate all
     if total_function_keywords == 0 or function_keywords == "" or function_keywords is None:
-        print("There's no  keywords for functions, by setting to 0%")
+        st.warning("There's no  keywords for functions, by setting to 0%")
         function_match_percentage= 0.0
     else :
         # if function matches
@@ -206,7 +206,7 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
             function_match_percentage = 0.0
 
     if total_profile_keywords == 0 or profile_keywords == "" or profile_keywords is None: # Check the numbers or it bugs out
-        print("There are no  keywords for profile, by setting to 0%")
+        st.warning("There are no  keywords for profile, by setting to 0%")
         profile_match_percentage= 0.0
     else:
         # if functions_text match
@@ -277,7 +277,7 @@ def calculate_all_indicators(lines, chapter, position, indicators):
             continue
     
         if not keywords or len(keywords) == 0:
-            print(f"ℹ️ No keywords available for {indicator}, setting to 0%")
+            st.warning(f"ℹ️ No keywords available for {indicator}, setting to 0%")
             indicator_results[indicator] = 0.0
             continue
         
@@ -285,7 +285,7 @@ def calculate_all_indicators(lines, chapter, position, indicators):
         relevant_lines = 0
         for line in lines:
             if not isinstance(line, str):
-                print(f"Invalid value {line}")
+                st.warning(f"Invalid value {line}")
                 continue
             
             def count_matches(line, keywords): #Added keywords
@@ -343,7 +343,7 @@ def clean_text(text):
     """Limpia el texto eliminando caracteres especiales y espacios extra."""
     
     if not isinstance(text, str):  # Si no es una cadena de texto, manejar el error
-        print(f"⚠️ Error en clean_text: Se esperaba str, pero se recibió {type(text)} -> {text}")
+        st.warning(f"⚠️ Error en clean_text: Se esperaba str, pero se recibió {type(text)} -> {text}")
         return ""  # Evita que falle devolviendo una cadena vacía
     
     text = re.sub(r"[^\w\s]", "", text)  # Elimina puntuación
@@ -354,13 +354,13 @@ def calculate_similarity(text1, text2):
     """Calcula la similitud entre dos textos usando TF-IDF y similitud de coseno."""
     
     if not isinstance(text1, str) or not isinstance(text2, str):
-        print(f"⚠️ Error en calculate_similarity: text1 ({type(text1)}) = {text1}, text2 ({type(text2)}) = {text2}")
+        st.warning(f"⚠️ Error en calculate_similarity: text1 ({type(text1)}) = {text1}, text2 ({type(text2)}) = {text2}")
         return 0  # Evita errores si los valores son incorrectos
 
     text1, text2 = clean_text(text1), clean_text(text2)
 
     if not text1 or not text2:  # Si después de limpiar los textos están vacíos
-        print(f"⚠️ Textos vacíos después de limpieza: text1='{text1}', text2='{text2}'")
+        st.warning(f"⚠️ Textos vacíos después de limpieza: text1='{text1}', text2='{text2}'")
         return 0
 
     try:
@@ -369,7 +369,7 @@ def calculate_similarity(text1, text2):
         similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
         return round(similarity * 100, 2)
     except Exception as e:
-        print(f"⚠️ Error en calculate_similarity: {e}")
+        st.warning(f"⚠️ Error en calculate_similarity: {e}")
         return 0
 
 def calculate_presence(texts, keywords):
@@ -485,7 +485,7 @@ def extract_profile_section_with_ocr(pdf_path):
     text = extract_text_with_ocr(pdf_path)
 
     if not text or len(text.strip()) == 0:
-        print("⚠️ No se pudo extraer texto del PDF.")
+        st.warning("⚠️ No se pudo extraer texto del PDF.")
         return ""
 
     # Palabras clave para identificar el inicio y fin de la sección
@@ -498,7 +498,7 @@ def extract_profile_section_with_ocr(pdf_path):
     # Buscar la palabra clave de inicio
     start_idx = text.lower().find(start_keyword.lower())
     if start_idx == -1:
-        print("⚠️ No se encontró la sección 'Perfil'.")
+        st.warning("⚠️ No se encontró la sección 'Perfil'.")
         return ""
 
     # Encontrar el índice más cercano de las palabras clave de fin
@@ -578,9 +578,9 @@ def extract_experience_section_with_ocr(pdf_path):
     return "\n".join(cleaned_lines)
     
     # Debugging: Imprime líneas procesadas
-    print("Líneas procesadas:")
+    st.warning("Líneas procesadas:")
     for line in cleaned_lines:
-        print(f"- {line}")
+        st.warning(f"- {line}")
     
     return "\n".join(cleaned_lines)
 
@@ -592,15 +592,15 @@ def analyze_profile_similarity(candidate_profile_text, functions_text, profile_t
     :return: A tuple (function_similarity_score, profile_similarity_score)
     """
     if not candidate_profile_text or not isinstance(candidate_profile_text, str):
-        print("⚠️ Invalid input: candidate_profile_text missing or invalid")
+        st.warning("⚠️ Invalid input: candidate_profile_text missing or invalid")
         return (None, None)
 
     if not functions_text or not isinstance(functions_text, str):
-        print("⚠️ Invalid input: functions_text missing or invalid")
+        st.warning("⚠️ Invalid input: functions_text missing or invalid")
         return (None, None)
 
     if not profile_text or not isinstance(profile_text, str):
-        print("⚠️ Invalid input: profile_text missing or invalid")
+        st.warning("⚠️ Invalid input: profile_text missing or invalid")
         return (None, None)
 
     # Calculate similarity with function and profile texts using Gemini API
@@ -774,9 +774,9 @@ def extract_attendance_section_with_ocr(pdf_path):
     return "\n".join(att_cleaned_lines)
     
     # Debugging: Imprime líneas procesadas
-    print("Líneas procesadas:")
+    st.warning("Líneas procesadas:")
     for line in att_cleaned_lines:
-        print(f"- {line}")
+        st.warning(f"- {line}")
     
     return "\n".join(att_cleaned_lines)
 
@@ -971,7 +971,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             genai.configure(api_key=GOOGLE_API_KEY)
             for m in genai.list_models():
                 if 'generateContent' in m.supported_generation_methods:
-                    print(m.name)
+                    st.warning(m.name)
     
         try:
             GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
@@ -2031,7 +2031,7 @@ def extract_profile_section_with_details(pdf_path):
         return candidate_profile_text.strip()
     
     except Exception as e:
-        print(f"⚠️ Error en extract_profile_section_with_details: {e}")
+        st.warning(f"⚠️ Error en extract_profile_section_with_details: {e}")
         return ""
 
 def analyze_and_generate_descriptive_report_with_background(pdf_path, position, candidate_name, advice, indicators, background_path, chapter):
@@ -3047,7 +3047,7 @@ def calculate_similarity_gemini(text1, text2):
         try:
             similarity_score = int(similarity_score_text)
         except ValueError:
-            print(f"⚠️ No se pudo convertir la respuesta a un número: {similarity_score_text}")
+            st.warning(f"⚠️ No se pudo convertir la respuesta a un número: {similarity_score_text}")
             return 0
     
         # Asegúrate de que el puntaje esté en el rango de 0 a 100
@@ -3055,7 +3055,7 @@ def calculate_similarity_gemini(text1, text2):
     
         return similarity_score
     except Exception as e:
-        print(f"⚠️ Error al calcular la similitud con la API de Gemini: {e}")
+        st.warning(f"⚠️ Error al calcular la similitud con la API de Gemini: {e}")
         return 0
 
 # Página de Inicio (Home)
