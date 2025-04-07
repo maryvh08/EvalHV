@@ -2221,15 +2221,6 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             profile_func_match = 0.0
             profile_profile_match = 0.0
 
-    
-    # Calcular porcentajes parciales respecto a la Experiencia ANEIAP
-    if line_results:  # Evitar división por cero si no hay ítems válidos
-      parcial_exp_func_match = sum([res[1] for res in line_results]) / len(line_results)
-      parcial_exp_profile_match = sum([res[2] for res in line_results]) / len(line_results)
-    else:
-      parcial_exp_func_match = 0
-      parcial_exp_profile_match = 0
-    
     #EXPERIENCIA EN ANEIAP
     for header, details in items.items():
         header_and_details = f"{header} {' '.join(details)}"  # Combinar encabezado y detalles
