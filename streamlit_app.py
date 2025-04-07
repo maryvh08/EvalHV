@@ -1576,12 +1576,17 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     
     # Consejos para mejorar indicadores con baja presencia
     low_performance_indicators = {k: v for k, v in indicator_results.items() if (relevant_lines/ total_lines) * 100 < 60.0}
+    if isinstance(data, dict) and "relevant_lines" in data: #Check if valid, has "relevant_lines" then assign it from the object data.
+           relevant_lines= data.get("relevant_lines", 0)
+           total_lines = len(line_results)
+           percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 0
+        elif isinstance(data, (int, float)):
+            percentage = data
+        else:
+            st.warning("Data not dict")
     if low_performance_indicators:
       elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
       for indicator, result in low_performance_indicators.items():
-          total_lines = len(line_results)
-          relevant_lines = sum(any(keyword.lower() in line.lower() for keyword in keywords) for line in lines)
-          percentage = (relevant_lines / total_lines) * 100
           elements.append(Paragraph(f" {indicator}: ({percentage:.2f}%)", styles['CenturyGothicBold']))
           elements.append(Spacer(1, 0.05 * inch))
           for tip in advice[position].get(indicator, []):
