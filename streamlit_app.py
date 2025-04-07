@@ -886,6 +886,12 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     att_lines= att_text.split("\n")
     att_lines = [line.strip() for line in att_lines if line.strip()]  # Eliminar líneas vacías
 
+    # Now apply the functions and new methods
+    lines = extract_bullet_point_items(experience_text)
+    org_lines = extract_bullet_point_items(org_text)
+    att_lines = extract_bullet_point_items(att_text)
+    candidate_profile_lines = extract_bullet_point_items(candidate_profile_text)
+
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     chapter_indicators = indicators.get(chapter, {})
     position_indicators = chapter_indicators.get(position, {})
@@ -1002,12 +1008,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
         # Solo agregar al reporte si no tiene 0% en ambas métricas
         if att_func_match > 0 or att_profile_match > 0:
             att_line_results.append((line, att_func_match, att_profile_match))
-
-    # Now apply the functions and new methods
-    lines = extract_bullet_point_items(experience_text)
-    org_lines = extract_bullet_point_items(org_text)
-    att_lines = extract_bullet_point_items(att_text)
-    candidate_profile_lines = extract_bullet_point_items(candidate_profile_text)
 
    # Calcular porcentajes de concordancia con perfil de candidato
     keyword_match_percentage = 0.0  # Set to 0
