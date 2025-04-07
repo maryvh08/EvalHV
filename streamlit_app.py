@@ -1548,6 +1548,7 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
             percentage = data
         else:
             st.warning("Data not dict")
+            
         if isinstance(percentage, (int, float)):
           table_indicator.append([Paragraph(indicator, styles['CenturyGothic']), f"{percentage:.2f}%"])
     
@@ -1578,7 +1579,9 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     if low_performance_indicators:
       elements.append(Paragraph("<b>Consejos para Mejorar:</b>", styles['CenturyGothicBold']))
       for indicator, result in low_performance_indicators.items():
-          percentage = (relevant_lines/ total_lines)*100
+          relevant_lines= data.get("relevant_lines", 0)
+           total_lines = len(line_results)
+           percentage = (relevant_lines / total_lines) * 100 if total_lines > 0 else 
           elements.append(Paragraph(f" {indicator}: ({percentage:.2f}%)", styles['CenturyGothicBold']))
           elements.append(Spacer(1, 0.05 * inch))
           for tip in advice[position].get(indicator, []):
