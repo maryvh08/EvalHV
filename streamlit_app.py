@@ -870,26 +870,6 @@ def generate_report_with_background(pdf_path, position, candidate_name,backgroun
     org_lines = extract_bullet_point_items(org_text)
     att_lines = extract_bullet_point_items(att_text)
     candidate_profile_lines = extract_bullet_point_items(candidate_profile_text)
-    
-    # Dividir la experiencia en líneas
-    lines = extract_cleaned_lines(experience_text)
-    lines= experience_text.split("\n")
-    lines = [line.strip() for line in lines if line.strip()]  # Eliminar líneas vacías
-
-    # Dividir los eventos en líneas
-    org_lines = extract_cleaned_lines(org_text)
-    org_lines= org_text.split("\n")
-    org_lines = [line.strip() for line in org_lines if line.strip()]  # Eliminar líneas vacías
-
-    #Dividir lineas de perfil
-    candidate_profile_lines = extract_cleaned_lines(candidate_profile_text)
-    candidate_profile_lines= candidate_profile_text.split("\n")
-    candidate_profile_lines= [line.strip() for line in candidate_profile_lines if line.strip()] 
-    
-    # Dividir la asistencia en líneas
-    att_lines = extract_cleaned_lines(att_text)
-    att_lines= att_text.split("\n")
-    att_lines = [line.strip() for line in att_lines if line.strip()]  # Eliminar líneas vacías
 
     # Obtener los indicadores y palabras clave para el cargo seleccionado
     chapter_indicators = indicators.get(chapter, {})
