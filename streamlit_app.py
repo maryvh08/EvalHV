@@ -143,6 +143,48 @@ def extract_cleaned_lines(text):
 
     return cleaned_lines
 
+def extract_bullet_point_items(text):
+    """
+    Extracts items from text where each item starts with a bullet point (viñeta)
+    and may span multiple lines. Recognizes bulleted structure more reliably.
+
+    :param text: The input text containing bulleted items.
+    :return: A list of strings, where each string is a complete bulleted item.
+    """
+    if not text or not isinstance(text, str):
+        print("⚠️ Invalid input: text must be a string")
+        return []
+
+    # Robust regex to identify different bullet styles and handle whitespace
+    bullet_regex = r"^(•|‣|\-|\*|\+|\u2022)\s*(.+)$" # Check most common bullet.
+    # Regex para detectar numeros al principio de las lineas.
+    number_regex= r"^\d+\.\s*(.+)$"
+
+    items = []
+    current_item = None
+
+    lines = text.splitlines()  # Split into lines
+
+    for line in lines:
+        line = line.strip() # important for every call.
+        #Detect the bullet points
+        if re.match(bullet_regex,line) :
+            match = re.match(bullet_regex, line)
+            current_item = match.group(2)
+            items.append(current_item)
+
+        elif re.match(number_regex,line):
+            match= re.match(number_regex, line)
+            current_item = match.group(2)
+            items.append(current_item)
+
+        # it does not apply to bullet, then it is none and ignore.
+        else:
+            if items:
+             items[-1]+= line + ' '   # connect and be part of recent.
+
+    return items
+
 def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text):
     """
     Calculates keyword match percentages (functions and profile) using the Gemini API.
