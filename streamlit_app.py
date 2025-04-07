@@ -88,37 +88,23 @@ def preprocess_image(image):
 
     return image
 
-def extract_text_with_ocr(pdf_path):
+def extract_text_with_ocr_optimized(pdf_path):
     """
-    Extrae texto de un PDF utilizando PyMuPDF y OCR con preprocesamiento optimizado.
-    :param pdf_path: Ruta del archivo PDF.
-    :return: Texto extraído del PDF.
+    Extrae texto de un PDF con PyMuPDF, aplicando un preprocesamiento enfocado en
+    eliminar saltos de línea inapropiados para texto con formato específico.
     """
     extracted_text = []
-
+    
     with fitz.open(pdf_path) as doc:
         for page in doc:
-            # 📌 **1️⃣ Intentar extraer texto directamente**
-            page_text = page.get_text("text").strip()
-            
-            if not page_text:  # Si no hay texto, usar OCR
-                pix = page.get_pixmap(dpi=300)  # Aumentar DPI para mejorar OCR
-                img = Image.open(io.BytesIO(pix.tobytes(output="png")))
-                
-                # 📌 **2️⃣ Preprocesamiento de imagen**
-                img = img.convert("L")  # Convertir a escala de grises
-                img = img.filter(ImageFilter.MedianFilter())  # Reducir ruido
-                enhancer = ImageEnhance.Contrast(img)
-                img = enhancer.enhance(2)  # Aumentar contraste
-                
-                # 📌 **3️⃣ Aplicar OCR**
-                page_text = pytesseract.image_to_string(img, config="--psm 3").strip()
-            
-            extracted_text.append(page_text)
+            text = page.get_text("text")
     
-    return "\n".join(extracted_text) 
-
-import re
+            # Replace newline chars, and merge it to make one string.
+            text = re.sub(r'\n(?!\s*[\w"-]|[\(])', ' ', text)  # removes if there is not next alphanumerico.
+    
+            extracted_text.append(text)
+    
+    return "\n".join(extracted_text)
 
 def extract_cleaned_lines(text):
     """
