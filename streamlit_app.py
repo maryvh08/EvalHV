@@ -109,40 +109,6 @@ def extract_text_with_ocr(pdf_path):
 
     return "\n".join(extracted_text)
 
-def extract_cleaned_lines(text):
-    """
-    Extracts and cleans lines from text, assuming each item *starts* with a bullet point
-    and ends just before the next bullet point.
-    """
-
-    if isinstance(text, list):
-        text = "\n".join(text)
-
-    lines = text.split("\n")
-    cleaned_lines = []
-    current_item = ""  # Accumulator for the current bulleted item
-    bullet_regex = r"^(•|‣|\-|\*|\+|▪|➔|❯|>|o|▪)\s+" # Robust bullets
-
-    for line in lines:
-        line = line.strip()
-
-        # Check if line starts with a bullet point
-        if re.match(bullet_regex, line):
-            #If the bullet and the new line then reset to add the text portion to next round
-            if current_item:
-                cleaned_lines.append(current_item.strip())  # Append the item
-            current_item = re.sub(bullet_regex, "", line, count=1).strip() # remove bullet from this line, set next.
-            # Normal bullet, but not the bullet text in line
-        else:
-
-            if line:
-                current_item += " " + line # Add normal
-
-    if current_item:#Catch last bullets if they are not there.
-        cleaned_lines.append(current_item.strip())
-
-    return cleaned_lines
-
 def extract_bullet_point_items(text):
     """
     Extracts items from text where each item starts with a bullet point (viñeta)
@@ -184,6 +150,40 @@ def extract_bullet_point_items(text):
              items[-1]+= line + ' '   # connect and be part of recent.
 
     return items
+
+def extract_cleaned_lines(text):
+    """
+    Extracts and cleans lines from text, assuming each item *starts* with a bullet point
+    and ends just before the next bullet point.
+    """
+
+    if isinstance(text, list):
+        text = "\n".join(text)
+
+    lines = text.split("\n")
+    cleaned_lines = []
+    current_item = ""  # Accumulator for the current bulleted item
+    bullet_regex = r"^(•|‣|\-|\*|\+|▪|➔|❯|>|o|▪)\s+" # Robust bullets
+
+    for line in lines:
+        line = line.strip()
+
+        # Check if line starts with a bullet point
+        if re.match(bullet_regex, line):
+            #If the bullet and the new line then reset to add the text portion to next round
+            if current_item:
+                cleaned_lines.append(current_item.strip())  # Append the item
+            current_item = re.sub(bullet_regex, "", line, count=1).strip() # remove bullet from this line, set next.
+            # Normal bullet, but not the bullet text in line
+        else:
+
+            if line:
+                current_item += " " + line # Add normal
+
+    if current_item:#Catch last bullets if they are not there.
+        cleaned_lines.append(current_item.strip())
+
+    return cleaned_lines
 
 def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text):
     """
