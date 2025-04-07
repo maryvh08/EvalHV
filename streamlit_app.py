@@ -118,37 +118,40 @@ def extract_text_with_ocr(pdf_path):
     
     return "\n".join(extracted_text) 
 
+import re
+
 def extract_cleaned_lines(text):
     """
-    Extracts and cleans lines from text, splitting lines based on bullet points.
-    Handles various bullet point styles.
+    Extracts and cleans lines from text, assuming each item *starts* with a bullet point
+    and ends just before the next bullet point.
     """
-    if isinstance(text, list):
-        text = "\n".join(text)  # Handle case where input is a list of strings
 
-    lines = text.split("\n")  # Now we're sure text is a string
+    if isinstance(text, list):
+        text = "\n".join(text)
+
+    lines = text.split("\n")
     cleaned_lines = []
+    current_item = ""  # Accumulator for the current bulleted item
+    bullet_regex = r"^(•|‣|\-|\*|\+|▪|➔|❯|>|o|▪)\s+" # Robust bullets
 
     for line in lines:
         line = line.strip()
 
-        # Bullet point detection regex
-        bullet_regex = r"^(•|‣|\-|\*|\+|▪|➔|❯|>|o|▪)\s+"  # Bullet styles at start of line
-
-        # Split lines that start with a bullet point
+        # Check if line starts with a bullet point
         if re.match(bullet_regex, line):
-            parts = re.split(bullet_regex, line, maxsplit=1)  # Split only once
-            if len(parts) > 2: # only if the split was correct.
-               bullet = parts[1]
-               item_text = parts[2].strip() # text is here
-
-               if item_text:
-                    cleaned_lines.append(item_text)  # Append text not symbol.
-        # Process bullet lines, or other standard lines
+            #If the bullet and the new line then reset to add the text portion to next round
+            if current_item:
+                cleaned_lines.append(current_item.strip())  # Append the item
+            current_item = re.sub(bullet_regex, "", line, count=1).strip() # remove bullet from this line, set next.
+            # Normal bullet, but not the bullet text in line
         else:
-            if line and any(char.isalnum() for char in line) and not re.fullmatch(r"\d+", line) and len(line) >= 3:
-                cleaned_lines.append(line)
-    
+
+            if line:
+                current_item += " " + line # Add normal
+
+    if current_item:#Catch last bullets if they are not there.
+        cleaned_lines.append(current_item.strip())
+
     return cleaned_lines
 
 def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text):
