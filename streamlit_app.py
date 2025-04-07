@@ -90,7 +90,9 @@ def preprocess_image(image):
 
 def extract_text_with_ocr(pdf_path):
     """
-    Extracts text from a PDF using PyMuPDF and OCRThe, handling bullet points for item separation.
+    Extrae texto de un PDF utilizando PyMuPDF y OCR con preprocesamiento optimizado.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto extraído del PDF.
     """
     extracted_text = []
 
@@ -113,31 +115,33 @@ def extract_text_with_ocr(pdf_path):
                 page_text = pytesseract.image_to_string(img, config="--psm 3").strip()
             
             extracted_text.append(page_text)
-    
-    return "\n".join(extracted_text)
+
+    return "\n".join(extracted_text) 
 
 def extract_cleaned_lines(text):
     if isinstance(text, list):
         text = "\n".join(text)  # Convierte la lista en un texto único antes de dividirlo
-        lines = text.split("\n")  # Ahora estamos seguros de que text es una cadena
-        cleaned_lines = []
+
+    lines = text.split("\n")  # Ahora estamos seguros de que text es una cadena
+    cleaned_lines = []
+
     for line in lines:
         line = line.strip()
-    
+
         # 📌 **1️⃣ Filtrar líneas vacías y no imprimibles**
         if not line or not any(char.isalnum() for char in line):
             continue  # Ignorar líneas sin caracteres alfanuméricos
-    
+
         # 📌 **2️⃣ Remover líneas con solo números (ejemplo: números de página)**
         if re.fullmatch(r"\d+", line):
             continue
-    
+
         # 📌 **3️⃣ Ignorar líneas con muy pocos caracteres (posibles errores OCR)**
         if len(line) < 3:
             continue
-    
+
         cleaned_lines.append(line)
-    
+
     return cleaned_lines
 
 def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text):
