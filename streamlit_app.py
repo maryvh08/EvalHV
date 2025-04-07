@@ -51,24 +51,14 @@ def load_indicators(filepath="indicators.json"):
 def load_advice(filepath="advice.json"):
     with open(filepath, "r", encoding="utf-8") as file:
         return json.load(file)
-def load_profile_examples():
-    with open("profile.json", "r") as f:
-        return json.load(f)
 
 # Cargar indicadores y consejos al inicio del script
 indicators = load_indicators()
 advice = load_advice()
-profile_examples = load_profile_examples()
 
 # Uso del código
 background_path = "Fondo reporte.png"
 portada_path= "Portada Analizador.png"
-
-# Asegurar que las dependencias de NLTK estén descargadas
-import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download("wordnet")
 
 def preprocess_image(image):
     """
