@@ -86,8 +86,8 @@
   "UNINORTE": {
     "DCA": {
       "Diseño académico": ["Académica", "Académico", "Coordinador", "Blanda", "Capacitación", "Certificación", "Conocimiento", "Contenido", "Dura", "Evaluación", "Habilidad", "Staff","Sé","SNC", "Taller"],
-      "Innovación e investigación": ["Académica", "Académico", "Conocimiento", "Herramienta", "I+D+I", "Innovación", "Investigación"],
-      "Formación y capacitación": ["Actividad", "Capacitación", "Charla", "Conferencia", "Curso", "Entrenamiento", "Escuela", "Formación", "Seminario","SNC", "Taller"]
+      "Innovación e investigación": ["Académica", "Académico","COEXPRO", "Conocimiento", "Herramienta", "I+D+I", "Innovación", "Investigación"],
+      "Formación y capacitación": ["Actividad", "Capacitación", "Charla","COEXPRO", "Conferencia", "Curso", "Entrenamiento", "Escuela", "Formación", "Seminario","SNC", "Taller"]
     },
     "DCC": {
       "Estrategia de comunicación": ["Alcance", "Comunicación", "Imagen","Difusión", "Digital", "Estrategia", "Marca", "Comunicativa", "Impacto", "Interacción", "MIC", "Plan", "Posicionamiento", "Publicidad", "Red"],
