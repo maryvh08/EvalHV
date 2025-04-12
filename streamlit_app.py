@@ -226,7 +226,7 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
         try:
             GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
             genai.configure(api_key=GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-pro')
+            model = genai.GenerativeModel('gemini-1.5-flash')
             response = model.generate_content(prompt)
             function_answer= response.text
             function_matched_keywords = sum(1 for keyword in function_keywords.split() if keyword.lower() in function_answer.lower())# Split by white space
@@ -249,7 +249,7 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
         try:
             GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
             genai.configure(api_key=GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-pro')
+            model = genai.GenerativeModel('gemini-1.5-flash')
             response = model.generate_content(prompt)
             profile_answer= response.text
             profile_matched_keywords = sum(1 for keyword in profile_keywords.split() if keyword.lower() in profile_answer.lower())  # Split by white space
