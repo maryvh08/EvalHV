@@ -843,7 +843,7 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
             att_line_results.append((line, att_func_match, att_profile_match))
 
     # Calcular porcentajes de concordancia con perfil de candidato
-    keyword_match_percentage = 0.0  # Set to 0
+    keyword_match_percentage = 100.0  # Set to 100
     profile_func_match = 0.0  # Setting the default
     profile_profile_match = 0.0
     
