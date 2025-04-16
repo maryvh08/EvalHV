@@ -1985,10 +1985,10 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     profile_profile_match = 0.0
     
     function_matched_keywords = sum(1 for keyword in function_keywords.split() if keyword.lower() in candidate_profile_text.lower())# Split by white space
-            function_match_percentage= round((function_matched_keywords / total_function_keywords) * 100, 2)
+    function_match_percentage= round((function_matched_keywords / total_function_keywords) * 100, 2)
 
-     profile_matched_keywords = sum(1 for keyword in profile_keywords.split() if keyword.lower() in candidate_profile_textr.lower())  # Split by white space
-            profile_match_percentage = round((profile_matched_keywords / total_profile_keywords) * 100, 2)
+    profile_matched_keywords = sum(1 for keyword in profile_keywords.split() if keyword.lower() in candidate_profile_textr.lower())  # Split by white space
+    profile_match_percentage = round((profile_matched_keywords / total_profile_keywords) * 100, 2)
 
     total_keywords = 0
     matched_keywords = 0
