@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from PIL import Image, ImageFilter, ImageOps, ImageEnhance
 
-#Link de la página: https://evalhvan.streamlit.app/
+#Link de la página https://evalhv-uvgdqtpnuheurqmrzdnnnb.streamlit.app
 
 # Configuraciones de página
 st.set_page_config(
