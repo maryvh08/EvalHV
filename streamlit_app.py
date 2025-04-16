@@ -301,7 +301,7 @@ def calculate_keyword_match_percentage(candidate_profile_text, position_indicato
     total_profile_keywords = len(profile_keywords)
 
     # Initializar porcentajes a 0.0 por defecto
-    keyword_match_percentage = 0.0  # Set to 0
+    keyword_match_percentage = 100.0  # Set to 100
     profile_func_match = 0.0  # Setting the default
     profile_profile_match = 0.0
     
@@ -849,13 +849,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     
     total_keywords = 0
     matched_keywords = 0
-    
-    if total_keywords == 0:
-        keyword_match_percentage = 0.00  # Setting standard
-    else:
-        keyword_match_percentage = (matched_keywords / total_keywords) * 100
-        # Asegúrate de que el puntaje esté en el rango de 0 a 100
-        keyword_match_percentage = max(0.00, min(100.00, keyword_match_percentage))
     
     # Evaluación de concordancia basada en palabras clave
     if keyword_match_percentage == 100:
