@@ -160,8 +160,8 @@ indicators = load_indicators()
 advice = load_advice()
 
 # Rutas a los archivos
-background_path = "images/Fondo reporte.png"
-portada_path = "images/Portada Analizador.png"
+background_path = "Fondo reporte.png"
+portada_path = "Portada Analizador.png"
 
 # FUNCIONES DE UTILIDAD
 
