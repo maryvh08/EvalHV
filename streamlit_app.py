@@ -314,9 +314,6 @@ def calculate_keyword_match_percentage(candidate_profile_text, position_indicato
     else:
         function_match_percentage= 100.0
     
-        except Exception as e:
-            st.error(f"Error generating function keywords: {e}") #Error message to output
-            function_match_percentage = 0.0
 
     if total_profile_keywords == 0 or profile_keywords == "" or profile_keywords is None: # Check the numbers or it bugs out
         profile_match_percentage= 0.0
