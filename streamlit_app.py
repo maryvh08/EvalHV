@@ -1973,12 +1973,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         keyword_match_percentage = max(0.00, min(100.00, keyword_match_percentage))
     
     # Evaluación de concordancia basada en palabras clave
-    if keyword_match_percentage == 100:
+    if keyword_match_percentage =! 0:
         profile_func_match = 100.0
         profile_profile_match = 100.0
     else:
         # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
-        profile_func_match, profile_profile_match = calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text)
+        profile_func_match, profile_profile_match = calculate_keyword_match_percentage(candidate_profile_text, position_indicators, functions_text, profile_text)
 
         if profile_func_match is None or profile_profile_match is None:
             st.warning("Could not calculate profile similarity. Setting default to 0%. Check API connection.")
