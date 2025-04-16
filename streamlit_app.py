@@ -268,7 +268,7 @@ def calculate_similarity(text1, text2):
         print(f"⚠️ Error en calculate_similarity: {e}")
         return 0
 
-def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text):
+def calculate_keyword_match_percentage(candidate_profile_text, position_indicators, functions_text, profile_text):
     """
     Calculates keyword match percentages (functions and profile) using the Gemini API.
 
@@ -310,52 +310,19 @@ def calculate_keyword_match_percentage_gemini(candidate_profile_text, position_i
 
     #Validate all
     if total_function_keywords == 0 or function_keywords == "" or function_keywords is None:
-        print("There's no  keywords for functions, by setting to 0%")
         function_match_percentage= 0.0
-    else :
-        # if function matches
-        prompt = f"""
-            Analiza el siguiente texto: '{candidate_profile_text}'.
-            Indica si las siguientes palabras clave están presentes en el texto: {function_keywords}.
-            Responde 'Si' o 'No' por cada palabra clave.
-        """
-
-        try:
-            GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
-            genai.configure(api_key=GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            response = model.generate_content(prompt)
-            function_answer= response.text
-            function_matched_keywords = sum(1 for keyword in function_keywords.split() if keyword.lower() in function_answer.lower())# Split by white space
-            function_match_percentage= round((function_matched_keywords / total_function_keywords) * 100, 2)
-
+    else:
+        function_match_percentage= 100.0
+    
         except Exception as e:
             st.error(f"Error generating function keywords: {e}") #Error message to output
             function_match_percentage = 0.0
 
     if total_profile_keywords == 0 or profile_keywords == "" or profile_keywords is None: # Check the numbers or it bugs out
-        print("There are no  keywords for profile, by setting to 0%")
         profile_match_percentage= 0.0
     else:
-        # if functions_text match
-        prompt = f"""
-            Analiza el siguiente texto: '{candidate_profile_text}'.
-            Indica si las siguientes palabras clave están presentes en el texto: {profile_keywords}.
-            Responde 'Si' o 'No' por cada palabra clave.
-        """
-        try:
-            GOOGLE_API_KEY= st.secrets["GEMINI_API_KEY"]
-            genai.configure(api_key=GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            response = model.generate_content(prompt)
-            profile_answer= response.text
-            profile_matched_keywords = sum(1 for keyword in profile_keywords.split() if keyword.lower() in profile_answer.lower())  # Split by white space
-            profile_match_percentage = round((profile_matched_keywords / total_profile_keywords) * 100, 2)
-
-        except Exception as e:
-            st.error(f"Error generating profile keywords: {e}") #Error message to output
-            profile_match_percentage = 0.0
-
+        profile_match_percentage= 100.0
+        
     return function_match_percentage, profile_match_percentage
 
 def draw_full_page_cover(canvas, portada_path, candidate_name, position, chapter):
@@ -930,7 +897,7 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
         profile_profile_match = 100.0
     else:
         # Calcular similitud con funciones y perfil del cargo si la coincidencia es baja
-        profile_func_match, profile_profile_match = calculate_keyword_match_percentage_gemini(candidate_profile_text, position_indicators, functions_text, profile_text)
+        profile_func_match, profile_profile_match = calculate_keyword_match_percentage(candidate_profile_text, position_indicators, functions_text, profile_text)
 
         if profile_func_match is None or profile_profile_match is None:
             st.warning("Could not calculate profile similarity. Setting default to 0%. Check API connection.")
@@ -2020,39 +1987,17 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     profile_func_match = 0.0  # Setting the default
     profile_profile_match = 0.0
     
+    function_matched_keywords = sum(1 for keyword in function_keywords.split() if keyword.lower() in candidate_profile_text.lower())# Split by white space
+            function_match_percentage= round((function_matched_keywords / total_function_keywords) * 100, 2)
+
+     profile_matched_keywords = sum(1 for keyword in profile_keywords.split() if keyword.lower() in candidate_profile_textr.lower())  # Split by white space
+            profile_match_percentage = round((profile_matched_keywords / total_profile_keywords) * 100, 2)
+
     total_keywords = 0
     matched_keywords = 0
     
     for indicator, keywords in position_indicators.items():
         total_keywords += len(keywords)  # Set total keywords
-
-        prompt = f"""
-            Analiza el siguiente texto: '{candidate_profile_text}'.
-            Indica si las siguientes palabras clave están presentes en el texto: {', '.join(keywords)}.
-            Responde 'Si' o 'No' por cada palabra clave.
-        """
-    
-        def available_models():
-            GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
-            genai.configure(api_key=GOOGLE_API_KEY)
-            for m in genai.list_models():
-                if 'generateContent' in m.supported_generation_methods:
-                    st.warning(m.name)
-    
-        try:
-            GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
-            genai.configure(api_key=GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            response = model.generate_content(prompt)
-            answer = response.text
-    
-            # Check the answer with keyword
-            for keyword in keywords:
-                if keyword.lower() in answer.lower():  # Lowercase for robust comparison
-                    matched_keywords += 1
-        except Exception as e:
-            st.error(f"Error generating contents {e}")  # Error message to output
-            answer = ""
     
     if total_keywords == 0:
         keyword_match_percentage = 0.00  # Setting standard
