@@ -774,7 +774,7 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     try:
         with fitz.open(f"Funciones/F{position}.pdf") as func_doc:
             functions_text = func_doc[0].get_text()
-        with fitz.open(f"Perfil/P{position}.pdf") as profile_doc:
+        with fitz.open(f"Perfiles/P{position}.pdf") as profile_doc:
             profile_text = profile_doc[0].get_text()
     except Exception as e:
         st.error(f"Error al cargar funciones o perfil: {e}")
@@ -1994,7 +1994,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     try:
         with fitz.open(f"Funciones/F{position}.pdf") as func_doc:
             functions_text = func_doc[0].get_text()
-        with fitz.open(f"Perfil/P{position}.pdf") as profile_doc:
+        with fitz.open(f"Perfiles/P{position}.pdf") as profile_doc:
             profile_text = profile_doc[0].get_text()
     except Exception as e:
         st.error(f"Error al cargar funciones o perfil: {e}")
