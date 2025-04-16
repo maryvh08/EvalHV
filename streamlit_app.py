@@ -1941,32 +1941,16 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
     related_items_count = {indicator: 0 for indicator in position_indicators}
 
     # PERFIL CANDIDATO
-    # Calcular porcentajes de concordancia con perfil de candidato
-    keyword_match_percentage = 0.0  # Set to 0
+   # Calcular porcentajes de concordancia con perfil de candidato
+    keyword_match_percentage = 100.0  # Set to 100
     profile_func_match = 0.0  # Setting the default
     profile_profile_match = 0.0
     
-    function_matched_keywords = sum(1 for keyword in function_keywords.split() if keyword.lower() in candidate_profile_text.lower())# Split by white space
-    function_match_percentage= round((function_matched_keywords / total_function_keywords) * 100, 2)
-
-    profile_matched_keywords = sum(1 for keyword in profile_keywords.split() if keyword.lower() in candidate_profile_textr.lower())  # Split by white space
-    profile_match_percentage = round((profile_matched_keywords / total_profile_keywords) * 100, 2)
-
     total_keywords = 0
     matched_keywords = 0
     
-    for indicator, keywords in position_indicators.items():
-        total_keywords += len(keywords)  # Set total keywords
-    
-    if total_keywords == 0:
-        keyword_match_percentage = 0.00  # Setting standard
-    else:
-        keyword_match_percentage = (matched_keywords / total_keywords) * 100
-        # Asegúrate de que el puntaje esté en el rango de 0 a 100
-        keyword_match_percentage = max(0.00, min(100.00, keyword_match_percentage))
-    
     # Evaluación de concordancia basada en palabras clave
-    if keyword_match_percentage != 0:
+    if keyword_match_percentage == 100:
         profile_func_match = 100.0
         profile_profile_match = 100.0
     else:
