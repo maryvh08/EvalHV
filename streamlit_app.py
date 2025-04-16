@@ -1973,7 +1973,7 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
         keyword_match_percentage = max(0.00, min(100.00, keyword_match_percentage))
     
     # Evaluación de concordancia basada en palabras clave
-    if keyword_match_percentage =! 0:
+    if keyword_match_percentage != 0:
         profile_func_match = 100.0
         profile_profile_match = 100.0
     else:
