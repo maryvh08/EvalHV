@@ -850,37 +850,6 @@ def generate_report_with_background(pdf_path, position, candidate_name, backgrou
     total_keywords = 0
     matched_keywords = 0
     
-    for indicator, keywords in position_indicators.items():
-        total_keywords += len(keywords)  # Set total keywords
-    
-        prompt = f"""
-            Analiza el siguiente texto: '{candidate_profile_text}'.
-            Indica si las siguientes palabras clave están presentes en el texto: {', '.join(keywords)}.
-            Responde 'Si' o 'No' por cada palabra clave.
-        """
-    
-        def available_models():
-            GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
-            genai.configure(api_key=GOOGLE_API_KEY)
-            for m in genai.list_models():
-                if 'generateContent' in m.supported_generation_methods:
-                    st.warning(m.name)
-    
-        try:
-            GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
-            genai.configure(api_key=GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            response = model.generate_content(prompt)
-            answer = response.text
-    
-            # Check the answer with keyword
-            for keyword in keywords:
-                if keyword.lower() in answer.lower():  # Lowercase for robust comparison
-                    matched_keywords += 1
-        except Exception as e:
-            st.error(f"Error generating contents {e}")  # Error message to output
-            answer = ""
-    
     if total_keywords == 0:
         keyword_match_percentage = 0.00  # Setting standard
     else:
