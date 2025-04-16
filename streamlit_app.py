@@ -141,7 +141,7 @@ split_actual= "Split actual.jpg"
 split_descriptivo= "Split descriptivo.jpg"
 version_actual= "Analizador Versión Actual.jpg"
 version_descriptiva= "Analizador Versión Descriptiva.jpg"
-evaluador_logo= "Evaluador Logo.jpg"
+evaluador_logo= "Evaluador Hoja de Vida ANEIAP.jpg"
 portada= "Portada Analizador.png"
 fondo= "Fondo reporte.png"
 
