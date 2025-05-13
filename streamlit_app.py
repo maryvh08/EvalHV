@@ -3171,11 +3171,12 @@ def secondary_page():
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
-with open("logo_aneiap.png", "rb") as image_file:
-    logo_aneiap = image_file.read()
+# Leer el archivo como bytes
+with open(logo_aneiap, "rb") as image_file:
+    logo_bytes = image_file.read()
 
-# Convierte el logo a base64
-logo_base64 = base64.b64encode(logo_aneiap).decode()
+# Codificar a base64 para insertarlo con HTML
+logo_base64 = base64.b64encode(logo_bytes).decode()
 
 # Sidebar con información y opciones
 with st.sidebar:
