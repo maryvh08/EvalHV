@@ -3171,6 +3171,9 @@ def secondary_page():
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
+with open("logo_aneiap.png", "rb") as image_file:
+    logo_aneiap = image_file.read()
+
 # Convierte el logo a base64
 logo_base64 = base64.b64encode(logo_aneiap).decode()
 
