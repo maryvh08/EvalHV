@@ -3170,6 +3170,12 @@ def secondary_page():
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
+import base64
+
+# Leer la imagen como binario
+with open("logo_aneiap.png", "rb") as image_file:
+    encoded_image = base64.b64encode(image_file.read()).decode()
+
 with st.sidebar:
     # Logo ANEIAP (centrado y con tamaño ajustado)
     st.markdown(
