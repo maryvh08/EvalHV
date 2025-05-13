@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import os
 import google.generativeai as genai
+import base64
 import fitz
 import requests
 import numpy as np
@@ -3170,18 +3171,17 @@ def secondary_page():
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
-import base64
+# Convierte el logo a base64
+logo_base64 = base64.b64encode(logo_aneiap).decode()
 
-# Leer la imagen como binario
-with open("logo_aneiap.png", "rb") as image_file:
-    encoded_image = base64.b64encode(image_file.read()).decode()
-
+# Sidebar con información y opciones
 with st.sidebar:
-    # Logo ANEIAP (centrado y con tamaño ajustado)
+    # Logo ANEIAP centrado y redimensionado
     st.markdown(
         f"""
         <div style="text-align: center;">
-            <img src="data:image/png;base64,{base64.b64encode(logo_aneiap.read()).decode()}" width="150"/>
+            <img src="data:image/png;base64,{logo_base64}" 
+                 alt="Logo ANEIAP" width="150"/>
         </div>
         """,
         unsafe_allow_html=True
@@ -3189,7 +3189,7 @@ with st.sidebar:
 
     st.write("")
     st.write("")
-    
+
     # Información sobre los cargos
     with st.expander("Cargos de JDC-IC-CCP", expanded=False):
         st.markdown("""
@@ -3209,7 +3209,7 @@ with st.sidebar:
         
         **PC**: Presidente Capitular
         """)
-    
+
     # Acerca de la herramienta
     with st.expander("Acerca de la Herramienta", expanded=False):
         st.markdown("""
@@ -3226,7 +3226,7 @@ with st.sidebar:
         
         Versión: 1.0.0
         """)
-    
+
     st.write("---")
     st.write("© 2025 ANEIAP. Todos los derechos reservados.")
 
