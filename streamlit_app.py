@@ -3171,9 +3171,10 @@ if "page" not in st.session_state:
     st.session_state.page = "home"
 
 # Sidebar con información y opciones
+# Sidebar con información y opciones
 with st.sidebar:
-    # Logo ANEIAP
-    st.image(logo_aneiap, use_container_width=True)
+    # Logo ANEIAP (tamaño ajustado)
+    st.image(logo_aneiap, width=150)  # Puedes cambiar 150 a otro valor según el tamaño deseado
 
     st.write("")
     st.write("")
