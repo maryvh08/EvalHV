@@ -3170,11 +3170,16 @@ def secondary_page():
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
-# Sidebar con información y opciones
-# Sidebar con información y opciones
 with st.sidebar:
-    # Logo ANEIAP (tamaño ajustado)
-    st.image(logo_aneiap, width=150)  # Puedes cambiar 150 a otro valor según el tamaño deseado
+    # Logo ANEIAP (centrado y con tamaño ajustado)
+    st.markdown(
+        f"""
+        <div style="text-align: center;">
+            <img src="data:image/png;base64,{base64.b64encode(logo_aneiap.read()).decode()}" width="150"/>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     st.write("")
     st.write("")
