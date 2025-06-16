@@ -46,8 +46,8 @@ st.set_page_config(
 
 # Cargar logos (asegúrate de que estén en la misma carpeta)
 try:
-    LOGO_COLOR = Image.open("ISOLOGO C A COLOR.png")
-    LOGO_BLANCO = Image.open("ISOLOGO C BLANCO.png")
+    LOGO_COLOR = "ISOLOGO C A COLOR.png"
+    LOGO_BLANCO = "ISOLOGO C BLANCO.png"
     # Para el sidebar, se usará LOGO_COLOR o LOGO_BLANCO
     logo_aneiap_sidebar_path = "ISOLOGO C A COLOR.png" # Asumo que este es el que quieres en el sidebar
     with open(logo_aneiap_sidebar_path, "rb") as image_file:
