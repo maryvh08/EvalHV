@@ -44,179 +44,97 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Cargar logos (asegúrate de que estén en la misma carpeta)
-try:
-    LOGO_COLOR = "ISOLOGO C A COLOR.png"
-    LOGO_BLANCO = "ISOLOGO C BLANCO.png"
-    # Para el sidebar, se usará LOGO_COLOR o LOGO_BLANCO
-    logo_aneiap_sidebar_path = "ISOLOGO C A COLOR.png" # Asumo que este es el que quieres en el sidebar
-    with open(logo_aneiap_sidebar_path, "rb") as image_file:
-        logo_aneiap_sidebar_base64 = base64.b64encode(image_file.read()).decode()
-except FileNotFoundError:
-    st.error("Error: Asegúrate de que los archivos 'ISOLOGO C A COLOR.png' y 'ISOLOGO C BLANCO.png' estén en la misma carpeta que 'streamlit_app.py'.")
-    LOGO_COLOR = None
-    LOGO_BLANCO = None
-    logo_aneiap_sidebar_base64 = "" # Placeholder
-
-# Colores de la marca ANEIAP
-COLOR_AZUL = "#0D62AD"
-COLOR_VERDE_CLARO = "#A8CF45"
-COLOR_VERDE_OSCURO = "#76C04E"
-COLOR_TEXTO_PRIMARIO = "#333333"
-COLOR_TEXTO_SECUNDARIO = "#555555"
-COLOR_FONDO_SECCION = "#F8F8F8"
-
-# Estilos CSS personalizados (inyección para Streamlit)
-CUSTOM_CSS = f"""
+# Estilos CSS personalizados
+st.markdown("""
 <style>
-    /* Estilos generales */
-    html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"], [data-testid="stFileUploadDropzone"] label {{
-        font-family: 'Century Gothic', Arial, sans-serif; /* Simulación Century Gothic */
-        color: {COLOR_TEXTO_PRIMARIO};
-    }}
-
-    h1, h2, h3, h4, h5, h6, .main-title, .subtitle {{
-        font-family: 'Microgramma', 'Arial Black', sans-serif; /* Simulación Microgramma */
-        color: {COLOR_AZUL};
-    }}
-
-    /* Ocultar el footer de Streamlit */
-    footer {{ visibility: hidden; }}
-    header {{ visibility: hidden; }}
-
-    /* Títulos principales */
-    .main-title {{
-        text-align: center;
-        font-size: 3em;
-        margin-bottom: 20px;
-        color: {COLOR_AZUL};
-    }}
-    .subtitle {{
-        text-align: center;
-        font-size: 1.8em;
-        margin-top: 30px;
-        margin-bottom: 20px;
-        color: {COLOR_VERDE_OSCURO};
-    }}
-
-    /* Estilos de botones */
-    .stButton > button {{
-        background-color: {COLOR_AZUL};
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        border: none;
-        font-size: 1em;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin: 5px;
-    }}
-    .stButton > button:hover {{
-        background-color: {COLOR_VERDE_CLARO};
-        color: {COLOR_AZUL};
-    }}
-
-    /* Estilos para los botones de info de la Home Page */
-    .info-buttons-container .stButton > button {{
-        background-color: {COLOR_AZUL};
-        color: white;
-        padding: 12px 24px;
-        text-align: center;
-        font-size: 16px;
-        border-radius: 4px;
-        border: none; /* Elimina el borde extra de Streamlit */
-    }}
-    .info-buttons-container .stButton > button:hover {{
-        background-color: {COLOR_VERDE_CLARO};
-        color: {COLOR_AZUL};
-    }}
-
-    /* Para el botón de plantilla que tiene color diferente */
-    .template-button .stButton > button {{
-        background-color: {COLOR_VERDE_OSCURO}; /* Verde oscuro */
-    }}
-    .template-button .stButton > button:hover {{
-        background-color: {COLOR_VERDE_CLARO};
-        color: {COLOR_AZUL};
-    }}
-
-    /* Estilos para info y disclaimer */
-    .stInfo {{
-        background-color: rgba({int(COLOR_AZUL[1:3], 16)}, {int(COLOR_AZUL[3:5], 16)}, {int(COLOR_AZUL[5:7], 16)}, 0.1);
-        border-left: 5px solid {COLOR_AZUL};
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-    }}
-    .disclaimer {{
-        color: red;
+    /* Colores corporativos */
+    :root {
+        --aneiap-blue: #0D62AD;
+        --aneiap-light-green: #A8CF45;
+        --aneiap-dark-green: #76C04E;
+        --aneiap-gray: #4A4A4A;
+    }
+    
+    /* Título principal */
+    .main-title {
+        color: var(--aneiap-blue);
+        font-size: 2.5rem;
         font-weight: bold;
         text-align: center;
-        margin-top: 30px;
-        padding: 10px;
-        border: 1px solid red;
-        border-radius: 5px;
-    }}
-
-    /* Estilos para el footer */
-    .footer-custom {{
-        text-align: center;
-        padding: 20px 0;
-        margin-top: 50px;
-        border-top: 1px solid #eee;
-        color: {COLOR_TEXTO_SECUNDARIO};
-        font-size: 0.9em;
-    }}
-
-    /* Contenedores de columnas para las versiones de evaluación */
-    .st-emotion-cache-1pxazr7 {{ /* Esta clase puede cambiar en futuras versiones de Streamlit */
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        height: 100%; /* Asegura que las columnas tengan la misma altura */
-    }}
-</style>
-"""
-
-# Inyectar CSS personalizado
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
-
-# --- INICIALIZACIÓN DE SESSION STATE ---
-if "page" not in st.session_state:
-    st.session_state.page = "home"
-
-# --- FUNCIONES DE NAVEGACIÓN ---
-def navigate_to(page_name):
-    st.session_state.page = page_name
-    st.rerun() # Forzar un re-render para cambiar de página
-
-# --- FUNCIONES DE EVALUACIÓN (PLACEHOLDERS) ---
-# DEBES REEMPLAZAR ESTAS FUNCIONES CON LAS TUYAS EXISTENTES
-def generate_report_with_background(pdf_path, position, candidate_name, background_path, chapter):
-    """
-    Función para generar el reporte para la versión simplificada.
-    Reemplaza esta función con tu lógica existente de Streamlit.
-    """
-    st.write(f"Generando reporte simplificado para {candidate_name} ({position}, {chapter}) desde {pdf_path}")
-    st.success("Reporte Simplificado Generado (simulado)!")
-    # Aquí iría tu lógica real de evaluación y generación de PDF.
-    # Ejemplo de descarga de un PDF dummy
-    with open("dummy_report_simplified.pdf", "wb") as f:
-        f.write(b"%PDF-1.4\n1 0 obj<</Pages 2 0 R>>endobj 2 0 obj<</Kids[]/Count 0>>endobj\nxref\n0 3\n0000000000 65535 f\n0000000009 00000 n\n0000000057 00000 n\ntrailer<</Size 3/Root 1 0 R>>startxref\n106\n%%EOF")
+        margin-bottom: 1rem;
+    }
     
-    with open("dummy_report_simplified.pdf", "rb") as f:
-        st.download_button(
-            label="Descargar Reporte Simplificado",
-            data=f.read(),
-            file_name=f"Reporte_Simplificado_{candidate_name.replace(' ', '_')}.pdf",
-            mime="application/pdf"
-        )
-    os.remove("dummy_report_simplified.pdf") # Limpiar dummy
-    # También deberías limpiar el pdf_path si ya no se necesita
-    if os.path.exists(pdf_path):
-        os.remove(pdf_path)
+    /* Subtítulos */
+    .subtitle {
+        color: var(--aneiap-gray);
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Botones */
+    .stButton>button {
+        background-color: var(--aneiap-blue);
+        color: white;
+        border-radius: 5px;
+        padding: 0.5rem 1rem;
+        font-weight: bold;
+        border: none;
+        transition: all 0.3s;
+    }
+    
+    .stButton>button:hover {
+        background-color: var(--aneiap-dark-green);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    /* Contenedor de tarjetas */
+    .card-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 2rem;
+    }
+    
+    /* Tarjeta */
+    .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+    
+    /* Pie de página */
+    .footer {
+        text-align: center;
+        margin-top: 3rem;
+        padding: 1rem;
+        color: var(--aneiap-gray);
+        font-size: 0.9rem;
+        border-top: 1px solid #eee;
+    }
+    
+    
+    /* Disclaimer */
+    .disclaimer {
+        background-color: #FFF3CD;
+        color: #856404;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+        text-align: center;
+        font-weight: bold;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Cargar las imágenes
 logo_aneiap= "ISOLOGO C A COLOR.png"
@@ -227,7 +145,6 @@ version_descriptiva= "Analizador Versión Descriptiva.jpg"
 evaluador_logo= "Evaluador Hoja de Vida ANEIAP.jpg"
 portada= "Portada Analizador.png"
 fondo= "Fondo reporte.png"
-imagen_plantilla= "PLANTILLA PROPUESTA HV ANEIAP.jpg"
 
 # Cargar los archivos de JSON
 def load_indicators(filepath="indicators.json"):
@@ -2954,28 +2871,12 @@ def analyze_and_generate_descriptive_report_with_background(pdf_path, position, 
             mime="application/pdf",
         )
 
-# --- INTERFAZ DE USUARIO ---
+# INTERFAZ DE USUARIO
 def home_page():
-    # Ocultar el sidebar en la home page si no se desea.
-    # st.markdown(
-    #     """
-    #     <style>
-    #     [data-testid="stSidebar"] {
-    #         display: none;
-    #     }
-    #     </style>
-    #     """,
-    #     unsafe_allow_html=True
-    # )
-    
     st.markdown("<h1 class='main-title'>Evaluador de Hojas de Vida ANEIAP</h1>", unsafe_allow_html=True)
     
     # Logo principal
-    if evaluador_logo:
-        st.image(evaluador_logo, use_container_width=True)
-    else:
-        st.warning("Imagen 'evaluador_logo' no cargada.")
-
+    st.image(evaluador_logo, use_container_width=True)
     st.markdown("<h2 class='subtitle'>¿Qué tan listo estás para asumir un cargo de Junta Directiva Capitular?</h2>", unsafe_allow_html=True)
     st.write("""
     Esta herramienta analiza el contenido de tu hoja de vida ANEIAP, comparándola con las funciones y perfil del cargo 
@@ -2999,10 +2900,7 @@ def home_page():
 
     with col1:
         st.markdown("<h3>Versión Simplificada</h3>", unsafe_allow_html=True)
-        if split_actual:
-            st.image(split_actual, use_container_width=True)
-        else:
-            st.warning("Imagen 'split_actual' no cargada.")
+        st.image(split_actual, use_container_width=True)
         st.write("""
         Esta versión analiza hojas de vida en formato simplificado donde:
         
@@ -3013,14 +2911,11 @@ def home_page():
         """)
         
         if st.button("Ir a Evaluador Simplificado", key="btn_simple"):
-            navigate_to("primary")
+            st.session_state.page = "primary"
 
     with col2:
         st.markdown("<h3>Versión Descriptiva</h3>", unsafe_allow_html=True)
-        if split_descriptivo:
-            st.image(split_descriptivo, use_container_width=True)
-        else:
-            st.warning("Imagen 'split_descriptivo' no cargada.")
+        st.image(split_descriptivo, use_container_width=True)
         st.write("""
         Esta versión analiza hojas de vida en formato descriptivo donde:
         
@@ -3031,43 +2926,71 @@ def home_page():
         """)
         
         if st.button("Ir a Evaluador Descriptivo", key="btn_descriptive"):
-            navigate_to("secondary")
+            st.session_state.page = "secondary"
 
-    st.write("---")    
+    st.write("---") 
 
-    st.write("ℹ️ Aquí puedes encontrar información si quieres saber un poco más")    
+    st.write("ℹ️ Aquí puedes encontrar información si quieres saber un poco más") 
 
-    # Botones de información (usando st.columns y st.button para aplicar los estilos)
+    # Botones de información
     link_url_cargos = "https://drive.google.com/drive/folders/1hSUChvaYymUJ6g-IEfiY4hYqikePsQ9P?usp=drive_link"
+    link_label_cargos = "Info cargos"
     link_url_indicadores = "https://docs.google.com/document/d/1BM07wuVaXEWcdurTRr8xBzjsB1fiWt6wGqOzLiyQBs8/edit?usp=drive_link"
+    link_label_indicadores = "Info indicadores"
     link_url_perfiles = "https://docs.google.com/document/d/1WvAe0toLeedLXQ4YYUsiK5OUTPacTQ8HkDVdyShl3l0/edit?usp=drive_link"
+    link_label_perfiles = "Info perfiles"
 
-    # Se usa st.markdown con unsafe_allow_html para el contenedor de los botones
-    # y los enlaces, pero los botones individuales se manejan con st.button para
-    # que los estilos de Streamlit los afecten.
-    st.markdown(
-        """
-        <div class="info-buttons-container" style="display: flex; justify-content: center; gap: 20px;">
-        """
-        , unsafe_allow_html=True
-    )
-    col_info1, col_info2, col_info3 = st.columns(3)
-    with col_info1:
-        st.link_button("Info cargos", link_url_cargos)
-    with col_info2:
-        st.link_button("Info indicadores", link_url_indicadores)
-    with col_info3:
-        st.link_button("Info perfiles", link_url_perfiles)
-    st.markdown("</div>", unsafe_allow_html=True) # Cierre del contenedor HTML
+    st.markdown(f"""
+        <div style="display: flex; justify-content: center; gap: 20px;">
+            <a href="{link_url_cargos}" target="_blank" style="text-decoration:none;">
+                <button style="
+                    background-color: #0D62AD;
+                    border: none;
+                    color: white;
+                    padding: 12px 24px;
+                    text-align: center;
+                    font-size: 16px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                ">
+                    {link_label_cargos}
+                </button>
+            </a>
+            <a href="{link_url_indicadores}" target="_blank" style="text-decoration:none;">
+                <button style="
+                    background-color: #A8CF45;
+                    border: none;
+                    color: white;
+                    padding: 12px 24px;
+                    text-align: center;
+                    font-size: 16px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                ">
+                    {link_label_indicadores}
+                </button>
+            </a>
+            <a href="{link_url_perfiles}" target="_blank" style="text-decoration:none;">
+                <button style="
+                    background-color: #76C04E;
+                    border: none;
+                    color: white;
+                    padding: 12px 24px;
+                    text-align: center;
+                    font-size: 16px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                ">
+                    {link_label_perfiles}
+                </button>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown("<div class='footer-custom'>© 2025 ANEIAP. Todos los derechos reservados.</div>", unsafe_allow_html=True)
-
+    
 def primary_page():
     st.markdown("<h1 class='main-title'>Evaluador Simplificado de Hojas de Vida</h1>", unsafe_allow_html=True)
-    if version_actual:
-        st.image(version_actual, use_container_width=True)
-    else:
-        st.warning("Imagen 'version_actual' no cargada.")
+    st.image(version_actual, use_container_width=True)
     
     st.markdown("<h2 class='subtitle'>Ingresa tus datos y carga tu hoja de vida</h2>", unsafe_allow_html=True)
     
@@ -3117,35 +3040,26 @@ def primary_page():
         st.session_state["chapter"] = chapter
 
         if st.button("Generar Reporte PDF", key="btn_generate_simple"):
-            if not candidate_name:
-                st.error("Por favor, ingresa el nombre del candidato.")
-            elif not pdf_path:
-                st.error("Por favor, carga una hoja de vida en PDF.")
-            else:
-                with st.spinner("Generando reporte... Esto puede tardar unos momentos."):
-                    # Llama a tu función real de generación de reporte simplificado
-                    generate_report_with_background(
-                        st.session_state["pdf_path"],
-                        st.session_state["position"],
-                        st.session_state["candidate_name"],
-                        background_path, # Asegúrate que esta variable exista o sea la correcta
-                        st.session_state["chapter"]
-                    )
+            with st.spinner("Generando reporte... Esto puede tardar unos momentos."):
+                generate_report_with_background(
+                    st.session_state["pdf_path"],
+                    st.session_state["position"],
+                    st.session_state["candidate_name"],
+                    background_path,
+                    st.session_state["chapter"]
+                )
     else:
         st.button("Generar Reporte PDF", key="btn_generate_simple_disabled", disabled=True)
-        
+    
     st.markdown("<div class='disclaimer'>⚠️ DISCLAIMER: LA INFORMACIÓN PROPORCIONADA POR ESTA HERRAMIENTA NO REPRESENTA NINGÚN TIPO DE DECISIÓN, SU FIN ES MERAMENTE ILUSTRATIVO</div>", unsafe_allow_html=True)
     
     # Botón para volver al inicio
     if st.button("⬅️ Volver al Inicio", key="btn_back_simple"):
-        navigate_to("home")
+        st.session_state.page = "home"
 
 def secondary_page():
     st.markdown("<h1 class='main-title'>Evaluador Descriptivo de Hojas de Vida</h1>", unsafe_allow_html=True)
-    if version_descriptiva:
-        st.image(version_descriptiva, use_container_width=True)
-    else:
-        st.warning("Imagen 'version_descriptiva' no cargada.")
+    st.image(version_descriptiva, use_container_width=True)
     
     st.markdown("<h2 class='subtitle'>Ingresa tus datos y carga tu hoja de vida</h2>", unsafe_allow_html=True)
     
@@ -3198,20 +3112,14 @@ def secondary_page():
         st.session_state["chapter_secondary"] = chapter
 
         if st.button("Generar Reporte PDF", key="btn_generate_descriptive"):
-            if not candidate_name:
-                st.error("Por favor, ingresa el nombre del candidato.")
-            elif not pdf_path:
-                st.error("Por favor, carga una hoja de vida en PDF.")
-            else:
-                with st.spinner("Generando reporte... Esto puede tardar unos momentos."):
-                    # Llama a tu función real de generación de reporte descriptivo
-                    analyze_and_generate_descriptive_report_with_background(
-                        st.session_state["pdf_path_secondary"],
-                        st.session_state["position_secondary"],
-                        st.session_state["candidate_name_secondary"],
-                        advice, indicators, background_path, # Asegúrate que advice, indicators y background_path existan
-                        st.session_state["chapter_secondary"]
-                    )
+            with st.spinner("Generando reporte... Esto puede tardar unos momentos."):
+                analyze_and_generate_descriptive_report_with_background(
+                    st.session_state["pdf_path_secondary"],
+                    st.session_state["position_secondary"],
+                    st.session_state["candidate_name_secondary"],
+                    advice, indicators, background_path,
+                    st.session_state["chapter_secondary"]
+                )
     else:
         st.button("Generar Reporte PDF", key="btn_generate_descriptive_disabled", disabled=True)
         
@@ -3221,26 +3129,24 @@ def secondary_page():
 
     st.markdown(
         """
-        <div style="text-align: center; font-weight: bold; font-size: 20px; margin-top: 30px; margin-bottom: 20px;">
+        <div style="text-align: center; font-weight: bold; font-size: 20px;">
         Plantilla Propuesta HV 📑
         </div>
         """,
         unsafe_allow_html=True
     )
-    # st.write("") # Eliminar st.write("") ya que el margin-bottom lo maneja el CSS
-    if imagen_plantilla:
-        st.image(imagen_plantilla, use_container_width=True)
-    else:
-        st.warning("Imagen 'imagen_plantilla' no cargada.")
+    st.write("")
+    imagen_plantilla = 'PLANTILLA PROPUESTA HV ANEIAP.jpg'
+    st.image(imagen_plantilla, use_container_width=True)
 
     link_url_plantilla = "https://drive.google.com/drive/folders/16i35reQpBq9eC2EuZfy6E6Uul5XVDN8D?usp=sharing"
     link_label_plantilla = "Explorar plantilla"
 
     st.markdown(f"""
-        <div class="template-button" style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+        <div style="display: flex; justify-content: center; gap: 20px;">
             <a href="{link_url_plantilla}" target="_blank" style="text-decoration:none;">
                 <button style="
-                    background-color: {COLOR_VERDE_OSCURO}; /* Verde oscuro */
+                    background-color: #76C04E;
                     border: none;
                     color: white;
                     padding: 12px 24px;
@@ -3259,16 +3165,26 @@ def secondary_page():
     
     # Botón para volver al inicio
     if st.button("⬅️ Volver al Inicio", key="btn_back_descriptive"):
-        navigate_to("home")
+        st.session_state.page = "home"
 
+# Configuración del estado inicial de la sesión
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
-# --- SIDEBAR (NO CAMBIADO DE TU SNIPPET) ---
+# Leer el archivo como bytes
+with open(logo_aneiap, "rb") as image_file:
+    logo_bytes = image_file.read()
+
+# Codificar a base64 para insertarlo con HTML
+logo_base64 = base64.b64encode(logo_bytes).decode()
+
+# Sidebar con información y opciones
 with st.sidebar:
     # Logo ANEIAP centrado y redimensionado
     st.markdown(
         f"""
         <div style="text-align: center;">
-            <img src="data:image/png;base64,{logo_aneiap_sidebar_base64}" 
+            <img src="data:image/png;base64,{logo_base64}" 
                  alt="Logo ANEIAP" width="150"/>
         </div>
         """,
@@ -3318,7 +3234,7 @@ with st.sidebar:
     st.write("---")
     st.write("© 2025 ANEIAP. Todos los derechos reservados.")
 
-# --- Renderizado de la página según el estado ---
+# Renderizado de la página según el estado
 if st.session_state.page == "home":
     home_page()
 elif st.session_state.page == "primary":
@@ -3326,24 +3242,17 @@ elif st.session_state.page == "primary":
 elif st.session_state.page == "secondary":
     secondary_page()
 
-# --- Limpiar archivos temporales al finalizar (Mejorado) ---
-# Es crucial que esta lógica de limpieza se ejecute de forma segura.
-# Una mejor práctica sería limpiar archivos al inicio de una nueva subida
-# o con un mecanismo de limpieza periódico si la app está en un servidor.
-# Para evitar errores si el archivo ya fue borrado, se usa un try-except.
-
-if "pdf_path" in st.session_state and st.session_state["pdf_path"]:
-    try:
-        if os.path.exists(st.session_state["pdf_path"]):
+# Limpiar archivos temporales al finalizar
+if "pdf_path" in st.session_state:
+    if os.path.exists(st.session_state["pdf_path"]):
+        try:
             os.remove(st.session_state["pdf_path"])
-        del st.session_state["pdf_path"]
-    except Exception as e:
-        st.warning(f"No se pudo eliminar el archivo temporal (pdf_path): {e}")
+        except:
+            pass
 
-if "pdf_path_secondary" in st.session_state and st.session_state["pdf_path_secondary"]:
-    try:
-        if os.path.exists(st.session_state["pdf_path_secondary"]):
+if "pdf_path_secondary" in st.session_state:
+    if os.path.exists(st.session_state["pdf_path_secondary"]):
+        try:
             os.remove(st.session_state["pdf_path_secondary"])
-        del st.session_state["pdf_path_secondary"]
-    except Exception as e:
-        st.warning(f"No se pudo eliminar el archivo temporal (pdf_path_secondary): {e}")
+        except:
+            pass
