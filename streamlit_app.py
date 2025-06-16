@@ -227,6 +227,7 @@ version_descriptiva= "Analizador Versión Descriptiva.jpg"
 evaluador_logo= "Evaluador Hoja de Vida ANEIAP.jpg"
 portada= "Portada Analizador.png"
 fondo= "Fondo reporte.png"
+imagen_plantilla= "PLANTILLA PROPUESTA HV ANEIAP.jpg"
 
 # Cargar los archivos de JSON
 def load_indicators(filepath="indicators.json"):
