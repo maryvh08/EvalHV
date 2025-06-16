@@ -44,6 +44,20 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# Cargar logos (asegúrate de que estén en la misma carpeta)
+try:
+    LOGO_COLOR = Image.open("ISOLOGO C A COLOR.png")
+    LOGO_BLANCO = Image.open("ISOLOGO C BLANCO.png")
+    # Para el sidebar, se usará LOGO_COLOR o LOGO_BLANCO
+    logo_aneiap_sidebar_path = "ISOLOGO C A COLOR.png" # Asumo que este es el que quieres en el sidebar
+    with open(logo_aneiap_sidebar_path, "rb") as image_file:
+        logo_aneiap_sidebar_base64 = base64.b64encode(image_file.read()).decode()
+except FileNotFoundError:
+    st.error("Error: Asegúrate de que los archivos 'ISOLOGO C A COLOR.png' y 'ISOLOGO C BLANCO.png' estén en la misma carpeta que 'streamlit_app.py'.")
+    LOGO_COLOR = None
+    LOGO_BLANCO = None
+    logo_aneiap_sidebar_base64 = "" # Placeholder
+
 # Colores de la marca ANEIAP
 COLOR_AZUL = "#0D62AD"
 COLOR_VERDE_CLARO = "#A8CF45"
@@ -3246,8 +3260,6 @@ def secondary_page():
     if st.button("⬅️ Volver al Inicio", key="btn_back_descriptive"):
         navigate_to("home")
 
-with open(logo_aneiap_sidebar_path, "rb") as image_file:
-        logo_aneiap_sidebar_base64 = base64.b64encode(image_file.read()).decode()
 
 # --- SIDEBAR (NO CAMBIADO DE TU SNIPPET) ---
 with st.sidebar:
