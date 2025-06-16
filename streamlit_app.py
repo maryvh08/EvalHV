@@ -44,7 +44,14 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Estilos CSS personalizados
+# Colores de la marca ANEIAP
+COLOR_AZUL = "#0D62AD"
+COLOR_VERDE_CLARO = "#A8CF45"
+COLOR_VERDE_OSCURO = "#76C04E"
+COLOR_TEXTO_PRIMARIO = "#333333"
+COLOR_TEXTO_SECUNDARIO = "#555555"
+COLOR_FONDO_SECCION = "#F8F8F8"
+
 # Estilos CSS personalizados (inyección para Streamlit)
 CUSTOM_CSS = f"""
 <style>
