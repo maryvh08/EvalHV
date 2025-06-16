@@ -3246,6 +3246,9 @@ def secondary_page():
     if st.button("⬅️ Volver al Inicio", key="btn_back_descriptive"):
         navigate_to("home")
 
+with open(logo_aneiap_sidebar_path, "rb") as image_file:
+        logo_aneiap_sidebar_base64 = base64.b64encode(image_file.read()).decode()
+
 # --- SIDEBAR (NO CAMBIADO DE TU SNIPPET) ---
 with st.sidebar:
     # Logo ANEIAP centrado y redimensionado
