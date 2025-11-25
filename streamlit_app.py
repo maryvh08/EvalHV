@@ -763,6 +763,41 @@ def extract_event_section_with_ocr(pdf_path):
         ],
         exclusions=[],
     )
+import unicodedata
+
+def generate_ocr_variants(word):
+    """Genera variantes típicas de OCR para una palabra clave."""
+    replacements = {
+        "i": "[i1l|]",
+        "l": "[l1i|]",
+        "e": "[e3]",
+        "a": "[a4]",
+        "o": "[o0]",
+        "s": "[s5]",
+        "n": "[nñ]",
+        "c": "[c]",
+        "v": "[v]",
+    }
+
+    pattern = ""
+    for char in word:
+        if char in replacements:
+            pattern += replacements[char]
+        else:
+            pattern += char
+    return pattern
+
+
+def flexible_keywords(base_keywords):
+    """Construye expresiones regulares tolerantes a errores OCR."""
+    patterns = []
+    for kw in base_keywords:
+        parts = kw.split()
+        variant = r"\s+".join(generate_ocr_variants(p) for p in parts)
+        patterns.append(variant)
+    return patterns
+
+
 def extract_attendance_section_with_ocr(pdf_path):
 
     exclusions = {
@@ -772,39 +807,38 @@ def extract_attendance_section_with_ocr(pdf_path):
         "asistencia", "eventos"
     }
 
+    # Correcciones OCR ampliadas
     ocr_corrections = {
-        r"\basitenica\b": "asistencia",
-        r"\basitencia\b": "asistencia",
-        r"\basistenca\b": "asistencia",
-        r"\bevent0s\b": "eventos",
-        r"\bevetos\b": "eventos",
-        r"\bevntos\b": "eventos",
-        r"\baneiap\b": "aneiap",
-        r"\banelap\b": "aneiap",
+        r"\ba[s5]i[t|]en[cl]ia\b": "asistencia",
+        r"\bevent[o0]s\b": "eventos",
+        r"\bane[i1|]ap\b": "aneiap",
     }
+
+    base_start_keywords = [
+        "asistencia a eventos aneiap",
+        "asistencia eventos aneiap",
+        "asistencia a eventos",
+    ]
+
+    base_end_keywords = [
+        "actualizacion profesional",
+        "experiencia en aneiap",
+        "eventos organizados",
+        "reconocimientos",
+    ]
+
+    # Genera variantes regex robustas
+    start_keywords_patterns = flexible_keywords(base_start_keywords)
+    end_keywords_patterns = flexible_keywords(base_end_keywords)
 
     return extract_section_ocr_flexible(
         pdf_path=pdf_path,
-        start_keywords=[
-            "asistencia a eventos aneiap",
-            "asistencia eventos aneiap",
-            "asistenca eventos aneiap",
-            "asitencia eventos aneiap",
-            "asitenica eventos aneiap",
-            "asistencla a eventos aneiap",
-            "as1stenc1a eventos aneiap",
-            "asistencia a event0s aneiap",
-        ],
-        end_keywords=[
-            "actualización profesional",
-            "actualizacion profesional",
-            "experiencia en aneiap",
-            "eventos organizados",
-            "reconocimientos",
-            "reconocimlentos",
-        ],
+        start_keywords=start_keywords_patterns,
+        end_keywords=end_keywords_patterns,
         exclusions=exclusions,
         ocr_corrections=ocr_corrections,
+        normalize_fn=normalize_text,       # permite más flexibilidad
+        regex_mode=True                    # indica al extractor que use regex
     )
 
 def evaluate_cv_presentation(pdf_path):
