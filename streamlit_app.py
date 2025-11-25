@@ -647,6 +647,12 @@ def extract_event_section_with_ocr(pdf_path):
     return "\n".join(final_items).strip()
 
 def extract_attendance_section_with_ocr(pdf_path):
+    """
+    Extrae la sección 'Asistencia a eventos ANEIAP' con máxima robustez
+    contra errores de OCR.
+    """
+
+    # ✔ Lista ampliada y normalizada de exclusiones
     exclusions = [
         "a nivel capitular",
         "a nivel nacional",
@@ -654,24 +660,44 @@ def extract_attendance_section_with_ocr(pdf_path):
         "capitular",
         "seccional",
         "nacional",
+        "nivel capitular",
+        "nivel nacional",
+        "nivel seccional",
+        "asistencia",  # protege encabezados incompletos
+        "eventos",     # protege OCR cortado
     ]
 
+    # ✔ Encabezados tolerantes al OCR (incluye errores comunes)
+    start_keywords = [
+        "asistencia a eventos aneiap",
+        "asistencia eventos aneiap",
+        "asistenca eventos aneiap",
+        "asitencia eventos aneiap",
+        "asitenica eventos aneiap",
+        "asistencla a eventos aneiap",
+        "as1stenc1a eventos aneiap",
+        "asistencia a event0s aneiap",
+    ]
+
+    # ✔ Palabras que indican final (OCR tolerante)
+    end_keywords = [
+        "actualización profesional",
+        "actualizacion profesional",
+        "experiencia en aneiap",
+        "eventos organizados",
+        "reconocimientos",
+        "reconocimlentos",
+        "reconoclmientos",
+    ]
+
+    # Ejecutar usando tu pipeline general
     return extract_section_ocr(
         pdf_path,
-        start_keywords=[
-            "asistencia a eventos aneiap",
-            "asistencia eventos aneiap",
-            "asitenica eventos aneiap"
-        ],
-        end_keywords=[
-            "actualización profesional",
-            "experiencia en aneiap",
-            "eventos organizados",
-            "reconocimientos"
-        ],
+        start_keywords=start_keywords,
+        end_keywords=end_keywords,
         exclusions=[normalize_text(x) for x in exclusions]
     )
-    
+
 def evaluate_cv_presentation(pdf_path):
     """
     Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
