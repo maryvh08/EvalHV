@@ -553,17 +553,8 @@ def extract_section_ocr_flexible(
     start_keywords,
     end_keywords,
     exclusions=None,
-    ocr_corrections=None,
-    min_confidence=0.65
+    ocr_corrections=None
 ):
-    """
-    Función OCR genérica para extraer secciones delimitadas con:
-    - corrección OCR
-    - fuzzy search
-    - limpieza de líneas
-    - exclusiones
-    """
-
     exclusions = exclusions or []
     ocr_corrections = ocr_corrections or {}
 
@@ -579,7 +570,7 @@ def extract_section_ocr_flexible(
     text = correct_ocr_errors(text)
 
     # --- 3) Buscar inicio ---
-    start_idx = fuzzy_search(text, start_keywords, confidence=min_confidence)
+    start_idx = fuzzy_search(text, start_keywords)
     if start_idx == -1:
         return ""
 
@@ -587,7 +578,7 @@ def extract_section_ocr_flexible(
     end_positions = []
 
     for kw in end_keywords:
-        idx = fuzzy_search(text[start_idx:], [kw], confidence=min_confidence)
+        idx = fuzzy_search(text[start_idx:], [kw])
         if idx != -1:
             end_positions.append(start_idx + idx)
 
@@ -622,6 +613,8 @@ def extract_section_ocr_flexible(
         seen.add(norm)
 
     return "\n".join(cleaned).strip()
+
+
 def extract_experience_section_with_ocr(pdf_path):
 
     exclusions = [
