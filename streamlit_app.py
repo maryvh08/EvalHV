@@ -648,26 +648,18 @@ def extract_event_section_with_ocr(pdf_path):
 
 def extract_attendance_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'Asistencia a eventos ANEIAP' con máxima robustez.
-    Incluye tolerancia a errores OCR y limpieza avanzada.
+    Extrae la sección 'Asistencia a eventos ANEIAP' con máxima robustez ante OCR.
+    Incluye búsqueda difusa, corrección de errores OCR, y limpieza avanzada.
     """
-    
-    # Lista de exclusiones para filtrar ruido
-    exclusions = [
-        "a nivel capitular",
-        "a nivel nacional",
-        "a nivel seccional",
-        "capitular",
-        "seccional",
-        "nacional",
-        "nivel capitular",
-        "nivel nacional",
-        "nivel seccional",
-        "asistencia",
-        "eventos",
-    ]
 
-    # Encabezados tolerantes a OCR
+    # --- Configuración ---
+    exclusions = {
+        "a nivel capitular", "a nivel nacional", "a nivel seccional",
+        "capitular", "seccional", "nacional",
+        "nivel capitular", "nivel nacional", "nivel seccional",
+        "asistencia", "eventos"
+    }
+
     start_keywords = [
         "asistencia a eventos aneiap",
         "asistencia eventos aneiap",
@@ -679,7 +671,6 @@ def extract_attendance_section_with_ocr(pdf_path):
         "asistencia a event0s aneiap",
     ]
 
-    # Indicadores de fin de sección, tolerantes a OCR
     end_keywords = [
         "actualización profesional",
         "actualizacion profesional",
@@ -690,13 +681,7 @@ def extract_attendance_section_with_ocr(pdf_path):
         "reconoclmientos",
     ]
 
-    # 1️⃣ Extraer texto OCR
-    text = extract_text_with_ocr(pdf_path)
-    if not text:
-        return ""
-
-    # 2️⃣ Corregir errores comunes de OCR en todo el texto
-    OCR_ATTENDANCE_CORRECTIONS = {
+    ocr_corrections = {
         r"\basitenica\b": "asistencia",
         r"\basitencia\b": "asistencia",
         r"\basistenca\b": "asistencia",
@@ -707,45 +692,56 @@ def extract_attendance_section_with_ocr(pdf_path):
         r"\banelap\b": "aneiap",
         r"\baneíap\b": "aneiap",
     }
-    for pattern, replacement in OCR_ATTENDANCE_CORRECTIONS.items():
-        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
 
-    # 3️⃣ Buscar índice de inicio y fin usando fuzzy search
+    # --- 1) Extraer texto ---
+    text = extract_text_with_ocr(pdf_path) or ""
+    if not text.strip():
+        return ""
+
+    # --- 2) Correcciones OCR globales ---
+    for pattern, repl in ocr_corrections.items():
+        text = re.sub(pattern, repl, text, flags=re.IGNORECASE)
+
+    # --- 3) Buscar inicio (fuzzy) ---
     start_idx = fuzzy_search(text, start_keywords)
     if start_idx == -1:
         return ""
 
-    end_idx = len(text)
-    for kw in end_keywords:
-        idx = fuzzy_search(text[start_idx:], [kw])
-        if idx != -1:
-            end_idx = min(end_idx, start_idx + idx)
+    # --- 4) Buscar fin (fuzzy) ---
+    end_idx = min(
+        (start_idx + fuzzy_search(text[start_idx:], [kw]))
+        for kw in end_keywords
+        if fuzzy_search(text[start_idx:], [kw]) != -1
+    ) if any(fuzzy_search(text[start_idx:], [kw]) != -1 for kw in end_keywords) else len(text)
 
-    # 4️⃣ Extraer sección
     section = text[start_idx:end_idx]
 
-    # 5️⃣ Limpieza línea por línea
-    lines = section.split("\n")
+    # --- 5) Limpieza línea por línea ---
     cleaned_lines = []
-    seen = set()  # Para evitar duplicados
+    seen = set()
 
-    for line in lines:
-        # Limpiar caracteres raros y bullets
-        line_clean = clean_ocr_text(line)
-        line_norm = normalize_text(line_clean)
+    normalized_exclusions = {normalize_text(e) for e in exclusions}
+    normalized_keywords = {normalize_text(k) for k in (start_keywords + end_keywords)}
 
-        if not line_norm or line_norm in seen:
+    for line in section.split("\n"):
+        clean = clean_ocr_text(line)
+        norm = normalize_text(clean)
+
+        if not norm:
             continue
-        if line_norm in [normalize_text(k) for k in exclusions]:
+        if norm in seen:
             continue
-        if any(normalize_text(k) == line_norm for k in start_keywords + end_keywords):
+        if norm in normalized_exclusions:
+            continue
+        if norm in normalized_keywords:
             continue
 
-        cleaned_lines.append(line_clean)
-        seen.add(line_norm)
+        cleaned_lines.append(clean)
+        seen.add(norm)
 
-    # 6️⃣ Retornar sección final limpia
+    # --- 6) Retorno final ---
     return "\n".join(cleaned_lines).strip()
+
 
 def evaluate_cv_presentation(pdf_path):
     """
