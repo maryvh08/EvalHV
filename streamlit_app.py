@@ -533,41 +533,48 @@ def extract_event_section_with_ocr(pdf_path):
 
 
 def extract_attendance_section_with_ocr(pdf_path):
-    exclusions = [
+    """
+    Extrae la sección 'Asistencia a Eventos ANEIAP' de un PDF usando OCR,
+    con corrección de errores comunes y limpieza avanzada.
+    """
+    # Exclusiones comunes y ruido
+    exclusions = {
         "a nivel capitular", "a nivel nacional", "a nivel seccional",
         "capitular", "seccional", "nacional",
         "nivel capitular", "nivel nacional", "nivel seccional",
         "asistencia", "eventos"
-    ]
+    }
+
+    # Variantes de inicio (tolerancia a OCR)
     start_keywords = [
         "asistencia a eventos aneiap", "asistencia eventos aneiap",
         "asistenca eventos aneiap", "asitencia eventos aneiap",
         "asitenica eventos aneiap", "asistencla a eventos aneiap",
         "as1stenc1a eventos aneiap", "asistencia a event0s aneiap"
     ]
+
+    # Palabras clave de fin
     end_keywords = [
         "actualización profesional", "actualizacion profesional",
         "experiencia en aneiap", "eventos organizados",
         "reconocimientos", "reconocimlentos"
     ]
+
+    # Correcciones específicas de OCR
     ocr_corrections = {
-        r"\basitenica\b": "asistencia",
-        r"\basitencia\b": "asistencia",
-        r"\basistenca\b": "asistencia",
-        r"\bevent0s\b": "eventos",
-        r"\bevetos\b": "eventos",
-        r"\bevntos\b": "eventos",
-        r"\baneiap\b": "aneiap",
-        r"\banelap\b": "aneiap",
+        r"\basit(en|enc|encla|1c1a)\b": "asistencia",
+        r"\bev(ent0|et|ntos)\b": "eventos",
+        r"\ba(n|ne)eiap\b": "aneiap",
     }
 
     return extract_section_ocr_flexible(
-        pdf_path,
+        pdf_path=pdf_path,
         start_keywords=start_keywords,
         end_keywords=end_keywords,
         exclusions=exclusions,
         ocr_corrections=ocr_corrections
     )
+
     
 def evaluate_cv_presentation(pdf_path):
     """
