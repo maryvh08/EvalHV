@@ -17,5 +17,4 @@ nltk
 spacy
 textstat
 FastAPI
-google-generativeai
-tesseract 
+google-generativeai 
