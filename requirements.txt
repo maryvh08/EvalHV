@@ -9,7 +9,6 @@ statsmodels
 numpy
 pandas
 matplotlib 
-tesseract
 textblob>=0.17.1
 pyspellchecker
 language_tool_python
