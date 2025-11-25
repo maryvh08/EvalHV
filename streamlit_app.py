@@ -535,9 +535,55 @@ def extract_event_section_with_ocr(pdf_path):
 def extract_attendance_section_with_ocr(pdf_path):
     """
     Extrae la sección 'Asistencia a Eventos ANEIAP' de un PDF usando OCR,
-    con corrección de errores comunes y limpieza avanzada.
+    de forma robusta ante errores de OCR y variantes tipográficas.
     """
-    # Exclusiones comunes y ruido
+
+    # 1️⃣ Leer el texto con OCR
+    raw_text = extract_text_with_ocr(pdf_path)
+    if not raw_text:
+        return ""
+
+    # 2️⃣ Aplicar correcciones comunes de OCR
+    ocr_corrections = {
+        r"\basit(en|enc|encla|1c1a)\b": "asistencia",
+        r"\bev(ent0|et|ntos)\b": "eventos",
+        r"\ba(n|ne)eiap\b": "aneiap",
+        r"\breconocimlentos\b": "reconocimientos",
+        r"\bactualizacion\b": "actualización",
+    }
+
+    text = raw_text
+    for pattern, repl in ocr_corrections.items():
+        text = re.sub(pattern, repl, text, flags=re.IGNORECASE)
+
+    # 3️⃣ Buscar inicio de sección usando regex tolerante
+    start_pattern = r"asist\w*\s*(a\s*)?eventos\s*aneiap"
+    start_match = re.search(start_pattern, text, re.IGNORECASE)
+    if not start_match:
+        return ""
+    start_idx = start_match.start()
+
+    # 4️⃣ Buscar fin de sección (primer keyword que aparezca después del inicio)
+    end_keywords = [
+        "actualización profesional",
+        "experiencia en aneiap",
+        "eventos organizados",
+        "reconocimientos",
+        "firma"
+    ]
+    end_idx = len(text)
+    for kw in end_keywords:
+        match = re.search(kw, text[start_idx:], re.IGNORECASE)
+        if match:
+            end_idx = min(end_idx, start_idx + match.start())
+
+    # 5️⃣ Extraer sección
+    section_text = text[start_idx:end_idx]
+
+    # 6️⃣ Limpiar líneas
+    lines = section_text.split("\n")
+    cleaned_lines = []
+    seen_lines = set()
     exclusions = {
         "a nivel capitular", "a nivel nacional", "a nivel seccional",
         "capitular", "seccional", "nacional",
@@ -545,36 +591,26 @@ def extract_attendance_section_with_ocr(pdf_path):
         "asistencia", "eventos"
     }
 
-    # Variantes de inicio (tolerancia a OCR)
-    start_keywords = [
-        "asistencia a eventos aneiap", "asistencia eventos aneiap",
-        "asistenca eventos aneiap", "asitencia eventos aneiap",
-        "asitenica eventos aneiap", "asistencla a eventos aneiap",
-        "as1stenc1a eventos aneiap", "asistencia a event0s aneiap"
-    ]
+    for line in lines:
+        # Quitar bullets, números y caracteres corruptos
+        line_clean = re.sub(r"^[•\-\*\>\●\▶\•\·\●]+\s*", "", line)
+        line_clean = re.sub(r"^\d+[\.\)\-]\s*", "", line_clean)
+        line_clean = re.sub(r"[^\w\s.,;:()\-]", "", line_clean)
+        line_clean = re.sub(r"\s+", " ", line_clean).strip()
 
-    # Palabras clave de fin
-    end_keywords = [
-        "actualización profesional", "actualizacion profesional",
-        "experiencia en aneiap", "eventos organizados",
-        "reconocimientos", "reconocimlentos"
-    ]
+        line_norm = line_clean.lower()
 
-    # Correcciones específicas de OCR
-    ocr_corrections = {
-        r"\basit(en|enc|encla|1c1a)\b": "asistencia",
-        r"\bev(ent0|et|ntos)\b": "eventos",
-        r"\ba(n|ne)eiap\b": "aneiap",
-    }
+        if not line_norm:
+            continue
+        if line_norm in exclusions:
+            continue
+        if line_norm in seen_lines:
+            continue
 
-    return extract_section_ocr_flexible(
-        pdf_path=pdf_path,
-        start_keywords=start_keywords,
-        end_keywords=end_keywords,
-        exclusions=exclusions,
-        ocr_corrections=ocr_corrections
-    )
+        cleaned_lines.append(line_clean)
+        seen_lines.add(line_norm)
 
+    return "\n".join(cleaned_lines).strip()
     
 def evaluate_cv_presentation(pdf_path):
     """
