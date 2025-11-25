@@ -645,6 +645,32 @@ def extract_event_section_with_ocr(pdf_path):
     final_items = list(dict.fromkeys(cleaned_items))
 
     return "\n".join(final_items).strip()
+
+def extract_attendance_section_with_ocr(pdf_path):
+    exclusions = [
+        "a nivel capitular",
+        "a nivel nacional",
+        "a nivel seccional",
+        "capitular",
+        "seccional",
+        "nacional",
+    ]
+
+    return extract_section_ocr(
+        pdf_path,
+        start_keywords=[
+            "asistencia a eventos aneiap",
+            "asistencia eventos aneiap",
+            "asitenica eventos aneiap"
+        ],
+        end_keywords=[
+            "actualización profesional",
+            "experiencia en aneiap",
+            "eventos organizados",
+            "reconocimientos"
+        ],
+        exclusions=[normalize_text(x) for x in exclusions]
+    )
     
 def evaluate_cv_presentation(pdf_path):
     """
