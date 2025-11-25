@@ -387,28 +387,40 @@ def add_background(canvas, background_path):
     canvas.restoreState()
 
 # FUNCIONES PARA ANÁLISIS DE FORMATO SIMPLIFICADO 
+# ---------------------------------------
+# NORMALIZACIÓN
+# ---------------------------------------
 
-def normalize(text):
+def normalize_text(text):
+    """Normaliza texto para búsquedas robustas."""
+    if not text:
+        return ""
     text = text.lower()
     text = text.replace("\n", " ")
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
+# ---------------------------------------
+# FUZZY SEARCH TOLERANTE AL OCR
+# ---------------------------------------
+
 def fuzzy_search(haystack, needles, cutoff=0.70):
-    """Encuentra el índice aproximado de una palabra clave tolerante al OCR."""
-    hay_norm = normalize(haystack)
+    """Encuentra índice aproximado tolerante al OCR."""
+    hay_norm = normalize_text(haystack)
     words = hay_norm.split()
 
     for needle in needles:
-        needle_norm = normalize(needle)
+        needle_norm = normalize_text(needle)
         match = difflib.get_close_matches(needle_norm, words, n=1, cutoff=cutoff)
         if match:
             return hay_norm.find(match[0])
+
     return -1
 
-# -------------------------------
-# CORRECCIÓN DE ERRORES DE OCR
-# -------------------------------
+# ---------------------------------------
+# CORRECCIÓN DE OCR
+# ---------------------------------------
+
 OCR_CORRECTIONS = {
     r"\b0rganizad[oa]s?\b": "organizados",
     r"\b0rgan1zad[oa]s?\b": "organizados",
@@ -425,7 +437,7 @@ OCR_CORRECTIONS = {
     r"\bnaclonai\b": "nacional",
 
     r"\bseccíonal\b": "seccional",
-    r"\bsecc1onal\b": "seccional"
+    r"\bsecc1onal\b": "seccional",
 }
 
 def correct_ocr_errors(text):
@@ -433,25 +445,33 @@ def correct_ocr_errors(text):
         text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
     return text
 
-# -------------------------------
-# LIMPIEZA AVANZADA
-# -------------------------------
-def clean_line(line):
-    line = line.strip()
+# ---------------------------------------
+# LIMPIEZA DE LÍNEAS
+# ---------------------------------------
 
-    # reconocer listas típicas aunque el OCR las destruya
-    line = re.sub(r"^[•\-\*\>\●\▶\•\·\●]+\s*", "", line)  # bullets
-    line = re.sub(r"^\d+[\.\)\-]\s*", "", line)        # números tipo "1. ", "2) "
+def clean_ocr_text(text):
+    """Limpieza avanzada del texto OCR."""
+    if not text:
+        return ""
 
-    # borrar caracteres OCR corruptos
-    line = re.sub(r"[^\w\s.,;:()\-]", "", line)
+    text = text.strip()
 
-    line = re.sub(r"\s+", " ", line)
-    return line.strip()
+    # Quitar bullets o listas rotas
+    text = re.sub(r"^[•\-\*\>\●\▶\•\·\●]+\s*", "", text)
+    text = re.sub(r"^\d+[\.\)\-]\s*", "", text)
 
-# -------------------------------
+    # Quitar caracteres corruptos
+    text = re.sub(r"[^\w\s.,;:()\-]", "", text)
+
+    # Normalizar espacios
+    text = re.sub(r"\s+", " ", text)
+
+    return text.strip()
+
+# ---------------------------------------
 # FILTRO DE RUIDO
-# -------------------------------
+# ---------------------------------------
+
 EXCLUDE_PATTERNS = [
     "a nivel capitular",
     "a nivel nacional",
@@ -466,36 +486,40 @@ EXCLUDE_PATTERNS = [
 ]
 
 def is_noise(line_norm):
-    return line_norm in EXCLUDE_PATTERNS or len(line_norm.split()) < 1
+    return line_norm in EXCLUDE_PATTERNS or len(line_norm) < 2
+
+# ---------------------------------------
+# FUNCIÓN GENERAL DE SECCIÓN
+# ---------------------------------------
 
 def extract_section_ocr(pdf_path, start_keywords, end_keywords=None, exclusions=None):
     """
-    Extrae una sección de un PDF usando OCR de forma robusta.
+    Extrae una sección del PDF usando OCR de forma robusta.
     """
     text = extract_text_with_ocr(pdf_path)
     if not text:
         return ""
 
-    raw_text = text
-    text = normalize_text(text)
+    text_corrected = correct_ocr_errors(text)
+    text_norm = normalize_text(text_corrected)
 
-    # 1) Buscar inicio (tolerante al OCR)
-    start_idx = fuzzy_find(text, start_keywords)
+    # 1) Inicio fuzzy
+    start_idx = fuzzy_search(text_norm, start_keywords)
     if start_idx == -1:
         return ""
 
-    # 2) Buscar fin
-    end_idx = len(text)
+    # 2) Fin fuzzy
+    end_idx = len(text_norm)
     if end_keywords:
         for kw in end_keywords:
-            idx = fuzzy_find(text[start_idx:], [kw])
+            idx = fuzzy_search(text_norm[start_idx:], [kw])
             if idx != -1:
                 end_idx = min(end_idx, start_idx + idx)
 
-    # 3) Extraer sección del texto original (no normalizado)
-    extracted = raw_text[start_idx:end_idx]
+    # 3) Extraemos desde el texto corregido original, no el normalizado
+    extracted = text_corrected[start_idx:end_idx]
 
-    # 4) Limpiar texto
+    # 4) Limpiar líneas
     lines = extracted.split("\n")
     cleaned = []
 
@@ -505,13 +529,16 @@ def extract_section_ocr(pdf_path, start_keywords, end_keywords=None, exclusions=
 
         if not line_norm:
             continue
-
         if exclusions and line_norm in exclusions:
             continue
 
         cleaned.append(line_clean)
 
     return "\n".join(cleaned).strip()
+
+# ---------------------------------------
+# PERFIL
+# ---------------------------------------
 
 def extract_profile_section_with_ocr(pdf_path):
     return extract_section_ocr(
@@ -520,6 +547,11 @@ def extract_profile_section_with_ocr(pdf_path):
         end_keywords=["asistencia a eventos", "actualización profesional"],
         exclusions=[]
     )
+
+# ---------------------------------------
+# EXPERIENCIA EN ANEIAP
+# ---------------------------------------
+
 def extract_experience_section_with_ocr(pdf_path):
     exclusions = [
         "a nivel capitular",
@@ -535,21 +567,30 @@ def extract_experience_section_with_ocr(pdf_path):
 
     return extract_section_ocr(
         pdf_path,
-        start_keywords=["experiencia en aneiap", "expereincia en aneiap", "experiencia aneiap"],  # tolerante al OCR
+        start_keywords=[
+            "experiencia en aneiap",
+            "expereincia en aneiap",
+            "experiencia aneiap",
+        ],
         end_keywords=[
             "eventos organizados",
             "reconocimientos individuales",
             "reconocimientos grupales",
-            "reconocimientos"
+            "reconocimientos",
         ],
         exclusions=[normalize_text(x) for x in exclusions]
     )
+
+# ---------------------------------------
+# EVENTOS ORGANIZADOS (MEJORADA)
+# ---------------------------------------
+
 def extract_event_section_with_ocr(pdf_path):
     text = extract_text_with_ocr(pdf_path)
     if not text:
         return ""
 
-    text = correct_ocr_errors(text)
+    text_corrected = correct_ocr_errors(text)
 
     start_keywords = [
         "eventos organizados",
@@ -563,47 +604,48 @@ def extract_event_section_with_ocr(pdf_path):
         "experiencia laboral",
         "experiencia en aneiap",
         "asistencia",
-        "firma"
+        "firma",
     ]
 
-    # índice de inicio fuzzy
-    start_idx = fuzzy_search(text, start_keywords)
+    # fuzzy inicio
+    start_idx = fuzzy_search(text_corrected, start_keywords)
     if start_idx == -1:
         return ""
 
-    # índice de final fuzzy
-    end_idx = len(text)
+    # fuzzy fin
+    end_idx = len(text_corrected)
     for key in end_keywords:
-        idx = fuzzy_search(text[start_idx:], [key])
+        idx = fuzzy_search(text_corrected[start_idx:], [key])
         if idx != -1:
             end_idx = min(end_idx, start_idx + idx)
 
-    # extraer la sección original
-    section = text[start_idx:end_idx]
+    # sección cruda
+    section = text_corrected[start_idx:end_idx]
 
-    # dividir por líneas
+    # dividir líneas
     lines = section.split("\n")
     cleaned_items = []
 
     for line in lines:
-        line = clean_line(line)
-        line_norm = normalize(line)
+        clean = clean_ocr_text(line)
+        norm = normalize_text(clean)
 
-        if not line_norm:
+        if not norm:
             continue
-        if is_noise(line_norm):
+        if is_noise(norm):
             continue
-        if any(normalize(k) == line_norm for k in start_keywords):
+        if normalize_text(clean) in start_keywords:
             continue
-        if any(normalize(k) == line_norm for k in end_keywords):
+        if normalize_text(clean) in end_keywords:
             continue
 
-        cleaned_items.append(line)
+        cleaned_items.append(clean)
 
-    # eliminar duplicados conservando orden
+    # quitar duplicados
     final_items = list(dict.fromkeys(cleaned_items))
 
     return "\n".join(final_items).strip()
+    
 def evaluate_cv_presentation(pdf_path):
     """
     Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
