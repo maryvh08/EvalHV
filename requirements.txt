@@ -18,3 +18,4 @@ spacy
 textstat
 FastAPI
 google-generativeai
+tesseract 
