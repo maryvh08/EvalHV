@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image
 import os
+import unicodedata
 import difflib
 import io
 import google.generativeai as genai
@@ -387,230 +388,97 @@ def add_background(canvas, background_path):
     canvas.restoreState()
 
 # FUNCIONES PARA ANÁLISIS DE FORMATO SIMPLIFICADO 
-# ---------------------------------------
-# NORMALIZACIÓN
-# ---------------------------------------
 def normalize_text(text):
-    """Normaliza texto para búsquedas robustas."""
+    """Normaliza el texto: minúsculas, sin acentos, espacios limpios."""
+    text = text.lower()
+    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+def clean_line(line):
+    """Limpia una línea de texto: caracteres no alfanuméricos excepto espacios, guiones y paréntesis."""
+    line = re.sub(r"[^\w\s\-()]", "", line)
+    return line.strip()
+
+def extract_section_with_ocr(pdf_path, start_keyword, end_keywords=None, exclude_lines=None):
+    """
+    Función general para extraer secciones de un PDF usando OCR.
+    :param pdf_path: Ruta del archivo PDF.
+    :param start_keyword: Palabra clave de inicio.
+    :param end_keywords: Lista de palabras clave de fin (opcional).
+    :param exclude_lines: Lista de líneas a excluir (opcional).
+    :return: Texto limpio de la sección.
+    """
+    text = extract_text_with_ocr(pdf_path)
     if not text:
-        return ""
-    text = text.lower().replace("\n", " ")
-    return re.sub(r"\s+", " ", text).strip()
-
-
-# ---------------------------------------
-# FUZZY SEARCH TOLERANTE AL OCR
-# ---------------------------------------
-def fuzzy_search(haystack, needles, cutoff=0.7):
-    """Encuentra índice aproximado tolerante al OCR."""
-    hay_norm = normalize_text(haystack)
-    words = hay_norm.split()
-    for needle in needles:
-        needle_norm = normalize_text(needle)
-        match = difflib.get_close_matches(needle_norm, words, n=1, cutoff=cutoff)
-        if match:
-            return hay_norm.find(match[0])
-    return -1
-
-
-# ---------------------------------------
-# CORRECCIÓN DE OCR
-# ---------------------------------------
-OCR_CORRECTIONS = {
-    r"\b0rganizad[oa]s?\b": "organizados",
-    r"\b0rgan1zad[oa]s?\b": "organizados",
-    r"\b0rganiza[dt]os?\b": "organizados",
-    r"\bevent0s\b": "eventos",
-    r"\bevetos\b": "eventos",
-    r"\bevntos\b": "eventos",
-    r"\bcapltular\b": "capitular",
-    r"\bcapltuar\b": "capitular",
-    r"\bnaclonal\b": "nacional",
-    r"\bnaclonai\b": "nacional",
-    r"\bseccíonal\b": "seccional",
-    r"\bsecc1onal\b": "seccional",
-    r"\basitenica\b": "asistencia",
-    r"\basitencia\b": "asistencia",
-    r"\basistenca\b": "asistencia",
-    r"\baneiap\b": "aneiap",
-    r"\banelap\b": "aneiap",
-}
-
-def correct_ocr_errors(text):
-    for pattern, replacement in OCR_CORRECTIONS.items():
-        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
-    return text
-
-
-# ---------------------------------------
-# LIMPIEZA DE LÍNEAS
-# ---------------------------------------
-def clean_ocr_text(text):
-    """Limpieza avanzada del texto OCR."""
-    if not text:
-        return ""
-    text = text.strip()
-    text = re.sub(r"^[•\-\*\>\●\▶\•\·\●]+\s*", "", text)  # bullets
-    text = re.sub(r"^\d+[\.\)\-]\s*", "", text)             # números
-    text = re.sub(r"[^\w\s.,;:()\-]", "", text)             # caracteres extraños
-    return re.sub(r"\s+", " ", text).strip()
-
-
-# ---------------------------------------
-# FUNCIÓN GENERAL DE SECCIÓN
-# ---------------------------------------
-def extract_section_ocr_flexible(pdf_path, start_keywords, end_keywords, exclusions=None, ocr_corrections=None):
-    exclusions = set(normalize_text(e) for e in (exclusions or []))
-    ocr_corrections = ocr_corrections or {}
-
-    text = extract_text_with_ocr(pdf_path) or ""
-    if not text.strip():
+        print(f"⚠️ No se pudo extraer texto del PDF: {pdf_path}")
         return ""
 
-    # Correcciones OCR globales
-    text = correct_ocr_errors(text)
-    for pattern, repl in ocr_corrections.items():
-        text = re.sub(pattern, repl, text, flags=re.IGNORECASE)
-
-    # Buscar inicio
-    start_idx = fuzzy_search(text, start_keywords)
+    start_idx = normalize_text(text).find(normalize_text(start_keyword))
     if start_idx == -1:
+        print(f"⚠️ No se encontró la sección '{start_keyword}'.")
         return ""
 
-    # Buscar fin
-    end_positions = []
-    for kw in end_keywords:
-        idx = fuzzy_search(text[start_idx:], [kw])
-        if idx != -1:
-            end_positions.append(start_idx + idx)
-    end_idx = min(end_positions) if end_positions else len(text)
-
-    # Extraer y limpiar sección
-    section = text[start_idx:end_idx]
-    cleaned, seen = [], set()
-    normalized_keywords = {normalize_text(k) for k in start_keywords + end_keywords}
-
-    for line in section.split("\n"):
-        clean = clean_ocr_text(line)
-        norm = normalize_text(clean)
-        if not norm or norm in seen or norm in exclusions or norm in normalized_keywords:
-            continue
-        cleaned.append(clean)
-        seen.add(norm)
-
-    return "\n".join(cleaned).strip()
-
-
-# ---------------------------------------
-# FUNCIONES ESPECÍFICAS
-# ---------------------------------------
-def extract_profile_section_with_ocr(pdf_path):
-    return extract_section_ocr_flexible(
-        pdf_path,
-        start_keywords=["perfil"],
-        end_keywords=["asistencia a eventos", "actualización profesional"],
-    )
-
-
-def extract_experience_section_with_ocr(pdf_path):
-    exclusions = [
-        "a nivel capitular", "a nivel nacional", "a nivel seccional",
-        "reconocimientos individuales", "reconocimientos grupales",
-        "trabajo capitular", "trabajo nacional",
-        "nacional 2024", "nacional 20212023",
-    ]
-    start_keywords = ["experiencia en aneiap", "expereincia en aneiap", "experiencia aneiap"]
-    end_keywords = ["eventos organizados", "reconocimientos individuales",
-                    "reconocimientos grupales", "reconocimientos"]
-    return extract_section_ocr_flexible(pdf_path, start_keywords, end_keywords, exclusions=exclusions)
-
-
-def extract_event_section_with_ocr(pdf_path):
-    start_keywords = ["eventos organizados", "evetos organizados", "eventos organzados",
-                      "eventos 0rganizados", "eventos organ1zados"]
-    end_keywords = ["experiencia laboral", "experiencia en aneiap", "asistencia", "firma"]
-    return extract_section_ocr_flexible(pdf_path, start_keywords, end_keywords)
-
-
-def extract_attendance_section_with_ocr(pdf_path):
-    """
-    Extrae la sección 'Asistencia a Eventos ANEIAP' de un PDF usando OCR,
-    de forma robusta ante errores de OCR y variantes tipográficas.
-    """
-
-    # 1️⃣ Leer el texto con OCR
-    raw_text = extract_text_with_ocr(pdf_path)
-    if not raw_text:
-        return ""
-
-    # 2️⃣ Aplicar correcciones comunes de OCR
-    ocr_corrections = {
-        r"\basit(en|enc|encla|1c1a)\b": "asistencia",
-        r"\bev(ent0|et|ntos)\b": "eventos",
-        r"\ba(n|ne)eiap\b": "aneiap",
-        r"\breconocimlentos\b": "reconocimientos",
-        r"\bactualizacion\b": "actualización",
-    }
-
-    text = raw_text
-    for pattern, repl in ocr_corrections.items():
-        text = re.sub(pattern, repl, text, flags=re.IGNORECASE)
-
-    # 3️⃣ Buscar inicio de sección usando regex tolerante
-    start_pattern = r"asist\w*\s*(a\s*)?eventos\s*aneiap"
-    start_match = re.search(start_pattern, text, re.IGNORECASE)
-    if not start_match:
-        return ""
-    start_idx = start_match.start()
-
-    # 4️⃣ Buscar fin de sección (primer keyword que aparezca después del inicio)
-    end_keywords = [
-        "actualización profesional",
-        "experiencia en aneiap",
-        "eventos organizados",
-        "reconocimientos",
-        "firma"
-    ]
     end_idx = len(text)
-    for kw in end_keywords:
-        match = re.search(kw, text[start_idx:], re.IGNORECASE)
-        if match:
-            end_idx = min(end_idx, start_idx + match.start())
+    if end_keywords:
+        for keyword in end_keywords:
+            idx = normalize_text(text).find(normalize_text(keyword), start_idx)
+            if idx != -1:
+                end_idx = min(end_idx, idx)
 
-    # 5️⃣ Extraer sección
-    att_text = text[start_idx:end_idx]
-
-    # 6️⃣ Limpiar líneas
+    section_text = text[start_idx:end_idx].strip()
     lines = section_text.split("\n")
     cleaned_lines = []
-    seen_lines = set()
-    exclusions = {
-        "a nivel capitular", "a nivel nacional", "a nivel seccional",
-        "capitular", "seccional", "nacional",
-        "nivel capitular", "nivel nacional", "nivel seccional",
-        "asistencia", "eventos"
-    }
+    normalized_exclude = [normalize_text(l) for l in exclude_lines] if exclude_lines else []
 
     for line in lines:
-        # Quitar bullets, números y caracteres corruptos
-        line_clean = re.sub(r"^[•\-\*\>\●\▶\•\·\●]+\s*", "", line)
-        line_clean = re.sub(r"^\d+[\.\)\-]\s*", "", line_clean)
-        line_clean = re.sub(r"[^\w\s.,;:()\-]", "", line_clean)
-        line_clean = re.sub(r"\s+", " ", line_clean).strip()
+        cleaned = clean_line(line)
+        normalized_line = normalize_text(cleaned)
+        if cleaned and normalized_line != normalize_text(start_keyword) and normalized_line not in normalized_exclude:
+            if end_keywords and normalized_line not in [normalize_text(k) for k in end_keywords]:
+                cleaned_lines.append(cleaned)
 
-        line_norm = line_clean.lower()
+    return "\n".join(cleaned_lines)
 
-        if not line_norm:
-            continue
-        if line_norm in exclusions:
-            continue
-        if line_norm in seen_lines:
-            continue
+# Funciones específicas usando la función general
+def extract_profile_section_with_ocr(pdf_path):
+    return extract_section_with_ocr(
+        pdf_path,
+        start_keyword="Perfil",
+        end_keywords=["Asistencia a eventos", "Actualización profesional"]
+    )
 
-        cleaned_lines.append(line_clean)
-        seen_lines.add(line_norm)
+def extract_experience_section_with_ocr(pdf_path):
+    return extract_section_with_ocr(
+        pdf_path,
+        start_keyword="EXPERIENCIA EN ANEIAP",
+        end_keywords=["EVENTOS ORGANIZADOS", "Reconocimientos individuales", "Reconocimientos grupales", "Reconocimientos"],
+        exclude_lines=[
+            "a nivel capitular", "a nivel nacional", "a nivel seccional",
+            "reconocimientos individuales", "reconocimientos grupales",
+            "trabajo capitular", "trabajo nacional", "nacional 2024", "nacional 20212023"
+        ]
+    )
 
-    return "\n".join(cleaned_lines).strip()
+def extract_event_section_with_ocr(pdf_path):
+    return extract_section_with_ocr(
+        pdf_path,
+        start_keyword="EVENTOS ORGANIZADOS",
+        end_keywords=["EXPERIENCIA LABORAL", "FIRMA"],
+        exclude_lines=[
+            "a nivel capitular", "a nivel nacional", "a nivel seccional",
+            "reconocimientos individuales", "reconocimientos grupales",
+            "trabajo capitular", "trabajo nacional", "nacional 2024", "nacional 20212023"
+        ]
+    )
+
+def extract_attendance_section_with_ocr(pdf_path):
+    return extract_section_with_ocr(
+        pdf_path,
+        start_keyword="ASISTENCIA A EVENTOS ANEIAP",
+        end_keywords=["ACTUALIZACIÓN PROFESIONAL", "EXPERIENCIA EN ANEIAP", "EVENTOS ORGANIZADOS", "RECONOCIMIENTOS"],
+        exclude_lines=["a nivel capitular", "a nivel nacional", "a nivel seccional", "capitular", "seccional", "nacional"]
+    )
     
 def evaluate_cv_presentation(pdf_path):
     """
