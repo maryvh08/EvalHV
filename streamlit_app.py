@@ -388,87 +388,85 @@ def add_background(canvas, background_path):
 
 # FUNCIONES PARA ANÁLISIS DE FORMATO SIMPLIFICADO 
 
-def normalize_text(text):
-    """Normaliza texto para búsquedas robustas."""
+def normalize(text):
     text = text.lower()
-    text = re.sub(r"\s+", " ", text)
     text = text.replace("\n", " ")
+    text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-def fuzzy_find(text, keywords, max_distance=0.75):
-    """
-    Encuentra la posición aproximada de la palabra clave usando coincidencia difusa.
-    Retorna índice o -1.
-    """
-    text_norm = normalize_text(text)
-    words = text_norm.split()
+def fuzzy_search(haystack, needles, cutoff=0.70):
+    """Encuentra el índice aproximado de una palabra clave tolerante al OCR."""
+    hay_norm = normalize(haystack)
+    words = hay_norm.split()
 
-    for keyword in keywords:
-        keyword_norm = normalize_text(keyword)
-        # Obtener coincidencias similares
-        matches = difflib.get_close_matches(keyword_norm, words, n=1, cutoff=max_distance)
-        if matches:
-            match = matches[0]
-            return text_norm.find(match)
-
+    for needle in needles:
+        needle_norm = normalize(needle)
+        match = difflib.get_close_matches(needle_norm, words, n=1, cutoff=cutoff)
+        if match:
+            return hay_norm.find(match[0])
     return -1
 
-def clean_ocr_text(text):
-    """Limpieza robusta del texto OCR."""
-    # Mantener texto útil y eliminar artefactos del OCR
-    text = re.sub(r"[^\w\s.,;:()\-]", "", text)
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+# -------------------------------
+# CORRECCIÓN DE ERRORES DE OCR
+# -------------------------------
+OCR_CORRECTIONS = {
+    r"\b0rganizad[oa]s?\b": "organizados",
+    r"\b0rgan1zad[oa]s?\b": "organizados",
+    r"\b0rganiza[dt]os?\b": "organizados",
 
-# ---------------------------------------
-# FUNCIÓN GENERAL PARA EXTRAER SECCIONES
-# ---------------------------------------
+    r"\bevent0s\b": "eventos",
+    r"\bevetos\b": "eventos",
+    r"\bevntos\b": "eventos",
 
-def extract_section_ocr(pdf_path, start_keywords, end_keywords=None, exclusions=None):
-    """
-    Extrae una sección de un PDF usando OCR de forma robusta.
-    """
-    text = extract_text_with_ocr(pdf_path)
-    if not text:
-        return ""
+    r"\bcapltular\b": "capitular",
+    r"\bcapltuar\b": "capitular",
 
-    raw_text = text
-    text = normalize_text(text)
+    r"\bnaclonal\b": "nacional",
+    r"\bnaclonai\b": "nacional",
 
-    # 1) Buscar inicio (tolerante al OCR)
-    start_idx = fuzzy_find(text, start_keywords)
-    if start_idx == -1:
-        return ""
+    r"\bseccíonal\b": "seccional",
+    r"\bsecc1onal\b": "seccional"
+}
 
-    # 2) Buscar fin
-    end_idx = len(text)
-    if end_keywords:
-        for kw in end_keywords:
-            idx = fuzzy_find(text[start_idx:], [kw])
-            if idx != -1:
-                end_idx = min(end_idx, start_idx + idx)
+def correct_ocr_errors(text):
+    for pattern, replacement in OCR_CORRECTIONS.items():
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    return text
 
-    # 3) Extraer sección del texto original (no normalizado)
-    extracted = raw_text[start_idx:end_idx]
+# -------------------------------
+# LIMPIEZA AVANZADA
+# -------------------------------
+def clean_line(line):
+    line = line.strip()
 
-    # 4) Limpiar texto
-    lines = extracted.split("\n")
-    cleaned = []
+    # reconocer listas típicas aunque el OCR las destruya
+    line = re.sub(r"^[•\-\*\>\●\▶\•\·\●]+\s*", "", line)  # bullets
+    line = re.sub(r"^\d+[\.\)\-]\s*", "", line)        # números tipo "1. ", "2) "
 
-    for line in lines:
-        line_clean = clean_ocr_text(line)
-        line_norm = normalize_text(line_clean)
+    # borrar caracteres OCR corruptos
+    line = re.sub(r"[^\w\s.,;:()\-]", "", line)
 
-        if not line_norm:
-            continue
+    line = re.sub(r"\s+", " ", line)
+    return line.strip()
 
-        if exclusions and line_norm in exclusions:
-            continue
+# -------------------------------
+# FILTRO DE RUIDO
+# -------------------------------
+EXCLUDE_PATTERNS = [
+    "a nivel capitular",
+    "a nivel nacional",
+    "a nivel seccional",
+    "reconocimientos individuales",
+    "reconocimientos grupales",
+    "trabajo capitular",
+    "trabajo nacional",
+    "nacional 2024",
+    "nacional 20212023",
+    "firma",
+]
 
-        cleaned.append(line_clean)
-
-    return "\n".join(cleaned).strip()
-
+def is_noise(line_norm):
+    return line_norm in EXCLUDE_PATTERNS or len(line_norm.split()) < 1
 def extract_profile_section_with_ocr(pdf_path):
     return extract_section_ocr(
         pdf_path,
