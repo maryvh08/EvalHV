@@ -578,7 +578,7 @@ def extract_attendance_section_with_ocr(pdf_path):
             end_idx = min(end_idx, start_idx + match.start())
 
     # 5️⃣ Extraer sección
-    section_text = text[start_idx:end_idx]
+    att_text = text[start_idx:end_idx]
 
     # 6️⃣ Limpiar líneas
     lines = section_text.split("\n")
