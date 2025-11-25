@@ -467,6 +467,52 @@ EXCLUDE_PATTERNS = [
 
 def is_noise(line_norm):
     return line_norm in EXCLUDE_PATTERNS or len(line_norm.split()) < 1
+
+def extract_section_ocr(pdf_path, start_keywords, end_keywords=None, exclusions=None):
+    """
+    Extrae una sección de un PDF usando OCR de forma robusta.
+    """
+    text = extract_text_with_ocr(pdf_path)
+    if not text:
+        return ""
+
+    raw_text = text
+    text = normalize_text(text)
+
+    # 1) Buscar inicio (tolerante al OCR)
+    start_idx = fuzzy_find(text, start_keywords)
+    if start_idx == -1:
+        return ""
+
+    # 2) Buscar fin
+    end_idx = len(text)
+    if end_keywords:
+        for kw in end_keywords:
+            idx = fuzzy_find(text[start_idx:], [kw])
+            if idx != -1:
+                end_idx = min(end_idx, start_idx + idx)
+
+    # 3) Extraer sección del texto original (no normalizado)
+    extracted = raw_text[start_idx:end_idx]
+
+    # 4) Limpiar texto
+    lines = extracted.split("\n")
+    cleaned = []
+
+    for line in lines:
+        line_clean = clean_ocr_text(line)
+        line_norm = normalize_text(line_clean)
+
+        if not line_norm:
+            continue
+
+        if exclusions and line_norm in exclusions:
+            continue
+
+        cleaned.append(line_clean)
+
+    return "\n".join(cleaned).strip()
+
 def extract_profile_section_with_ocr(pdf_path):
     return extract_section_ocr(
         pdf_path,
