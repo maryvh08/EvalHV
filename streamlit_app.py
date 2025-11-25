@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image
 import os
+import io
 import google.generativeai as genai
 import base64
 import fitz
