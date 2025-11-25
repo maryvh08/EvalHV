@@ -390,54 +390,50 @@ def add_background(canvas, background_path):
 # ---------------------------------------
 # NORMALIZACIÓN
 # ---------------------------------------
-
 def normalize_text(text):
     """Normaliza texto para búsquedas robustas."""
     if not text:
         return ""
-    text = text.lower()
-    text = text.replace("\n", " ")
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+    text = text.lower().replace("\n", " ")
+    return re.sub(r"\s+", " ", text).strip()
+
 
 # ---------------------------------------
 # FUZZY SEARCH TOLERANTE AL OCR
 # ---------------------------------------
-
-def fuzzy_search(haystack, needles, cutoff=0.70):
+def fuzzy_search(haystack, needles, cutoff=0.7):
     """Encuentra índice aproximado tolerante al OCR."""
     hay_norm = normalize_text(haystack)
     words = hay_norm.split()
-
     for needle in needles:
         needle_norm = normalize_text(needle)
         match = difflib.get_close_matches(needle_norm, words, n=1, cutoff=cutoff)
         if match:
             return hay_norm.find(match[0])
-
     return -1
+
 
 # ---------------------------------------
 # CORRECCIÓN DE OCR
 # ---------------------------------------
-
 OCR_CORRECTIONS = {
     r"\b0rganizad[oa]s?\b": "organizados",
     r"\b0rgan1zad[oa]s?\b": "organizados",
     r"\b0rganiza[dt]os?\b": "organizados",
-
     r"\bevent0s\b": "eventos",
     r"\bevetos\b": "eventos",
     r"\bevntos\b": "eventos",
-
     r"\bcapltular\b": "capitular",
     r"\bcapltuar\b": "capitular",
-
     r"\bnaclonal\b": "nacional",
     r"\bnaclonai\b": "nacional",
-
     r"\bseccíonal\b": "seccional",
     r"\bsecc1onal\b": "seccional",
+    r"\basitenica\b": "asistencia",
+    r"\basitencia\b": "asistencia",
+    r"\basistenca\b": "asistencia",
+    r"\baneiap\b": "aneiap",
+    r"\banelap\b": "aneiap",
 }
 
 def correct_ocr_errors(text):
@@ -445,402 +441,134 @@ def correct_ocr_errors(text):
         text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
     return text
 
+
 # ---------------------------------------
 # LIMPIEZA DE LÍNEAS
 # ---------------------------------------
-
 def clean_ocr_text(text):
     """Limpieza avanzada del texto OCR."""
     if not text:
         return ""
-
     text = text.strip()
+    text = re.sub(r"^[•\-\*\>\●\▶\•\·\●]+\s*", "", text)  # bullets
+    text = re.sub(r"^\d+[\.\)\-]\s*", "", text)             # números
+    text = re.sub(r"[^\w\s.,;:()\-]", "", text)             # caracteres extraños
+    return re.sub(r"\s+", " ", text).strip()
 
-    # Quitar bullets o listas rotas
-    text = re.sub(r"^[•\-\*\>\●\▶\•\·\●]+\s*", "", text)
-    text = re.sub(r"^\d+[\.\)\-]\s*", "", text)
-
-    # Quitar caracteres corruptos
-    text = re.sub(r"[^\w\s.,;:()\-]", "", text)
-
-    # Normalizar espacios
-    text = re.sub(r"\s+", " ", text)
-
-    return text.strip()
-
-# ---------------------------------------
-# FILTRO DE RUIDO
-# ---------------------------------------
-
-EXCLUDE_PATTERNS = [
-    "a nivel capitular",
-    "a nivel nacional",
-    "a nivel seccional",
-    "reconocimientos individuales",
-    "reconocimientos grupales",
-    "trabajo capitular",
-    "trabajo nacional",
-    "nacional 2024",
-    "nacional 20212023",
-    "firma",
-]
-
-def is_noise(line_norm):
-    return line_norm in EXCLUDE_PATTERNS or len(line_norm) < 2
 
 # ---------------------------------------
 # FUNCIÓN GENERAL DE SECCIÓN
 # ---------------------------------------
-
-def extract_section_ocr(pdf_path, start_keywords, end_keywords=None, exclusions=None):
-    """
-    Extrae una sección del PDF usando OCR de forma robusta.
-    """
-    text = extract_text_with_ocr(pdf_path)
-    if not text:
-        return ""
-
-    text_corrected = correct_ocr_errors(text)
-    text_norm = normalize_text(text_corrected)
-
-    # 1) Inicio fuzzy
-    start_idx = fuzzy_search(text_norm, start_keywords)
-    if start_idx == -1:
-        return ""
-
-    # 2) Fin fuzzy
-    end_idx = len(text_norm)
-    if end_keywords:
-        for kw in end_keywords:
-            idx = fuzzy_search(text_norm[start_idx:], [kw])
-            if idx != -1:
-                end_idx = min(end_idx, start_idx + idx)
-
-    # 3) Extraemos desde el texto corregido original, no el normalizado
-    extracted = text_corrected[start_idx:end_idx]
-
-    # 4) Limpiar líneas
-    lines = extracted.split("\n")
-    cleaned = []
-
-    for line in lines:
-        line_clean = clean_ocr_text(line)
-        line_norm = normalize_text(line_clean)
-
-        if not line_norm:
-            continue
-        if exclusions and line_norm in exclusions:
-            continue
-
-        cleaned.append(line_clean)
-
-    return "\n".join(cleaned).strip()
-
-# ---------------------------------------
-# PERFIL
-# ---------------------------------------
-
-def extract_profile_section_with_ocr(pdf_path):
-    return extract_section_ocr(
-        pdf_path,
-        start_keywords=["perfil"],
-        end_keywords=["asistencia a eventos", "actualización profesional"],
-        exclusions=[]
-    )
-
-def extract_section_ocr_flexible(
-    pdf_path,
-    start_keywords,
-    end_keywords,
-    exclusions=None,
-    ocr_corrections=None
-):
-    exclusions = exclusions or []
+def extract_section_ocr_flexible(pdf_path, start_keywords, end_keywords, exclusions=None, ocr_corrections=None):
+    exclusions = set(normalize_text(e) for e in (exclusions or []))
     ocr_corrections = ocr_corrections or {}
 
-    # --- 1) OCR ---
     text = extract_text_with_ocr(pdf_path) or ""
     if not text.strip():
         return ""
 
-    # --- 2) Correcciones OCR globales ---
+    # Correcciones OCR globales
+    text = correct_ocr_errors(text)
     for pattern, repl in ocr_corrections.items():
         text = re.sub(pattern, repl, text, flags=re.IGNORECASE)
 
-    text = correct_ocr_errors(text)
-
-    # --- 3) Buscar inicio ---
+    # Buscar inicio
     start_idx = fuzzy_search(text, start_keywords)
     if start_idx == -1:
         return ""
 
-    # --- 4) Buscar fin ---
+    # Buscar fin
     end_positions = []
-
     for kw in end_keywords:
         idx = fuzzy_search(text[start_idx:], [kw])
         if idx != -1:
             end_positions.append(start_idx + idx)
-
     end_idx = min(end_positions) if end_positions else len(text)
 
+    # Extraer y limpiar sección
     section = text[start_idx:end_idx]
-
-    # --- 5) Limpieza avanzada ---
-    cleaned = []
-    seen = set()
-
-    normalized_exclusions = {normalize_text(e) for e in exclusions}
-    normalized_keywords = {
-        normalize_text(k)
-        for k in start_keywords + end_keywords
-    }
+    cleaned, seen = [], set()
+    normalized_keywords = {normalize_text(k) for k in start_keywords + end_keywords}
 
     for line in section.split("\n"):
         clean = clean_ocr_text(line)
         norm = normalize_text(clean)
-
-        if not norm:
+        if not norm or norm in seen or norm in exclusions or norm in normalized_keywords:
             continue
-        if norm in seen:
-            continue
-        if norm in normalized_exclusions:
-            continue
-        if norm in normalized_keywords:
-            continue
-
         cleaned.append(clean)
         seen.add(norm)
 
     return "\n".join(cleaned).strip()
 
 
+# ---------------------------------------
+# FUNCIONES ESPECÍFICAS
+# ---------------------------------------
+def extract_profile_section_with_ocr(pdf_path):
+    return extract_section_ocr_flexible(
+        pdf_path,
+        start_keywords=["perfil"],
+        end_keywords=["asistencia a eventos", "actualización profesional"],
+    )
+
+
 def extract_experience_section_with_ocr(pdf_path):
-
     exclusions = [
-        "a nivel capitular",
-        "a nivel nacional",
-        "a nivel seccional",
-        "reconocimientos individuales",
-        "reconocimientos grupales",
-        "trabajo capitular",
-        "trabajo nacional",
-        "nacional 2024",
-        "nacional 20212023",
+        "a nivel capitular", "a nivel nacional", "a nivel seccional",
+        "reconocimientos individuales", "reconocimientos grupales",
+        "trabajo capitular", "trabajo nacional",
+        "nacional 2024", "nacional 20212023",
     ]
+    start_keywords = ["experiencia en aneiap", "expereincia en aneiap", "experiencia aneiap"]
+    end_keywords = ["eventos organizados", "reconocimientos individuales",
+                    "reconocimientos grupales", "reconocimientos"]
+    return extract_section_ocr_flexible(pdf_path, start_keywords, end_keywords, exclusions=exclusions)
 
-    return extract_section_ocr_flexible(
-        pdf_path=pdf_path,
-        start_keywords=[
-            "experiencia en aneiap",
-            "expereincia en aneiap",
-            "experiencia aneiap",
-        ],
-        end_keywords=[
-            "eventos organizados",
-            "reconocimientos individuales",
-            "reconocimientos grupales",
-            "reconocimientos",
-        ],
-        exclusions=exclusions,
-    )
+
 def extract_event_section_with_ocr(pdf_path):
-    return extract_section_ocr_flexible(
-        pdf_path=pdf_path,
-        start_keywords=[
-            "eventos organizados",
-            "evetos organizados",
-            "eventos organzados",
-            "eventos 0rganizados",
-            "eventos organ1zados",
-        ],
-        end_keywords=[
-            "experiencia laboral",
-            "experiencia en aneiap",
-            "asistencia",
-            "firma",
-        ],
-        exclusions=[],
-    )
-def extract_event_section_with_ocr(pdf_path):
-    return extract_section_ocr_flexible(
-        pdf_path=pdf_path,
-        start_keywords=[
-            "eventos organizados",
-            "evetos organizados",
-            "eventos organzados",
-            "eventos 0rganizados",
-            "eventos organ1zados",
-        ],
-        end_keywords=[
-            "experiencia laboral",
-            "experiencia en aneiap",
-            "asistencia",
-            "firma",
-        ],
-        exclusions=[],
-    )
-def extract_event_section_with_ocr(pdf_path):
-    return extract_section_ocr_flexible(
-        pdf_path=pdf_path,
-        start_keywords=[
-            "eventos organizados",
-            "evetos organizados",
-            "eventos organzados",
-            "eventos 0rganizados",
-            "eventos organ1zados",
-        ],
-        end_keywords=[
-            "experiencia laboral",
-            "experiencia en aneiap",
-            "asistencia",
-            "firma",
-        ],
-        exclusions=[],
-    )
-def extract_event_section_with_ocr(pdf_path):
-    return extract_section_ocr_flexible(
-        pdf_path=pdf_path,
-        start_keywords=[
-            "eventos organizados",
-            "evetos organizados",
-            "eventos organzados",
-            "eventos 0rganizados",
-            "eventos organ1zados",
-        ],
-        end_keywords=[
-            "experiencia laboral",
-            "experiencia en aneiap",
-            "asistencia",
-            "firma",
-        ],
-        exclusions=[],
-    )
-def extract_experience_section_with_ocr(pdf_path):
-
-    exclusions = [
-        "a nivel capitular",
-        "a nivel nacional",
-        "a nivel seccional",
-        "reconocimientos individuales",
-        "reconocimientos grupales",
-        "trabajo capitular",
-        "trabajo nacional",
-        "nacional 2024",
-        "nacional 20212023",
-    ]
-
-    return extract_section_ocr_flexible(
-        pdf_path=pdf_path,
-        start_keywords=[
-            "experiencia en aneiap",
-            "expereincia en aneiap",
-            "experiencia aneiap",
-        ],
-        end_keywords=[
-            "eventos organizados",
-            "reconocimientos individuales",
-            "reconocimientos grupales",
-            "reconocimientos",
-        ],
-        exclusions=exclusions,
-    )
-def extract_event_section_with_ocr(pdf_path):
-    return extract_section_ocr_flexible(
-        pdf_path=pdf_path,
-        start_keywords=[
-            "eventos organizados",
-            "evetos organizados",
-            "eventos organzados",
-            "eventos 0rganizados",
-            "eventos organ1zados",
-        ],
-        end_keywords=[
-            "experiencia laboral",
-            "experiencia en aneiap",
-            "asistencia",
-            "firma",
-        ],
-        exclusions=[],
-    )
-import unicodedata
-
-def generate_ocr_variants(word):
-    """Genera variantes típicas de OCR para una palabra clave."""
-    replacements = {
-        "i": "[i1l|]",
-        "l": "[l1i|]",
-        "e": "[e3]",
-        "a": "[a4]",
-        "o": "[o0]",
-        "s": "[s5]",
-        "n": "[nñ]",
-        "c": "[c]",
-        "v": "[v]",
-    }
-
-    pattern = ""
-    for char in word:
-        if char in replacements:
-            pattern += replacements[char]
-        else:
-            pattern += char
-    return pattern
-
-
-def flexible_keywords(base_keywords):
-    """Construye expresiones regulares tolerantes a errores OCR."""
-    patterns = []
-    for kw in base_keywords:
-        parts = kw.split()
-        variant = r"\s+".join(generate_ocr_variants(p) for p in parts)
-        patterns.append(variant)
-    return patterns
+    start_keywords = ["eventos organizados", "evetos organizados", "eventos organzados",
+                      "eventos 0rganizados", "eventos organ1zados"]
+    end_keywords = ["experiencia laboral", "experiencia en aneiap", "asistencia", "firma"]
+    return extract_section_ocr_flexible(pdf_path, start_keywords, end_keywords)
 
 
 def extract_attendance_section_with_ocr(pdf_path):
-
-    exclusions = {
+    exclusions = [
         "a nivel capitular", "a nivel nacional", "a nivel seccional",
         "capitular", "seccional", "nacional",
         "nivel capitular", "nivel nacional", "nivel seccional",
         "asistencia", "eventos"
-    }
-
-    # Correcciones OCR ampliadas
+    ]
+    start_keywords = [
+        "asistencia a eventos aneiap", "asistencia eventos aneiap",
+        "asistenca eventos aneiap", "asitencia eventos aneiap",
+        "asitenica eventos aneiap", "asistencla a eventos aneiap",
+        "as1stenc1a eventos aneiap", "asistencia a event0s aneiap"
+    ]
+    end_keywords = [
+        "actualización profesional", "actualizacion profesional",
+        "experiencia en aneiap", "eventos organizados",
+        "reconocimientos", "reconocimlentos"
+    ]
     ocr_corrections = {
-        r"\ba[s5]i[t|]en[cl]ia\b": "asistencia",
-        r"\bevent[o0]s\b": "eventos",
-        r"\bane[i1|]ap\b": "aneiap",
+        r"\basitenica\b": "asistencia",
+        r"\basitencia\b": "asistencia",
+        r"\basistenca\b": "asistencia",
+        r"\bevent0s\b": "eventos",
+        r"\bevetos\b": "eventos",
+        r"\bevntos\b": "eventos",
+        r"\baneiap\b": "aneiap",
+        r"\banelap\b": "aneiap",
     }
-
-    base_start_keywords = [
-        "asistencia a eventos aneiap",
-        "asistencia eventos aneiap",
-        "asistencia a eventos",
-    ]
-
-    base_end_keywords = [
-        "actualizacion profesional",
-        "experiencia en aneiap",
-        "eventos organizados",
-        "reconocimientos",
-    ]
-
-    # Genera variantes regex robustas
-    start_keywords_patterns = flexible_keywords(base_start_keywords)
-    end_keywords_patterns = flexible_keywords(base_end_keywords)
 
     return extract_section_ocr_flexible(
-        pdf_path=pdf_path,
-        start_keywords=start_keywords_patterns,
-        end_keywords=end_keywords_patterns,
+        pdf_path,
+        start_keywords=start_keywords,
+        end_keywords=end_keywords,
         exclusions=exclusions,
-        ocr_corrections=ocr_corrections,
-        normalize_fn=normalize_text,       # permite más flexibilidad
-        regex_mode=True                    # indica al extractor que use regex
+        ocr_corrections=ocr_corrections
     )
-
+    
 def evaluate_cv_presentation(pdf_path):
     """
     Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
