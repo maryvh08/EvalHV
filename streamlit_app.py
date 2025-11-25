@@ -4,6 +4,7 @@ import os
 import google.generativeai as genai
 import base64
 import fitz
+import io
 import requests
 import numpy as np
 import spacy
