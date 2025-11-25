@@ -501,51 +501,65 @@ def extract_experience_section_with_ocr(pdf_path):
         exclusions=[normalize_text(x) for x in exclusions]
     )
 def extract_event_section_with_ocr(pdf_path):
-    exclusions = [
-        "a nivel capitular",
-        "a nivel nacional",
-        "a nivel seccional",
-        "reconocimientos individuales",
-        "reconocimientos grupales",
-        "trabajo capitular",
-        "trabajo nacional",
-        "nacional 2024",
-        "nacional 20212023",
+    text = extract_text_with_ocr(pdf_path)
+    if not text:
+        return ""
+
+    text = correct_ocr_errors(text)
+
+    start_keywords = [
+        "eventos organizados",
+        "evetos organizados",
+        "eventos organzados",
+        "eventos 0rganizados",
+        "eventos organ1zados"
     ]
 
-    return extract_section_ocr(
-        pdf_path,
-        start_keywords=["eventos organizados", "eventos organzados"],
-        end_keywords=["experiencia laboral", "firma"],
-        exclusions=[normalize_text(x) for x in exclusions]
-    )
-def extract_attendance_section_with_ocr(pdf_path):
-    exclusions = [
-        "a nivel capitular",
-        "a nivel nacional",
-        "a nivel seccional",
-        "capitular",
-        "seccional",
-        "nacional",
+    end_keywords = [
+        "experiencia laboral",
+        "experiencia en aneiap",
+        "asistencia",
+        "firma"
     ]
 
-    return extract_section_ocr(
-        pdf_path,
-        start_keywords=[
-            "asistencia a eventos aneiap",
-            "asistencia eventos aneiap",
-            "asitenica eventos aneiap"
-        ],
-        end_keywords=[
-            "actualización profesional",
-            "experiencia en aneiap",
-            "eventos organizados",
-            "reconocimientos"
-        ],
-        exclusions=[normalize_text(x) for x in exclusions]
-    )
+    # índice de inicio fuzzy
+    start_idx = fuzzy_search(text, start_keywords)
+    if start_idx == -1:
+        return ""
 
+    # índice de final fuzzy
+    end_idx = len(text)
+    for key in end_keywords:
+        idx = fuzzy_search(text[start_idx:], [key])
+        if idx != -1:
+            end_idx = min(end_idx, start_idx + idx)
 
+    # extraer la sección original
+    section = text[start_idx:end_idx]
+
+    # dividir por líneas
+    lines = section.split("\n")
+    cleaned_items = []
+
+    for line in lines:
+        line = clean_line(line)
+        line_norm = normalize(line)
+
+        if not line_norm:
+            continue
+        if is_noise(line_norm):
+            continue
+        if any(normalize(k) == line_norm for k in start_keywords):
+            continue
+        if any(normalize(k) == line_norm for k in end_keywords):
+            continue
+
+        cleaned_items.append(line)
+
+    # eliminar duplicados conservando orden
+    final_items = list(dict.fromkeys(cleaned_items))
+
+    return "\n".join(final_items).strip()
 def evaluate_cv_presentation(pdf_path):
     """
     Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
