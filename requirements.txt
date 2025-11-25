@@ -17,3 +17,5 @@ spacy
 textstat
 FastAPI
 google-generativeai 
+rapidfuzz
+
