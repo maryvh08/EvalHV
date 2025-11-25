@@ -1,10 +1,6 @@
 import streamlit as st
 from PIL import Image
 import os
-import unicodedata
-from rapidfuzz import fuzz, process
-import difflib
-import io
 import google.generativeai as genai
 import base64
 import fitz
@@ -389,6 +385,7 @@ def add_background(canvas, background_path):
     canvas.restoreState()
 
 # FUNCIONES PARA ANÁLISIS DE FORMATO SIMPLIFICADO 
+
 def extract_profile_section_with_ocr(pdf_path):
     """
     Extrae la sección 'Perfil' de un archivo PDF con soporte de OCR.
@@ -432,48 +429,38 @@ def extract_profile_section_with_ocr(pdf_path):
     
 def extract_experience_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'EXPERIENCIA EN ANEIAP' desde un PDF usando OCR.
-    Mejora robustez ante errores de OCR, normaliza texto y filtra contenido irrelevante.
+    Extrae la sección 'EXPERIENCIA EN ANEIAP' de un archivo PDF con soporte de OCR.
+    :param pdf_path: Ruta del archivo PDF.
+    :return: Texto de la sección 'EXPERIENCIA EN ANEIAP'.
     """
-    
-    # --- Extraer texto ----
-    try:
-        text = extract_text_with_ocr(pdf_path)
-    except Exception as e:
-        raise RuntimeError(f"Error procesando el PDF: {e}")
+    text = extract_text_with_ocr(pdf_path)
 
-    if not text or len(text) < 20:
-        return None
-
-    # --- Normalización ---
-    raw_text = text
-    normalized_text = re.sub(r"\s+", " ", raw_text).lower()
-
-    start_keyword = "experiencia en aneiap"
+    # Palabras clave para identificar inicio y fin de la sección
+    start_keyword = "EXPERIENCIA EN ANEIAP"
     end_keywords = [
-        "eventos organizados",
-        "reconocimientos individuales",
-        "reconocimientos grupales",
-        "reconocimientos",
+        "EVENTOS ORGANIZADOS",
+        "Reconocimientos individuales",
+        "Reconocimientos grupales",
+        "Reconocimientos",
     ]
 
-    # --- Encontrar inicio ---
-    start_idx = normalized_text.find(start_keyword)
+    # Encontrar índice de inicio
+    start_idx = text.lower().find(start_keyword.lower())
     if start_idx == -1:
-        return None
+        return None  # No se encontró la sección
 
-    # --- Encontrar fin más cercano ---
-    end_idx = len(normalized_text)
-    for kw in end_keywords:
-        idx = normalized_text.find(kw, start_idx)
+    # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
         if idx != -1:
             end_idx = min(end_idx, idx)
 
-    # --- Obtener el fragmento original respetando formato ---
-    fragment = raw_text[start_idx:end_idx].strip()
+    # Extraer la sección entre inicio y fin
+    experience_text = text[start_idx:end_idx].strip()
 
-    # --- Limpieza avanzada ---
-    exclude_lines = set([
+    # Filtrar y limpiar texto
+    exclude_lines = [
         "a nivel capitular",
         "a nivel nacional",
         "a nivel seccional",
@@ -483,81 +470,56 @@ def extract_experience_section_with_ocr(pdf_path):
         "trabajo nacional",
         "nacional 2024",
         "nacional 20212023",
-    ])
-
-    cleaned_output = []
-    for line in fragment.split("\n"):
-        original_line = line.strip()
-
-        # Normalizar para validación
-        normalized_line = re.sub(r"[^\w\s]", "", original_line).lower()
-        normalized_line = re.sub(r"\s+", " ", normalized_line)
-
-        # Filtrar encabezados y líneas vacías
+    ]
+    experience_lines = experience_text.split("\n")
+    cleaned_lines = []
+    for line in experience_lines:
+        line = line.strip()
+        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
         if (
             normalized_line
             and normalized_line not in exclude_lines
-            and not normalized_line.startswith(start_keyword)
+            and normalized_line != start_keyword.lower()
             and normalized_line not in [kw.lower() for kw in end_keywords]
         ):
-            cleaned_output.append(original_line)
+            cleaned_lines.append(line)
 
-    # Si no se obtuvo contenido útil
-    return "\n".join(cleaned_output) if cleaned_output else None
-    
+    return "\n".join(cleaned_lines)
+
 def extract_event_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'EVENTOS ORGANIZADOS' con tolerancia a errores OCR.
-    Usa fuzzy matching para detectar encabezados deformados.
+    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
+    asegurando que los ítems sean correctamente identificados.
     """
+    text = extract_text_with_ocr(pdf_path)
+    if not text:
+        return []  # Retorna lista vacía si no hay contenido
 
-    try:
-        text = extract_text_with_ocr(pdf_path)
-    except Exception as e:
-        raise RuntimeError(f"Error al procesar el PDF: {e}")
+    # Palabras clave para identificar inicio y fin de la sección
+    start_keyword = "EVENTOS ORGANIZADOS"
+    end_keywords = [
+        "EXPERIENCIA LABORAL",
+        "FIRMA",
+    ]
 
-    if not text or len(text) < 20:
-        return None
+    # Encontrar índice de inicio
+    start_idx = text.lower().find(start_keyword.lower())
+    if start_idx == -1:
+        return None  # No se encontró la sección
 
-    raw_text = text
-    lines = raw_text.split("\n")
+    # Encontrar índice más cercano de fin basado en palabras clave
+    end_idx = len(text)  # Por defecto, tomar hasta el final
+    for keyword in end_keywords:
+        idx = text.lower().find(keyword.lower(), start_idx)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
 
-    target = "EVENTOS ORGANIZADOS"
-    end_keywords = ["EXPERIENCIA LABORAL", "FIRMA"]
-
-    # --- 1. Buscar la línea similar al inicio usando fuzzy matching ---
-    start_line, score, idx_start_line = process.extractOne(
-        target,
-        lines,
-        scorer=fuzz.partial_ratio
-    )
-
-    if score < 70:  # umbral ajustable
-        return None  # No se halló algo parecido
-    # print("Detectado inicio OCR:", start_line, "Score:", score)
-
-    # --- 2. Convertir índice de línea a índice dentro del texto ---
-    start_idx = raw_text.find(start_line)
-
-    # --- 3. Buscar fin usando fuzzy matching ---
-    end_idx = len(raw_text)
-    for kw in end_keywords:
-        match = process.extractOne(
-            kw,
-            lines,
-            scorer=fuzz.partial_ratio
-        )
-        if match and match[1] > 70:
-            end_line = match[0]
-            end_pos = raw_text.find(end_line)
-            if end_pos != -1:
-                end_idx = min(end_idx, end_pos)
-
-    # --- 4. Extraer sección ---
-    fragment = raw_text[start_idx:end_idx].strip()
-
-    # --- 5. Limpiar ---
-    exclude = {
+    # Extraer la sección entre inicio y fin
+    org_text = text[start_idx:end_idx].strip()
+    
+    # Filtrar y limpiar texto
+    exclude_lines = [
         "a nivel capitular",
         "a nivel nacional",
         "a nivel seccional",
@@ -567,26 +529,23 @@ def extract_event_section_with_ocr(pdf_path):
         "trabajo nacional",
         "nacional 2024",
         "nacional 20212023",
-    }
-
-    cleaned = []
-    for line in fragment.split("\n"):
-        line_clean = line.strip()
-        if not line_clean:
-            continue
-
-        normalized = re.sub(r"[^\w\s]", "", line_clean).lower()
-        normalized = re.sub(r"\s+", " ", normalized)
-
+    ]
+    org_lines = org_text.split("\n")
+    cleaned_lines = []
+    for line in org_lines:
+        line = line.strip()
+        line = re.sub(r"[^\w\s]", "", line)  # Eliminar caracteres no alfanuméricos excepto espacios
+        normalized_line = re.sub(r"\s+", " ", line).lower()  # Normalizar espacios y convertir a minúsculas
         if (
-            normalized
-            and normalized not in exclude
-            and normalized not in [k.lower() for k in end_keywords]
+            normalized_line
+            and normalized_line not in exclude_lines
+            and normalized_line != start_keyword.lower()
+            and normalized_line not in [kw.lower() for kw in end_keywords]
         ):
-            cleaned.append(line_clean)
+            cleaned_lines.append(line)
 
-    return "\n".join(cleaned) if cleaned else None
-    
+    return "\n".join(cleaned_lines)
+
 def extract_attendance_section_with_ocr(pdf_path):
     """
     Extrae la sección 'Asistencia Eventos ANEIAP' de un archivo PDF con soporte de OCR.
@@ -643,7 +602,7 @@ def extract_attendance_section_with_ocr(pdf_path):
             att_cleaned_lines.append(line)
 
     return "\n".join(att_cleaned_lines)
-    
+
 def evaluate_cv_presentation(pdf_path):
     """
     Evalúa la presentación de la hoja de vida en términos de redacción, ortografía,
