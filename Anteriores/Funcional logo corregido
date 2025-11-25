@@ -6,6 +6,7 @@ import base64
 import fitz
 import requests
 import numpy as np
+import io
 import spacy
 import pandas as pd
 from collections import Counter
