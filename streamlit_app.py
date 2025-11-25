@@ -648,11 +648,11 @@ def extract_event_section_with_ocr(pdf_path):
 
 def extract_attendance_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'Asistencia a eventos ANEIAP' con máxima robustez
-    contra errores de OCR.
+    Extrae la sección 'Asistencia a eventos ANEIAP' con máxima robustez.
+    Incluye tolerancia a errores OCR y limpieza avanzada.
     """
-
-    # ✔ Lista ampliada y normalizada de exclusiones
+    
+    # Lista de exclusiones para filtrar ruido
     exclusions = [
         "a nivel capitular",
         "a nivel nacional",
@@ -663,11 +663,11 @@ def extract_attendance_section_with_ocr(pdf_path):
         "nivel capitular",
         "nivel nacional",
         "nivel seccional",
-        "asistencia",  # protege encabezados incompletos
-        "eventos",     # protege OCR cortado
+        "asistencia",
+        "eventos",
     ]
 
-    # ✔ Encabezados tolerantes al OCR (incluye errores comunes)
+    # Encabezados tolerantes a OCR
     start_keywords = [
         "asistencia a eventos aneiap",
         "asistencia eventos aneiap",
@@ -679,7 +679,7 @@ def extract_attendance_section_with_ocr(pdf_path):
         "asistencia a event0s aneiap",
     ]
 
-    # ✔ Palabras que indican final (OCR tolerante)
+    # Indicadores de fin de sección, tolerantes a OCR
     end_keywords = [
         "actualización profesional",
         "actualizacion profesional",
@@ -690,13 +690,62 @@ def extract_attendance_section_with_ocr(pdf_path):
         "reconoclmientos",
     ]
 
-    # Ejecutar usando tu pipeline general
-    return extract_section_ocr(
-        pdf_path,
-        start_keywords=start_keywords,
-        end_keywords=end_keywords,
-        exclusions=[normalize_text(x) for x in exclusions]
-    )
+    # 1️⃣ Extraer texto OCR
+    text = extract_text_with_ocr(pdf_path)
+    if not text:
+        return ""
+
+    # 2️⃣ Corregir errores comunes de OCR en todo el texto
+    OCR_ATTENDANCE_CORRECTIONS = {
+        r"\basitenica\b": "asistencia",
+        r"\basitencia\b": "asistencia",
+        r"\basistenca\b": "asistencia",
+        r"\bevent0s\b": "eventos",
+        r"\bevetos\b": "eventos",
+        r"\bevntos\b": "eventos",
+        r"\baneiap\b": "aneiap",
+        r"\banelap\b": "aneiap",
+        r"\baneíap\b": "aneiap",
+    }
+    for pattern, replacement in OCR_ATTENDANCE_CORRECTIONS.items():
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+
+    # 3️⃣ Buscar índice de inicio y fin usando fuzzy search
+    start_idx = fuzzy_search(text, start_keywords)
+    if start_idx == -1:
+        return ""
+
+    end_idx = len(text)
+    for kw in end_keywords:
+        idx = fuzzy_search(text[start_idx:], [kw])
+        if idx != -1:
+            end_idx = min(end_idx, start_idx + idx)
+
+    # 4️⃣ Extraer sección
+    section = text[start_idx:end_idx]
+
+    # 5️⃣ Limpieza línea por línea
+    lines = section.split("\n")
+    cleaned_lines = []
+    seen = set()  # Para evitar duplicados
+
+    for line in lines:
+        # Limpiar caracteres raros y bullets
+        line_clean = clean_ocr_text(line)
+        line_norm = normalize_text(line_clean)
+
+        if not line_norm or line_norm in seen:
+            continue
+        if line_norm in [normalize_text(k) for k in exclusions]:
+            continue
+        if any(normalize_text(k) == line_norm for k in start_keywords + end_keywords):
+            continue
+
+        cleaned_lines.append(line_clean)
+        seen.add(line_norm)
+
+    # 6️⃣ Retornar sección final limpia
+    return "\n".join(cleaned_lines).strip()
 
 def evaluate_cv_presentation(pdf_path):
     """
