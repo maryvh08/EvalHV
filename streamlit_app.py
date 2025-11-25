@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import os
 import unicodedata
+from rapidfuzz import fuzz, process
 import difflib
 import io
 import google.generativeai as genai
@@ -506,11 +507,10 @@ def extract_experience_section_with_ocr(pdf_path):
     
 def extract_event_section_with_ocr(pdf_path):
     """
-    Extrae la sección 'EVENTOS ORGANIZADOS' de un archivo PDF con OCR,
-    limpiando el contenido y filtrando textos irrelevantes.
+    Extrae la sección 'EVENTOS ORGANIZADOS' con tolerancia a errores OCR.
+    Usa fuzzy matching para detectar encabezados deformados.
     """
-    
-    # --- Extraer texto del PDF ---
+
     try:
         text = extract_text_with_ocr(pdf_path)
     except Exception as e:
@@ -519,33 +519,45 @@ def extract_event_section_with_ocr(pdf_path):
     if not text or len(text) < 20:
         return None
 
-    # --- Normalización completa ---
     raw_text = text
-    normalized_text = re.sub(r"\s+", " ", raw_text).lower()
+    lines = raw_text.split("\n")
 
-    start_keyword = "eventos organizados"
-    end_keywords = [
-        "experiencia laboral",
-        "firma",
-    ]
+    target = "EVENTOS ORGANIZADOS"
+    end_keywords = ["EXPERIENCIA LABORAL", "FIRMA"]
 
-    # --- Encontrar inicio ---
-    start_idx = normalized_text.find(start_keyword)
-    if start_idx == -1:
-        return None
+    # --- 1. Buscar la línea similar al inicio usando fuzzy matching ---
+    start_line, score, idx_start_line = process.extractOne(
+        target,
+        lines,
+        scorer=fuzz.partial_ratio
+    )
 
-    # --- Encontrar fin más cercano ---
-    end_idx = len(normalized_text)
+    if score < 70:  # umbral ajustable
+        return None  # No se halló algo parecido
+    # print("Detectado inicio OCR:", start_line, "Score:", score)
+
+    # --- 2. Convertir índice de línea a índice dentro del texto ---
+    start_idx = raw_text.find(start_line)
+
+    # --- 3. Buscar fin usando fuzzy matching ---
+    end_idx = len(raw_text)
     for kw in end_keywords:
-        idx = normalized_text.find(kw, start_idx)
-        if idx != -1:
-            end_idx = min(end_idx, idx)
+        match = process.extractOne(
+            kw,
+            lines,
+            scorer=fuzz.partial_ratio
+        )
+        if match and match[1] > 70:
+            end_line = match[0]
+            end_pos = raw_text.find(end_line)
+            if end_pos != -1:
+                end_idx = min(end_idx, end_pos)
 
-    # --- Extraer fragmento original ---
+    # --- 4. Extraer sección ---
     fragment = raw_text[start_idx:end_idx].strip()
 
-    # --- Limpieza avanzada ---
-    exclude_lines = set([
+    # --- 5. Limpiar ---
+    exclude = {
         "a nivel capitular",
         "a nivel nacional",
         "a nivel seccional",
@@ -555,27 +567,26 @@ def extract_event_section_with_ocr(pdf_path):
         "trabajo nacional",
         "nacional 2024",
         "nacional 20212023",
-    ])
+    }
 
-    cleaned_output = []
+    cleaned = []
     for line in fragment.split("\n"):
-        original_line = line.strip()
-        if not original_line:
+        line_clean = line.strip()
+        if not line_clean:
             continue
 
-        # Normalizar para validación
-        norm = re.sub(r"[^\w\s]", "", original_line).lower()
-        norm = re.sub(r"\s+", " ", norm)
+        normalized = re.sub(r"[^\w\s]", "", line_clean).lower()
+        normalized = re.sub(r"\s+", " ", normalized)
 
         if (
-            norm
-            and norm not in exclude_lines
-            and not norm.startswith(start_keyword)
-            and norm not in [kw.lower() for kw in end_keywords]
+            normalized
+            and normalized not in exclude
+            and normalized not in [k.lower() for k in end_keywords]
         ):
-            cleaned_output.append(original_line)
+            cleaned.append(line_clean)
 
-    return "\n".join(cleaned_output) if cleaned_output else None
+    return "\n".join(cleaned) if cleaned else None
+    
 def extract_attendance_section_with_ocr(pdf_path):
     """
     Extrae la sección 'Asistencia Eventos ANEIAP' de un archivo PDF con soporte de OCR.
